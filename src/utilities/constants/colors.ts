@@ -7,7 +7,7 @@ const Colors: {[key: string]: string} = {
   Neutral_02: '#F2F2F2',
   Neutral_03: '#',
 
-  Primary_01: '#003340',
+  Primary_01: '#24A69E',
   Primary_02: '#004759',
   Primary_03: '#006B87',
 

@@ -1,5 +1,6 @@
 type LanguageTranslation = {
-  welcomeBack: string;
+  welcome: string;
+  trackVisits:string;
   pleaseLoginHere: string;
   emailAddress: string;
   email: string;
@@ -42,7 +43,8 @@ export const languageData: LanguageData[] = [
   {
     locale: 'en',
     translation: {
-      welcomeBack: 'Welcome Back!',
+      welcome: 'Welcome!',
+      trackVisits:'Keep track of all your visits and export data whenever you need it.',
       pleaseLoginHere: 'Log in to your account to continue.',
       emailAddress: 'Email Address',
       email: 'E-mail',
@@ -50,9 +52,9 @@ export const languageData: LanguageData[] = [
       forgotPassword: 'Forgot Password?',
       rememberme: 'Remember me',
       donthaveaccount: 'Don’t have account?',
-      signup: 'SIGN UP',
+      signup: 'Sign up',
       or: 'OR',
-      signIn: 'SIGN IN',
+      signIn: 'Log in',
       pleaseRegisterHere: 'Sign up to get started.',
       fullname: 'Full Name',
       confirmpassword: 'Confirm password',
@@ -79,7 +81,8 @@ export const languageData: LanguageData[] = [
   {
     locale: 'sp',
     translation: {
-      welcomeBack: '¡Bienvenido de nuevo!',
+      welcome: '¡Bienvenido!',
+      trackVisits:'Lleva un registro de todas tus visitas y exporta los datos cuando los necesites.',
       pleaseLoginHere: 'Inicie sesión en su cuenta para continuar.',
       emailAddress: 'Dirección de correo electrónico',
       email: 'Correo electrónico',
@@ -87,9 +90,9 @@ export const languageData: LanguageData[] = [
       forgotPassword: '¿Olvidaste tu contraseña?',
       rememberme: 'Recuérdame',
       donthaveaccount: '¿No tienes cuenta?',
-      signup: 'REGÍSTRATE',
+      signup: 'Regístrate',
       or: 'O',
-      signIn: 'INICIAR SESIÓN',
+      signIn: 'Iniciar sesión',
       pleaseRegisterHere: 'Regístrate para comenzar.',
       fullname: 'Nombre completo',
       confirmpassword: 'Confirmar contraseña',

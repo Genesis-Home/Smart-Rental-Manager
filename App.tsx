@@ -28,7 +28,7 @@ function App() {
     <I18nextProvider i18n={i18n}>
         <Provider store={store}>
           <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
-            <StatusBar backgroundColor="#003340" barStyle="light-content" />
+            <StatusBar backgroundColor="#24A69E" barStyle="dark-content" />
             <AppNavigator />
             <Toast />
           </SafeAreaView>

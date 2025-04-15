@@ -1,31 +1,24 @@
 import React, { useEffect } from "react";
-import { StyleSheet, Image, View } from "react-native";
-import { useDispatch } from "react-redux";
+import { StyleSheet, View } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
-import Images from "../../assets/images/index";
 import { colors } from "../../utilities/constants";
+import { Logo } from "../../assets/icons";
 
 interface SplashProps {
   navigation: NavigationProp<any, any>;
 }
 
 const Splash: React.FC<SplashProps> = ({ navigation }) => {
-  const dispatch = useDispatch();
-
   useEffect(() => {
     setTimeout(() => {
-      navigation.navigate("Signin");
-    }, 3000);
+      navigation.navigate("Splash1");
+    }, 500);
   }, [navigation]);
 
   return (
     <View style={styles.background}>
       <View style={styles.overlay}>
-        <Image
-          resizeMode="contain"
-          style={{ width: 300, height: 300 }}
-          source={Images.Logo}
-        />
+        <Logo />
       </View>
     </View>
   );

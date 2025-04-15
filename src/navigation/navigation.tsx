@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // local imports
 import { colors } from "../utilities/constants";
 import Splash from "../screens/Splash/index";
+import Splash1 from "../screens/Splash/Splash1";
 import Signin from "../screens/Auth/signin";
 import Signup from "../screens/Auth/signup";
 import ForgotPassword from "../screens/Auth/forgotPassword";
@@ -13,6 +14,7 @@ import { AppBottomNavigator } from "./BottomNavigation";
 
 type RootStackParamList = {
   Splash: undefined;
+  Splash1:undefined;
   Signin: undefined;
   Signup: undefined;
   ForgotPassword: undefined;
@@ -35,6 +37,11 @@ function App() {
           options={{ headerShown: false }}
           component={Splash}
           name="Splash"
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          component={Splash1}
+          name="Splash1"
         />
         <Stack.Screen
           options={{ headerShown: false }}

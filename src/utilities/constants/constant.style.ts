@@ -3,13 +3,13 @@ import {RFValue} from 'react-native-responsive-fontsize';
 import screenResolution from './screenResolution';
 
 export const Typography = StyleSheet.create({
-  f_12_poppins_medium: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: RFValue(12, screenResolution.screenHeight),
+  f_32_nunito_semi_bold: {
+    fontFamily: 'Nunito-SemiBold',
+    fontSize: RFValue(32, screenResolution.screenHeight),
   },
-  f_12_poppins_regular: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: RFValue(12, screenResolution.screenHeight),
+  f_16_nunito_medium: {
+    fontFamily: 'Nunito-Medium',
+    fontSize: RFValue(16, screenResolution.screenHeight),
   },
   f_12_poppins_semi_bold: {
     fontFamily: 'Poppins-SemiBold',
