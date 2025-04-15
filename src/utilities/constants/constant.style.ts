@@ -1,0 +1,106 @@
+import {StyleSheet} from 'react-native';
+import {RFValue} from 'react-native-responsive-fontsize';
+import screenResolution from './screenResolution';
+
+export const Typography = StyleSheet.create({
+  f_12_poppins_medium: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: RFValue(12, screenResolution.screenHeight),
+  },
+  f_12_poppins_regular: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: RFValue(12, screenResolution.screenHeight),
+  },
+  f_12_poppins_semi_bold: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(12, screenResolution.screenHeight),
+  },
+  f_18_poppins_medium: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: RFValue(18, screenResolution.screenHeight),
+  },
+  f_18_poppins_light: {
+    fontFamily: 'Poppins-Light',
+    fontSize: RFValue(18, screenResolution.screenHeight),
+  },
+  f_15_poppins_light: {
+    fontFamily: 'Poppins-Light',
+    fontSize: RFValue(15, screenResolution.screenHeight),
+  },
+  f_14_poppins_medium: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: RFValue(14, screenResolution.screenHeight),
+  },
+  f_15_poppins_medium: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: RFValue(15, screenResolution.screenHeight),
+  },
+  f_24_poppins_bold: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: RFValue(24, screenResolution.screenHeight),
+  },
+  f_28_poppins_bold: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: RFValue(28, screenResolution.screenHeight),
+  },
+  f_14_poppins_bold: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: RFValue(14, screenResolution.screenHeight),
+  },
+  f_20_poppins_bold: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: RFValue(20, screenResolution.screenHeight),
+  },
+  f_38_poppins_bold: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: RFValue(38, screenResolution.screenHeight),
+  },
+  f_20_poppins_semi_bold: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(20, screenResolution.screenHeight),
+  },
+  f_24_poppins_semi_bold: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(24, screenResolution.screenHeight),
+  },
+  f_22_poppins_semi_bold: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(22, screenResolution.screenHeight),
+  },
+  f_18_poppins_semi_bold: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(18, screenResolution.screenHeight),
+  },
+  f_16_poppins_semi_bold: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(16, screenResolution.screenHeight),
+  },
+  f_14_poppins_semi_bold: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(14, screenResolution.screenHeight),
+  },
+  f_13_poppins_medium: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: RFValue(13, screenResolution.screenHeight),
+  },
+  f_16_poppins_bold: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: RFValue(16, screenResolution.screenHeight),
+  },
+  f_16_poppins_regular: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: RFValue(16, screenResolution.screenHeight),
+  },
+  f_18_poppins_regular: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: RFValue(18, screenResolution.screenHeight),
+  },
+  f_16_poppins_extra_bold_italic: {
+    fontFamily: 'Poppins-ExtraBoldItalic',
+    fontSize: RFValue(16, screenResolution.screenHeight),
+  },
+  f_16_poppins_medium: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: RFValue(16, screenResolution.screenHeight),
+  },
+});
