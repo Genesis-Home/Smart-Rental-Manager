@@ -1,7 +1,8 @@
 type LanguageTranslation = {
   welcome: string;
   trackVisits:string;
-  pleaseLoginHere: string;
+  loginEmailPrompt: string;
+  pleaseLoginHere:string,
   emailAddress: string;
   email: string;
   password: string;
@@ -45,16 +46,17 @@ export const languageData: LanguageData[] = [
     translation: {
       welcome: 'Welcome!',
       trackVisits:'Keep track of all your visits and export data whenever you need it.',
-      pleaseLoginHere: 'Log in to your account to continue.',
+      loginEmailPrompt: 'Enter your email to login',
+      pleaseLoginHere:'Please Login Here!',
       emailAddress: 'Email Address',
       email: 'E-mail',
       password: 'Password',
-      forgotPassword: 'Forgot Password?',
+      forgotPassword: 'Forget Password?',
       rememberme: 'Remember me',
       donthaveaccount: 'Don’t have account?',
       signup: 'Sign up',
       or: 'OR',
-      signIn: 'Log in',
+      signIn: 'Login',
       pleaseRegisterHere: 'Sign up to get started.',
       fullname: 'Full Name',
       confirmpassword: 'Confirm password',
@@ -83,7 +85,8 @@ export const languageData: LanguageData[] = [
     translation: {
       welcome: '¡Bienvenido!',
       trackVisits:'Lleva un registro de todas tus visitas y exporta los datos cuando los necesites.',
-      pleaseLoginHere: 'Inicie sesión en su cuenta para continuar.',
+      loginEmailPrompt: 'Ingresa tu correo electrónico para iniciar sesión.',
+      pleaseLoginHere:'¡Por favor, inicia sesión aquí!',
       emailAddress: 'Dirección de correo electrónico',
       email: 'Correo electrónico',
       password: 'Contraseña',

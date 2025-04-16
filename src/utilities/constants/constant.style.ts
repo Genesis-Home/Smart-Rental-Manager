@@ -11,13 +11,29 @@ export const Typography = StyleSheet.create({
     fontFamily: 'Nunito-Medium',
     fontSize: RFValue(16, screenResolution.screenHeight),
   },
-  f_12_poppins_semi_bold: {
-    fontFamily: 'Poppins-SemiBold',
+  f_14_nunito_medium: {
+    fontFamily: 'Nunito-Medium',
+    fontSize: RFValue(14, screenResolution.screenHeight),
+  },
+  f_12_nunito_medium: {
+    fontFamily: 'Nunito-Medium',
     fontSize: RFValue(12, screenResolution.screenHeight),
   },
-  f_18_poppins_medium: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: RFValue(18, screenResolution.screenHeight),
+  f_20_nunito_bold: {
+    fontFamily: 'Nunito-Bold',
+    fontSize: RFValue(20, screenResolution.screenHeight),
+  },
+  f_17_nunito_bold: {
+    fontFamily: 'Nunito-Bold',
+    fontSize: RFValue(17, screenResolution.screenHeight),
+  },
+  f_16_nunito_regular: {
+    fontFamily: 'Nunito-Regular',
+    fontSize: RFValue(16, screenResolution.screenHeight),
+  },
+  f_16_nunito_semi_bold: {
+    fontFamily: 'Nunito-SemiBold',
+    fontSize: RFValue(16, screenResolution.screenHeight),
   },
   f_18_poppins_light: {
     fontFamily: 'Poppins-Light',

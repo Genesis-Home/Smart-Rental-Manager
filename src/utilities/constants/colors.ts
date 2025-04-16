@@ -2,6 +2,8 @@ const Colors: {[key: string]: string} = {
   white: '#FFFFFF',
   black: '#000000',
   Error_Red: '#ED625A',
+  DARK_GREEN:'#1A231F',
+  PLACE_HOLDER:'#808482',
 
   Neutral_01: '#C9C9C9',
   Neutral_02: '#F2F2F2',
