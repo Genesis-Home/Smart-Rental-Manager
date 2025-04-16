@@ -1,268 +1,188 @@
-import React, {useState} from 'react';
-import {useDispatch} from 'react-redux';
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
-  Image,
   TextInput,
   ScrollView,
   TouchableOpacity,
   Platform,
-} from 'react-native';
-import {RFValue} from 'react-native-responsive-fontsize';
-import {t} from 'i18next';
-import * as Yup from 'yup';
-import {Formik, FormikHelpers} from 'formik';
-// local imports
-import Images from '../../assets/images';
-import Feather from 'react-native-vector-icons/Feather';
-import {BackIcon} from '../../assets/icons';
-import {Typography} from '../../utilities/constants/constant.style';
-import {colors} from '../../utilities/constants';
-import screenResolution from '../../utilities/constants/screenResolution';
-import CTAButton1 from '../../components/CTA_BUTTON1';
+} from "react-native";
+import { t } from "i18next";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import Feather from "react-native-vector-icons/Feather";
+import { RFValue } from "react-native-responsive-fontsize";
 
-interface ResetPasswordValues {
-  email: string;
-  password: string;
-  confirmPassword: string;
+import { colors } from "../../utilities/constants";
+import { Typography } from "../../utilities/constants/constant.style";
+import Colors from "../../utilities/constants/colors";
+import screenResolution from "../../utilities/constants/screenResolution";
+
+import CTAButton1 from "../../components/CTA_BUTTON1";
+import { BackIcon } from "../../assets/icons";
+
+const validationSchema = Yup.object().shape({
+  password: Yup.string()
+    .min(6, t("passwordMin"))
+    .required(t("passwordRequired")),
+});
+
+interface ResetPasswordProps {
+  navigation: any;
 }
 
-export default function ResetPassword({navigation}: {navigation: any}) {
-  const dispatch = useDispatch();
+const ResetPassword: React.FC<ResetPasswordProps> = ({ navigation }) => {
+  const [secureEntry, setSecureEntry] = useState(true);
   const styles = createStyles(colors);
-  const [secureEntryState, setSecureEntryState] = useState<boolean>(true);
-  const [secureEntryState1, setSecureEntryState1] = useState<boolean>(true);
-
-  const validationSchema = Yup.object().shape({
-    password: Yup.string()
-      .required(t('passwordRequired'))
-      .min(6, t('passwordMin')),
-    confirmPassword: Yup.string()
-      .required(t('confirmpasswordRequired'))
-      .oneOf([Yup.ref('password')], t('passwordsDoNotMatch')),
-  });
-
-  const handleSubmit = (
-    values: ResetPasswordValues,
-    {resetForm}: FormikHelpers<ResetPasswordValues>,
-  ) => {
-    const credentials = {email: values.email, password: values.password};
-    // Call your API or dispatch action here
-    // dispatch(signIn(credentials));
-    navigation.navigate('Signin');
-    resetForm();
-  };
 
   return (
     <View
       style={[
         styles.mainContainer,
-        {marginTop: Platform.OS === 'ios' ? 50 : 0},
-      ]}>
-      <View
-        style={{
-          height: 200,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: colors.Primary_01,
-        }}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-          style={{position: 'absolute', left: 20, top: 20}}>
-          <BackIcon />
-        </TouchableOpacity>
-        <View style={styles.containerc1_c1}>
-          <Image
-            resizeMode="contain"
-            style={{width: 250, height: 120}}
-            source={Images.Logo}
-          />
+        { marginTop: Platform.OS === "ios" ? 50 : 0 },
+      ]}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <BackIcon />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>{t("recoverAccount")}</Text>
+          <View style={{ width: 24 }} />{" "}
+          {/* Placeholder to balance the header */}
         </View>
-      </View>
 
-      <View style={{flex: 8}}>
-        <ScrollView contentContainerStyle={styles.containerC1}>
-          <Text
-            style={[
-              Typography.f_16_poppins_bold,
-              {marginTop: 20, color: colors.Primary_01},
-            ]}>
-            {t('changePassword')}
-          </Text>
-          <Text
-            style={[
-              Typography.f_14_poppins_medium,
-              {marginTop: 5, color: colors.Primary_01},
-            ]}>
-            {t('enteryournewpassword')}
-          </Text>
+        {/* Title & Subtitle */}
+        <Text style={styles.title}>{t("resetpassword")}</Text>
+        <Text style={styles.subtitle}>{t("enternewpassword")}</Text>
 
-          <Formik
-            initialValues={{email: '', password: '', confirmPassword: ''}}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}>
-            {({
-              values,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              errors,
-              touched,
-            }) => (
-              <View style={styles.containerc1_c2}>
-                <View>
-                  <View style={{flexDirection: 'row'}}>
-                    <Text
-                      style={[
-                        {top: 3, color: colors.black},
-                        Typography.f_14_poppins_medium,
-                      ]}>
-                      {t('password')}
-                    </Text>
-                  </View>
-                  <View style={styles.inputContiner}>
-                    <TextInput
-                      secureTextEntry={secureEntryState}
-                      style={styles.input}
-                      value={values.password}
-                      onChangeText={handleChange('password')}
-                      onBlur={handleBlur('password')}
-                      placeholder={t('password')}
-                      placeholderTextColor={colors.Neutral_01}
-                    />
-                    <TouchableOpacity
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: '10%',
-                      }}
-                      activeOpacity={0.8}
-                      onPress={() => setSecureEntryState(!secureEntryState)}>
-                      <Feather
-                        name={secureEntryState ? 'eye' : 'eye-off'}
-                        style={{
-                          fontSize: RFValue(20, screenResolution.screenHeight),
-                          color: colors.white,
-                        }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  {touched.password && errors.password && (
-                    <Text
-                      style={[
-                        Typography.f_14_poppins_medium,
-                        {color: colors.Error_Red},
-                      ]}>
-                      {errors.password}
-                    </Text>
-                  )}
-                </View>
-
-                <View style={{marginTop: 10}}>
-                  <View style={{flexDirection: 'row'}}>
-                    <Text
-                      style={[
-                        {top: 3, color: colors.black},
-                        Typography.f_14_poppins_medium,
-                      ]}>
-                      {t('confirmpassword')}
-                    </Text>
-                  </View>
-                  <View style={styles.inputContiner}>
-                    <TextInput
-                      secureTextEntry={secureEntryState1}
-                      style={styles.input}
-                      value={values.confirmPassword}
-                      onChangeText={handleChange('confirmPassword')}
-                      onBlur={handleBlur('confirmPassword')}
-                      placeholder={t('confirmpassword')}
-                      placeholderTextColor={colors.Neutral_01}
-                    />
-                    <TouchableOpacity
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: '10%',
-                      }}
-                      activeOpacity={0.8}
-                      onPress={() => setSecureEntryState1(!secureEntryState1)}>
-                      <Feather
-                        name={secureEntryState1 ? 'eye' : 'eye-off'}
-                        style={{
-                          fontSize: RFValue(20, screenResolution.screenHeight),
-                          color: colors.white,
-                        }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  {touched.confirmPassword && errors.confirmPassword && (
-                    <Text
-                      style={[
-                        Typography.f_14_poppins_medium,
-                        {color: colors.Error_Red},
-                      ]}>
-                      {errors.confirmPassword}
-                    </Text>
-                  )}
-                </View>
-
-                <View style={{marginTop: 20}}>
-                  <CTAButton1 title={t('save')} submitHandler={handleSubmit} />
-                </View>
+        <Formik
+          initialValues={{ password: "" }}
+          validationSchema={validationSchema}
+          onSubmit={() => navigation.navigate("Tabs")}
+        >
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            errors,
+            touched,
+          }) => (
+            <View style={styles.formContainer}>
+              {/* Password Field */}
+              <Text style={styles.label}>{t("password")}</Text>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  value={values.password}
+                  onChangeText={handleChange("password")}
+                  onBlur={handleBlur("password")}
+                  placeholder="**************"
+                  placeholderTextColor={colors.PLACE_HOLDER}
+                  secureTextEntry={secureEntry}
+                />
+                <TouchableOpacity
+                  style={styles.iconContainer}
+                  onPress={() => setSecureEntry(!secureEntry)}
+                >
+                  <Feather
+                    name={secureEntry ? "eye" : "eye-off"}
+                    style={styles.eyeIcon}
+                  />
+                </TouchableOpacity>
               </View>
-            )}
-          </Formik>
-        </ScrollView>
-      </View>
+              {touched.password && errors.password && (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              )}
+
+              {/* Submit Button */}
+              <View style={styles.buttonWrapper}>
+                <CTAButton1
+                  title={t("changePassword")}
+                  submitHandler={handleSubmit}
+                />
+              </View>
+            </View>
+          )}
+        </Formik>
+      </ScrollView>
     </View>
   );
-}
+};
 
-const createStyles = (colors: any) => {
-  return StyleSheet.create({
+const createStyles = (colors: any) =>
+  StyleSheet.create({
     mainContainer: {
       flex: 1,
       backgroundColor: colors.white,
     },
-    containerC1: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginHorizontal: '10%',
+    scrollContent: {
+      marginHorizontal: "6%",
       paddingBottom: 50,
     },
-    text: {
-      fontWeight: '700',
-      fontSize: RFValue(24, screenResolution.screenHeight),
-      lineHeight: 32,
-      letterSpacing: -0.3,
-      color: colors.black,
+    headerContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginTop: 40,
+      marginBottom: 10,
     },
-    containerc1_c1: {
-      width: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
+    headerText: {
+      color: Colors.DARK_GREEN,
+      ...Typography.f_17_nunito_bold,
     },
-    containerc1_c2: {
-      width: '100%',
+    title: {
+      color: Colors.DARK_GREEN,
+      marginTop: 20,
+      ...Typography.f_20_nunito_bold,
     },
-    inputContiner: {
-      paddingHorizontal: 10,
-      backgroundColor: colors.white,
-      borderColor: colors.Primary_01,
+    subtitle: {
+      color: Colors.DARK_GREEN,
+      marginTop: 5,
+      ...Typography.f_16_nunito_regular,
+    },
+    formContainer: {
+      marginTop: 20,
+      width: "100%",
+    },
+    label: {
+      color: Colors.DARK_GREEN,
+      ...Typography.f_14_nunito_medium,
+    },
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 0.3,
+      borderColor: colors.black,
       borderRadius: 5,
-      borderWidth: 1,
+      backgroundColor: colors.white,
+      paddingHorizontal: 10,
       marginTop: 10,
-      flexDirection: 'row',
-      alignItems: 'center',
     },
     input: {
       height: 50,
-      color: colors.black,
-      width: '90%',
+      flex: 1,
+      color: Colors.DARK_GREEN,
+      ...Typography.f_12_nunito_medium,
+    },
+    iconContainer: {
+      paddingLeft: 10,
+    },
+    eyeIcon: {
+      fontSize: RFValue(20, screenResolution.screenHeight),
+      color: Colors.DARK_GREEN,
+    },
+    errorText: {
+      color: colors.Error_Red,
+      marginTop: 5,
       ...Typography.f_14_poppins_medium,
     },
+    buttonWrapper: {
+      marginTop: 20,
+    },
   });
-};
+
+export default ResetPassword;

@@ -83,7 +83,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
           <Formik
             initialValues={{ email: "" }}
             validationSchema={validationSchema}
-            onSubmit={() => navigation.navigate("Tabs")}
+            onSubmit={() => navigation.navigate("ResetPassword")}
           >
             {({
               handleChange,

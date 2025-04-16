@@ -23,12 +23,12 @@ type LanguageTranslation = {
   alreadyhaveanaccount: string;
   TermsConditions: string;
   registerissucessfullyhaveenjoy: string;
-  resetyourpassword: string;
+  resetpassword: string;
   enteryouremail: string;
   rememberyourpassword: string;
   sendOtp: string;
   changePassword: string;
-  enteryournewpassword: string;
+  enternewpassword: string;
   invalidEmail: string;
   emailRequired: string;
   passwordRequired: string;
@@ -78,12 +78,12 @@ export const languageData: LanguageData[] = [
       alreadyhaveanaccount: "Already have an account?",
       TermsConditions: "Terms & Conditions",
       registerissucessfullyhaveenjoy: "Register is sucessfully have enjoy!",
-      resetyourpassword: "Reset your password",
+      resetpassword: "Reset password",
       enteryouremail: "Input your Email Address",
       rememberyourpassword: "Remember your password?",
       sendOtp: "SEND OTP",
       changePassword: "Change password",
-      enteryournewpassword: "Enter your new password to access to your account",
+      enternewpassword: "Create the new password",
       invalidEmail: "Please enter a valid email address",
       emailRequired: "Email is required",
       passwordRequired: "Password is required",
@@ -127,14 +127,14 @@ export const languageData: LanguageData[] = [
       alreadyhaveanaccount: "¿Ya tienes una cuenta?",
       TermsConditions: "Términos y condiciones",
       registerissucessfullyhaveenjoy: "¡Registro exitoso, disfruta!",
-      resetyourpassword: "Restablecer tu contraseña",
+      resetpassword: "Restablecer contraseña",
       enteryouremail:
         "Ingresa tu dirección de correo electrónico",
       rememberyourpassword: "¿Recuerdas tu contraseña?",
       sendOtp: "ENVIAR CÓDIGO",
       changePassword: "Cambiar contraseña",
-      enteryournewpassword:
-        "Ingresa tu nueva contraseña para acceder a tu cuenta",
+      enternewpassword:
+        "Crea la nueva contraseña",
       invalidEmail:
         "Por favor, ingresa una dirección de correo electrónico válida",
       emailRequired: "El correo electrónico es obligatorio",
