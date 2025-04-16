@@ -1,90 +1,47 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   StyleSheet,
   Text,
   View,
-  Image,
   TextInput,
   ScrollView,
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { RFValue } from "react-native-responsive-fontsize";
 import { t } from "i18next";
-// local imports
-import Images from "../../assets/images";
-import { BackIcon } from "../../assets/icons";
+import { RFValue } from "react-native-responsive-fontsize";
 import Feather from "react-native-vector-icons/Feather";
-import { Typography } from "../../utilities/constants/constant.style";
+import { Formik } from "formik";
+import * as Yup from "yup";
 import { colors } from "../../utilities/constants";
+import { Typography } from "../../utilities/constants/constant.style";
 import screenResolution from "../../utilities/constants/screenResolution";
 import CTAButton1 from "../../components/CTA_BUTTON1";
-import * as Yup from "yup";
-import { useFormik, FormikProps } from "formik";
+import { BackIcon } from "../../assets/icons";
+import Colors from "../../utilities/constants/colors";
 
-interface SignupProps {
+const validationSchema = Yup.object().shape({
+  agencyName: Yup.string().required(t("agencyNameRequired")),
+  ownerName: Yup.string().required(t("ownerNameRequired")),
+  email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
+  password: Yup.string()
+    .min(6, t("passwordMin"))
+    .required(t("passwordRequired")),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password")], t("passwordsMustMatch"))
+    .required(t("confirmpasswordRequired")),
+});
+
+interface SignInProps {
   navigation: any;
 }
 
-interface FormValues {
-  fullName: string;
-  email: string;
-  password: string;
-  rePassword: string;
-  role: string;
-}
-
-export default function Signup({ navigation }: SignupProps) {
+const SignUp: React.FC<SignInProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
   const styles = createStyles(colors);
-
-  const [role, setRole] = useState<string>("");
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-
-  const [secureEntryState, setSecureEntryState] = useState<boolean>(true);
-  const [secureEntryState1, setSecureEntryState1] = useState<boolean>(true);
-
-  const roles = ["User", "Provider"];
-
-  const handleRoleSelect = (selectedRole: string) => {
-    setRole(selectedRole);
-    formik.setFieldValue("role", selectedRole);
-    setModalVisible(false);
-    formik.validateField("role");
-  };
-
-  const validationSchema = Yup.object().shape({
-    fullName: Yup.string().required(t("fullnameRequired")),
-    email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
-    password: Yup.string()
-      .min(6, t("passwordMin"))
-      .required(t("passwordRequired")),
-    rePassword: Yup.string()
-      .oneOf([Yup.ref("password")], t("passwordsDoNotMatch"))
-      .required(t("confirmpasswordRequired")),
-    role: Yup.string().required(t("roleRequired")),
-  });
-
-  const formik: FormikProps<FormValues> = useFormik({
-    initialValues: {
-      fullName: "",
-      email: "",
-      password: "",
-      rePassword: "",
-      role: "",
-    },
-    validationSchema,
-    onSubmit: (values: FormValues) => {
-      let credentials = {
-        ...values,
-        dob: "",
-        phone: "",
-        gender: "",
-        address: "",
-        profilePhoto: "",
-      };
-      console.log(credentials, "CREDENTIALS");
-    },
-  });
+  const [showPassword, setShowPassword] = useState<boolean>(true);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(true);
 
   return (
     <View
@@ -93,320 +50,205 @@ export default function Signup({ navigation }: SignupProps) {
         { marginTop: Platform.OS === "ios" ? 50 : 0 },
       ]}
     >
-      <View
-        style={{
-          height: 200,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: colors.Primary_01,
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Signin")}
-          activeOpacity={0.8}
-          style={{ position: "absolute", left: 20, top: 20 }}
-        >
-          <BackIcon />
-        </TouchableOpacity>
-        <View style={styles.containerc1_c1}>
-          <Image
-            resizeMode="contain"
-            style={{ width: 250, height: 120 }}
-            source={Images.Logo}
-          />
-        </View>
-      </View>
-
       <View style={{ flex: 8 }}>
         <ScrollView contentContainerStyle={styles.containerC1}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: 40,
+              marginBottom: 10,
+            }}
+          >
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => navigation.goBack()}
+            >
+              <BackIcon />
+            </TouchableOpacity>
+            <Text
+              style={[
+                { color: Colors.DARK_GREEN },
+                Typography.f_17_nunito_bold,
+              ]}
+            >
+              {t("pleaseRegisterHere")}
+            </Text>
+            <Text />
+          </View>
+
           <Text
             style={[
-              Typography.f_14_poppins_medium,
-              { marginTop: 20, color: colors.Primary_01 },
+              Typography.f_20_nunito_bold,
+              { marginTop: 20, color: colors.DARK_GREEN },
             ]}
           >
-            {t("pleaseRegisterHere")}
+            {t("signup")}
           </Text>
-          <View style={styles.containerc1_c2}>
-            <View>
-              <View style={{ flexDirection: "row" }}>
-                <Text
-                  style={[
-                    { top: 3, color: colors.Primary_01 },
-                    Typography.f_14_poppins_medium,
-                  ]}
-                >
-                  {t("fullname")}
-                </Text>
-              </View>
-              <View style={styles.inputContiner}>
-                <TextInput
-                  style={styles.input}
-                  value={formik.values.fullName}
-                  onChangeText={formik.handleChange("fullName")}
-                  placeholder={t("fullname")}
-                  placeholderTextColor={colors.Neutral_01}
-                />
-              </View>
-              {formik.errors.fullName && formik.touched.fullName && (
-                <Text
-                  style={[
-                    Typography.f_14_poppins_medium,
-                    { color: colors.Error_Red },
-                  ]}
-                >
-                  {formik.errors.fullName}
-                </Text>
-              )}
-            </View>
 
-            <View style={{ marginTop: 10 }}>
-              <View style={{ flexDirection: "row" }}>
-                <Text
-                  style={[
-                    { top: 3, color: colors.Primary_01 },
-                    Typography.f_14_poppins_medium,
-                  ]}
-                >
-                  {t("emailAddress")}
-                </Text>
-              </View>
-              <View style={styles.inputContiner}>
-                <TextInput
-                  style={styles.input}
-                  value={formik.values.email}
-                  onChangeText={formik.handleChange("email")}
-                  placeholder={t("email")}
-                  placeholderTextColor={colors.Neutral_01}
-                />
-              </View>
-              {formik.errors.email && formik.touched.email && (
-                <Text
-                  style={[
-                    Typography.f_14_poppins_medium,
-                    { color: colors.Error_Red },
-                  ]}
-                >
-                  {formik.errors.email}
-                </Text>
-              )}
-            </View>
+          <Text
+            style={[
+              Typography.f_16_nunito_regular,
+              { marginTop: 5, color: colors.DARK_GREEN },
+            ]}
+          >
+            {t("registerEmailPrompt")}
+          </Text>
 
-            <View style={{ marginTop: 10 }}>
-              <Text
-                style={[
-                  { top: 3, color: colors.black },
-                  Typography.f_14_poppins_medium,
-                ]}
-              >
-                {t("role")}
-              </Text>
-              <TouchableOpacity
-                onPress={() => setModalVisible(!modalVisible)}
-                activeOpacity={0.8}
-                style={styles.list}
-              >
-                <Text
-                  style={[
-                    Typography.f_14_poppins_medium,
-                    { color: role ? colors.black : colors.Neutral_01 },
-                  ]}
-                >
-                  {role ? role : "Select Role"}
-                </Text>
-                <Feather
-                  name={modalVisible ? "chevron-up" : "chevron-down"}
-                  style={{
-                    fontSize: RFValue(20, screenResolution.screenHeight),
-                    color: colors.Primary_01,
-                  }}
-                />
-              </TouchableOpacity>
-              {modalVisible && (
-                <View
-                  style={{
-                    padding: 10,
-                    backgroundColor: colors.white,
-                    borderColor: colors.Primary_01,
-                    borderWidth: 1,
-                    borderRadius: 7,
-                    marginTop: 5,
-                  }}
-                >
-                  {roles.map((item, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => handleRoleSelect(item)}
-                      activeOpacity={0.8}
-                      style={{ paddingVertical: 10 }}
-                    >
-                      <Text
-                        style={[
-                          Typography.f_14_poppins_medium,
-                          { color: colors.black },
-                        ]}
-                      >
-                        {item}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+          <Formik
+            initialValues={{
+              agencyName: "",
+              ownerName: "",
+              email: "",
+              password: "",
+              confirmPassword: "",
+            }}
+            validationSchema={validationSchema}
+            onSubmit={() => navigation.navigate("Tabs")}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+            }) => (
+              <View style={styles.containerc1_c2}>
+                {/* Agency Name */}
+                <View>
+                  <Text style={styles.label}>{t("agencyName")}</Text>
+                  <View style={styles.inputContiner}>
+                    <TextInput
+                      style={styles.input}
+                      value={values.agencyName}
+                      onChangeText={handleChange("agencyName")}
+                      onBlur={handleBlur("agencyName")}
+                      placeholder={t("agencyName")}
+                      placeholderTextColor={colors.PLACE_HOLDER}
+                    />
+                  </View>
+                  {touched.agencyName && errors.agencyName && (
+                    <Text style={styles.errorText}>{errors.agencyName}</Text>
+                  )}
                 </View>
-              )}
-            </View>
-            {formik.errors.role && formik.touched.role && (
-              <Text
-                style={[
-                  Typography.f_14_poppins_medium,
-                  { color: colors.Error_Red },
-                ]}
-              >
-                {formik.errors.role}
-              </Text>
+
+                {/* Owner Name */}
+                <View>
+                  <Text style={styles.label}>{t("ownerName")}</Text>
+                  <View style={styles.inputContiner}>
+                    <TextInput
+                      style={styles.input}
+                      value={values.ownerName}
+                      onChangeText={handleChange("ownerName")}
+                      onBlur={handleBlur("ownerName")}
+                      placeholder={t("ownerName")}
+                      placeholderTextColor={colors.PLACE_HOLDER}
+                    />
+                  </View>
+                  {touched.ownerName && errors.ownerName && (
+                    <Text style={styles.errorText}>{errors.ownerName}</Text>
+                  )}
+                </View>
+
+                {/* Email Address */}
+                <View>
+                  <Text style={styles.label}>{t("emailAddress")}</Text>
+                  <View style={styles.inputContiner}>
+                    <TextInput
+                      style={styles.input}
+                      value={values.email}
+                      onChangeText={handleChange("email")}
+                      onBlur={handleBlur("email")}
+                      placeholder={t("emailAddress")}
+                      placeholderTextColor={colors.PLACE_HOLDER}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                  </View>
+                  {touched.email && errors.email && (
+                    <Text style={styles.errorText}>{errors.email}</Text>
+                  )}
+                </View>
+
+                {/* Password */}
+                <View style={{ marginTop: 10 }}>
+                  <Text style={styles.label}>{t("password")}</Text>
+                  <View style={styles.inputContiner}>
+                    <TextInput
+                      secureTextEntry={showPassword}
+                      style={styles.input}
+                      value={values.password}
+                      onChangeText={handleChange("password")}
+                      onBlur={handleBlur("password")}
+                      placeholder={t("password")}
+                      placeholderTextColor={colors.PLACE_HOLDER}
+                    />
+                    <TouchableOpacity
+                      style={styles.eyeIcon}
+                      activeOpacity={0.8}
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      <Feather
+                        name={showPassword ? "eye" : "eye-off"}
+                        style={styles.eyeIconStyle}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {touched.password && errors.password && (
+                    <Text style={styles.errorText}>{errors.password}</Text>
+                  )}
+                </View>
+
+                {/* Confirm Password */}
+                <View style={{ marginTop: 10 }}>
+                  <Text style={styles.label}>{t("confirmpassword")}</Text>
+                  <View style={styles.inputContiner}>
+                    <TextInput
+                      secureTextEntry={showConfirmPassword}
+                      style={styles.input}
+                      value={values.confirmPassword}
+                      onChangeText={handleChange("confirmPassword")}
+                      onBlur={handleBlur("confirmPassword")}
+                      placeholder={t("confirmpassword")}
+                      placeholderTextColor={colors.PLACE_HOLDER}
+                    />
+                    <TouchableOpacity
+                      style={styles.eyeIcon}
+                      activeOpacity={0.8}
+                      onPress={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      <Feather
+                        name={showConfirmPassword ? "eye" : "eye-off"}
+                        style={styles.eyeIconStyle}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {touched.confirmPassword && errors.confirmPassword && (
+                    <Text style={styles.errorText}>
+                      {errors.confirmPassword}
+                    </Text>
+                  )}
+                </View>
+
+                {/* Submit Button */}
+                <View style={{ marginTop: 40 }}>
+                  <CTAButton1
+                    title={t("signup")}
+                    submitHandler={handleSubmit}
+                  />
+                </View>
+              </View>
             )}
-
-            <View style={{ marginTop: 10 }}>
-              <View style={{ flexDirection: "row" }}>
-                <Text
-                  style={[
-                    { top: 3, color: colors.Primary_01 },
-                    Typography.f_14_poppins_medium,
-                  ]}
-                >
-                  {t("password")}
-                </Text>
-              </View>
-              <View style={styles.inputContiner}>
-                <TextInput
-                  secureTextEntry={secureEntryState}
-                  style={styles.input}
-                  value={formik.values.password}
-                  onChangeText={formik.handleChange("password")}
-                  placeholder={t("password")}
-                  placeholderTextColor={colors.Neutral_01}
-                />
-                <TouchableOpacity
-                  style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "10%",
-                  }}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    setSecureEntryState(!secureEntryState);
-                  }}
-                >
-                  <Feather
-                    name={secureEntryState ? "eye" : "eye-off"}
-                    style={{
-                      fontSize: RFValue(20, screenResolution.screenHeight),
-                      color: colors.white,
-                    }}
-                  />
-                </TouchableOpacity>
-              </View>
-              {formik.errors.password && formik.touched.password && (
-                <Text
-                  style={[
-                    Typography.f_14_poppins_medium,
-                    { color: colors.Error_Red },
-                  ]}
-                >
-                  {formik.errors.password}
-                </Text>
-              )}
-            </View>
-
-            <View style={{ marginTop: 10 }}>
-              <View style={{ flexDirection: "row" }}>
-                <Text
-                  style={[
-                    { top: 3, color: colors.Primary_01 },
-                    Typography.f_14_poppins_medium,
-                  ]}
-                >
-                  {t("confirmpassword")}
-                </Text>
-              </View>
-              <View style={styles.inputContiner}>
-                <TextInput
-                  secureTextEntry={secureEntryState1}
-                  style={styles.input}
-                  value={formik.values.rePassword}
-                  onChangeText={formik.handleChange("rePassword")}
-                  placeholder={t("confirmpassword")}
-                  placeholderTextColor={colors.Neutral_01}
-                />
-                <TouchableOpacity
-                  style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "10%",
-                  }}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    setSecureEntryState1(!secureEntryState1);
-                  }}
-                >
-                  <Feather
-                    name={secureEntryState1 ? "eye" : "eye-off"}
-                    style={{
-                      fontSize: RFValue(20, screenResolution.screenHeight),
-                      color: colors.white,
-                    }}
-                  />
-                </TouchableOpacity>
-              </View>
-              {formik.errors.rePassword && formik.touched.rePassword && (
-                <Text
-                  style={[
-                    Typography.f_14_poppins_medium,
-                    { color: colors.Error_Red },
-                  ]}
-                >
-                  {formik.errors.rePassword}
-                </Text>
-              )}
-            </View>
-
-            <View style={{ marginTop: 20 }}>
-              <CTAButton1
-                title={t("signup")}
-                submitHandler={formik.handleSubmit}
-              />
-            </View>
-          </View>
-
-          <View style={styles.containerc1_c3}>
-            <TouchableOpacity
-              style={styles.socialText}
-              onPress={() => navigation.navigate("Signin")}
-            >
-              <Text
-                style={[
-                  styles.socialTextC1,
-                  Typography.f_14_poppins_medium,
-                  { color: colors.Primary_01 },
-                ]}
-              >
-                {t("alreadyhaveanaccount")}{" "}
-              </Text>
-              <Text
-                style={[
-                  styles.socialTextC1,
-                  Typography.f_14_poppins_bold,
-                  { color: colors.Primary_01 },
-                ]}
-              >
-                {" "}
-                {t("signIn")}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          </Formik>
         </ScrollView>
       </View>
     </View>
   );
-}
+};
 
 const createStyles = (colors: any) => {
   return StyleSheet.create({
@@ -415,96 +257,50 @@ const createStyles = (colors: any) => {
       backgroundColor: colors.white,
     },
     containerC1: {
-      alignItems: "center",
-      justifyContent: "center",
-      marginHorizontal: "10%",
+      marginHorizontal: "6%",
       paddingBottom: 50,
-    },
-    text: {
-      fontWeight: "700",
-      fontSize: RFValue(24, screenResolution.screenHeight),
-      lineHeight: 32,
-      letterSpacing: -0.3,
-      color: colors.black,
-    },
-    label: {
-      color: colors.black,
-    },
-    textInputYourEmail: {
-      fontWeight: "700",
-      fontSize: RFValue(16, screenResolution.screenHeight),
-      lineHeight: 22,
-      letterSpacing: -0.3,
-      color: colors.black,
-      marginBottom: 50,
-    },
-    containerc1_c1: {
-      width: "100%",
-      justifyContent: "center",
-      alignItems: "center",
     },
     containerc1_c2: {
       width: "100%",
       marginTop: 20,
     },
-    containerc1_c3: {
-      width: "100%",
-      justifyContent: "flex-end",
+    label: {
+      flexDirection: "row",
+      top: 3,
+      color: colors.DARK_GREEN,
+      ...Typography.f_14_nunito_medium,
     },
     inputContiner: {
       paddingHorizontal: 10,
       backgroundColor: colors.white,
-      borderColor: colors.Primary_01,
+      borderColor: colors.black,
       borderRadius: 5,
-      borderWidth: 1,
+      borderWidth: 0.3,
       marginTop: 10,
       flexDirection: "row",
       alignItems: "center",
     },
     input: {
       height: 50,
-      color: colors.black,
+      color: colors.DARK_GREEN,
       width: "90%",
-      ...Typography.f_14_poppins_medium,
+      ...Typography.f_12_nunito_medium,
     },
-    socialText: {
+    errorText: {
+      color: colors.Error_Red,
+      ...Typography.f_14_poppins_medium,
+      marginTop: 5,
+    },
+    eyeIcon: {
       justifyContent: "center",
       alignItems: "center",
-      flexDirection: "row",
+      width: "10%",
     },
-    socialTextC1: {
-      fontSize: RFValue(16, screenResolution.screenHeight),
-      lineHeight: 38,
-      letterSpacing: -0.3,
-      color: colors.Neutral_01,
-      fontWeight: "normal",
-      textAlign: "center",
-    },
-    socialIcon: {
-      flexDirection: "row",
-      justifyContent: "space-evenly",
-      marginTop: 20,
-    },
-    iconSize: {
-      width: 50,
-      height: 50,
-    },
-    checkboxContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
-    list: {
-      marginTop: 10,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: 10,
-      borderColor: colors.Primary_01,
-      borderWidth: 1,
-      borderRadius: 7,
-      height: 50,
-      overflow: "hidden",
-      backgroundColor: colors.white,
+    eyeIconStyle: {
+      fontSize: RFValue(20, screenResolution.screenHeight),
+      color: colors.DARK_GREEN,
     },
   });
 };
+
+export default SignUp;
