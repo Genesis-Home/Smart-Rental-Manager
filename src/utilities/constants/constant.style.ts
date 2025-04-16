@@ -35,9 +35,9 @@ export const Typography = StyleSheet.create({
     fontFamily: 'Nunito-SemiBold',
     fontSize: RFValue(16, screenResolution.screenHeight),
   },
-  f_18_poppins_light: {
-    fontFamily: 'Poppins-Light',
-    fontSize: RFValue(18, screenResolution.screenHeight),
+  f_20_montserrat_bold: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: RFValue(20, screenResolution.screenHeight),
   },
   f_15_poppins_light: {
     fontFamily: 'Poppins-Light',

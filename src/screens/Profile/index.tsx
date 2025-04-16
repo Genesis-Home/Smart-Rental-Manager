@@ -1,16 +1,11 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
-import Header from "../../components/Header";
+import { StyleSheet, View, Text } from "react-native";
 import Colors from "../../utilities/constants/colors";
 
 const Profile: React.FC = () => {
-  const handleMenuPress = () => {
-    console.log("Menu button pressed");
-  };
-
   return (
     <View style={styles.container}>
-      <Header onMenuPress={handleMenuPress} />
+      <Text>Profile</Text>
     </View>
   );
 };
