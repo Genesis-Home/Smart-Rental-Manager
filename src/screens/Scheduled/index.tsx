@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import Header from "../../components/Header";
 import Colors from "../../utilities/constants/colors";
 
-const Favorites: React.FC = () => {
+const Scheduled: React.FC = () => {
   const handleMenuPress = () => {
     console.log("Menu button pressed");
   };
@@ -15,7 +15,7 @@ const Favorites: React.FC = () => {
   );
 };
 
-export default Favorites;
+export default Scheduled;
 
 const styles = StyleSheet.create({
   container: {

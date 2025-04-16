@@ -1,38 +1,34 @@
 import React from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RFValue } from "react-native-responsive-fontsize";
 import screenResolution from "../utilities/constants/screenResolution";
 
-
-//Tabs
-
-import HomeUser from "../screens/Home/HomeUser";
-import HomeProfessional from "../screens/Home/HomeProfessional";
-
-import Favorites from "../screens/Favorites";
-import Search from "../screens/Search";
+// Tabs
+import Home from "../screens/Home/Home";
+import Scheduled from "../screens/Scheduled";
+import ExportData from "../screens/ExportData";
 import Settings from "../screens/Settings";
 import Profile from "../screens/Profile";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
 import Colors from "../utilities/constants/colors";
+import { colors } from "../utilities/constants";
 
 type RootStackParamList = {
-  HomeUser: undefined;
-  HomeProfessional: undefined;
-  Favorites1: undefined;
-  Search1: undefined;
+  Home1: undefined;
+  Scheduled1: undefined;
+  ExportData1: undefined;
   Settings1: undefined;
   Profile1: undefined;
 };
 
 type TabParamList = {
   Home: undefined;
-  Favorites: undefined;
-  Search: undefined;
+  Scheduled: undefined;
+  ExportData: undefined;
   Settings: undefined;
   Profile: undefined;
 };
@@ -45,37 +41,32 @@ function HomeRoutes() {
     <Stack.Navigator>
       <Stack.Screen
         options={{ headerShown: false }}
-        name="HomeUser"
-        component={HomeUser}
-      />
-      <Stack.Screen
-        options={{ headerShown: false }}
-        name="HomeProfessional"
-        component={HomeProfessional}
+        name="Home1"
+        component={Home}
       />
     </Stack.Navigator>
   );
 }
 
-function FavoritesRoutes() {
+function ScheduledRoutes() {
   return (
     <Stack.Navigator>
       <Stack.Screen
         options={{ headerShown: false }}
-        name="Favorites1"
-        component={Favorites}
+        name="Scheduled1"
+        component={Scheduled}
       />
     </Stack.Navigator>
   );
 }
 
-function SearchRoutes() {
+function ExportDataRoutes() {
   return (
     <Stack.Navigator>
       <Stack.Screen
         options={{ headerShown: false }}
-        name="Search1"
-        component={Search}
+        name="ExportData1"
+        component={ExportData}
       />
     </Stack.Navigator>
   );
@@ -112,26 +103,26 @@ const TabIcon = ({
   focused: boolean;
   iconName: string;
 }) => (
-  <View style={{ alignItems: "center" }}>
-    <Icon
-      name={iconName}
-      size={RFValue(11, screenResolution.screenWidth)}
-      color={Colors.Primary_01}
-    />
+  <View style={{ alignItems: "center", justifyContent: "center" }}>
     {focused && (
       <LinearGradient
-        colors={[Colors.Gradient1_Start, Colors.Gradient1_End]}
+        colors={[Colors.Primary_01, Colors.Primary_01]}
         style={{
           position: "absolute",
-          top: 28,
-          width: RFValue(16, screenResolution.screenWidth),
-          height: RFValue(3, screenResolution.screenHeight),
+          top: -8,
+          width: RFValue(25, screenResolution.screenWidth),
+          height: RFValue(1, screenResolution.screenHeight),
           borderRadius: 2,
         }}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
       />
     )}
+    <Icon
+      name={iconName}
+      size={RFValue(12, screenResolution.screenWidth)}
+      color={focused ? Colors.Primary_01 : "gray"}
+    />
   </View>
 );
 
@@ -141,19 +132,9 @@ export function AppBottomNavigator() {
       initialRouteName="Home"
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: Colors.white,
-          position: "absolute",
-          margin: 20,
+          backgroundColor: colors.white,
+          height: 60,
           borderTopWidth: 0,
-          borderRadius: 12,
-          shadowColor: Colors.Neutral_01,
-          shadowOffset: {
-            width: 0,
-            height: 4,
-          },
-          shadowOpacity: 0.3,
-          shadowRadius: 4.65,
-          elevation: 8,
         },
         tabBarHideOnKeyboard: true,
       }}
@@ -163,33 +144,84 @@ export function AppBottomNavigator() {
         component={HomeRoutes}
         options={{
           headerShown: false,
-          tabBarLabel: () => null,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} iconName="home" />
           ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Favorites"
-        component={FavoritesRoutes}
-        options={{
-          headerShown: false,
-          tabBarLabel: () => null,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="heart" />
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                color: focused ? Colors.Primary_01 : "gray",
+                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontFamily: "Nunito-Bold",
+              }}
+            >
+              Home
+            </Text>
           ),
         }}
       />
 
       <Tab.Screen
-        name="Search"
-        component={SearchRoutes}
+        name="Scheduled"
+        component={ScheduledRoutes}
         options={{
           headerShown: false,
-          tabBarLabel: () => null,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="search" />
+            <TabIcon focused={focused} iconName="calendar-outline" />
+          ),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                color: focused ? Colors.Primary_01 : "gray",
+                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontFamily: "Nunito-Bold",
+              }}
+            >
+              Scheduled
+            </Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileRoutes}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} iconName="person" />
+          ),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                color: focused ? Colors.Primary_01 : "gray",
+                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontFamily: "Nunito-Bold",
+              }}
+            >
+              Contact
+            </Text>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="ExportData"
+        component={ExportDataRoutes}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} iconName="arrow-down-circle-outline" />
+          ),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                color: focused ? Colors.Primary_01 : "gray",
+                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontFamily: "Nunito-Bold",
+              }}
+            >
+              Export Data
+            </Text>
           ),
         }}
       />
@@ -199,21 +231,19 @@ export function AppBottomNavigator() {
         component={SettingsRoutes}
         options={{
           headerShown: false,
-          tabBarLabel: () => null,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} iconName="settings" />
           ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Profile"
-        component={ProfileRoutes}
-        options={{
-          headerShown: false,
-          tabBarLabel: () => null,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="person" />
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                color: focused ? Colors.Primary_01 : "gray",
+                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontFamily: "Nunito-Bold",
+              }}
+            >
+              Setting
+            </Text>
           ),
         }}
       />

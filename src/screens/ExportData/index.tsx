@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import Header from "../../components/Header";
 import Colors from "../../utilities/constants/colors";
 
-const Search: React.FC = () => {
+const ExportData: React.FC = () => {
   const handleMenuPress = () => {
     console.log("Menu button pressed");
   };
@@ -15,7 +15,7 @@ const Search: React.FC = () => {
   );
 };
 
-export default Search;
+export default ExportData;
 
 const styles = StyleSheet.create({
   container: {

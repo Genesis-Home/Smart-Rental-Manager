@@ -3,7 +3,7 @@ import { StyleSheet, View, Text } from "react-native";
 import Header from "../../components/Header";
 import Colors from "../../utilities/constants/colors";
 
-const HomeProfessional: React.FC = () => {
+const Home: React.FC = () => {
   const handleMenuPress = () => {
     console.log("Menu button pressed");
   };
@@ -11,12 +11,12 @@ const HomeProfessional: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header onMenuPress={handleMenuPress} />
-      <Text>HomeProfessional</Text>
+      <Text>Home</Text>
     </View>
   );
 };
 
-export default HomeProfessional;
+export default Home;
 
 const styles = StyleSheet.create({
   container: {
