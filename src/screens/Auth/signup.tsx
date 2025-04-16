@@ -33,11 +33,11 @@ const validationSchema = Yup.object().shape({
     .required(t("confirmpasswordRequired")),
 });
 
-interface SignInProps {
+interface SignUpProps {
   navigation: any;
 }
 
-const SignUp: React.FC<SignInProps> = ({ navigation }) => {
+const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const styles = createStyles(colors);
   const [showPassword, setShowPassword] = useState<boolean>(true);
@@ -289,7 +289,7 @@ const createStyles = (colors: any) => {
     errorText: {
       color: colors.Error_Red,
       ...Typography.f_14_poppins_medium,
-      marginTop: 5,
+      marginVertical: 5,
     },
     eyeIcon: {
       justifyContent: "center",
