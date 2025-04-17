@@ -17,6 +17,7 @@ import { Heart, Prev, Next, Address, Add } from "../../assets/icons";
 import { RootStackParamList } from "../../navigation/types";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -25,29 +26,46 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<
 
 const { width } = Dimensions.get("window");
 
-const carouselImages = [Images.Banner, Images.Banner, Images.Banner];
+const carouselImages = [Images.Banner, Images.GalleryImage1, Images.Banner];
 
 const data = [
   {
     id: "1",
-    title: "Modern Apartment",
-    description:
-      "A spacious living room with contemporary furnishings and decor.",
-    address: "R592 Elm St, Springfield",
+    title: {
+      en: "Modern Apartment",
+      sp: "Apartamento Moderno",
+    },
+    description: {
+      en: "A spacious living room with contemporary furnishings and decor.",
+      sp: "Una sala de estar espaciosa con mobiliario y decoración contemporáneos.",
+    },
+    address: {
+      en: "R592 Elm St, Springfield",
+      sp: "R592 Elm St, Springfield",
+    },
   },
   {
     id: "2",
-    title: "Luxury Penthouse",
-    description:
-      "A stunning penthouse with panoramic views and elegant interiors.",
-    address: "12th Avenue, New York",
+    title: {
+      en: "Luxury Penthouse",
+      sp: "Ático de Lujo",
+    },
+    description: {
+      en: "A stunning penthouse with panoramic views and elegant interiors.",
+      sp: "Un impresionante ático con vistas panorámicas e interiores elegantes.",
+    },
+    address: {
+      en: "12th Avenue, New York",
+      sp: "12th Avenue, Nueva York",
+    },
   },
 ];
 
 const Home: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const navigation = useNavigation<HomeScreenNavigationProp>();
-
+  const { i18n } = useTranslation();
+  const currentLanguage = i18n.language === "sp" ? "sp" : "en";
   const scrollRef = useRef<FlatList>(null);
 
   const handleScroll = (event: any) => {
@@ -126,13 +144,11 @@ const Home: React.FC = () => {
           </View>
         </View>
       </View>
-
-      {/* Apartment Details */}
       <View style={{ marginVertical: 20, gap: 5 }}>
         <Text
           style={[Typography.f_20_montserrat_bold, { color: Colors.black }]}
         >
-          {item.title}
+          {item.title[currentLanguage]}
         </Text>
         <Text
           style={[
@@ -140,7 +156,7 @@ const Home: React.FC = () => {
             { color: Colors.black, lineHeight: 24, width: "70%" },
           ]}
         >
-          {item.description}
+          {item.description[currentLanguage]}
         </Text>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
           <Address />
@@ -150,7 +166,7 @@ const Home: React.FC = () => {
               { color: Colors.DARK_GREEN, lineHeight: 24 },
             ]}
           >
-            {item.address}
+            {item.address[currentLanguage]}
           </Text>
         </View>
       </View>
