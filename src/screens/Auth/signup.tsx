@@ -288,7 +288,7 @@ const createStyles = (colors: any) => {
     },
     errorText: {
       color: colors.Error_Red,
-      ...Typography.f_14_poppins_medium,
+      ...Typography.f_14_nunito_medium,
       marginVertical: 5,
     },
     eyeIcon: {

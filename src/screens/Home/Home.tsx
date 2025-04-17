@@ -14,6 +14,14 @@ import { AppIcon, Location, Notification, Search } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import Images from "../../assets/images";
 import { Heart, Prev, Next, Address, Add } from "../../assets/icons";
+import { RootStackParamList } from "../../navigation/types";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "AddProperty"
+>;
 
 const { width } = Dimensions.get("window");
 
@@ -38,6 +46,8 @@ const data = [
 
 const Home: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
   const scrollRef = useRef<FlatList>(null);
 
   const handleScroll = (event: any) => {
@@ -180,6 +190,7 @@ const Home: React.FC = () => {
         showsVerticalScrollIndicator={false}
       />
       <TouchableOpacity
+        onPress={() => navigation.navigate("AddProperty")}
         style={{ position: "absolute", bottom: 5, right: 0 }}
         activeOpacity={0.8}
       >

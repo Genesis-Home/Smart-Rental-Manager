@@ -12,7 +12,7 @@ type LanguageTranslation = {
   forgotPassword: string;
   rememberme: string;
   donthaveaccount: string;
-  recoverAccount:string,
+  recoverAccount: string;
   signup: string;
   or: string;
   signIn: string;
@@ -40,8 +40,15 @@ type LanguageTranslation = {
   agencyNameRequired: string;
   ownerNameRequired: string;
   passwordsMustMatch: string;
-  resetEmail:string,
-  sendEmail:string
+  resetEmail: string;
+  sendEmail: string;
+  addProperty: string;
+  PhotoUpload: string;
+  photo: string;
+  addTitle:string,
+  addDes:string,
+  otherDet:string,
+  submit:string
 };
 
 type LanguageData = {
@@ -67,7 +74,7 @@ export const languageData: LanguageData[] = [
       forgotPassword: "Forget Password?",
       rememberme: "Remember me",
       donthaveaccount: "Don’t have account?",
-      recoverAccount:"Recover Your Account",
+      recoverAccount: "Recover Your Account",
       signup: "Sign up",
       or: "OR",
       signIn: "Login",
@@ -95,8 +102,15 @@ export const languageData: LanguageData[] = [
       agencyNameRequired: "Agency Name is required",
       ownerNameRequired: "Owner Name is required",
       passwordsMustMatch: "Passwords must match",
-      resetEmail:'Reset Email',
-       sendEmail:'Send Email'
+      resetEmail: "Reset Email",
+      sendEmail: "Send Email",
+      addProperty: "Add Property",
+      PhotoUpload: "PhotoUpload",
+      photo: "Photo",
+      addTitle:'Add Title....',
+      addDes:'Add Description ....',
+      otherDet:'Other details',
+      submit:"Submit"
     },
   },
   {
@@ -116,7 +130,7 @@ export const languageData: LanguageData[] = [
       forgotPassword: "¿Olvidaste tu contraseña?",
       rememberme: "Recuérdame",
       donthaveaccount: "¿No tienes cuenta?",
-      recoverAccount: 'Recupera tu cuenta',
+      recoverAccount: "Recupera tu cuenta",
       signup: "Regístrate",
       or: "O",
       signIn: "Iniciar sesión",
@@ -128,13 +142,11 @@ export const languageData: LanguageData[] = [
       TermsConditions: "Términos y condiciones",
       registerissucessfullyhaveenjoy: "¡Registro exitoso, disfruta!",
       resetpassword: "Restablecer contraseña",
-      enteryouremail:
-        "Ingresa tu dirección de correo electrónico",
+      enteryouremail: "Ingresa tu dirección de correo electrónico",
       rememberyourpassword: "¿Recuerdas tu contraseña?",
       sendOtp: "ENVIAR CÓDIGO",
       changePassword: "Cambiar contraseña",
-      enternewpassword:
-        "Crea la nueva contraseña",
+      enternewpassword: "Crea la nueva contraseña",
       invalidEmail:
         "Por favor, ingresa una dirección de correo electrónico válida",
       emailRequired: "El correo electrónico es obligatorio",
@@ -147,8 +159,15 @@ export const languageData: LanguageData[] = [
       agencyNameRequired: "El nombre de la agencia es obligatorio",
       ownerNameRequired: "El nombre del propietario es obligatorio",
       passwordsMustMatch: "Las contraseñas deben coincidir",
-      resetEmail:'Restablecer correo electrónico',
-      sendEmail: 'Enviar correo electrónico',
+      resetEmail: "Restablecer correo electrónico",
+      sendEmail: "Enviar correo electrónico",
+      addProperty: "Agregar propiedad",
+      PhotoUpload: "Subir foto",
+      photo: "Foto",
+      addTitle:'Agregar título...',
+      addDes:'Agregar descripción...',
+      otherDet:'Otros detalles',
+      submit:"Enviar"
     },
   },
 ];

@@ -121,7 +121,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
                   {touched.email && errors.email && (
                     <Text
                       style={[
-                        Typography.f_14_poppins_medium,
+                        Typography.f_14_nunito_medium,
                         { color: colors.Error_Red, marginVertical: 5 },
                       ]}
                     >

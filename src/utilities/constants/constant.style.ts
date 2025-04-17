@@ -39,12 +39,12 @@ export const Typography = StyleSheet.create({
     fontFamily: 'Montserrat-Bold',
     fontSize: RFValue(20, screenResolution.screenHeight),
   },
-  f_15_poppins_light: {
-    fontFamily: 'Poppins-Light',
-    fontSize: RFValue(15, screenResolution.screenHeight),
+  f_14_nunito_extra_bold: {
+    fontFamily: 'Nunito-ExtraBold',
+    fontSize: RFValue(14, screenResolution.screenHeight),
   },
-  f_14_poppins_medium: {
-    fontFamily: 'Poppins-Medium',
+  f_14_nunito_bold: {
+    fontFamily: 'Nunito-Bold',
     fontSize: RFValue(14, screenResolution.screenHeight),
   },
   f_15_poppins_medium: {

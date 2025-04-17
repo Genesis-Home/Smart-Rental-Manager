@@ -134,7 +134,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   {touched.email && errors.email && (
                     <Text
                       style={[
-                        Typography.f_14_poppins_medium,
+                        Typography.f_14_nunito_medium,
                         { color: colors.Error_Red, marginVertical: 5 },
                       ]}
                     >
@@ -186,7 +186,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   {touched.password && errors.password && (
                     <Text
                       style={[
-                        Typography.f_14_poppins_medium,
+                        Typography.f_14_nunito_medium,
                         { color: colors.Error_Red, marginVertical: 5 },
                       ]}
                     >
