@@ -13,7 +13,7 @@ import Colors from "../../utilities/constants/colors";
 import { AppIcon, Location, Notification, Search } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import Images from "../../assets/images";
-import { Heart, Prev, Next, Address } from "../../assets/icons";
+import { Heart, Prev, Next, Address, Add } from "../../assets/icons";
 
 const { width } = Dimensions.get("window");
 
@@ -179,6 +179,12 @@ const Home: React.FC = () => {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
+      <TouchableOpacity
+        style={{ position: "absolute", bottom: 5, right: 0 }}
+        activeOpacity={0.8}
+      >
+        <Add />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -190,7 +196,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
     marginHorizontal: "5%",
-    paddingVertical: 30,
+    paddingTop: 30,
   },
   topBar: {
     flexDirection: "row",

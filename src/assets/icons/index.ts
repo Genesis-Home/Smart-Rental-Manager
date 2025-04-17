@@ -11,5 +11,6 @@ export { default as Heart } from './heart.svg';
 export { default as Prev } from './Prev.svg';
 export { default as Next } from './Next.svg';
 export { default as Address } from './address.svg';
+export { default as Add } from './Add.svg';
 
 // footer icons
