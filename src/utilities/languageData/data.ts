@@ -45,14 +45,18 @@ type LanguageTranslation = {
   addProperty: string;
   PhotoUpload: string;
   photo: string;
-  addTitle:string,
-  addDes:string,
-  otherDet:string,
-  submit:string,
-  AdFullView:string
-  Notification:string,
-  notiReceived:string,
-  notiNew:string
+  addTitle: string;
+  addDes: string;
+  otherDet: string;
+  submit: string;
+  AdFullView: string;
+  Notification: string;
+  notiReceived: string;
+  notiNew: string;
+  contact: string;
+  Email: string;
+  name: string;
+  phoneNum: string;
 };
 
 type LanguageData = {
@@ -111,14 +115,18 @@ export const languageData: LanguageData[] = [
       addProperty: "Add Property",
       PhotoUpload: "PhotoUpload",
       photo: "Photo",
-      addTitle:'Add Title....',
-      addDes:'Add Description ....',
-      otherDet:'Other details',
-      submit:"Submit",
-      AdFullView:"Ad Full View",
-      Notification:'Notification',
-      notiReceived:' Notification received',
-      notiNew:'New'
+      addTitle: "Add Title....",
+      addDes: "Add Description ....",
+      otherDet: "Other details",
+      submit: "Submit",
+      AdFullView: "Ad Full View",
+      Notification: "Notification",
+      notiReceived: " Notification received",
+      notiNew: "New",
+      contact: "Contact",
+      Email: "Email",
+      name: "Name",
+      phoneNum: "Phone Number",
     },
   },
   {
@@ -172,14 +180,18 @@ export const languageData: LanguageData[] = [
       addProperty: "Agregar propiedad",
       PhotoUpload: "Subir foto",
       photo: "Foto",
-      addTitle:'Agregar título...',
-      addDes:'Agregar descripción...',
-      otherDet:'Otros detalles',
-      submit:"Enviar",
-      AdFullView:"Vista completa del anuncio",
-      Notification:'Notificación',
-      notiReceived:'Notificación recibida',
-      notiNew:"Nuevo"
+      addTitle: "Agregar título...",
+      addDes: "Agregar descripción...",
+      otherDet: "Otros detalles",
+      submit: "Enviar",
+      AdFullView: "Vista completa del anuncio",
+      Notification: "Notificación",
+      notiReceived: "Notificación recibida",
+      notiNew: "Nuevo",
+      contact: "Contacto",
+      Email: "Correo electrónico",
+      name: "Nombre",
+      phoneNum: "Número de teléfono",
     },
   },
 ];
