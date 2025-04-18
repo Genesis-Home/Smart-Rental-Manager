@@ -63,7 +63,8 @@ type LanguageTranslation = {
   scheduled: string;
   contact:string,
   exportData:string,
-  setting:string
+  setting:string,
+  location:string
 };
 
 type LanguageData = {
@@ -141,6 +142,7 @@ export const languageData: LanguageData[] = [
       scheduled: "Scheduled",
       exportData: "Export Data",
       setting: "Setting",
+      location:'Location'
     },
   },
   {
@@ -213,6 +215,7 @@ export const languageData: LanguageData[] = [
       scheduled: "Programado",
       exportData: "Exportar Datos",
       setting: "Configuración",
+      location:'ubicación'
     },
   },
 ];

@@ -222,6 +222,21 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
                 onChangeText={setOtherDetails}
               />
             </View>
+            <View style={{ gap: 8 }}>
+              <Text
+                style={[
+                  Typography.f_16_nunito_medium,
+                  { color: Colors.black, paddingLeft: 3 },
+                ]}
+              >
+                {t("location")}
+              </Text>
+              <Image
+                source={Images.map}
+                style={{ width: "100%", height: 130 }}
+                resizeMode="cover"
+              />
+            </View>
           </View>
           <View style={styles.submitButtonContainer}>
             <CTAButton1 title={t("submit")} submitHandler={handleSubmit} />
