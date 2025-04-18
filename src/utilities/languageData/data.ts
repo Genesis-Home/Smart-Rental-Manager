@@ -53,10 +53,17 @@ type LanguageTranslation = {
   Notification: string;
   notiReceived: string;
   notiNew: string;
-  contact: string;
   Email: string;
   name: string;
   phoneNum: string;
+  createContact: string;
+  create: string;
+  note: string;
+  home: string;
+  scheduled: string;
+  contact:string,
+  exportData:string,
+  setting:string
 };
 
 type LanguageData = {
@@ -127,6 +134,13 @@ export const languageData: LanguageData[] = [
       Email: "Email",
       name: "Name",
       phoneNum: "Phone Number",
+      createContact: "Create Contact",
+      create: "Create",
+      note: "Note.....",
+      home: "Home",
+      scheduled: "Scheduled",
+      exportData: "Export Data",
+      setting: "Setting",
     },
   },
   {
@@ -192,6 +206,13 @@ export const languageData: LanguageData[] = [
       Email: "Correo electrónico",
       name: "Nombre",
       phoneNum: "Número de teléfono",
+      createContact: "Crear Contacto",
+      create: "Crear",
+      note: "Nota.....",
+      home: "Inicio",
+      scheduled: "Programado",
+      exportData: "Exportar Datos",
+      setting: "Configuración",
     },
   },
 ];

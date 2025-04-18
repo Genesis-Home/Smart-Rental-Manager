@@ -12,6 +12,8 @@ import { useNavigation } from "@react-navigation/native";
 import { BackIcon, Add } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../navigation/types";
 
 interface Contact {
   id: string;
@@ -19,6 +21,9 @@ interface Contact {
   email: string;
   phone: string;
 }
+
+type CreateContactScreenNavigationProp =
+  NativeStackNavigationProp<RootStackParamList>;
 
 const contacts: Contact[] = [
   {
@@ -48,7 +53,7 @@ const contacts: Contact[] = [
 ];
 
 const Profile: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<CreateContactScreenNavigationProp>();
   const { t } = useTranslation();
 
   const renderContactItem = ({ item, index }: ListRenderItemInfo<Contact>) => (
@@ -93,6 +98,7 @@ const Profile: React.FC = () => {
         showsVerticalScrollIndicator={false}
       />
       <TouchableOpacity
+        onPress={() => navigation.navigate("createContact")}
         activeOpacity={0.8}
         style={{ position: "absolute", bottom: 10, right: 0 }}
       >

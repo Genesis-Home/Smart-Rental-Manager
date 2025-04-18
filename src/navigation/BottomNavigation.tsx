@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RFValue } from "react-native-responsive-fontsize";
 import screenResolution from "../utilities/constants/screenResolution";
+import { useTranslation } from "react-i18next";
 
 // Tabs
 import Home from "../screens/Home/Home";
@@ -12,6 +13,7 @@ import ExportData from "../screens/ExportData";
 import Settings from "../screens/Settings";
 import Profile from "../screens/Profile";
 import ApartmentDetails from "../screens/Home/ApartmentDetails";
+import createContact from "../screens/Profile/CreateContact";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
@@ -24,7 +26,8 @@ type RootStackParamList = {
   ExportData1: undefined;
   Settings1: undefined;
   Profile1: undefined;
-  ApartmentDetails:undefined
+  ApartmentDetails: undefined;
+  createContact: undefined;
 };
 
 type TabParamList = {
@@ -99,6 +102,11 @@ function ProfileRoutes() {
         name="Profile1"
         component={Profile}
       />
+      <Stack.Screen
+        options={{ headerShown: false }}
+        name="createContact"
+        component={createContact}
+      />
     </Stack.Navigator>
   );
 }
@@ -134,6 +142,7 @@ const TabIcon = ({
 );
 
 export function AppBottomNavigator() {
+  const { t } = useTranslation();
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -162,7 +171,7 @@ export function AppBottomNavigator() {
                 fontFamily: "Nunito-Bold",
               }}
             >
-              Home
+              {t("home")}
             </Text>
           ),
         }}
@@ -184,7 +193,7 @@ export function AppBottomNavigator() {
                 fontFamily: "Nunito-Bold",
               }}
             >
-              Scheduled
+              {t("scheduled")}
             </Text>
           ),
         }}
@@ -205,7 +214,7 @@ export function AppBottomNavigator() {
                 fontFamily: "Nunito-Bold",
               }}
             >
-              Contact
+              {t("contact")}
             </Text>
           ),
         }}
@@ -227,7 +236,7 @@ export function AppBottomNavigator() {
                 fontFamily: "Nunito-Bold",
               }}
             >
-              Export Data
+              {t("exportData")}
             </Text>
           ),
         }}
@@ -249,7 +258,7 @@ export function AppBottomNavigator() {
                 fontFamily: "Nunito-Bold",
               }}
             >
-              Setting
+              {t("setting")}
             </Text>
           ),
         }}

@@ -5,7 +5,8 @@ export type RootStackParamList = {
     Signup: undefined;
     AddProperty:undefined,
     ApartmentDetails:undefined,
-    Notification:undefined
+    Notification:undefined,
+    createContact:undefined
     // Add other screens here if needed
   };
   

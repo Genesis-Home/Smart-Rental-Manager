@@ -110,7 +110,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   return (
     <View style={[styles.mainContainer, styles.platformMarginTop]}>
       <View style={styles.contentContainer}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           <View style={styles.headerContainer}>
             <TouchableOpacity
               activeOpacity={0.8}
