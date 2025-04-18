@@ -53,7 +53,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       ]}
     >
       <View style={{ flex: 8 }}>
-        <ScrollView contentContainerStyle={styles.containerC1}>
+        <ScrollView
+          contentContainerStyle={styles.containerC1}
+          showsVerticalScrollIndicator={false}
+        >
           <View
             style={{
               flexDirection: "row",
@@ -96,7 +99,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             {t("loginEmailPrompt")}
           </Text>
           <Formik
-            initialValues={{ email: "smartrentalapp@gmail.com", password: "12345678" }}
+            initialValues={{
+              email: "smartrentalapp@gmail.com",
+              password: "12345678",
+            }}
             validationSchema={validationSchema}
             // onSubmit={submit}
             onSubmit={() => navigation.navigate("Tabs")}

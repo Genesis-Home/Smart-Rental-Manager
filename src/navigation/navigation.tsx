@@ -10,6 +10,7 @@ import Signup from "../screens/Auth/signup";
 import ForgotPassword from "../screens/Auth/forgotPassword";
 import ResetPassword from "../screens/Auth/resetPassword";
 import AddProperty from "../screens/Home/AddProperty";
+import Notification from "../screens/Home/Notification";
 
 import { AppBottomNavigator } from "./BottomNavigation";
 
@@ -21,7 +22,8 @@ type RootStackParamList = {
   ForgotPassword: undefined;
   ResetPassword: undefined;
   Tabs: undefined; 
-  AddProperty:undefined
+  AddProperty:undefined;
+  Notification:undefined
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -69,6 +71,11 @@ function App() {
           options={{ headerShown: false }}
           component={AddProperty}
           name="AddProperty"
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          component={Notification}
+          name="Notification"
         />
         <Stack.Screen options={{ headerShown: false }} name="Tabs" component={AppBottomNavigator} />
       </Stack.Navigator>

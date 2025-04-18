@@ -13,5 +13,6 @@ export { default as Next } from './Next.svg';
 export { default as Address } from './address.svg';
 export { default as Add } from './Add.svg';
 export { default as AddPhoto } from './addPhoto.svg';
+export { default as Tick } from './Tick.svg';
 
 // footer icons

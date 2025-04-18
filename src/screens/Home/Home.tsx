@@ -19,10 +19,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  "AddProperty"
->;
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const { width } = Dimensions.get("window");
 
@@ -96,7 +93,11 @@ const Home: React.FC = () => {
   };
 
   const renderItem = ({ item }: { item: (typeof data)[0] }) => (
-    <View>
+    <TouchableOpacity
+      style={{ marginBottom: 5 }}
+      activeOpacity={0.8}
+      onPress={() => navigation.navigate("ApartmentDetails")}
+    >
       <View style={styles.carouselWrapper}>
         <FlatList
           horizontal
@@ -170,7 +171,7 @@ const Home: React.FC = () => {
           </Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -179,7 +180,12 @@ const Home: React.FC = () => {
         <AppIcon />
         <View style={styles.iconWrapper}>
           <Location />
-          <Notification />
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate("Notification")}
+          >
+            <Notification />
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.searchAndProfile}>

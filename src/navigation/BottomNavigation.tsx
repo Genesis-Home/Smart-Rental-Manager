@@ -11,6 +11,7 @@ import Scheduled from "../screens/Scheduled";
 import ExportData from "../screens/ExportData";
 import Settings from "../screens/Settings";
 import Profile from "../screens/Profile";
+import ApartmentDetails from "../screens/Home/ApartmentDetails";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
@@ -23,6 +24,7 @@ type RootStackParamList = {
   ExportData1: undefined;
   Settings1: undefined;
   Profile1: undefined;
+  ApartmentDetails:undefined
 };
 
 type TabParamList = {
@@ -43,6 +45,11 @@ function HomeRoutes() {
         options={{ headerShown: false }}
         name="Home1"
         component={Home}
+      />
+      <Stack.Screen
+        options={{ headerShown: false }}
+        name="ApartmentDetails"
+        component={ApartmentDetails}
       />
     </Stack.Navigator>
   );

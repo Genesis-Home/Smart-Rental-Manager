@@ -48,7 +48,11 @@ type LanguageTranslation = {
   addTitle:string,
   addDes:string,
   otherDet:string,
-  submit:string
+  submit:string,
+  AdFullView:string
+  Notification:string,
+  notiReceived:string,
+  notiNew:string
 };
 
 type LanguageData = {
@@ -110,7 +114,11 @@ export const languageData: LanguageData[] = [
       addTitle:'Add Title....',
       addDes:'Add Description ....',
       otherDet:'Other details',
-      submit:"Submit"
+      submit:"Submit",
+      AdFullView:"Ad Full View",
+      Notification:'Notification',
+      notiReceived:' Notification received',
+      notiNew:'New'
     },
   },
   {
@@ -167,7 +175,11 @@ export const languageData: LanguageData[] = [
       addTitle:'Agregar título...',
       addDes:'Agregar descripción...',
       otherDet:'Otros detalles',
-      submit:"Enviar"
+      submit:"Enviar",
+      AdFullView:"Vista completa del anuncio",
+      Notification:'Notificación',
+      notiReceived:'Notificación recibida',
+      notiNew:"Nuevo"
     },
   },
 ];
