@@ -38,7 +38,7 @@ const data = [
       en: "R592 Elm St, Springfield",
       sp: "R592 Elm St, Springfield",
     },
-    images: [Images.Banner, Images.GalleryImage1, Images.Banner],
+    images: [Images.Banner, Images.Banner, Images.Banner],
   },
   {
     id: "2",
@@ -54,7 +54,7 @@ const data = [
       en: "12th Avenue, New York",
       sp: "12th Avenue, Nueva York",
     },
-    images: [Images.GalleryImage1, Images.Banner, Images.GalleryImage1],
+    images: [Images.Banner, Images.Banner, Images.Banner],
   },
 ];
 
@@ -63,7 +63,9 @@ const Home: React.FC = () => {
   const { i18n } = useTranslation();
   const currentLanguage = i18n.language === "sp" ? "sp" : "en";
 
-  const [activeIndexes, setActiveIndexes] = useState<{ [key: string]: number }>({});
+  const [activeIndexes, setActiveIndexes] = useState<{ [key: string]: number }>(
+    {}
+  );
   const scrollRefs = useRef<{ [key: string]: FlatList<any> | null }>({});
 
   const handleScroll = (event: any, id: string) => {
@@ -76,7 +78,10 @@ const Home: React.FC = () => {
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
       setActiveIndexes((prev) => ({ ...prev, [id]: newIndex }));
-      scrollRefs.current[id]?.scrollToIndex({ index: newIndex, animated: true });
+      scrollRefs.current[id]?.scrollToIndex({
+        index: newIndex,
+        animated: true,
+      });
     }
   };
 
@@ -85,7 +90,10 @@ const Home: React.FC = () => {
     if (currentIndex < imagesLength - 1) {
       const newIndex = currentIndex + 1;
       setActiveIndexes((prev) => ({ ...prev, [id]: newIndex }));
-      scrollRefs.current[id]?.scrollToIndex({ index: newIndex, animated: true });
+      scrollRefs.current[id]?.scrollToIndex({
+        index: newIndex,
+        animated: true,
+      });
     }
   };
 
@@ -133,23 +141,23 @@ const Home: React.FC = () => {
                 <Next height={30} width={30} />
               </TouchableOpacity>
             </View>
-            <View style={styles.carouselBottomWrapper}>
-              <Text />
-              <View style={styles.dotContainer}>
-                {item.images.map((_, idx) => (
-                  <View
-                    key={idx}
-                    style={[
-                      styles.dot,
-                      idx === activeIndex ? styles.activeDot : null,
-                    ]}
-                  />
-                ))}
-              </View>
-              <TouchableOpacity activeOpacity={0.8}>
-                <Heart height={30} width={30} />
-              </TouchableOpacity>
+            <View style={styles.dotContainer}>
+              {item.images.map((_, idx) => (
+                <View
+                  key={idx}
+                  style={[
+                    styles.dot,
+                    idx === activeIndex ? styles.activeDot : null,
+                  ]}
+                />
+              ))}
             </View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={{ position: "absolute", bottom: 10, right: 10 }}
+            >
+              <Heart height={30} width={30} />
+            </TouchableOpacity>
           </View>
         </View>
         <View style={{ marginVertical: 20, gap: 5 }}>
@@ -294,24 +302,20 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
-    paddingHorizontal: 10,
     justifyContent: "center",
   },
   carouselControlWrapper: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  carouselBottomWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    position: "absolute",
-    width: "100%",
-    bottom: "5%",
+    paddingHorizontal:10,
   },
   dotContainer: {
     flexDirection: "row",
+    position: "absolute",
+    width: "100%",
+    bottom: "5%",
+    justifyContent: "center",
   },
   dot: {
     width: 10,

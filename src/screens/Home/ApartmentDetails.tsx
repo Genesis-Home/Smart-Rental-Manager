@@ -16,7 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import Images from "../../assets/images";
 
-const carouselImages = [Images.Banner, Images.GalleryImage1, Images.Banner];
+const carouselImages = [Images.Banner, Images.Banner, Images.Banner];
 const { width } = Dimensions.get("window");
 
 const ApartmentDetails: React.FC = () => {
@@ -114,23 +114,23 @@ const ApartmentDetails: React.FC = () => {
                   <Next height={30} width={30} />
                 </TouchableOpacity>
               </View>
-              <View style={styles.carouselBottomWrapper}>
-                <Text />
-                <View style={styles.dotContainer}>
-                  {carouselImages.map((_, idx) => (
-                    <View
-                      key={idx}
-                      style={[
-                        styles.dot,
-                        idx === activeIndex ? styles.activeDot : null,
-                      ]}
-                    />
-                  ))}
-                </View>
-                <TouchableOpacity activeOpacity={0.8}>
-                  <Heart height={30} width={30} />
-                </TouchableOpacity>
+              <View style={styles.dotContainer}>
+                {carouselImages.map((_, idx) => (
+                  <View
+                    key={idx}
+                    style={[
+                      styles.dot,
+                      idx === activeIndex ? styles.activeDot : null,
+                    ]}
+                  />
+                ))}
               </View>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={{ position: "absolute", bottom: 10, right: 10 }}
+              >
+                <Heart height={30} width={30} />
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.detailsWrapper}>
@@ -200,24 +200,20 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
-    paddingHorizontal: 10,
     justifyContent: "center",
   },
   carouselControlWrapper: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  carouselBottomWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    position: "absolute",
-    width: "100%",
-    bottom: "5%",
+    paddingHorizontal:10
   },
   dotContainer: {
     flexDirection: "row",
+    position: "absolute",
+    width: "100%",
+    bottom: "5%",
+    justifyContent: "center",
   },
   dot: {
     width: 10,
