@@ -23,8 +23,6 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const { width } = Dimensions.get("window");
 
-const carouselImages = [Images.Banner, Images.GalleryImage1, Images.Banner];
-
 const data = [
   {
     id: "1",
@@ -40,6 +38,7 @@ const data = [
       en: "R592 Elm St, Springfield",
       sp: "R592 Elm St, Springfield",
     },
+    images: [Images.Banner, Images.GalleryImage1, Images.Banner],
   },
   {
     id: "2",
@@ -55,124 +54,133 @@ const data = [
       en: "12th Avenue, New York",
       sp: "12th Avenue, Nueva York",
     },
+    images: [Images.GalleryImage1, Images.Banner, Images.GalleryImage1],
   },
 ];
 
 const Home: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { i18n } = useTranslation();
   const currentLanguage = i18n.language === "sp" ? "sp" : "en";
-  const scrollRef = useRef<FlatList>(null);
 
-  const handleScroll = (event: any) => {
+  const [activeIndexes, setActiveIndexes] = useState<{ [key: string]: number }>({});
+  const scrollRefs = useRef<{ [key: string]: FlatList<any> | null }>({});
+
+  const handleScroll = (event: any, id: string) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
-    setActiveIndex(index);
+    setActiveIndexes((prev) => ({ ...prev, [id]: index }));
   };
 
-  const handlePrev = () => {
-    if (activeIndex > 0) {
-      const newIndex = activeIndex - 1;
-      setActiveIndex(newIndex);
-      scrollRef.current?.scrollToIndex({
-        index: newIndex,
-        animated: true,
-      });
+  const handlePrev = (id: string, imagesLength: number) => {
+    const currentIndex = activeIndexes[id] ?? 0;
+    if (currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      setActiveIndexes((prev) => ({ ...prev, [id]: newIndex }));
+      scrollRefs.current[id]?.scrollToIndex({ index: newIndex, animated: true });
     }
   };
 
-  const handleNext = () => {
-    if (activeIndex < carouselImages.length - 1) {
-      const newIndex = activeIndex + 1;
-      setActiveIndex(newIndex);
-      scrollRef.current?.scrollToIndex({
-        index: newIndex,
-        animated: true,
-      });
+  const handleNext = (id: string, imagesLength: number) => {
+    const currentIndex = activeIndexes[id] ?? 0;
+    if (currentIndex < imagesLength - 1) {
+      const newIndex = currentIndex + 1;
+      setActiveIndexes((prev) => ({ ...prev, [id]: newIndex }));
+      scrollRefs.current[id]?.scrollToIndex({ index: newIndex, animated: true });
     }
   };
 
-  const renderItem = ({ item }: { item: (typeof data)[0] }) => (
-    <TouchableOpacity
-      style={{ marginBottom: 5 }}
-      activeOpacity={0.8}
-      onPress={() => navigation.navigate("ApartmentDetails")}
-    >
-      <View style={styles.carouselWrapper}>
-        <FlatList
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          data={carouselImages}
-          renderItem={({ item, index }) => (
-            <Image
-              key={index}
-              source={item}
-              resizeMode="cover"
-              style={styles.carouselImage}
-            />
-          )}
-          keyExtractor={(item, index) => index.toString()}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          ref={scrollRef}
-        />
-        <View style={styles.carouselOverlay}>
-          <View style={styles.carouselControlWrapper}>
-            <TouchableOpacity activeOpacity={0.8} onPress={handlePrev}>
-              <Prev height={30} width={30} />
-            </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.8} onPress={handleNext}>
-              <Next height={30} width={30} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.carouselBottomWrapper}>
-            <Text />
-            <View style={styles.dotContainer}>
-              {carouselImages.map((_, idx) => (
-                <View
-                  key={idx}
-                  style={[
-                    styles.dot,
-                    idx === activeIndex ? styles.activeDot : null,
-                  ]}
-                />
-              ))}
+  const renderItem = ({ item }: { item: (typeof data)[0] }) => {
+    const activeIndex = activeIndexes[item.id] ?? 0;
+    return (
+      <TouchableOpacity
+        style={{ marginBottom: 5 }}
+        activeOpacity={0.8}
+        onPress={() => navigation.navigate("ApartmentDetails")}
+      >
+        <View style={styles.carouselWrapper}>
+          <FlatList
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            data={item.images}
+            renderItem={({ item: image, index }) => (
+              <Image
+                key={index}
+                source={image}
+                resizeMode="cover"
+                style={styles.carouselImage}
+              />
+            )}
+            keyExtractor={(_, index) => index.toString()}
+            onScroll={(e) => handleScroll(e, item.id)}
+            scrollEventThrottle={16}
+            ref={(ref) => {
+              scrollRefs.current[item.id] = ref;
+            }}
+          />
+          <View style={styles.carouselOverlay}>
+            <View style={styles.carouselControlWrapper}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => handlePrev(item.id, item.images.length)}
+              >
+                <Prev height={30} width={30} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => handleNext(item.id, item.images.length)}
+              >
+                <Next height={30} width={30} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity activeOpacity={0.8}>
-              <Heart height={30} width={30} />
-            </TouchableOpacity>
+            <View style={styles.carouselBottomWrapper}>
+              <Text />
+              <View style={styles.dotContainer}>
+                {item.images.map((_, idx) => (
+                  <View
+                    key={idx}
+                    style={[
+                      styles.dot,
+                      idx === activeIndex ? styles.activeDot : null,
+                    ]}
+                  />
+                ))}
+              </View>
+              <TouchableOpacity activeOpacity={0.8}>
+                <Heart height={30} width={30} />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-      <View style={{ marginVertical: 20, gap: 5 }}>
-        <Text
-          style={[Typography.f_20_montserrat_bold, { color: Colors.black }]}
-        >
-          {item.title[currentLanguage]}
-        </Text>
-        <Text
-          style={[
-            Typography.f_14_nunito_medium,
-            { color: Colors.black, lineHeight: 24, width: "70%" },
-          ]}
-        >
-          {item.description[currentLanguage]}
-        </Text>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-          <Address />
+        <View style={{ marginVertical: 20, gap: 5 }}>
+          <Text
+            style={[Typography.f_20_montserrat_bold, { color: Colors.black }]}
+          >
+            {item.title[currentLanguage]}
+          </Text>
           <Text
             style={[
               Typography.f_14_nunito_medium,
-              { color: Colors.DARK_GREEN, lineHeight: 24 },
+              { color: Colors.black, lineHeight: 24, width: "70%" },
             ]}
           >
-            {item.address[currentLanguage]}
+            {item.description[currentLanguage]}
           </Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <Address />
+            <Text
+              style={[
+                Typography.f_14_nunito_medium,
+                { color: Colors.DARK_GREEN, lineHeight: 24 },
+              ]}
+            >
+              {item.address[currentLanguage]}
+            </Text>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.mainContainer}>
