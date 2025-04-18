@@ -18,8 +18,7 @@ import { colors } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
 import screenResolution from "../../utilities/constants/screenResolution";
 import CTAButton1 from "../../components/CTA_BUTTON1";
-import { BackIcon } from "../../assets/icons";
-import Colors from "../../utilities/constants/colors";
+import Header from "../../components/Header";
 
 const validationSchema = Yup.object().shape({
   agencyName: Yup.string().required(t("agencyNameRequired")),
@@ -52,32 +51,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     >
       <View style={{ flex: 8 }}>
         <ScrollView contentContainerStyle={styles.containerC1}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: 40,
-              marginBottom: 10,
-            }}
-          >
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => navigation.goBack()}
-            >
-              <BackIcon />
-            </TouchableOpacity>
-            <Text
-              style={[
-                { color: Colors.DARK_GREEN },
-                Typography.f_17_nunito_bold,
-              ]}
-            >
-              {t("pleaseRegisterHere")}
-            </Text>
-            <Text />
-          </View>
-
+        <Header title={t("pleaseRegisterHere")}/>
           <Text
             style={[
               Typography.f_20_nunito_bold,

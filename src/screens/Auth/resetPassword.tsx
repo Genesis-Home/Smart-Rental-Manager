@@ -20,7 +20,7 @@ import Colors from "../../utilities/constants/colors";
 import screenResolution from "../../utilities/constants/screenResolution";
 
 import CTAButton1 from "../../components/CTA_BUTTON1";
-import { BackIcon } from "../../assets/icons";
+import Header from "../../components/Header";
 
 const validationSchema = Yup.object().shape({
   password: Yup.string()
@@ -45,15 +45,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ navigation }) => {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
-        <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <BackIcon />
-          </TouchableOpacity>
-          <Text style={styles.headerText}>{t("recoverAccount")}</Text>
-          <View style={{ width: 24 }} />{" "}
-          {/* Placeholder to balance the header */}
-        </View>
-
+        <Header title={t("recoverAccount")} />
         {/* Title & Subtitle */}
         <Text style={styles.title}>{t("resetpassword")}</Text>
         <Text style={styles.subtitle}>{t("enternewpassword")}</Text>
@@ -178,7 +170,7 @@ const createStyles = (colors: any) =>
     errorText: {
       color: colors.Error_Red,
       marginTop: 5,
-      ...Typography.f_14_poppins_medium,
+      ...Typography.f_14_nunito_medium,
     },
     buttonWrapper: {
       marginTop: 20,

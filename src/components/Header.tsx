@@ -1,52 +1,38 @@
 import React from "react";
-import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/Entypo";
-import Images from "../assets/images";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { BackIcon } from "../assets/icons";
+import { Typography } from "../utilities/constants/constant.style";
 import Colors from "../utilities/constants/colors";
 
 interface HeaderProps {
-  onMenuPress: () => void;
+  title: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ onMenuPress }) => {
+const Header: React.FC<HeaderProps> = ({ title }) => {
+  const navigation = useNavigation();
+
   return (
-    <View style={styles.header}>
-      <Image
-        resizeMode="cover"
-        style={styles.logo}
-        source={Images.HorizontalLogo}
-      />
-      <TouchableOpacity
-        style={styles.menuButton}
-        activeOpacity={0.8}
-        onPress={onMenuPress}
-      >
-        <Icon name="menu" size={30} color={Colors.Primary_01} />
+    <View style={styles.headerContainer}>
+      <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.goBack()}>
+        <BackIcon />
       </TouchableOpacity>
+      <Text style={[{ color: Colors.DARK_GREEN }, Typography.f_17_nunito_bold]}>
+        {title}
+      </Text>
+      <View />
     </View>
   );
 };
 
-export default Header;
-
 const styles = StyleSheet.create({
-  header: {
+  headerContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 15,
-    backgroundColor: Colors.white,
-    shadowColor: Colors.Neutral_01,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
-  },
-  logo: {
-    width: 150,
-    height: 50,
-  },
-  menuButton: {
-    padding: 8,
+    marginTop: 40,
+    marginBottom: 10,
   },
 });
+
+export default Header;

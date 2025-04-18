@@ -6,7 +6,6 @@ import {
   View,
   TextInput,
   ScrollView,
-  TouchableOpacity,
   Platform,
 } from "react-native";
 import { t } from "i18next";
@@ -15,8 +14,7 @@ import * as Yup from "yup";
 import { colors } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
 import CTAButton1 from "../../components/CTA_BUTTON1";
-import { BackIcon } from "../../assets/icons";
-import Colors from "../../utilities/constants/colors";
+import Header from "../../components/Header";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
@@ -39,31 +37,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
     >
       <View style={{ flex: 8 }}>
         <ScrollView contentContainerStyle={styles.containerC1}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: 40,
-              marginBottom: 10,
-            }}
-          >
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => navigation.goBack()}
-            >
-              <BackIcon />
-            </TouchableOpacity>
-            <Text
-              style={[
-                { color: Colors.DARK_GREEN },
-                Typography.f_17_nunito_bold,
-              ]}
-            >
-              {t("recoverAccount")}
-            </Text>
-            <Text />
-          </View>
+          <Header title={t("recoverAccount")} />
           <Text
             style={[
               Typography.f_20_nunito_bold,
