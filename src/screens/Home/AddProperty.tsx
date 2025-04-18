@@ -41,7 +41,6 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
       prevImages.filter((_, index) => index !== indexToRemove)
     );
   };
-  
 
   const [galleryImages, setGalleryImages] = useState<any[]>([
     Images.GalleryImage1,
@@ -108,7 +107,7 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
             <TouchableOpacity
               activeOpacity={0.8}
               style={{ position: "absolute", right: 0, padding: 10 }}
-              onPress={() => handleRemoveImage(index)} 
+              onPress={() => handleRemoveImage(index)}
             >
               <Cross />
             </TouchableOpacity>
@@ -163,33 +162,66 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
             onRequestClose={() => setIsVisible(false)}
           />
           <View style={styles.textInputSection}>
-            <TextInput
-              placeholder={t("addTitle")}
-              placeholderTextColor={Colors.PLACE_HOLDER}
-              style={styles.textInput}
-              value={title}
-              onChangeText={setTitle}
-            />
-            <TextInput
-              placeholder={t("addDes")}
-              multiline
-              numberOfLines={5}
-              textAlignVertical="top"
-              placeholderTextColor={Colors.PLACE_HOLDER}
-              style={styles.textInputMultiline}
-              value={description}
-              onChangeText={setDescription}
-            />
-            <TextInput
-              placeholder={t("otherDet")}
-              multiline
-              numberOfLines={5}
-              textAlignVertical="top"
-              placeholderTextColor={Colors.PLACE_HOLDER}
-              style={styles.textInputMultiline}
-              value={otherDetails}
-              onChangeText={setOtherDetails}
-            />
+            <View style={{ gap: 8 }}>
+              <Text
+                style={[
+                  Typography.f_16_nunito_medium,
+                  { color: Colors.black, paddingLeft: 3 },
+                ]}
+              >
+                {t("addTitle")}
+              </Text>
+              <TextInput
+                placeholder={`${t("addTitle")}...`}
+                multiline
+                numberOfLines={5}
+                textAlignVertical="top"
+                placeholderTextColor={Colors.PLACE_HOLDER}
+                style={styles.textInputMultiline}
+                value={title}
+                onChangeText={setTitle}
+              />
+            </View>
+            <View style={{ gap: 8 }}>
+              <Text
+                style={[
+                  Typography.f_16_nunito_medium,
+                  { color: Colors.black, paddingLeft: 3 },
+                ]}
+              >
+                {t("addDes")}
+              </Text>
+              <TextInput
+                placeholder={`${t("addDes")}...`}
+                multiline
+                numberOfLines={5}
+                textAlignVertical="top"
+                placeholderTextColor={Colors.PLACE_HOLDER}
+                style={styles.textInputMultiline}
+                value={description}
+                onChangeText={setDescription}
+              />
+            </View>
+            <View style={{ gap: 8 }}>
+              <Text
+                style={[
+                  Typography.f_16_nunito_medium,
+                  { color: Colors.black, paddingLeft: 3 },
+                ]}
+              >
+                {t("otherDet")}
+              </Text>
+              <TextInput
+                placeholder={t("otherDet")}
+                multiline
+                numberOfLines={5}
+                textAlignVertical="top"
+                placeholderTextColor={Colors.PLACE_HOLDER}
+                style={styles.textInputMultiline}
+                value={otherDetails}
+                onChangeText={setOtherDetails}
+              />
+            </View>
           </View>
           <View style={styles.submitButtonContainer}>
             <CTAButton1 title={t("submit")} submitHandler={handleSubmit} />
