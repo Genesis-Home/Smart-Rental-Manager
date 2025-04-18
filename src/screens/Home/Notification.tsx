@@ -11,6 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import { BackIcon, Tick } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
+import Header from "../../components/Header";
 
 const Notification: React.FC = () => {
   const navigation = useNavigation();
@@ -101,16 +102,7 @@ const Notification: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => navigation.goBack()}
-        >
-          <BackIcon />
-        </TouchableOpacity>
-        <Text style={styles.title}>{t("Notification")}</Text>
-        <Text />
-      </View>
+      <Header title={t("Notification")} />
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
@@ -128,22 +120,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+    marginHorizontal: "5%",
   },
   scrollViewContent: {
-    marginHorizontal: "5%",
     paddingBottom: 50,
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 40,
-    marginBottom: 10,
-    marginHorizontal: "5%",
-  },
-  title: {
-    color: Colors.DARK_GREEN,
-    ...Typography.f_17_nunito_bold,
   },
   notificationWrapper: {
     marginTop: 30,

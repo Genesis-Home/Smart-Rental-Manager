@@ -4,17 +4,15 @@ import {
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
   Platform,
   TextInput,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
-import { BackIcon } from "../../assets/icons";
 import Colors from "../../utilities/constants/colors";
 import CTAButton1 from "../../components/CTA_BUTTON1";
-
+import Header from "../../components/Header";
 interface CreateContactProps {
   navigation: any;
 }
@@ -46,18 +44,7 @@ const CreateContact: React.FC<CreateContactProps> = ({ navigation }) => {
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.headerContainer}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => navigation.goBack()}
-            >
-              <BackIcon />
-            </TouchableOpacity>
-            <Text style={[styles.headerText, Typography.f_17_nunito_bold]}>
-              {t("createContact")}
-            </Text>
-            <Text />
-          </View>
+          <Header title={t("createContact")} />
           <View style={styles.textInputSection}>
             <View style={{ gap: 8 }}>
               <Text
@@ -145,16 +132,6 @@ const createStyles = (colors: any) =>
     scrollContainer: {
       marginHorizontal: "5%",
       paddingBottom: 50,
-    },
-    headerContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      marginTop: 40,
-      marginBottom: 25,
-    },
-    headerText: {
-      color: Colors.DARK_GREEN,
     },
     textInputSection: {
       marginVertical: 15,

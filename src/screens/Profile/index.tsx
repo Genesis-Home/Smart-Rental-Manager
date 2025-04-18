@@ -9,11 +9,12 @@ import {
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { useNavigation } from "@react-navigation/native";
-import { BackIcon, Add } from "../../assets/icons";
+import { Add } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/types";
+import Header from "../../components/Header";
 
 interface Contact {
   id: string;
@@ -80,16 +81,7 @@ const Profile: React.FC = () => {
 
   return (
     <View style={styles.profileContainer}>
-      <View style={styles.headerWrapper}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => navigation.goBack()}
-        >
-          <BackIcon />
-        </TouchableOpacity>
-        <Text style={styles.pageTitle}>{t("contact")}</Text>
-        <Text />
-      </View>
+      <Header title={t("contact")} />
       <FlatList
         data={contacts}
         renderItem={renderContactItem}
@@ -115,17 +107,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
     marginHorizontal: "5%",
-  },
-  headerWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 40,
-    marginBottom: 10,
-  },
-  pageTitle: {
-    color: Colors.DARK_GREEN,
-    ...Typography.f_17_nunito_bold,
   },
   flatListContainer: {
     marginTop: 20,

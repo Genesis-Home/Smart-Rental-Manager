@@ -10,11 +10,12 @@ import {
   Dimensions,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
-import { BackIcon, Prev, Next, Heart, Address } from "../../assets/icons";
+import { Prev, Next, Heart, Address } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import Images from "../../assets/images";
+import Header from "../../components/Header";
 
 const carouselImages = [Images.Banner, Images.Banner, Images.Banner];
 const { width } = Dimensions.get("window");
@@ -73,18 +74,7 @@ const ApartmentDetails: React.FC = () => {
         contentContainerStyle={styles.scrollContentContainer}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headerWrapper}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => navigation.goBack()}
-          >
-            <BackIcon />
-          </TouchableOpacity>
-          <Text style={[styles.screenTitle, Typography.f_17_nunito_bold]}>
-            {t("AdFullView")}
-          </Text>
-          <Text />
-        </View>
+        <Header title={t("AdFullView")} />
         <View>
           <View style={styles.carouselWrapper}>
             <FlatList
@@ -177,16 +167,6 @@ const styles = StyleSheet.create({
     marginHorizontal: "5%",
     paddingBottom: 50,
   },
-  headerWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 40,
-    marginBottom: 10,
-  },
-  screenTitle: {
-    color: Colors.DARK_GREEN,
-  },
   carouselWrapper: {
     height: 250,
     marginTop: 10,
@@ -206,7 +186,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal:10
+    paddingHorizontal: 10,
   },
   dotContainer: {
     flexDirection: "row",

@@ -14,5 +14,6 @@ export { default as Address } from './address.svg';
 export { default as Add } from './Add.svg';
 export { default as AddPhoto } from './addPhoto.svg';
 export { default as Tick } from './Tick.svg';
+export { default as Cross } from './Cross.svg';
 
 // footer icons

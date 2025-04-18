@@ -14,17 +14,19 @@ import { useTranslation } from "react-i18next";
 import { colors } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
 import ImageView from "react-native-image-viewing";
-import { AddPhoto, BackIcon } from "../../assets/icons";
+import { AddPhoto } from "../../assets/icons";
 import Colors from "../../utilities/constants/colors";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import Images from "../../assets/images";
 import { launchImageLibrary } from "react-native-image-picker";
+import Header from "../../components/Header";
+import { Cross } from "../../assets/icons";
 
 interface AddPropertyProps {
   navigation: any;
 }
 
-const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
+const AddProperty: React.FC<AddPropertyProps> = () => {
   const styles = createStyles(colors);
   const { t } = useTranslation();
 
@@ -33,6 +35,13 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [otherDetails, setOtherDetails] = useState("");
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    setGalleryImages((prevImages) =>
+      prevImages.filter((_, index) => index !== indexToRemove)
+    );
+  };
+  
 
   const [galleryImages, setGalleryImages] = useState<any[]>([
     Images.GalleryImage1,
@@ -96,6 +105,13 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
             style={styles.imageContainer}
           >
             <Image style={styles.image} source={item} resizeMode="cover" />
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={{ position: "absolute", right: 0, padding: 10 }}
+              onPress={() => handleRemoveImage(index)} 
+            >
+              <Cross />
+            </TouchableOpacity>
             {index === maxVisibleImages - 1 && remainingCount > 0 && (
               <View style={styles.overlay}>
                 <Text style={styles.overlayText}>{`+${remainingCount}`}</Text>
@@ -110,19 +126,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   return (
     <View style={[styles.mainContainer, styles.platformMarginTop]}>
       <View style={styles.contentContainer}>
-        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-          <View style={styles.headerContainer}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => navigation.goBack()}
-            >
-              <BackIcon />
-            </TouchableOpacity>
-            <Text style={[styles.headerText, Typography.f_17_nunito_bold]}>
-              {t("addProperty")}
-            </Text>
-            <Text />
-          </View>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <Header title={t("addProperty")} />
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={handleImagePick}
@@ -207,16 +215,6 @@ const createStyles = (colors: any) =>
     scrollContainer: {
       marginHorizontal: "6%",
       paddingBottom: 50,
-    },
-    headerContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      marginTop: 40,
-      marginBottom: 10,
-    },
-    headerText: {
-      color: Colors.DARK_GREEN,
     },
     photoUploadSection: {
       flexDirection: "row",
