@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   StyleSheet,
   Text,
@@ -13,6 +13,9 @@ import { Typography } from "../../utilities/constants/constant.style";
 import Colors from "../../utilities/constants/colors";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
+import { Formik } from "formik";
+import * as Yup from "yup";
+
 interface CreateContactProps {
   navigation: any;
 }
@@ -21,20 +24,17 @@ const CreateContact: React.FC<CreateContactProps> = ({ navigation }) => {
   const styles = createStyles(colors);
   const { t } = useTranslation();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNum, setPhoneNum] = useState("");
-  const [notes, setNotes] = useState("");
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required(t("name") + " " + t("isRequired")),
+    email: Yup.string()
+      .email(t("invalidEmail"))
+      .required(t("emailAddress") + " " + t("isRequired")),
+    phoneNum: Yup.string().required(t("phoneNum") + " " + t("isRequired")),
+    notes: Yup.string().required(t("note") + " " + t("isRequired")),
+  });
 
-  const handleCreate = () => {
-    const formData = {
-      name,
-      email,
-      phoneNum,
-      notes,
-    };
-
-    console.log("Form Data:", formData);
+  const handleCreate = (values: any) => {
+    console.log("Form Data:", values);
   };
 
   return (
@@ -45,72 +45,131 @@ const CreateContact: React.FC<CreateContactProps> = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
         >
           <Header title={t("createContact")} />
-          <View style={styles.textInputSection}>
-            <View style={{ gap: 8 }}>
-              <Text
-                style={[
-                  Typography.f_16_nunito_medium,
-                  { color: Colors.black, paddingLeft: 3 },
-                ]}
-              >
-                {t("name")}
-              </Text>
-              <TextInput
-                placeholder={t("name")}
-                placeholderTextColor={Colors.PLACE_HOLDER}
-                style={styles.textInput}
-                value={name}
-                onChangeText={setName}
-              />
-            </View>
-            <View style={{ gap: 8 }}>
-              <Text
-                style={[
-                  Typography.f_16_nunito_medium,
-                  { color: Colors.black, paddingLeft: 3 },
-                ]}
-              >
-                {t("emailAddress")}
-              </Text>
-              <TextInput
-                placeholder={t("emailAddress")}
-                placeholderTextColor={Colors.PLACE_HOLDER}
-                style={styles.textInput}
-                value={email}
-                onChangeText={setEmail}
-              />
-            </View>
-            <View style={{ gap: 8 }}>
-              <Text
-                style={[
-                  Typography.f_16_nunito_medium,
-                  { color: Colors.black, paddingLeft: 3 },
-                ]}
-              >
-                {t("phoneNum")}
-              </Text>
-              <TextInput
-                placeholder={t("phoneNum")}
-                placeholderTextColor={Colors.PLACE_HOLDER}
-                style={styles.textInput}
-                value={phoneNum}
-                onChangeText={setPhoneNum}
-              />
-            </View>
-            <TextInput
-              placeholder={t("note")}
-              multiline
-              numberOfLines={5}
-              textAlignVertical="top"
-              placeholderTextColor={Colors.PLACE_HOLDER}
-              style={styles.textInputMultiline}
-              value={notes}
-              onChangeText={setNotes}
-            />
-          </View>
-          <View style={styles.createBTnContainer}>
-            <CTAButton1 title={t("create")} submitHandler={handleCreate} />
-          </View>
+          <Formik
+            initialValues={{
+              name: "",
+              email: "",
+              phoneNum: "",
+              notes: "",
+            }}
+            validationSchema={validationSchema}
+            onSubmit={handleCreate}
+          >
+            {({
+              values,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              errors,
+              touched,
+            }) => (
+              <>
+                <View style={styles.textInputSection}>
+                  <View style={{ gap: 8 }}>
+                    <Text
+                      style={[
+                        Typography.f_16_nunito_medium,
+                        { color: Colors.black, paddingLeft: 3 },
+                      ]}
+                    >
+                      {t("name")}
+                    </Text>
+                    <TextInput
+                      placeholder={t("name")}
+                      placeholderTextColor={Colors.PLACE_HOLDER}
+                      style={styles.textInput}
+                      value={values.name}
+                      onChangeText={handleChange("name")}
+                      onBlur={handleBlur("name")}
+                    />
+                    {touched.name && errors.name && (
+                      <Text style={{ color: Colors.Error_Red }}>
+                        {errors.name}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={{ gap: 8 }}>
+                    <Text
+                      style={[
+                        Typography.f_16_nunito_medium,
+                        { color: Colors.black, paddingLeft: 3 },
+                      ]}
+                    >
+                      {t("emailAddress")}
+                    </Text>
+                    <TextInput
+                      placeholder={t("emailAddress")}
+                      placeholderTextColor={Colors.PLACE_HOLDER}
+                      style={styles.textInput}
+                      value={values.email}
+                      onChangeText={handleChange("email")}
+                      onBlur={handleBlur("email")}
+                    />
+                    {touched.email && errors.email && (
+                      <Text style={{ color: Colors.Error_Red }}>
+                        {errors.email}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={{ gap: 8 }}>
+                    <Text
+                      style={[
+                        Typography.f_16_nunito_medium,
+                        { color: Colors.black, paddingLeft: 3 },
+                      ]}
+                    >
+                      {t("phoneNum")}
+                    </Text>
+                    <TextInput
+                      placeholder={t("phoneNum")}
+                      placeholderTextColor={Colors.PLACE_HOLDER}
+                      style={styles.textInput}
+                      value={values.phoneNum}
+                      onChangeText={handleChange("phoneNum")}
+                      onBlur={handleBlur("phoneNum")}
+                    />
+                    {touched.phoneNum && errors.phoneNum && (
+                      <Text style={{ color: Colors.Error_Red }}>
+                        {errors.phoneNum}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={{ gap: 8 }}>
+                    <Text
+                      style={[
+                        Typography.f_16_nunito_medium,
+                        { color: Colors.black, paddingLeft: 3 },
+                      ]}
+                    >
+                      {t("note")}
+                    </Text>
+                    <TextInput
+                      placeholder={`${t("note")}.....`}
+                      multiline
+                      numberOfLines={5}
+                      textAlignVertical="top"
+                      placeholderTextColor={Colors.PLACE_HOLDER}
+                      style={styles.textInputMultiline}
+                      value={values.notes}
+                      onChangeText={handleChange("notes")}
+                      onBlur={handleBlur("notes")}
+                    />
+                    {touched.notes && errors.notes && (
+                      <Text style={{ color: Colors.Error_Red }}>
+                        {errors.notes}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                <View style={styles.createBTnContainer}>
+                  <CTAButton1
+                    title={t("create")}
+                    submitHandler={handleSubmit}
+                  />
+                </View>
+              </>
+            )}
+          </Formik>
         </ScrollView>
       </View>
     </View>
