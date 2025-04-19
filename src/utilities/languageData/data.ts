@@ -47,8 +47,8 @@ type LanguageTranslation = {
   photo: string;
   addTitle: string;
   addDes: string;
-  detail:string;
-  desc:string;
+  detail: string;
+  desc: string;
   otherDet: string;
   submit: string;
   AdFullView: string;
@@ -68,7 +68,10 @@ type LanguageTranslation = {
   setting: string;
   location: string;
   isRequired: string;
-  title:string
+  title: string;
+  schedulePropertyVisit: string;
+  days: Record<string, string>;
+  properties: string[];
 };
 
 type LanguageData = {
@@ -128,10 +131,11 @@ export const languageData: LanguageData[] = [
       PhotoUpload: "PhotoUpload",
       photo: "Photo",
       addTitle: "Add Title",
-      title:'Title',
+      title: "Title",
+      schedulePropertyVisit: "Schedule Property Visit",
       addDes: "Add Description",
-      detail:'Detail',
-      desc:'Description',
+      detail: "Detail",
+      desc: "Description",
       otherDet: "Other details",
       submit: "Submit",
       AdFullView: "Ad Full View",
@@ -151,6 +155,24 @@ export const languageData: LanguageData[] = [
       setting: "Setting",
       location: "Location",
       isRequired: "is required",
+      days: {
+        Mo: "Mo",
+        Tu: "Tu",
+        We: "We",
+        Th: "Th",
+        Fr: "Fr",
+        Sa: "Sa",
+        Su: "Su",
+      },
+      properties: [
+        "Flat 1",
+        "Room 1",
+        "Bed 1",
+        "Countryside house 1",
+        "House 1",
+        "Terrace 1",
+        "Stead 1",
+      ],
     },
   },
   {
@@ -205,10 +227,11 @@ export const languageData: LanguageData[] = [
       PhotoUpload: "Subir foto",
       photo: "Foto",
       addTitle: "Agregar título...",
-      title:'Título',
+      title: "Título",
+      schedulePropertyVisit: "Programar visita a la propiedad",
       addDes: "Agregar descripción...",
-      detail:'Detalle',
-      desc:'Descripción',
+      detail: "Detalle",
+      desc: "Descripción",
       otherDet: "Otros detalles",
       submit: "Enviar",
       AdFullView: "Vista completa del anuncio",
@@ -228,6 +251,24 @@ export const languageData: LanguageData[] = [
       setting: "Configuración",
       location: "ubicación",
       isRequired: "es obligatorio",
+      days: {
+        Mo: "Lu",
+        Tu: "Ma",
+        We: "Mi",
+        Th: "Ju",
+        Fr: "Vi",
+        Sa: "Sa",
+        Su: "Do",
+      },
+      properties: [
+        "Piso 1",
+        "Habitación 1",
+        "Cama 1",
+        "Casa de campo 1",
+        "Casa 1",
+        "Terraza 1",
+        "Finca 1",
+      ],
     },
   },
 ];
