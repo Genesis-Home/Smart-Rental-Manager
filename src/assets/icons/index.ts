@@ -30,3 +30,12 @@ export { default as ScheduleA } from './scheduleA.svg';
 export { default as SettingA } from './settingA.svg';
 
 
+export { default as Email } from './Email.svg';
+export { default as Copy } from './copy.svg';
+export { default as Share } from './share.svg';
+export { default as Whatsapp } from './whatsapp.svg';
+
+
+
+
+

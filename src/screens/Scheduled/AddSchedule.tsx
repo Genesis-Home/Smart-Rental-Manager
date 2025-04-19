@@ -38,6 +38,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
 
   const handleCreate = (values: any) => {
     console.log("Form Data:", values);
+    navigation.navigate('AutomatedEmail')
   };
 
   return (
@@ -50,13 +51,13 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
           <Header title={t("schedulePropertyVisit")} />
           <Formik
             initialValues={{
-              clientName: "",
-              email: "",
-              phoneNum: "",
-              visitDateTime: "",
-              propertyToVisit: "",
-              numberOfVisitors: "",
-              numberOfInfants: "",
+              clientName: "Smart Rental",
+              email: "smartrental@gmail.com",
+              phoneNum: "45301",
+              visitDateTime: "Feb 20, 2024",
+              propertyToVisit: "2",
+              numberOfVisitors: "2",
+              numberOfInfants: "2",
             }}
             validationSchema={validationSchema}
             onSubmit={handleCreate}

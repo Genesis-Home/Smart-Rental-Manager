@@ -1,4 +1,4 @@
-type LanguageTranslation = {
+export type LanguageTranslation = {
   welcome: string;
   trackVisits: string;
   loginEmailPrompt: string;
@@ -78,9 +78,18 @@ type LanguageTranslation = {
   propertyToVisitors: string;
   numberOfVisitors: string;
   numberOfInfants: string;
+  AutomatedEmail: string;
+  visitConfirmed: string;
+  visitData: string;
+  propertyAddress: string;
+  visitDetail: string;
+  openInGoogleMaps: string;
+  Whatsapp: string;
+  ShareApp: string;
+  Copydata: string;
 };
 
-type LanguageData = {
+export type LanguageData = {
   locale: string;
   translation: LanguageTranslation;
 };
@@ -137,8 +146,6 @@ export const languageData: LanguageData[] = [
       PhotoUpload: "PhotoUpload",
       photo: "Photo",
       addTitle: "Add Title",
-      title: "Title",
-      schedulePropertyVisit: "Schedule Property Visit",
       addDes: "Add Description",
       detail: "Detail",
       desc: "Description",
@@ -161,6 +168,8 @@ export const languageData: LanguageData[] = [
       setting: "Setting",
       location: "Location",
       isRequired: "is required",
+      title: "Title",
+      schedulePropertyVisit: "Schedule Property Visit",
       days: {
         Mo: "Mo",
         Tu: "Tu",
@@ -182,9 +191,18 @@ export const languageData: LanguageData[] = [
       createSchedule: "Create Schedule",
       clientName: "Client’s Name",
       visitDateTime: "Visit Date & Time",
-       propertyToVisitors: "Property to Visitors",
+      propertyToVisitors: "Property to Visitors",
       numberOfVisitors: "Number of Visitors",
       numberOfInfants: "Number of Infants",
+      AutomatedEmail: "Automated Email",
+      visitConfirmed: "Your visit is confirmed",
+      visitData: "Visit Data",
+      propertyAddress: "Property Address",
+      visitDetail: "Visit Details",
+      openInGoogleMaps: "Open in Google Maps",
+      Whatsapp: "Whatsapp",
+      ShareApp: "Share App",
+      Copydata: "Copy data",
     },
   },
   {
@@ -287,6 +305,15 @@ export const languageData: LanguageData[] = [
       propertyToVisitors: "Propiedad para los visitantes",
       numberOfVisitors: "Número de visitantes",
       numberOfInfants: "Número de infantes",
+      AutomatedEmail: "Correo electrónico automatizado",
+      visitConfirmed: "Tu visita está confirmada",
+      visitData: "Datos de la visita",
+      propertyAddress: "Dirección de la propiedad",
+      visitDetail: "Detalles de la visita",
+      openInGoogleMaps: "Abrir en Google Maps",
+      Whatsapp: "Whatsapp",
+      ShareApp: "Compartir aplicación",
+      Copydata: "Copiar datos",
     },
   },
 ];
@@ -307,5 +334,21 @@ export const appLanguages: AppLanguage[] = [
     id: "1",
     name: "Spanish",
     code: "sp",
+  },
+];
+
+export type VisitDetail = {
+  date: string;
+  numberOfVisitors: number;
+  numberOfInfants: number;
+  propertyAddress: string;
+};
+
+export const visitDetails: VisitDetail[] = [
+  {
+    date: "Feb 20, 2024",
+    numberOfVisitors: 2,
+    numberOfInfants: 1,
+    propertyAddress: "123 Male St, Springfield",
   },
 ];

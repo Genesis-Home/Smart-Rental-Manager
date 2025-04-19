@@ -18,6 +18,7 @@ interface CTAButton1Props {
   icon?: React.ReactNode;
   backgroundColor?: string;
   textColor?: string;
+  borderColor?: string;
 }
 
 const CTAButton1: React.FC<CTAButton1Props> = ({
@@ -26,10 +27,11 @@ const CTAButton1: React.FC<CTAButton1Props> = ({
   icon,
   backgroundColor,
   textColor,
+  borderColor,
 }) => {
   const isLoader = useSelector((state: any) => state.reducer.isLoader);
 
-  const styles = createStyles(colors, backgroundColor, textColor);
+  const styles = createStyles(colors, backgroundColor, textColor, borderColor);
 
   return (
     <TouchableOpacity
@@ -43,10 +45,13 @@ const CTAButton1: React.FC<CTAButton1Props> = ({
             flexDirection: "row",
             justifyContent: "center",
             alignItems: "center",
+            gap: 10,
           }}
         >
           {icon && icon}
-          <Text style={[styles.CRAButton1_Text, Typography.f_16_nunito_semi_bold]}>
+          <Text
+            style={[styles.CRAButton1_Text, Typography.f_16_nunito_semi_bold]}
+          >
             {title}
           </Text>
         </View>
@@ -62,7 +67,8 @@ export default CTAButton1;
 const createStyles = (
   colors: any,
   backgroundColor?: string,
-  textColor?: string
+  textColor?: string,
+  borderColor?: string
 ): { CRAButton1: ViewStyle; CRAButton1_Text: TextStyle } => {
   return StyleSheet.create({
     CRAButton1: {
@@ -73,7 +79,7 @@ const createStyles = (
       justifyContent: "center",
       alignItems: "center",
       borderWidth: 1,
-      borderColor: colors.Primary_01,
+      borderColor: borderColor || colors.Primary_01,
     },
     CRAButton1_Text: {
       textAlign: "center",
