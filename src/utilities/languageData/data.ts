@@ -47,6 +47,8 @@ type LanguageTranslation = {
   photo: string;
   addTitle: string;
   addDes: string;
+  detail:string;
+  desc:string;
   otherDet: string;
   submit: string;
   AdFullView: string;
@@ -61,10 +63,12 @@ type LanguageTranslation = {
   note: string;
   home: string;
   scheduled: string;
-  contact:string,
-  exportData:string,
-  setting:string,
-  location:string
+  contact: string;
+  exportData: string;
+  setting: string;
+  location: string;
+  isRequired: string;
+  title:string
 };
 
 type LanguageData = {
@@ -124,7 +128,10 @@ export const languageData: LanguageData[] = [
       PhotoUpload: "PhotoUpload",
       photo: "Photo",
       addTitle: "Add Title",
+      title:'Title',
       addDes: "Add Description",
+      detail:'Detail',
+      desc:'Description',
       otherDet: "Other details",
       submit: "Submit",
       AdFullView: "Ad Full View",
@@ -142,7 +149,8 @@ export const languageData: LanguageData[] = [
       scheduled: "Scheduled",
       exportData: "Export Data",
       setting: "Setting",
-      location:'Location'
+      location: "Location",
+      isRequired: "is required",
     },
   },
   {
@@ -197,7 +205,10 @@ export const languageData: LanguageData[] = [
       PhotoUpload: "Subir foto",
       photo: "Foto",
       addTitle: "Agregar título...",
+      title:'Título',
       addDes: "Agregar descripción...",
+      detail:'Detalle',
+      desc:'Descripción',
       otherDet: "Otros detalles",
       submit: "Enviar",
       AdFullView: "Vista completa del anuncio",
@@ -215,7 +226,8 @@ export const languageData: LanguageData[] = [
       scheduled: "Programado",
       exportData: "Exportar Datos",
       setting: "Configuración",
-      location:'ubicación'
+      location: "ubicación",
+      isRequired: "es obligatorio",
     },
   },
 ];

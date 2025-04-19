@@ -21,6 +21,8 @@ import Images from "../../assets/images";
 import { launchImageLibrary } from "react-native-image-picker";
 import Header from "../../components/Header";
 import { Cross } from "../../assets/icons";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
 interface AddPropertyProps {
   navigation: any;
@@ -32,9 +34,12 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
 
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [otherDetails, setOtherDetails] = useState("");
+
+  const validationSchema = Yup.object().shape({
+    title: Yup.string().required(t("title") + " " + t("isRequired")),
+    description: Yup.string().required(t("desc") + " " + t("isRequired")),
+    otherDetails: Yup.string().required(t("detail") + " " + t("isRequired")),
+  });
 
   const handleRemoveImage = (indexToRemove: number) => {
     setGalleryImages((prevImages) =>
@@ -71,19 +76,6 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
         }
       }
     );
-  };
-
-  const handleSubmit = () => {
-    const formData = {
-      title,
-      description,
-      otherDetails,
-      images: galleryImages.map((img) =>
-        img.uri ? img.uri : Image.resolveAssetSource(img).uri
-      ),
-    };
-
-    console.log("Form Data:", formData);
   };
 
   const renderImages = () => {
@@ -152,7 +144,9 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
               </Text>
             </View>
           </TouchableOpacity>
+
           {renderImages()}
+
           <ImageView
             images={galleryImages.map((img) => ({
               uri: img.uri ? img.uri : Image.resolveAssetSource(img).uri,
@@ -161,86 +155,139 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
             visible={visible}
             onRequestClose={() => setIsVisible(false)}
           />
-          <View style={styles.textInputSection}>
-            <View style={{ gap: 8 }}>
-              <Text
-                style={[
-                  Typography.f_16_nunito_medium,
-                  { color: Colors.black, paddingLeft: 3 },
-                ]}
-              >
-                {t("addTitle")}
-              </Text>
-              <TextInput
-                placeholder={`${t("addTitle")}...`}
-                multiline
-                numberOfLines={5}
-                textAlignVertical="top"
-                placeholderTextColor={Colors.PLACE_HOLDER}
-                style={styles.textInputMultiline}
-                value={title}
-                onChangeText={setTitle}
-              />
-            </View>
-            <View style={{ gap: 8 }}>
-              <Text
-                style={[
-                  Typography.f_16_nunito_medium,
-                  { color: Colors.black, paddingLeft: 3 },
-                ]}
-              >
-                {t("addDes")}
-              </Text>
-              <TextInput
-                placeholder={`${t("addDes")}...`}
-                multiline
-                numberOfLines={5}
-                textAlignVertical="top"
-                placeholderTextColor={Colors.PLACE_HOLDER}
-                style={styles.textInputMultiline}
-                value={description}
-                onChangeText={setDescription}
-              />
-            </View>
-            <View style={{ gap: 8 }}>
-              <Text
-                style={[
-                  Typography.f_16_nunito_medium,
-                  { color: Colors.black, paddingLeft: 3 },
-                ]}
-              >
-                {t("otherDet")}
-              </Text>
-              <TextInput
-                placeholder={t("otherDet")}
-                multiline
-                numberOfLines={5}
-                textAlignVertical="top"
-                placeholderTextColor={Colors.PLACE_HOLDER}
-                style={styles.textInputMultiline}
-                value={otherDetails}
-                onChangeText={setOtherDetails}
-              />
-            </View>
-            <View style={{ gap: 8 }}>
-              <Text
-                style={[
-                  Typography.f_16_nunito_medium,
-                  { color: Colors.black, paddingLeft: 3 },
-                ]}
-              >
-                {t("location")}
-              </Text>
-              <Image
-                source={Images.map}
-                style={{ width: "100%", height: 130 }}
-                resizeMode="cover"
-              />
-            </View>
-          </View>
-          <View style={styles.submitButtonContainer}>
-            <CTAButton1 title={t("submit")} submitHandler={handleSubmit} />
-          </View>
+
+          <Formik
+            initialValues={{
+              title: "",
+              description: "",
+              otherDetails: "",
+            }}
+            validationSchema={validationSchema}
+            onSubmit={(values) => {
+              const formData = {
+                ...values,
+                images: galleryImages.map((img) =>
+                  img.uri ? img.uri : Image.resolveAssetSource(img).uri
+                ),
+              };
+              console.log("Form Data:", formData);
+            }}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+            }) => (
+              <View style={styles.textInputSection}>
+                <View style={{ gap: 8 }}>
+                  <Text
+                    style={[
+                      Typography.f_16_nunito_medium,
+                      { color: Colors.black, paddingLeft: 3 },
+                    ]}
+                  >
+                    {t("addTitle")}
+                  </Text>
+                  <TextInput
+                    placeholder={`${t("addTitle")}...`}
+                    multiline
+                    numberOfLines={5}
+                    textAlignVertical="top"
+                    placeholderTextColor={Colors.PLACE_HOLDER}
+                    style={styles.textInputMultiline}
+                    onChangeText={handleChange("title")}
+                    onBlur={handleBlur("title")}
+                    value={values.title}
+                  />
+                  {touched.title && errors.title && (
+                    <Text style={{ color: Colors.Error_Red }}>
+                      {errors.title}
+                    </Text>
+                  )}
+                </View>
+
+                <View style={{ gap: 8 }}>
+                  <Text
+                    style={[
+                      Typography.f_16_nunito_medium,
+                      { color: Colors.black, paddingLeft: 3 },
+                    ]}
+                  >
+                    {t("addDes")}
+                  </Text>
+                  <TextInput
+                    placeholder={`${t("addDes")}...`}
+                    multiline
+                    numberOfLines={5}
+                    textAlignVertical="top"
+                    placeholderTextColor={Colors.PLACE_HOLDER}
+                    style={styles.textInputMultiline}
+                    onChangeText={handleChange("description")}
+                    onBlur={handleBlur("description")}
+                    value={values.description}
+                  />
+                  {touched.description && errors.description && (
+                    <Text style={{ color: Colors.Error_Red }}>
+                      {errors.description}
+                    </Text>
+                  )}
+                </View>
+
+                <View style={{ gap: 8 }}>
+                  <Text
+                    style={[
+                      Typography.f_16_nunito_medium,
+                      { color: Colors.black, paddingLeft: 3 },
+                    ]}
+                  >
+                    {t("otherDet")}
+                  </Text>
+                  <TextInput
+                    placeholder={t("otherDet")}
+                    multiline
+                    numberOfLines={5}
+                    textAlignVertical="top"
+                    placeholderTextColor={Colors.PLACE_HOLDER}
+                    style={styles.textInputMultiline}
+                    onChangeText={handleChange("otherDetails")}
+                    onBlur={handleBlur("otherDetails")}
+                    value={values.otherDetails}
+                  />
+                  {touched.otherDetails && errors.otherDetails && (
+                    <Text style={{ color: Colors.Error_Red }}>
+                      {errors.otherDetails}
+                    </Text>
+                  )}
+                </View>
+
+                <View style={{ gap: 8 }}>
+                  <Text
+                    style={[
+                      Typography.f_16_nunito_medium,
+                      { color: Colors.black, paddingLeft: 3 },
+                    ]}
+                  >
+                    {t("location")}
+                  </Text>
+                  <Image
+                    source={Images.map}
+                    style={{ width: "100%", height: 130 }}
+                    resizeMode="cover"
+                  />
+                </View>
+
+                <View style={styles.submitButtonContainer}>
+                  <CTAButton1
+                    title={t("submit")}
+                    submitHandler={handleSubmit}
+                  />
+                </View>
+              </View>
+            )}
+          </Formik>
         </ScrollView>
       </View>
     </View>
