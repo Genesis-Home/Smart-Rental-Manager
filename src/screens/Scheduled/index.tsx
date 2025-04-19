@@ -6,12 +6,20 @@ import {
   ScrollView,
   FlatList,
   ListRenderItem,
+  TouchableOpacity,
 } from "react-native";
 import Header from "../../components/Header";
 import { useTranslation } from "react-i18next";
 import Colors from "../../utilities/constants/colors";
 import { Typography } from "../../utilities/constants/constant.style";
 import { colors } from "../../utilities/constants";
+import { AddPhoto } from "../../assets/icons";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../../navigation/types";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
+type ScheduledScreenNavigationProp =
+  NativeStackNavigationProp<RootStackParamList>;
 
 type Day = {
   day: string;
@@ -19,6 +27,7 @@ type Day = {
 };
 
 const Scheduled: React.FC = () => {
+  const navigation = useNavigation<ScheduledScreenNavigationProp>();
   const { t } = useTranslation();
 
   const days: Day[] = [
@@ -56,6 +65,13 @@ const Scheduled: React.FC = () => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Header title={t("schedulePropertyVisit")} />
+      <TouchableOpacity
+        onPress={() => navigation.navigate("AddSchedule")}
+        activeOpacity={0.8}
+        style={{ position: "absolute", right: 0, top: 40 }}
+      >
+        <AddPhoto height={30} width={30} />
+      </TouchableOpacity>
       <FlatList
         data={days}
         keyExtractor={(_, index) => `day-${index}`}

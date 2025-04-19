@@ -12,8 +12,10 @@ import Scheduled from "../screens/Scheduled";
 import ExportData from "../screens/ExportData";
 import Settings from "../screens/Settings";
 import Profile from "../screens/Profile";
+
 import ApartmentDetails from "../screens/Home/ApartmentDetails";
 import createContact from "../screens/Profile/CreateContact";
+import AddSchedule from "../screens/Scheduled/AddSchedule";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
@@ -28,6 +30,7 @@ type RootStackParamList = {
   Profile1: undefined;
   ApartmentDetails: undefined;
   createContact: undefined;
+  AddSchedule:undefined
 };
 
 type TabParamList = {
@@ -65,6 +68,11 @@ function ScheduledRoutes() {
         options={{ headerShown: false }}
         name="Scheduled1"
         component={Scheduled}
+      />
+      <Stack.Screen
+        options={{ headerShown: false }}
+        name="AddSchedule"
+        component={AddSchedule}
       />
     </Stack.Navigator>
   );

@@ -72,6 +72,12 @@ type LanguageTranslation = {
   schedulePropertyVisit: string;
   days: Record<string, string>;
   properties: string[];
+  createSchedule: string;
+  clientName: string;
+  visitDateTime: string;
+  propertyToVisitors: string;
+  numberOfVisitors: string;
+  numberOfInfants: string;
 };
 
 type LanguageData = {
@@ -173,6 +179,12 @@ export const languageData: LanguageData[] = [
         "Terrace 1",
         "Stead 1",
       ],
+      createSchedule: "Create Schedule",
+      clientName: "Client’s Name",
+      visitDateTime: "Visit Date & Time",
+       propertyToVisitors: "Property to Visitors",
+      numberOfVisitors: "Number of Visitors",
+      numberOfInfants: "Number of Infants",
     },
   },
   {
@@ -269,6 +281,12 @@ export const languageData: LanguageData[] = [
         "Terraza 1",
         "Finca 1",
       ],
+      createSchedule: "Crear horario",
+      clientName: "Nombre del cliente",
+      visitDateTime: "Fecha y hora de la visita",
+      propertyToVisitors: "Propiedad para los visitantes",
+      numberOfVisitors: "Número de visitantes",
+      numberOfInfants: "Número de infantes",
     },
   },
 ];
