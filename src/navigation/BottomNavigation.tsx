@@ -6,7 +6,7 @@ import { RFValue } from "react-native-responsive-fontsize";
 import screenResolution from "../utilities/constants/screenResolution";
 import { useTranslation } from "react-i18next";
 
-// Tabs
+// Screens
 import Home from "../screens/Home/Home";
 import Scheduled from "../screens/Scheduled";
 import ExportData from "../screens/ExportData";
@@ -17,10 +17,22 @@ import ApartmentDetails from "../screens/Home/ApartmentDetails";
 import createContact from "../screens/Profile/CreateContact";
 import AddSchedule from "../screens/Scheduled/AddSchedule";
 
-import Icon from "react-native-vector-icons/Ionicons";
-import LinearGradient from "react-native-linear-gradient";
-import Colors from "../utilities/constants/colors";
 import { colors } from "../utilities/constants";
+import Colors from "../utilities/constants/colors";
+
+// SVG Icons
+import {
+  Home as HomeIcon,
+  HomeA as HomeIconActive,
+  Contact as ContactIcon,
+  ContactA as ContactIconActive,
+  ExportData as ExportIcon,
+  ExportDataA as ExportIconActive,
+  Schedule as ScheduleIcon,
+  ScheduleA as ScheduleIconActive,
+  Setting as SettingIcon,
+  SettingA as SettingIconActive,
+} from "../assets/icons";
 
 type RootStackParamList = {
   Home1: undefined;
@@ -30,7 +42,7 @@ type RootStackParamList = {
   Profile1: undefined;
   ApartmentDetails: undefined;
   createContact: undefined;
-  AddSchedule:undefined
+  AddSchedule: undefined;
 };
 
 type TabParamList = {
@@ -48,14 +60,14 @@ function HomeRoutes() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        options={{ headerShown: false }}
         name="Home1"
         component={Home}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
-        options={{ headerShown: false }}
         name="ApartmentDetails"
         component={ApartmentDetails}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -65,14 +77,14 @@ function ScheduledRoutes() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        options={{ headerShown: false }}
         name="Scheduled1"
         component={Scheduled}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
-        options={{ headerShown: false }}
         name="AddSchedule"
         component={AddSchedule}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -82,9 +94,9 @@ function ExportDataRoutes() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        options={{ headerShown: false }}
         name="ExportData1"
         component={ExportData}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -94,9 +106,9 @@ function SettingsRoutes() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        options={{ headerShown: false }}
         name="Settings1"
         component={Settings}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -106,51 +118,22 @@ function ProfileRoutes() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        options={{ headerShown: false }}
         name="Profile1"
         component={Profile}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
-        options={{ headerShown: false }}
         name="createContact"
         component={createContact}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
 }
 
-const TabIcon = ({
-  focused,
-  iconName,
-}: {
-  focused: boolean;
-  iconName: string;
-}) => (
-  <View style={{ alignItems: "center", justifyContent: "center" }}>
-    {focused && (
-      <LinearGradient
-        colors={[Colors.Primary_01, Colors.Primary_01]}
-        style={{
-          position: "absolute",
-          top: -8,
-          width: RFValue(25, screenResolution.screenWidth),
-          height: RFValue(1, screenResolution.screenHeight),
-          borderRadius: 2,
-        }}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-      />
-    )}
-    <Icon
-      name={iconName}
-      size={RFValue(12, screenResolution.screenWidth)}
-      color={focused ? Colors.Primary_01 : "gray"}
-    />
-  </View>
-);
-
 export function AppBottomNavigator() {
   const { t } = useTranslation();
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -161,16 +144,19 @@ export function AppBottomNavigator() {
           borderTopWidth: 0,
         },
         tabBarHideOnKeyboard: true,
+        headerShown: false,
       }}
     >
       <Tab.Screen
         name="Home"
         component={HomeRoutes}
         options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="home" />
-          ),
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <HomeIconActive width={24} height={24} />
+            ) : (
+              <HomeIcon width={24} height={24} />
+            ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{
@@ -184,15 +170,16 @@ export function AppBottomNavigator() {
           ),
         }}
       />
-
       <Tab.Screen
         name="Scheduled"
         component={ScheduledRoutes}
         options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="calendar-outline" />
-          ),
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <ScheduleIconActive width={24} height={24} />
+            ) : (
+              <ScheduleIcon width={24} height={24} />
+            ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{
@@ -210,10 +197,12 @@ export function AppBottomNavigator() {
         name="Profile"
         component={ProfileRoutes}
         options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="person" />
-          ),
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <ContactIconActive width={24} height={24} />
+            ) : (
+              <ContactIcon width={24} height={24} />
+            ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{
@@ -227,15 +216,16 @@ export function AppBottomNavigator() {
           ),
         }}
       />
-
       <Tab.Screen
         name="ExportData"
         component={ExportDataRoutes}
         options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="arrow-down-circle-outline" />
-          ),
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <ExportIconActive width={24} height={24} />
+            ) : (
+              <ExportIcon width={24} height={24} />
+            ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{
@@ -249,15 +239,16 @@ export function AppBottomNavigator() {
           ),
         }}
       />
-
       <Tab.Screen
         name="Settings"
         component={SettingsRoutes}
         options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="settings" />
-          ),
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <SettingIconActive width={24} height={24} />
+            ) : (
+              <SettingIcon width={24} height={24} />
+            ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{

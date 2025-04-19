@@ -16,4 +16,17 @@ export { default as AddPhoto } from './addPhoto.svg';
 export { default as Tick } from './Tick.svg';
 export { default as Cross } from './Cross.svg';
 
-// footer icons
+// footer icons 
+export { default as Home } from './home.svg';
+export { default as Contact } from './contact.svg';
+export { default as ExportData } from './exportData.svg';
+export { default as Schedule } from './schedule.svg';
+export { default as Setting } from './setting.svg';
+
+export { default as HomeA } from './homeA.svg';
+export { default as ContactA } from './contactA.svg';
+export { default as ExportDataA } from './exportDataA.svg';
+export { default as ScheduleA } from './scheduleA.svg';
+export { default as SettingA } from './settingA.svg';
+
+
