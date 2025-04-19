@@ -1,17 +1,9 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Platform,
-  TextInput,
-} from "react-native";
+import { StyleSheet, View, ScrollView, Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../utilities/constants";
-import { Typography } from "../../utilities/constants/constant.style";
-import Colors from "../../utilities/constants/colors";
 import CTAButton1 from "../../components/CTA_BUTTON1";
+import FormInput from "../../components/FormInput";
 import Header from "../../components/Header";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -65,101 +57,40 @@ const CreateContact: React.FC<CreateContactProps> = ({ navigation }) => {
             }) => (
               <>
                 <View style={styles.textInputSection}>
-                  <View style={{ gap: 8 }}>
-                    <Text
-                      style={[
-                        Typography.f_16_nunito_medium,
-                        { color: Colors.black, paddingLeft: 3 },
-                      ]}
-                    >
-                      {t("name")}
-                    </Text>
-                    <TextInput
-                      placeholder={t("name")}
-                      placeholderTextColor={Colors.PLACE_HOLDER}
-                      style={styles.textInput}
-                      value={values.name}
-                      onChangeText={handleChange("name")}
-                      onBlur={handleBlur("name")}
-                    />
-                    {touched.name && errors.name && (
-                      <Text style={{ color: Colors.Error_Red }}>
-                        {errors.name}
-                      </Text>
-                    )}
-                  </View>
-                  <View style={{ gap: 8 }}>
-                    <Text
-                      style={[
-                        Typography.f_16_nunito_medium,
-                        { color: Colors.black, paddingLeft: 3 },
-                      ]}
-                    >
-                      {t("emailAddress")}
-                    </Text>
-                    <TextInput
-                      placeholder={t("emailAddress")}
-                      placeholderTextColor={Colors.PLACE_HOLDER}
-                      style={styles.textInput}
-                      value={values.email}
-                      onChangeText={handleChange("email")}
-                      onBlur={handleBlur("email")}
-                    />
-                    {touched.email && errors.email && (
-                      <Text style={{ color: Colors.Error_Red }}>
-                        {errors.email}
-                      </Text>
-                    )}
-                  </View>
-                  <View style={{ gap: 8 }}>
-                    <Text
-                      style={[
-                        Typography.f_16_nunito_medium,
-                        { color: Colors.black, paddingLeft: 3 },
-                      ]}
-                    >
-                      {t("phoneNum")}
-                    </Text>
-                    <TextInput
-                      placeholder={t("phoneNum")}
-                      placeholderTextColor={Colors.PLACE_HOLDER}
-                      style={styles.textInput}
-                      value={values.phoneNum}
-                      onChangeText={handleChange("phoneNum")}
-                      onBlur={handleBlur("phoneNum")}
-                    />
-                    {touched.phoneNum && errors.phoneNum && (
-                      <Text style={{ color: Colors.Error_Red }}>
-                        {errors.phoneNum}
-                      </Text>
-                    )}
-                  </View>
-                  <View style={{ gap: 8 }}>
-                    <Text
-                      style={[
-                        Typography.f_16_nunito_medium,
-                        { color: Colors.black, paddingLeft: 3 },
-                      ]}
-                    >
-                      {t("note")}
-                    </Text>
-                    <TextInput
-                      placeholder={`${t("note")}.....`}
-                      multiline
-                      numberOfLines={5}
-                      textAlignVertical="top"
-                      placeholderTextColor={Colors.PLACE_HOLDER}
-                      style={styles.textInputMultiline}
-                      value={values.notes}
-                      onChangeText={handleChange("notes")}
-                      onBlur={handleBlur("notes")}
-                    />
-                    {touched.notes && errors.notes && (
-                      <Text style={{ color: Colors.Error_Red }}>
-                        {errors.notes}
-                      </Text>
-                    )}
-                  </View>
+                  <FormInput
+                    label={t("name")}
+                    placeholder={t("name")}
+                    value={values.name}
+                    onChangeText={handleChange("name")}
+                    onBlur={handleBlur("name")}
+                    error={touched.name && errors.name}
+                  />
+                  <FormInput
+                    label={t("emailAddress")}
+                    placeholder={t("emailAddress")}
+                    value={values.email}
+                    onChangeText={handleChange("email")}
+                    onBlur={handleBlur("email")}
+                    error={touched.email && errors.email}
+                  />
+                  <FormInput
+                    label={t("phoneNum")}
+                    placeholder={t("phoneNum")}
+                    value={values.phoneNum}
+                    onChangeText={handleChange("phoneNum")}
+                    onBlur={handleBlur("phoneNum")}
+                    error={touched.phoneNum && errors.phoneNum}
+                  />
+                  <FormInput
+                    label={t("note")}
+                    placeholder={`${t("note")}.....`}
+                    multiline
+                    numberOfLines={5}
+                    value={values.notes}
+                    onChangeText={handleChange("notes")}
+                    onBlur={handleBlur("notes")}
+                    error={touched.notes && errors.notes}
+                  />
                 </View>
                 <View style={styles.createBTnContainer}>
                   <CTAButton1
@@ -194,26 +125,6 @@ const createStyles = (colors: any) =>
     },
     textInputSection: {
       marginVertical: 15,
-      gap: 20,
-    },
-    textInput: {
-      borderColor: colors.black,
-      borderRadius: 5,
-      borderWidth: 0.3,
-      paddingHorizontal: 10,
-      paddingVertical: 15,
-      color: Colors.DARK_GREEN,
-      ...Typography.f_14_nunito_medium,
-    },
-    textInputMultiline: {
-      borderColor: colors.black,
-      borderRadius: 5,
-      borderWidth: 0.3,
-      paddingHorizontal: 10,
-      paddingVertical: 15,
-      color: Colors.DARK_GREEN,
-      height: 120,
-      ...Typography.f_14_nunito_medium,
     },
     createBTnContainer: {
       marginTop: 10,

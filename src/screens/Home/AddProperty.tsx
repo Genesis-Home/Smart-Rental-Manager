@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
-  TextInput,
   FlatList,
   Image,
 } from "react-native";
@@ -23,6 +22,7 @@ import Header from "../../components/Header";
 import { Cross } from "../../assets/icons";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import FormInput from "../../components/FormInput";
 
 interface AddPropertyProps {
   navigation: any;
@@ -181,87 +181,33 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
               errors,
               touched,
             }) => (
-              <View style={styles.textInputSection}>
-                <View style={{ gap: 8 }}>
-                  <Text
-                    style={[
-                      Typography.f_16_nunito_medium,
-                      { color: Colors.black, paddingLeft: 3 },
-                    ]}
-                  >
-                    {t("addTitle")}
-                  </Text>
-                  <TextInput
-                    placeholder={`${t("addTitle")}...`}
-                    multiline
-                    numberOfLines={5}
-                    textAlignVertical="top"
-                    placeholderTextColor={Colors.PLACE_HOLDER}
-                    style={styles.textInputMultiline}
-                    onChangeText={handleChange("title")}
-                    onBlur={handleBlur("title")}
-                    value={values.title}
-                  />
-                  {touched.title && errors.title && (
-                    <Text style={{ color: Colors.Error_Red }}>
-                      {errors.title}
-                    </Text>
-                  )}
-                </View>
-
-                <View style={{ gap: 8 }}>
-                  <Text
-                    style={[
-                      Typography.f_16_nunito_medium,
-                      { color: Colors.black, paddingLeft: 3 },
-                    ]}
-                  >
-                    {t("addDes")}
-                  </Text>
-                  <TextInput
-                    placeholder={`${t("addDes")}...`}
-                    multiline
-                    numberOfLines={5}
-                    textAlignVertical="top"
-                    placeholderTextColor={Colors.PLACE_HOLDER}
-                    style={styles.textInputMultiline}
-                    onChangeText={handleChange("description")}
-                    onBlur={handleBlur("description")}
-                    value={values.description}
-                  />
-                  {touched.description && errors.description && (
-                    <Text style={{ color: Colors.Error_Red }}>
-                      {errors.description}
-                    </Text>
-                  )}
-                </View>
-
-                <View style={{ gap: 8 }}>
-                  <Text
-                    style={[
-                      Typography.f_16_nunito_medium,
-                      { color: Colors.black, paddingLeft: 3 },
-                    ]}
-                  >
-                    {t("otherDet")}
-                  </Text>
-                  <TextInput
-                    placeholder={t("otherDet")}
-                    multiline
-                    numberOfLines={5}
-                    textAlignVertical="top"
-                    placeholderTextColor={Colors.PLACE_HOLDER}
-                    style={styles.textInputMultiline}
-                    onChangeText={handleChange("otherDetails")}
-                    onBlur={handleBlur("otherDetails")}
-                    value={values.otherDetails}
-                  />
-                  {touched.otherDetails && errors.otherDetails && (
-                    <Text style={{ color: Colors.Error_Red }}>
-                      {errors.otherDetails}
-                    </Text>
-                  )}
-                </View>
+              <View>
+                <FormInput
+                  label={t("addTitle")}
+                  placeholder={`${t("addTitle")}...`}
+                  value={values.title}
+                  onChangeText={handleChange("title")}
+                  onBlur={handleBlur("title")}
+                  error={touched.title && errors.title}
+                />
+                <FormInput
+                  label={t("addDes")}
+                  placeholder={`${t("addDes")}...`}
+                  value={values.description}
+                  onChangeText={handleChange("description")}
+                  onBlur={handleBlur("description")}
+                  error={touched.description && errors.description}
+                  multiline
+                />
+                <FormInput
+                  label={t("otherDet")}
+                  placeholder={t("otherDet")}
+                  value={values.otherDetails}
+                  onChangeText={handleChange("otherDetails")}
+                  onBlur={handleBlur("otherDetails")}
+                  error={touched.otherDetails && errors.otherDetails}
+                  multiline
+                />
 
                 <View style={{ gap: 8 }}>
                   <Text
@@ -327,31 +273,8 @@ const createStyles = (colors: any) =>
     photoTextLabel: {
       color: Colors.Primary_01,
     },
-    textInputSection: {
-      marginVertical: 15,
-      gap: 20,
-    },
-    textInput: {
-      borderColor: colors.black,
-      borderRadius: 5,
-      borderWidth: 0.3,
-      paddingHorizontal: 10,
-      paddingVertical: 15,
-      color: Colors.DARK_GREEN,
-      ...Typography.f_14_nunito_medium,
-    },
-    textInputMultiline: {
-      borderColor: colors.black,
-      borderRadius: 5,
-      borderWidth: 0.3,
-      paddingHorizontal: 10,
-      paddingVertical: 15,
-      color: Colors.DARK_GREEN,
-      height: 120,
-      ...Typography.f_14_nunito_medium,
-    },
     submitButtonContainer: {
-      marginTop: 10,
+      marginTop: 20,
     },
     imageContainer: {
       width: "32%",

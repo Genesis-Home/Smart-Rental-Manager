@@ -4,14 +4,12 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   ScrollView,
   TouchableOpacity,
   Platform,
 } from "react-native";
 import { t } from "i18next";
 import { RFValue } from "react-native-responsive-fontsize";
-import Feather from "react-native-vector-icons/Feather";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { colors } from "../../utilities/constants";
@@ -19,6 +17,7 @@ import { Typography } from "../../utilities/constants/constant.style";
 import screenResolution from "../../utilities/constants/screenResolution";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
+import FormInput from "../../components/FormInput";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
@@ -91,90 +90,25 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
               touched,
             }) => (
               <View style={styles.containerc1_c2}>
-                <View>
-                  <View style={{ flexDirection: "row" }}>
-                    <Text
-                      style={[
-                        { top: 3, color: colors.DARK_GREEN },
-                        Typography.f_14_nunito_medium,
-                      ]}
-                    >
-                      {t("emailAddress")}
-                    </Text>
-                  </View>
-                  <View style={styles.inputContiner}>
-                    <TextInput
-                      style={styles.input}
-                      value={values.email}
-                      onChangeText={handleChange("email")}
-                      onBlur={handleBlur("email")}
-                      placeholder={t("email")}
-                      placeholderTextColor={colors.PLACE_HOLDER}
-                    />
-                  </View>
-                  {touched.email && errors.email && (
-                    <Text
-                      style={[
-                        Typography.f_14_nunito_medium,
-                        { color: colors.Error_Red, marginVertical: 5 },
-                      ]}
-                    >
-                      {errors.email}
-                    </Text>
-                  )}
-                </View>
-                <View style={{ marginTop: 10 }}>
-                  <View style={{ flexDirection: "row" }}>
-                    <Text
-                      style={[
-                        { top: 3, color: colors.DARK_GREEN },
-                        Typography.f_14_nunito_medium,
-                      ]}
-                    >
-                      {t("password")}
-                    </Text>
-                  </View>
-                  <View style={styles.inputContiner}>
-                    <TextInput
-                      secureTextEntry={secureEntryState}
-                      style={styles.input}
-                      value={values.password}
-                      onChangeText={handleChange("password")}
-                      onBlur={handleBlur("password")}
-                      placeholder={t("password")}
-                      placeholderTextColor={colors.PLACE_HOLDER}
-                    />
-                    <TouchableOpacity
-                      style={{
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: "10%",
-                      }}
-                      activeOpacity={0.8}
-                      onPress={() => {
-                        setsecureEntryState(!secureEntryState);
-                      }}
-                    >
-                      <Feather
-                        name={secureEntryState ? "eye" : "eye-off"}
-                        style={{
-                          fontSize: RFValue(20, screenResolution.screenHeight),
-                          color: colors.DARK_GREEN,
-                        }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  {touched.password && errors.password && (
-                    <Text
-                      style={[
-                        Typography.f_14_nunito_medium,
-                        { color: colors.Error_Red, marginVertical: 5 },
-                      ]}
-                    >
-                      {errors.password}
-                    </Text>
-                  )}
-                </View>
+                <FormInput
+                  label={t("emailAddress")}
+                  placeholder={t("email")}
+                  value={values.email}
+                  onChangeText={handleChange("email")}
+                  onBlur={handleBlur("email")}
+                  error={touched.email && errors.email}
+                />
+                <FormInput
+                  label={t("password")}
+                  placeholder={t("password")}
+                  secureTextEntry={secureEntryState}
+                  showToggle
+                  onToggleSecure={() => setsecureEntryState(!secureEntryState)}
+                  value={values.password}
+                  onChangeText={handleChange("password")}
+                  onBlur={handleBlur("password")}
+                  error={touched.password && errors.password}
+                />
                 <TouchableOpacity
                   activeOpacity={0.8}
                   style={{
