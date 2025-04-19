@@ -14,7 +14,11 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 
   return (
     <View style={styles.headerContainer}>
-      <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => navigation.goBack()}
+        style={{ position: "absolute", left: 0 }}
+      >
         <BackIcon />
       </TouchableOpacity>
       <Text style={[{ color: Colors.DARK_GREEN }, Typography.f_17_nunito_bold]}>
@@ -27,9 +31,8 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     marginTop: 40,
     marginBottom: 10,
   },
