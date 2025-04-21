@@ -68,7 +68,7 @@ const Scheduled: React.FC = () => {
       <TouchableOpacity
         onPress={() => navigation.navigate("AddSchedule")}
         activeOpacity={0.8}
-        style={{ position: "absolute", right: 0, top: 40 }}
+        style={{ position: "absolute", right: 0, top: 35 }}
       >
         <AddPhoto height={30} width={30} />
       </TouchableOpacity>
