@@ -195,7 +195,12 @@ const Home: React.FC = () => {
       <View style={styles.topBar}>
         <AppIcon />
         <View style={styles.iconWrapper}>
-          <Location />
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate("Map")}
+          >
+            <Location />
+          </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate("Notification")}

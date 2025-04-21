@@ -12,6 +12,7 @@ import ResetPassword from "../screens/Auth/resetPassword";
 import AddProperty from "../screens/Home/AddProperty";
 import Notification from "../screens/Home/Notification";
 import AutomatedEmail from "../screens/Scheduled/AutomatedEmail";
+import Map from "../screens/Home/Map";
 
 import { AppBottomNavigator } from "./BottomNavigation";
 
@@ -25,7 +26,8 @@ type RootStackParamList = {
   Tabs: undefined; 
   AddProperty:undefined;
   Notification:undefined;
-  AutomatedEmail:undefined
+  AutomatedEmail:undefined;
+  Map:undefined
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -83,6 +85,11 @@ function App() {
           options={{ headerShown: false }}
           component={AutomatedEmail}
           name="AutomatedEmail"
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          component={Map}
+          name="Map"
         />
         <Stack.Screen options={{ headerShown: false }} name="Tabs" component={AppBottomNavigator} />
       </Stack.Navigator>

@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Notification: undefined;
   createContact: undefined;
   AddSchedule: undefined;
-  Home:undefined
+  Home:undefined;
+  Map:undefined
   // Add other screens here if needed
 };
