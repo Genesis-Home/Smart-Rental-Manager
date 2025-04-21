@@ -129,7 +129,7 @@ const ExportData: React.FC = () => {
         } else {
           newMarkedDates[dateStr] = {
             color: "#b0dfdc",
-            textColor: colors.white,
+            textColor: colors.black,
           };
         }
         current.setDate(current.getDate() + 1);

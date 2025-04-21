@@ -10,6 +10,7 @@ const Images: {
   GalleryImage5: any;
   GalleryImage6: any;
   map:any;
+  map1:any;
   Excel:any
 } = {
   Logo: require("./logo.png"),
@@ -23,6 +24,7 @@ const Images: {
   GalleryImage5: require("./Gallery/5.png"),
   GalleryImage6: require("./Gallery/6.png"),
   map: require("./map.png"),
+  map1: require("./map1.png"),
   Excel:require('./Excel.png')
 };
 
