@@ -70,11 +70,11 @@ const ApartmentDetails: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <Header title={t("AdFullView")} />
       <ScrollView
         contentContainerStyle={styles.scrollContentContainer}
         showsVerticalScrollIndicator={false}
       >
-        <Header title={t("AdFullView")} />
         <View>
           <View style={styles.carouselWrapper}>
             <FlatList
@@ -162,9 +162,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+    marginHorizontal: "5%",
   },
   scrollContentContainer: {
-    marginHorizontal: "5%",
     paddingBottom: 50,
   },
   carouselWrapper: {

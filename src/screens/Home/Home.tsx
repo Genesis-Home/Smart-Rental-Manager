@@ -60,7 +60,7 @@ const data = [
 
 const Home: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const { i18n } = useTranslation();
+  const { i18n ,t} = useTranslation();
   const currentLanguage = i18n.language === "sp" ? "sp" : "en";
 
   const [activeIndexes, setActiveIndexes] = useState<{ [key: string]: number }>(
@@ -213,7 +213,7 @@ const Home: React.FC = () => {
         <View style={styles.searchContainer}>
           <Search />
           <TextInput
-            placeholder="Search"
+            placeholder={t('search')}
             placeholderTextColor={Colors.PLACE_HOLDER}
             style={[Typography.f_14_nunito_medium, styles.searchInputField]}
           />

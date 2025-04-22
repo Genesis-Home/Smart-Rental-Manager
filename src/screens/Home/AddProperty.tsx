@@ -117,11 +117,11 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
   return (
     <View style={[styles.mainContainer, styles.platformMarginTop]}>
       <View style={styles.contentContainer}>
+        <Header title={t("addProperty")} />
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
-          <Header title={t("addProperty")} />
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={handleImagePick}
@@ -248,12 +248,12 @@ const createStyles = (colors: any) =>
     },
     platformMarginTop: {
       marginTop: Platform.OS === "ios" ? 50 : 0,
+      marginHorizontal: "5%",
     },
     contentContainer: {
       flex: 8,
     },
     scrollContainer: {
-      marginHorizontal: "6%",
       paddingBottom: 50,
     },
     photoUploadSection: {

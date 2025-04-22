@@ -47,6 +47,10 @@ export const Typography = StyleSheet.create({
     fontFamily: 'Nunito-ExtraBold',
     fontSize: RFValue(14, screenResolution.screenHeight),
   },
+  f_17_nunito_extra_bold: {
+    fontFamily: 'Nunito-ExtraBold',
+    fontSize: RFValue(17, screenResolution.screenHeight),
+  },
   f_14_nunito_bold: {
     fontFamily: 'Nunito-Bold',
     fontSize: RFValue(14, screenResolution.screenHeight),

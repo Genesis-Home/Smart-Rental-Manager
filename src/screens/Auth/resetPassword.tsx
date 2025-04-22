@@ -3,14 +3,14 @@ import { StyleSheet, Text, View, ScrollView, Platform } from "react-native";
 import { t } from "i18next";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { RFValue } from "react-native-responsive-fontsize";
 import { colors } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
 import Colors from "../../utilities/constants/colors";
-import screenResolution from "../../utilities/constants/screenResolution";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
+import { useTranslation } from "react-i18next";
+
 
 const validationSchema = Yup.object().shape({
   password: Yup.string()
@@ -25,6 +25,8 @@ interface ResetPasswordProps {
 const ResetPassword: React.FC<ResetPasswordProps> = ({ navigation }) => {
   const [secureEntry, setSecureEntry] = useState(true);
   const styles = createStyles(colors);
+  const { t} = useTranslation();
+
 
   return (
     <View
@@ -33,8 +35,11 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ navigation }) => {
         { marginTop: Platform.OS === "ios" ? 50 : 0 },
       ]}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Header title={t("recoverAccount")} />
+      <Header title={t("recoverAccount")} />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.title}>{t("resetpassword")}</Text>
         <Text style={styles.subtitle}>{t("enternewpassword")}</Text>
         <Formik
@@ -81,9 +86,9 @@ const createStyles = (colors: any) =>
     mainContainer: {
       flex: 1,
       backgroundColor: colors.white,
+      marginHorizontal: "5%",
     },
     scrollContent: {
-      marginHorizontal: "6%",
       paddingBottom: 50,
     },
     title: {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Platform } from "react-native";
+import { StyleSheet, View, ScrollView, Platform, Image } from "react-native";
 import { t } from "i18next";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -8,8 +8,8 @@ import { Typography } from "../../utilities/constants/constant.style";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
-import { useTranslation } from "react-i18next";
-
+import Images from "../../assets/images";
+import { Edit } from "../../assets/icons";
 
 const validationSchema = Yup.object().shape({
   agencyName: Yup.string().required(t("agencyNameRequired")),
@@ -23,13 +23,12 @@ const validationSchema = Yup.object().shape({
     .required(t("confirmpasswordRequired")),
 });
 
-interface SignUpProps {
+interface EditProfileProps {
   navigation: any;
 }
 
-const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
+const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
   const styles = createStyles(colors);
-  const { t} = useTranslation();
   const [showPassword, setShowPassword] = useState<boolean>(true);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(true);
 
@@ -41,24 +40,21 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
       ]}
     >
       <View style={{ flex: 8 }}>
-        <Header title={t("pleaseRegisterHere")} />
-        <ScrollView contentContainerStyle={styles.containerC1} showsVerticalScrollIndicator={false}>
-          <Text
-            style={[
-              Typography.f_20_nunito_bold,
-              { marginTop: 20, color: colors.DARK_GREEN },
-            ]}
-          >
-            {t("signup")}
-          </Text>
-          <Text
-            style={[
-              Typography.f_16_nunito_regular,
-              { marginTop: 5, color: colors.DARK_GREEN },
-            ]}
-          >
-            {t("registerEmailPrompt")}
-          </Text>
+        <Header title={t("editProfile")} />
+        <ScrollView
+          contentContainerStyle={styles.containerC1}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={{ alignItems: "center", marginTop: 20 }}>
+            <Image
+              source={Images.Profile}
+              resizeMode="contain"
+              style={{ height: 90, width: 90, borderRadius: 50 }}
+            />
+            <Edit
+              style={{ position: "absolute", bottom: "10%", right: "40%" }}
+            />
+          </View>
           <Formik
             initialValues={{
               agencyName: "",
@@ -68,7 +64,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
               confirmPassword: "",
             }}
             validationSchema={validationSchema}
-            onSubmit={() => navigation.navigate("Tabs")}
+            onSubmit={() => navigation.navigate("Home")}
           >
             {({
               handleChange,
@@ -129,10 +125,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                   }
                 />
                 <View style={{ marginTop: 40 }}>
-                  <CTAButton1
-                    title={t("signup")}
-                    submitHandler={handleSubmit}
-                  />
+                  <CTAButton1 title={t("save")} submitHandler={handleSubmit} />
                 </View>
               </View>
             )}
@@ -155,7 +148,7 @@ const createStyles = (colors: any) => {
     },
     containerc1_c2: {
       width: "100%",
-      marginTop: 20,
+      marginTop: 10,
     },
     label: {
       flexDirection: "row",
@@ -166,4 +159,4 @@ const createStyles = (colors: any) => {
   });
 };
 
-export default SignUp;
+export default EditProfile;

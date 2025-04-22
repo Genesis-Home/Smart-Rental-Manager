@@ -13,21 +13,27 @@ import AddProperty from "../screens/Home/AddProperty";
 import Notification from "../screens/Home/Notification";
 import AutomatedEmail from "../screens/Scheduled/AutomatedEmail";
 import Map from "../screens/Home/Map";
+import EditProfile from "../screens/Settings/EditProfile";
+import PrivacyPolicy from "../screens/Settings/PrivacyPolicy";
+import TermsAndConditions from "../screens/Settings/TermsAndConditions";
 
 import { AppBottomNavigator } from "./BottomNavigation";
 
 type RootStackParamList = {
   Splash: undefined;
-  Splash1:undefined;
+  Splash1: undefined;
   Signin: undefined;
   Signup: undefined;
   ForgotPassword: undefined;
   ResetPassword: undefined;
-  Tabs: undefined; 
-  AddProperty:undefined;
-  Notification:undefined;
-  AutomatedEmail:undefined;
-  Map:undefined
+  Tabs: undefined;
+  AddProperty: undefined;
+  Notification: undefined;
+  AutomatedEmail: undefined;
+  Map: undefined;
+  EditProfile: undefined;
+  PrivacyPolicy: undefined;
+  TermsAndConditions: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -91,7 +97,26 @@ function App() {
           component={Map}
           name="Map"
         />
-        <Stack.Screen options={{ headerShown: false }} name="Tabs" component={AppBottomNavigator} />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          component={EditProfile}
+          name="EditProfile"
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          component={TermsAndConditions}
+          name="TermsAndConditions"
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          component={PrivacyPolicy}
+          name="PrivacyPolicy"
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          name="Tabs"
+          component={AppBottomNavigator}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RFValue } from "react-native-responsive-fontsize";
 import screenResolution from "../utilities/constants/screenResolution";
 import { useTranslation } from "react-i18next";
+import LinearGradient from "react-native-linear-gradient";
 
 // Screens
 import Home from "../screens/Home/Home";
@@ -153,15 +154,29 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <HomeIconActive width={24} height={24} />
+              <>
+                <LinearGradient
+                  colors={[Colors.Primary_01, Colors.Primary_01]}
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    width: RFValue(60, screenResolution.screenHeight),
+                    height: 1,
+                    borderRadius: 2,
+                  }}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                />
+                <HomeIconActive width={22} height={22} />
+              </>
             ) : (
-              <HomeIcon width={24} height={24} />
+              <HomeIcon width={22} height={22} />
             ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontSize: RFValue(9.5, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >
@@ -176,15 +191,29 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <ScheduleIconActive width={24} height={24} />
+              <>
+                <LinearGradient
+                  colors={[Colors.Primary_01, Colors.Primary_01]}
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    width: RFValue(60, screenResolution.screenHeight),
+                    height: 1,
+                    borderRadius: 2,
+                  }}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                />
+                <ScheduleIconActive width={22} height={22} />
+              </>
             ) : (
-              <ScheduleIcon width={24} height={24} />
+              <ScheduleIcon width={22} height={22} />
             ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontSize: RFValue(9.5, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >
@@ -199,15 +228,29 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <ContactIconActive width={24} height={24} />
+              <>
+                <LinearGradient
+                  colors={[Colors.Primary_01, Colors.Primary_01]}
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    width: RFValue(60, screenResolution.screenHeight),
+                    height: 1,
+                    borderRadius: 2,
+                  }}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                />
+                <ContactIconActive width={22} height={22} />
+              </>
             ) : (
-              <ContactIcon width={24} height={24} />
+              <ContactIcon width={22} height={22} />
             ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontSize: RFValue(9.5, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >
@@ -222,15 +265,29 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <ExportIconActive width={24} height={24} />
+              <>
+                <LinearGradient
+                  colors={[Colors.Primary_01, Colors.Primary_01]}
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    width: RFValue(60, screenResolution.screenHeight),
+                    height: 1,
+                    borderRadius: 2,
+                  }}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                />
+                <ExportIconActive width={18} height={18} />
+              </>
             ) : (
-              <ExportIcon width={24} height={24} />
+              <ExportIcon width={18} height={18} />
             ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontSize: RFValue(9.5, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >
@@ -245,15 +302,29 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <SettingIconActive width={24} height={24} />
+              <>
+                <LinearGradient
+                  colors={[Colors.Primary_01, Colors.Primary_01]}
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    width: RFValue(60, screenResolution.screenHeight),
+                    height: 1,
+                    borderRadius: 2,
+                  }}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                />
+                <SettingIconActive width={22} height={22} />
+              </>
             ) : (
-              <SettingIcon width={24} height={24} />
+              <SettingIcon width={22} height={22} />
             ),
           tabBarLabel: ({ focused }) => (
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(7, screenResolution.screenWidth),
+                fontSize: RFValue(9.5, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >

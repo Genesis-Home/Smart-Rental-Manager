@@ -9,9 +9,10 @@ const Images: {
   GalleryImage4: any;
   GalleryImage5: any;
   GalleryImage6: any;
-  map:any;
-  map1:any;
-  Excel:any
+  map: any;
+  map1: any;
+  Excel: any;
+  Profile: any;
 } = {
   Logo: require("./logo.png"),
   HorizontalLogo: require("./HORIZONTAL-EXTREME-LOGO-1.png"),
@@ -25,7 +26,8 @@ const Images: {
   GalleryImage6: require("./Gallery/6.png"),
   map: require("./map.png"),
   map1: require("./map1.png"),
-  Excel:require('./Excel.png')
+  Excel: require("./Excel.png"),
+  Profile: require("./Profile.png"),
 };
 
 export default Images;

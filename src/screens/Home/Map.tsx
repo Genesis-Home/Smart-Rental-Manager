@@ -22,7 +22,7 @@ const Map: React.FC = () => {
         <View style={styles.searchContainer}>
           <Search />
           <TextInput
-            placeholder="Search"
+            placeholder={t("search")}
             placeholderTextColor={Colors.PLACE_HOLDER}
             style={[Typography.f_14_nunito_medium, styles.searchInputField]}
             value={search}

@@ -39,6 +39,10 @@ export { default as True } from './true.svg';
 export { default as False } from './false.svg';
 export { default as Left } from './Left.svg'; 
 export { default as Right } from './Right.svg'; 
+export { default as DropRight } from './dropRight.svg'; 
+export { default as Signout } from './signout.svg'; 
+export { default as Down } from './down.svg'; 
+export { default as Edit } from './Edit.svg'; 
 
 
 

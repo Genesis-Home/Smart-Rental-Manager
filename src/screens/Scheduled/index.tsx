@@ -63,33 +63,35 @@ const Scheduled: React.FC = () => {
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.container} >
       <Header title={t("schedulePropertyVisit")} />
-      <TouchableOpacity
-        onPress={() => navigation.navigate("AddSchedule")}
-        activeOpacity={0.8}
-        style={{ position: "absolute", right: 0, top: 35 }}
-      >
-        <AddPhoto height={30} width={30} />
-      </TouchableOpacity>
-      <FlatList
-        data={days}
-        keyExtractor={(_, index) => `day-${index}`}
-        horizontal
-        contentContainerStyle={styles.daysContainer}
-        renderItem={renderDay}
-        showsHorizontalScrollIndicator={false}
-      />
-      <View style={{ marginBottom: 40 }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("AddSchedule")}
+          activeOpacity={0.8}
+          style={{ position: "absolute", right: 0, top: 35 }}
+        >
+          <AddPhoto height={30} width={30} />
+        </TouchableOpacity>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <FlatList
-          data={properties}
-          keyExtractor={(_, index) => `property-${index}`}
-          renderItem={renderProperty}
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
+          data={days}
+          keyExtractor={(_, index) => `day-${index}`}
+          horizontal
+          contentContainerStyle={styles.daysContainer}
+          renderItem={renderDay}
+          showsHorizontalScrollIndicator={false}
         />
-      </View>
-    </ScrollView>
+        <View style={{ marginBottom: 40 }}>
+          <FlatList
+            data={properties}
+            keyExtractor={(_, index) => `property-${index}`}
+            renderItem={renderProperty}
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 

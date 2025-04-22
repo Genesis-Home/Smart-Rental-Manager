@@ -329,17 +329,18 @@ const styles = StyleSheet.create({
   detailLabel: {
     ...Typography.f_14_nunito_medium,
     color: colors.black,
+    width:"45%"
   },
   detailValue: {
     ...Typography.f_14_nunito_medium,
     color: colors.black,
-    width: "50%",
+    width: "45%",
   },
   booleanIcons: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    width: "50%",
+    width: "45%",
   },
   mapLink: {
     ...Typography.f_14_nunito_medium,

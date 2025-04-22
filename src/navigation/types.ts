@@ -9,6 +9,9 @@ export type RootStackParamList = {
   createContact: undefined;
   AddSchedule: undefined;
   Home:undefined;
-  Map:undefined
+  Map:undefined;
+  EditProfile:undefined;
+  TermsAndConditions:undefined;
+  PrivacyPolicy:undefined
   // Add other screens here if needed
 };

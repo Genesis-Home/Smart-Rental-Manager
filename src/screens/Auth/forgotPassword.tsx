@@ -8,6 +8,8 @@ import { Typography } from "../../utilities/constants/constant.style";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
+import { useTranslation } from "react-i18next";
+
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
@@ -19,6 +21,8 @@ interface ForgotPasswordProps {
 
 const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
   const styles = createStyles(colors);
+  const { t} = useTranslation();
+
 
   return (
     <View
@@ -28,8 +32,8 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
       ]}
     >
       <View style={{ flex: 8 }}>
-        <ScrollView contentContainerStyle={styles.containerC1}>
           <Header title={t("recoverAccount")} />
+        <ScrollView contentContainerStyle={styles.containerC1} showsVerticalScrollIndicator={false}>
           <Text
             style={[
               Typography.f_20_nunito_bold,
@@ -90,9 +94,9 @@ const createStyles = (colors: any) => {
     mainContainer: {
       flex: 1,
       backgroundColor: colors.white,
+      marginHorizontal: "5%",
     },
     containerC1: {
-      marginHorizontal: "6%",
       paddingBottom: 50,
     },
     containerc1_c2: {

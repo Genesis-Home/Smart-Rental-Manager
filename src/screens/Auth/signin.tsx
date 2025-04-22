@@ -18,6 +18,7 @@ import screenResolution from "../../utilities/constants/screenResolution";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
+import { useTranslation } from "react-i18next";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
@@ -32,6 +33,7 @@ interface SignInProps {
 
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const dispatch = useDispatch();
+    const { t} = useTranslation();
   const styles = createStyles(colors);
   const [secureEntryState, setsecureEntryState] = useState<boolean>(true);
 
@@ -51,11 +53,11 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       ]}
     >
       <View style={{ flex: 8 }}>
+        <Header title={t("pleaseLoginHere")} />
         <ScrollView
           contentContainerStyle={styles.containerC1}
           showsVerticalScrollIndicator={false}
         >
-          <Header title={t("pleaseLoginHere")} />
           <Text
             style={[
               Typography.f_20_nunito_bold,
@@ -152,9 +154,9 @@ const createStyles = (colors: any) => {
     mainContainer: {
       flex: 1,
       backgroundColor: colors.white,
+      marginHorizontal: "5%",
     },
     containerC1: {
-      marginHorizontal: "6%",
       paddingBottom: 50,
     },
     text: {

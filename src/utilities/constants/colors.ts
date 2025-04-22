@@ -4,6 +4,7 @@ const Colors: {[key: string]: string} = {
   Error_Red: '#ED625A',
   DARK_GREEN:'#1A231F',
   PLACE_HOLDER:'#808482',
+  DARK_GRAY:'#666666',
 
   Neutral_01: '#D9D9D9',
   Neutral_02: '#F2F2F2',

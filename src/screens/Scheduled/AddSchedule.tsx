@@ -106,11 +106,11 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   return (
     <View style={[styles.mainContainer, styles.platformMarginTop]}>
       <View style={styles.contentContainer}>
+        <Header title={t("schedulePropertyVisit")} />
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
-          <Header title={t("schedulePropertyVisit")} />
           <Formik
             initialValues={{
               clientName: "Smart Rental",
@@ -276,6 +276,7 @@ const createStyles = (colors: any) =>
   StyleSheet.create({
     mainContainer: {
       flex: 1,
+      marginHorizontal: "5%",
       backgroundColor: colors.white,
     },
     platformMarginTop: {
@@ -285,7 +286,6 @@ const createStyles = (colors: any) =>
       flex: 8,
     },
     scrollContainer: {
-      marginHorizontal: "5%",
       paddingBottom: 50,
     },
     textInputSection: {
