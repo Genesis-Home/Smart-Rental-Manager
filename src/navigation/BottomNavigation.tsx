@@ -176,7 +176,7 @@ export function AppBottomNavigator() {
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(9, screenResolution.screenHeight),
+                fontSize: RFValue(8, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >
@@ -213,7 +213,7 @@ export function AppBottomNavigator() {
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(9, screenResolution.screenHeight),
+                fontSize: RFValue(8, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >
@@ -250,7 +250,7 @@ export function AppBottomNavigator() {
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(9, screenResolution.screenHeight),
+                fontSize: RFValue(8, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >
@@ -287,7 +287,7 @@ export function AppBottomNavigator() {
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(9, screenResolution.screenHeight),
+                fontSize: RFValue(8, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >
@@ -324,7 +324,7 @@ export function AppBottomNavigator() {
             <Text
               style={{
                 color: focused ? Colors.Primary_01 : "gray",
-                fontSize: RFValue(9, screenResolution.screenHeight),
+                fontSize: RFValue(8, screenResolution.screenHeight),
                 fontFamily: "Nunito-Bold",
               }}
             >
