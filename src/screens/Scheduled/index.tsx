@@ -1,22 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  FlatList,
-  ListRenderItem,
   TouchableOpacity,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import Header from "../../components/Header";
 import { useTranslation } from "react-i18next";
-import Colors from "../../utilities/constants/colors";
 import { Typography } from "../../utilities/constants/constant.style";
 import { colors } from "../../utilities/constants";
-import { AddPhoto } from "../../assets/icons";
+import { AddPhoto, Left, Right } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../navigation/types";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { addDays, format, startOfWeek, startOfMonth } from "date-fns";
+import { enUS, es } from "date-fns/locale";
+import { Calendar, LocaleConfig } from "react-native-calendars";
+import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 
 type ScheduledScreenNavigationProp =
   NativeStackNavigationProp<RootStackParamList>;
@@ -28,69 +31,206 @@ type Day = {
 
 const Scheduled: React.FC = () => {
   const navigation = useNavigation<ScheduledScreenNavigationProp>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  const days: Day[] = [
-    { day: t("days.Fr"), number: 11 },
-    { day: t("days.Sa"), number: 12 },
-    { day: t("days.Su"), number: 11 },
-    { day: t("days.Su"), number: 13 },
-    { day: t("days.Mo"), number: 14 },
-    { day: t("days.Tu"), number: 15 },
-    { day: t("days.We"), number: 16 },
-    { day: t("days.Th"), number: 17 },
-    { day: t("days.Fr"), number: 11 },
-  ];
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [days, setDays] = useState<Day[]>([]);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [isLocaleReady, setIsLocaleReady] = useState(false);
 
   const properties = t("properties", { returnObjects: true }) as string[];
 
-  const renderDay: ListRenderItem<Day> = ({ item }) => (
-    <View style={styles.dayItem}>
-      <Text style={styles.dayText}>{item.day}</Text>
-      <Text style={styles.numberText}>{item.number}</Text>
-    </View>
-  );
+  const getLocale = () => {
+    switch (i18n.language) {
+      case "sp":
+        return es;
+      case "en":
+      default:
+        return enUS;
+    }
+  };
 
-  const renderProperty: ListRenderItem<string> = ({ item }) => (
-    <View style={styles.propertyRow}>
-      <Text style={styles.propertyText}>{item}</Text>
-      <View style={styles.slotsContainer}>
-        {[...Array(8)].map((_, i) => (
-          <View key={i} style={styles.slot} />
-        ))}
-      </View>
-    </View>
-  );
+  const generateWeekDays = (date: Date) => {
+    const start = startOfWeek(date, { weekStartsOn: 5, locale: getLocale() });
+    const week: Day[] = [];
+    for (let i = 0; i < 8; i++) {
+      const dayDate = addDays(start, i);
+      week.push({
+        day: format(dayDate, "EEE", { locale: getLocale() }),
+        number: parseInt(format(dayDate, "d")),
+      });
+    }
+    setDays(week);
+  };
+
+  useEffect(() => {
+    generateWeekDays(currentDate);
+  }, [currentDate, i18n.language]);
+
+  const goToPreviousWeek = () => {
+    setCurrentDate((prev) => addDays(prev, -8));
+  };
+
+  const goToNextWeek = () => {
+    setCurrentDate((prev) => addDays(prev, 8));
+  };
+
+  const onDateSelect = (date: string) => {
+    const newDate = new Date(date);
+    setSelectedDate(date);
+    setCurrentDate(newDate);
+    setShowCalendar(false);
+  };
+
+  useEffect(() => {
+    LocaleConfig.locales[DEFAULT_LANGUAGE] = {
+      monthNames: t("calendarData.monthNames", { returnObjects: true }),
+      monthNamesShort: t("calendarData.monthNamesShort", {
+        returnObjects: true,
+      }),
+      dayNames: t("calendarData.dayNames", { returnObjects: true }),
+      dayNamesShort: t("calendarData.dayNamesShort", { returnObjects: true }),
+      today: t("calendarData.today"),
+    };
+    LocaleConfig.defaultLocale = DEFAULT_LANGUAGE;
+    setIsLocaleReady(true);
+  }, [t]);
+
+  const handlePreviousMonth = () => {
+    const previousMonth = addDays(startOfMonth(currentDate), -1);
+    setCurrentDate(previousMonth);
+  };
+
+  const handleNextMonth = () => {
+    const nextMonth = addDays(startOfMonth(currentDate), 32);
+    setCurrentDate(nextMonth);
+  };
 
   return (
-    <View style={styles.container} >
+    <View style={styles.container}>
       <Header title={t("schedulePropertyVisit")} />
-        <TouchableOpacity
-          onPress={() => navigation.navigate("AddSchedule")}
-          activeOpacity={0.8}
-          style={{ position: "absolute", right: 0, top: 35 }}
-        >
-          <AddPhoto height={30} width={30} />
+      <TouchableOpacity
+        onPress={() => navigation.navigate("AddSchedule")}
+        activeOpacity={0.8}
+        style={styles.addPhotoButton}
+      >
+        <AddPhoto height={30} width={30} />
+      </TouchableOpacity>
+      <View style={styles.weekNavigation}>
+        <TouchableOpacity onPress={goToPreviousWeek}>
+          <Left height={24} width={24} />
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => setShowCalendar(true)}>
+          <Text style={styles.monthText}>
+            {format(currentDate, "MMMM yyyy", { locale: getLocale() })}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={goToNextWeek}>
+          <Right height={24} width={24} />
+        </TouchableOpacity>
+      </View>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <FlatList
-          data={days}
-          keyExtractor={(_, index) => `day-${index}`}
-          horizontal
-          contentContainerStyle={styles.daysContainer}
-          renderItem={renderDay}
-          showsHorizontalScrollIndicator={false}
-        />
+        <View style={styles.daysContainer}>
+          {days.map((item, index) => {
+            const isSelected =
+              item.number ===
+              parseInt(
+                format(new Date(selectedDate ? selectedDate : currentDate), "d")
+              );
+            return (
+              <View
+                key={index}
+                style={[
+                  styles.dayItem,
+                  isSelected && { backgroundColor: colors.Primary_01 },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.dayText,
+                    { color: isSelected ? colors.white : colors.PLACE_HOLDER },
+                  ]}
+                >
+                  {item.day}
+                </Text>
+                <Text
+                  style={[
+                    styles.numberText,
+                    { color: isSelected ? colors.white : colors.black },
+                  ]}
+                >
+                  {item.number}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
         <View style={{ marginBottom: 40 }}>
-          <FlatList
-            data={properties}
-            keyExtractor={(_, index) => `property-${index}`}
-            renderItem={renderProperty}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          />
+          {properties.map((item, index) => (
+            <View key={index} style={styles.propertyRow}>
+              <Text style={styles.propertyText}>{item}</Text>
+              <View style={styles.slotsContainer}>
+                {[...Array(8)].map((_, i) => (
+                  <View key={i} style={styles.slot} />
+                ))}
+              </View>
+            </View>
+          ))}
         </View>
       </ScrollView>
+      <Modal visible={showCalendar} transparent animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setShowCalendar(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View style={styles.calendarModal}>
+                {isLocaleReady && (
+                  <Calendar
+                    key={currentDate.toISOString()}
+                    current={currentDate.toISOString().split("T")[0]}
+                    onDayPress={(day) => onDateSelect(day.dateString)}
+                    hideExtraDays
+                    hideArrows
+                    renderHeader={() => (
+                      <View style={styles.calendarHeader}>
+                        <TouchableOpacity onPress={handlePreviousMonth}>
+                          <Left />
+                        </TouchableOpacity>
+                        <Text style={styles.headerMonthText}>
+                          {format(currentDate, "MMMM yyyy", {
+                            locale: getLocale(),
+                          })}
+                        </Text>
+                        <TouchableOpacity onPress={handleNextMonth}>
+                          <Right />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    markedDates={
+                      selectedDate
+                        ? {
+                            [selectedDate]: {
+                              selected: true,
+                              selectedColor: colors.Primary_01,
+                            },
+                          }
+                        : {}
+                    }
+                    theme={{
+                      todayTextColor: colors.Primary_01,
+                      dayTextColor: colors.black,
+                      textDayFontSize: 14,
+                      textDayFontFamily: "Nunito-Medium",
+                      textDayHeaderFontFamily: "Nunito-Medium",
+                      textSectionTitleColor: colors.PLACE_HOLDER,
+                    }}
+                  />
+                )}
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
@@ -98,36 +238,52 @@ const Scheduled: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
+    backgroundColor: colors.white,
     marginHorizontal: "5%",
   },
+  addPhotoButton: {
+    position: "absolute",
+    right: 0,
+    top: 35,
+    zIndex: 1,
+  },
+  weekNavigation: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  monthText: {
+    ...Typography.f_16_nunito_bold,
+    color: colors.black,
+  },
   daysContainer: {
+    flexDirection: "row",
     marginBottom: 10,
     marginTop: 30,
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   dayItem: {
-    width: 38,
+    width: 35,
     height: 40,
-    backgroundColor: Colors.Neutral_01,
+    backgroundColor: colors.Neutral_01,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 4,
-    marginRight: 10,
   },
   dayText: {
     ...Typography.f_12_nunito_bold,
-    color: Colors.PLACE_HOLDER,
   },
   numberText: {
     ...Typography.f_12_nunito_bold,
-    color: Colors.black,
   },
   propertyRow: {
     marginBottom: 15,
   },
   propertyText: {
     ...Typography.f_14_nunito_bold,
-    color: Colors.black,
+    color: colors.black,
     marginBottom: 5,
   },
   slotsContainer: {
@@ -139,6 +295,32 @@ const styles = StyleSheet.create({
     height: 35,
     backgroundColor: colors.Neutral_01,
     borderRadius: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  calendarModal: {
+    backgroundColor: colors.white,
+    borderRadius: 10,
+    padding: 15,
+    width: "90%",
+  },
+  calendarHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 25,
+    borderWidth: 1,
+    borderColor: colors.Neutral_01,
+    padding: 13,
+    borderRadius: 8,
+  },
+  headerMonthText: {
+    ...Typography.f_14_nunito_bold,
+    color: colors.black,
   },
 });
 

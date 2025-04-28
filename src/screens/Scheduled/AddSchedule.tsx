@@ -310,8 +310,11 @@ const createStyles = (colors: any) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: 10,
       gap: 25,
+      borderWidth: 1,
+      borderColor: colors.Neutral_01,
+      padding: 13,
+      borderRadius: 8,
     },
     headerMonthText: {
       ...Typography.f_14_nunito_bold,

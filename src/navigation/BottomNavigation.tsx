@@ -1,11 +1,10 @@
 import React from "react";
-import { View, Text } from "react-native";
+import {Text } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RFValue } from "react-native-responsive-fontsize";
 import screenResolution from "../utilities/constants/screenResolution";
 import { useTranslation } from "react-i18next";
-import LinearGradient from "react-native-linear-gradient";
 
 // Screens
 import Home from "../screens/Home/Home";
@@ -154,21 +153,7 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <>
-                <LinearGradient
-                  colors={[Colors.Primary_01, Colors.Primary_01]}
-                  style={{
-                    position: "absolute",
-                    top: -6,
-                    width: RFValue(60, screenResolution.screenHeight),
-                    height: 1,
-                    borderRadius: 2,
-                  }}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                />
                 <HomeIconActive width={22} height={22} />
-              </>
             ) : (
               <HomeIcon width={22} height={22} />
             ),
@@ -191,21 +176,7 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <>
-                <LinearGradient
-                  colors={[Colors.Primary_01, Colors.Primary_01]}
-                  style={{
-                    position: "absolute",
-                    top: -6,
-                    width: RFValue(60, screenResolution.screenHeight),
-                    height: 1,
-                    borderRadius: 2,
-                  }}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                />
                 <ScheduleIconActive width={22} height={22} />
-              </>
             ) : (
               <ScheduleIcon width={22} height={22} />
             ),
@@ -228,21 +199,7 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <>
-                <LinearGradient
-                  colors={[Colors.Primary_01, Colors.Primary_01]}
-                  style={{
-                    position: "absolute",
-                    top: -6,
-                    width: RFValue(60, screenResolution.screenHeight),
-                    height: 1,
-                    borderRadius: 2,
-                  }}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                />
                 <ContactIconActive width={22} height={22} />
-              </>
             ) : (
               <ContactIcon width={22} height={22} />
             ),
@@ -265,21 +222,7 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <>
-                <LinearGradient
-                  colors={[Colors.Primary_01, Colors.Primary_01]}
-                  style={{
-                    position: "absolute",
-                    top: -6,
-                    width: RFValue(60, screenResolution.screenHeight),
-                    height: 1,
-                    borderRadius: 2,
-                  }}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                />
                 <ExportIconActive width={18} height={18} />
-              </>
             ) : (
               <ExportIcon width={18} height={18} />
             ),
@@ -302,21 +245,7 @@ export function AppBottomNavigator() {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <>
-                <LinearGradient
-                  colors={[Colors.Primary_01, Colors.Primary_01]}
-                  style={{
-                    position: "absolute",
-                    top: -6,
-                    width: RFValue(60, screenResolution.screenHeight),
-                    height: 1,
-                    borderRadius: 2,
-                  }}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                />
                 <SettingIconActive width={22} height={22} />
-              </>
             ) : (
               <SettingIcon width={22} height={22} />
             ),
