@@ -4,10 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { BackIcon } from "../assets/icons";
 import { Typography } from "../utilities/constants/constant.style";
 import Colors from "../utilities/constants/colors";
-
-interface HeaderProps {
-  title: string;
-}
+import { HeaderProps } from "../types/types";
 
 const Header: React.FC<HeaderProps> = ({ title }) => {
   const navigation = useNavigation();

@@ -16,25 +16,8 @@ import Map from "../screens/Home/Map";
 import EditProfile from "../screens/Settings/EditProfile";
 import PrivacyPolicy from "../screens/Settings/PrivacyPolicy";
 import TermsAndConditions from "../screens/Settings/TermsAndConditions";
-
 import { AppBottomNavigator } from "./BottomNavigation";
-
-type RootStackParamList = {
-  Splash: undefined;
-  Splash1: undefined;
-  Signin: undefined;
-  Signup: undefined;
-  ForgotPassword: undefined;
-  ResetPassword: undefined;
-  Tabs: undefined;
-  AddProperty: undefined;
-  Notification: undefined;
-  AutomatedEmail: undefined;
-  Map: undefined;
-  EditProfile: undefined;
-  PrivacyPolicy: undefined;
-  TermsAndConditions: undefined;
-};
+import { RootStackParamList } from "../types/types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

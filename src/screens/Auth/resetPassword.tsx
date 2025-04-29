@@ -10,7 +10,7 @@ import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
 import { useTranslation } from "react-i18next";
-
+import { ResetPasswordProps } from "../../types/types";
 
 const validationSchema = Yup.object().shape({
   password: Yup.string()
@@ -18,15 +18,10 @@ const validationSchema = Yup.object().shape({
     .required(t("passwordRequired")),
 });
 
-interface ResetPasswordProps {
-  navigation: any;
-}
-
 const ResetPassword: React.FC<ResetPasswordProps> = ({ navigation }) => {
   const [secureEntry, setSecureEntry] = useState(true);
   const styles = createStyles(colors);
-  const { t} = useTranslation();
-
+  const { t } = useTranslation();
 
   return (
     <View

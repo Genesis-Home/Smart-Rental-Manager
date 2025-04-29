@@ -11,15 +11,7 @@ import {
 import { useSelector } from "react-redux";
 import { Typography } from "../utilities/constants/constant.style";
 import { colors } from "../utilities/constants";
-
-interface CTAButton1Props {
-  title: string;
-  submitHandler: () => void;
-  icon?: React.ReactNode;
-  backgroundColor?: string;
-  textColor?: string;
-  borderColor?: string;
-}
+import { CTAButton1Props } from "../types/types";
 
 const CTAButton1: React.FC<CTAButton1Props> = ({
   title,

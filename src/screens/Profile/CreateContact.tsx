@@ -7,12 +7,9 @@ import FormInput from "../../components/FormInput";
 import Header from "../../components/Header";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { CreateContactProps } from "../../types/types";
 
-interface CreateContactProps {
-  navigation: any;
-}
-
-const CreateContact: React.FC<CreateContactProps> = ({ navigation }) => {
+const CreateContact: React.FC<CreateContactProps> = () => {
   const styles = createStyles(colors);
   const { t } = useTranslation();
 

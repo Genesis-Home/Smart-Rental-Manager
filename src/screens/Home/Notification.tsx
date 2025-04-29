@@ -3,18 +3,15 @@ import {
   StyleSheet,
   View,
   Text,
-  FlatList,
-  TouchableOpacity,
+  FlatList
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
-import { useNavigation } from "@react-navigation/native";
-import { BackIcon, Tick } from "../../assets/icons";
+import { Tick } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header";
 
 const Notification: React.FC = () => {
-  const navigation = useNavigation();
   const { t, i18n } = useTranslation();
 
   const notifications = [

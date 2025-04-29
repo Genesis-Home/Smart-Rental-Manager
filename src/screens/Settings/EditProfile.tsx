@@ -10,6 +10,7 @@ import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
 import Images from "../../assets/images";
 import { Edit } from "../../assets/icons";
+import { EditProfileProps } from "../../types/types";
 
 const validationSchema = Yup.object().shape({
   agencyName: Yup.string().required(t("agencyNameRequired")),
@@ -23,9 +24,6 @@ const validationSchema = Yup.object().shape({
     .required(t("confirmpasswordRequired")),
 });
 
-interface EditProfileProps {
-  navigation: any;
-}
 
 const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
   const styles = createStyles(colors);

@@ -13,19 +13,8 @@ import { useNavigation } from "@react-navigation/native";
 import { Add, Search } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/types";
 import Header from "../../components/Header";
-
-interface Contact {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-}
-
-type CreateContactScreenNavigationProp =
-  NativeStackNavigationProp<RootStackParamList>;
+import { Contact, CreateContactScreenNavigationProp } from "../../types/types";
 
 const contacts: Contact[] = [
   {

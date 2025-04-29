@@ -9,7 +9,7 @@ import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
 import { useTranslation } from "react-i18next";
-
+import { SignUpProps } from "../../types/types";
 
 const validationSchema = Yup.object().shape({
   agencyName: Yup.string().required(t("agencyNameRequired")),
@@ -23,13 +23,9 @@ const validationSchema = Yup.object().shape({
     .required(t("confirmpasswordRequired")),
 });
 
-interface SignUpProps {
-  navigation: any;
-}
-
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const styles = createStyles(colors);
-  const { t} = useTranslation();
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState<boolean>(true);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(true);
 
@@ -42,7 +38,10 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     >
       <View style={{ flex: 8 }}>
         <Header title={t("pleaseRegisterHere")} />
-        <ScrollView contentContainerStyle={styles.containerC1} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.containerC1}
+          showsVerticalScrollIndicator={false}
+        >
           <Text
             style={[
               Typography.f_20_nunito_bold,

@@ -19,6 +19,7 @@ import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
 import { useTranslation } from "react-i18next";
+import { SignInProps } from "../../types/types";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
@@ -27,13 +28,9 @@ const validationSchema = Yup.object().shape({
     .required(t("passwordRequired")),
 });
 
-interface SignInProps {
-  navigation: any;
-}
-
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const dispatch = useDispatch();
-    const { t} = useTranslation();
+  const { t } = useTranslation();
   const styles = createStyles(colors);
   const [secureEntryState, setsecureEntryState] = useState<boolean>(true);
 

@@ -14,20 +14,11 @@ import { Typography } from "../../utilities/constants/constant.style";
 import { colors } from "../../utilities/constants";
 import { AddPhoto, Left, Right } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "../../navigation/types";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { addDays, format, startOfWeek, startOfMonth } from "date-fns";
 import { enUS, es } from "date-fns/locale";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
-
-type ScheduledScreenNavigationProp =
-  NativeStackNavigationProp<RootStackParamList>;
-
-type Day = {
-  day: string;
-  number: number;
-};
+import { ScheduledScreenNavigationProp, Day } from "../../types/types";
 
 const Scheduled: React.FC = () => {
   const navigation = useNavigation<ScheduledScreenNavigationProp>();

@@ -12,7 +12,6 @@ import {
 import Colors from "../../utilities/constants/colors";
 import { Prev, Next, Heart, Address } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
-import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import Images from "../../assets/images";
 import Header from "../../components/Header";
@@ -22,7 +21,6 @@ const { width } = Dimensions.get("window");
 
 const ApartmentDetails: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const navigation = useNavigation();
   const { t, i18n } = useTranslation();
   const scrollRef = useRef<FlatList>(null);
   const currentLanguage = i18n.language === "sp" ? "sp" : "en";

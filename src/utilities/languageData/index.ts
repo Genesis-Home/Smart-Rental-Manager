@@ -1,23 +1,21 @@
-import i18n, {TFunction} from 'i18next';
-import {initReactI18next} from 'react-i18next';
-import {DEFAULT_LANGUAGE} from '../constants';
-import {appLanguages} from './data';
-import {languageData} from '..';
-import {getItem, setItem} from '../../services/assynsStorage';
-
-type LanguageCode = string;
+import i18n, { TFunction } from "i18next";
+import { initReactI18next } from "react-i18next";
+import { DEFAULT_LANGUAGE } from "../constants";
+import { appLanguages } from "./data";
+import { languageData } from "..";
+import { getItem, setItem } from "../../services/assynsStorage";
 
 // CHANGE LANGUAGE
-const setLanguageAsync = async (lang: LanguageCode): Promise<void> => {
-  await setItem('languagecode', lang);
+const setLanguageAsync = async (lang: string): Promise<void> => {
+  await setItem("languagecode", lang);
 };
 
 export const onLanguageSelect = async (
   langId: string,
   setFlag: (flag: boolean) => void,
-  flag: boolean,
+  flag: boolean
 ): Promise<void> => {
-  const lang = appLanguages.find(item => item.code === langId);
+  const lang = appLanguages.find((item) => item.code === langId);
   if (lang) {
     await i18n.changeLanguage(lang.code);
     await setLanguageAsync(lang.code);
@@ -32,32 +30,32 @@ export const fetchTranslations = async (): Promise<boolean> => {
   let selectedLocale: string | null = null;
 
   if (translations.length) {
-    translations.forEach(translation => {
+    translations.forEach((translation) => {
       i18n.addResourceBundle(
         translation.locale,
-        'translation',
+        "translation",
         translation.translation,
         true,
-        true,
+        true
       );
     });
 
-    const locales = translations.map(translation => translation.locale);
+    const locales = translations.map((translation) => translation.locale);
 
     let lang: string | null = null;
 
     try {
-      lang = await getItem('languagecode', DEFAULT_LANGUAGE);
+      lang = await getItem("languagecode", DEFAULT_LANGUAGE);
     } catch (error) {}
 
-    selectedLocale = locales.find(locale => locale === lang) || null;
+    selectedLocale = locales.find((locale) => locale === lang) || null;
   }
 
   if (selectedLocale) {
-    await setItem('languagecode', selectedLocale);
+    await setItem("languagecode", selectedLocale);
     i18n.changeLanguage(selectedLocale);
   } else {
-    await setItem('languagecode', DEFAULT_LANGUAGE);
+    await setItem("languagecode", DEFAULT_LANGUAGE);
   }
 
   return true;

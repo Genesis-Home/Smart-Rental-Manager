@@ -20,10 +20,7 @@ import { Calendar, LocaleConfig } from "react-native-calendars";
 import { Left, Right } from "../../assets/icons";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
-
-interface AddScheduleProps {
-  navigation: any;
-}
+import { AddScheduleProps } from "../../types/types";
 
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
