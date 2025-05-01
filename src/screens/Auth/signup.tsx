@@ -9,6 +9,10 @@ import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
 import { useTranslation } from "react-i18next";
+import { registerUser } from "../../store/actions/action";
+import { useDispatch } from "react-redux";
+import { getApps } from 'firebase/app';
+
 
 
 const validationSchema = Yup.object().shape({
@@ -29,9 +33,18 @@ interface SignUpProps {
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const styles = createStyles(colors);
-  const { t} = useTranslation();
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState<boolean>(true);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(true);
+  const dispatch = useDispatch<any>();
+
+  const isFirebaseConnected = getApps().length > 0;
+
+  if(isFirebaseConnected){
+    console.log('firebase connected!')
+  }else{
+    console.log('firebase connection failed!')
+  }
 
   return (
     <View
@@ -68,7 +81,10 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
               confirmPassword: "",
             }}
             validationSchema={validationSchema}
-            onSubmit={() => navigation.navigate("Tabs")}
+            onSubmit={(values) => {
+            dispatch(registerUser(values, navigation))
+           
+            }}
           >
             {({
               handleChange,

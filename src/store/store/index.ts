@@ -1,15 +1,9 @@
-import { createStore, applyMiddleware, Store, Middleware } from 'redux';
-import rootReducer from '../reducers/rootReducer';
-import thunk from 'redux-thunk';
-import { Action } from 'redux';
+// redux/store.js
+import { configureStore } from '@reduxjs/toolkit';
+import rootReducer from '../reducers/rootReducer'; // combineReducers
 
-export type RootState = ReturnType<typeof rootReducer>;
-
-const store: Store<RootState, Action> = createStore(
-  rootReducer,
-  {},
-  // applyMiddleware(thunk)
-);
+const store = configureStore({
+  reducer: rootReducer,
+});
 
 export default store;
-

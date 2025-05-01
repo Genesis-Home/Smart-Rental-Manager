@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "997733982465",
+    "project_id": "smartrental-8c487",
+    "storage_bucket": "smartrental-8c487.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:997733982465:android:eb669c7c00867b186d3b00",
+        "android_client_info": {
+          "package_name": "com.smartrentalmanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaReftGRfk2uSun6Qg7ZJgec7lS8zNgYE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
