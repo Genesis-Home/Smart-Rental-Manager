@@ -275,7 +275,6 @@ const styles = StyleSheet.create({
     gap: 3,
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 3,
   },
   searchInputField: {
     color: Colors.DARK_GREEN,

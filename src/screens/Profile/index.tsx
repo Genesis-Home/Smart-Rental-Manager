@@ -148,7 +148,6 @@ const styles = StyleSheet.create({
     gap: 3,
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 3,
     marginTop: 20,
   },
   searchInputField: {
