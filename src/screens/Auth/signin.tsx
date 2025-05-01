@@ -20,6 +20,7 @@ import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
 import { useTranslation } from "react-i18next";
 import { SignInProps } from "../../types/types";
+import { loginUser } from "../../store/actions/action";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
@@ -34,13 +35,13 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const styles = createStyles(colors);
   const [secureEntryState, setsecureEntryState] = useState<boolean>(true);
 
-  // const submit = (values: {email: string; password: string}) => {
-  //   let credentials = {
-  //     email: values.email,
-  //     password: values.password,
-  //   };
-  //   // dispatch(loginUser(credentials));
-  // };
+  const submit = (values: { email: string; password: string }) => {
+    let credentials = {
+      email: values.email,
+      password: values.password,
+    };
+    dispatch(loginUser(credentials));
+  };
 
   return (
     <View
@@ -77,8 +78,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
               password: "12345678",
             }}
             validationSchema={validationSchema}
-            // onSubmit={submit}
-            onSubmit={() => navigation.navigate("Tabs")}
+            onSubmit={submit}
+            // onSubmit={() => navigation.navigate("Tabs")}
           >
             {({
               handleChange,
