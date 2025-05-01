@@ -11,7 +11,7 @@ import FormInput from "../../components/FormInput";
 import { useTranslation } from "react-i18next";
 import { SignUpProps } from "../../types/types";
 import { registerUser } from "../../store/actions/action";
-import { useDispatch } from "react-redux";
+import { useAppDispatch } from "../../store/hooks";
 
 const validationSchema = Yup.object().shape({
   agencyName: Yup.string().required(t("agencyNameRequired")),
@@ -26,7 +26,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const styles = createStyles(colors);
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState<boolean>(true);

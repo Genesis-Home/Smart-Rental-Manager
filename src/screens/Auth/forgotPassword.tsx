@@ -1,5 +1,4 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import { StyleSheet, Text, View, ScrollView, Platform } from "react-native";
 import { t } from "i18next";
 import { Formik } from "formik";
@@ -12,13 +11,14 @@ import FormInput from "../../components/FormInput";
 import { useTranslation } from "react-i18next";
 import { ForgotPasswordProps } from "../../types/types";
 import { forgotPassword } from "../../store/actions/action";
+import { useAppDispatch } from "../../store/hooks";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
 });
 
 const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const styles = createStyles(colors);
   const { t } = useTranslation();
 

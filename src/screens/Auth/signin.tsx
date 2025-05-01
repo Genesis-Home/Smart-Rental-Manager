@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import {
   StyleSheet,
   Text,
@@ -21,6 +20,7 @@ import FormInput from "../../components/FormInput";
 import { useTranslation } from "react-i18next";
 import { SignInProps } from "../../types/types";
 import { loginUser } from "../../store/actions/action";
+import { useAppDispatch } from "../../store/hooks";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
@@ -30,7 +30,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const styles = createStyles(colors);
   const [secureEntryState, setsecureEntryState] = useState<boolean>(true);
@@ -79,7 +79,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             }}
             validationSchema={validationSchema}
             onSubmit={submit}
-          // onSubmit={() => navigation.navigate("Tabs")}
+            // onSubmit={() => navigation.navigate("Tabs")}
           >
             {({
               handleChange,
