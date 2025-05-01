@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -6,25 +6,15 @@ import {
   TouchableOpacity,
   FlatList,
   ListRenderItemInfo,
+  TextInput,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { useNavigation } from "@react-navigation/native";
-import { Add } from "../../assets/icons";
+import { Add, Search } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/types";
 import Header from "../../components/Header";
-
-interface Contact {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-}
-
-type CreateContactScreenNavigationProp =
-  NativeStackNavigationProp<RootStackParamList>;
+import { Contact, CreateContactScreenNavigationProp } from "../../types/types";
 
 const contacts: Contact[] = [
   {
@@ -55,6 +45,7 @@ const contacts: Contact[] = [
 
 const Profile: React.FC = () => {
   const navigation = useNavigation<CreateContactScreenNavigationProp>();
+  const [search, setSearch] = useState("");
   const { t } = useTranslation();
 
   const renderContactItem = ({ item, index }: ListRenderItemInfo<Contact>) => (
@@ -82,6 +73,16 @@ const Profile: React.FC = () => {
   return (
     <View style={styles.profileContainer}>
       <Header title={t("contact")} />
+      <View style={styles.searchContainer}>
+        <Search />
+        <TextInput
+          placeholder={t("search")}
+          placeholderTextColor={Colors.PLACE_HOLDER}
+          style={[Typography.f_14_nunito_medium, styles.searchInputField]}
+          value={search}
+          onChangeText={setSearch}
+        />
+      </View>
       <FlatList
         data={contacts}
         renderItem={renderContactItem}
@@ -137,5 +138,21 @@ const styles = StyleSheet.create({
   },
   lastItemMarginBottom: {
     marginBottom: 30,
+  },
+  searchContainer: {
+    backgroundColor: Colors.white,
+    paddingHorizontal: 10,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: Colors.Neutral_01,
+    gap: 3,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 3,
+    marginTop: 20,
+  },
+  searchInputField: {
+    color: Colors.DARK_GREEN,
+    flex: 1,
   },
 });

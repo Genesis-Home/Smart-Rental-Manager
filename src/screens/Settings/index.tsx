@@ -16,11 +16,9 @@ import { colors } from "../../utilities/constants";
 import { Down, DropRight, Signout } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import type { RootStackParamList } from "../../navigation/types";
 import { appLanguages } from "../../utilities/languageData/data";
 import i18n from "i18next";
-
-type SettingNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import { SettingNavigationProp } from "../../types/types";
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();

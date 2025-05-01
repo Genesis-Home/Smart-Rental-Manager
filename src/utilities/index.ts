@@ -5,8 +5,7 @@ export {
   platform,
   systemVersion,
   deviceUId,
-  deviceType,
   hasNotch,
-} from './constants';
+} from "./constants";
 
-export {languageData} from './languageData/data';
+export { languageData } from "./languageData/data";

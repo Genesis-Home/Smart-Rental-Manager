@@ -6,14 +6,8 @@ import { Typography } from "../../utilities/constants/constant.style";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import { colors } from "../../utilities/constants";
 import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/types";
 import { useTranslation } from "react-i18next";
-
-type Splash1ScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  "Splash1"
->;
+import { Splash1ScreenNavigationProp } from "../../types/types";
 
 const Splash1: React.FC = () => {
   const navigation = useNavigation<Splash1ScreenNavigationProp>();

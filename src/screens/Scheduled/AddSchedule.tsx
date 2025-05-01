@@ -20,10 +20,7 @@ import { Calendar, LocaleConfig } from "react-native-calendars";
 import { Left, Right } from "../../assets/icons";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
-
-interface AddScheduleProps {
-  navigation: any;
-}
+import { AddScheduleProps } from "../../types/types";
 
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
@@ -310,8 +307,11 @@ const createStyles = (colors: any) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: 10,
       gap: 25,
+      borderWidth: 1,
+      borderColor: colors.Neutral_01,
+      padding: 13,
+      borderRadius: 8,
     },
     headerMonthText: {
       ...Typography.f_14_nunito_bold,

@@ -14,12 +14,9 @@ import { AppIcon, Location, Notification, Search } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import Images from "../../assets/images";
 import { Heart, Prev, Next, Address, Add } from "../../assets/icons";
-import { RootStackParamList } from "../../navigation/types";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import { HomeScreenNavigationProp, Property } from "../../types/types";
 
 const { width } = Dimensions.get("window");
 
@@ -60,7 +57,7 @@ const data = [
 
 const Home: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const { i18n ,t} = useTranslation();
+  const { i18n, t } = useTranslation();
   const currentLanguage = i18n.language === "sp" ? "sp" : "en";
 
   const [activeIndexes, setActiveIndexes] = useState<{ [key: string]: number }>(
@@ -97,13 +94,13 @@ const Home: React.FC = () => {
     }
   };
 
-  const renderItem = ({ item }: { item: (typeof data)[0] }) => {
+  const renderItem = ({ item }: { item: Property }) => {
     const activeIndex = activeIndexes[item.id] ?? 0;
     return (
       <TouchableOpacity
         style={{ marginBottom: 5 }}
         activeOpacity={0.8}
-        onPress={() => navigation.navigate("ApartmentDetails")}
+        onPress={() => navigation.navigate("ApartmentDetails", { id: item.id })}
       >
         <View style={styles.carouselWrapper}>
           <FlatList
@@ -195,12 +192,12 @@ const Home: React.FC = () => {
       <View style={styles.topBar}>
         <AppIcon />
         <View style={styles.iconWrapper}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate("Map")}
           >
             <Location />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate("Notification")}
@@ -213,7 +210,7 @@ const Home: React.FC = () => {
         <View style={styles.searchContainer}>
           <Search />
           <TextInput
-            placeholder={t('search')}
+            placeholder={t("search")}
             placeholderTextColor={Colors.PLACE_HOLDER}
             style={[Typography.f_14_nunito_medium, styles.searchInputField]}
           />
@@ -313,7 +310,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal:10,
+    paddingHorizontal: 10,
   },
   dotContainer: {
     flexDirection: "row",

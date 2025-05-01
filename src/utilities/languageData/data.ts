@@ -1,184 +1,17 @@
-export type CalendarData = {
-  monthNames: string[];
-  monthNamesShort: string[];
-  dayNames: string[];
-  dayNamesShort: string[];
-  today: string;
-};
-export type LanguageTranslation = {
-  welcome: string;
-  trackVisits: string;
-  loginEmailPrompt: string;
-  registerEmailPrompt: string;
-  pleaseLoginHere: string;
-  emailAddress: string;
-  agencyName: string;
-  ownerName: string;
-  email: string;
-  password: string;
-  forgotPassword: string;
-  rememberme: string;
-  donthaveaccount: string;
-  recoverAccount: string;
-  signup: string;
-  or: string;
-  signIn: string;
-  pleaseRegisterHere: string;
-  fullname: string;
-  confirmpassword: string;
-  role: string;
-  alreadyhaveanaccount: string;
-  TermsConditions: string;
-  registerissucessfullyhaveenjoy: string;
-  resetpassword: string;
-  enteryouremail: string;
-  rememberyourpassword: string;
-  sendOtp: string;
-  changePassword: string;
-  enternewpassword: string;
-  invalidEmail: string;
-  emailRequired: string;
-  passwordRequired: string;
-  passwordMin: string;
-  fullnameRequired: string;
-  roleRequired: string;
-  confirmpasswordRequired: string;
-  passwordsDoNotMatch: string;
-  agencyNameRequired: string;
-  ownerNameRequired: string;
-  passwordsMustMatch: string;
-  resetEmail: string;
-  sendEmail: string;
-  addProperty: string;
-  PhotoUpload: string;
-  photo: string;
-  addTitle: string;
-  addDes: string;
-  detail: string;
-  desc: string;
-  otherDet: string;
-  submit: string;
-  AdFullView: string;
-  Notification: string;
-  notiReceived: string;
-  notiNew: string;
-  Email: string;
-  name: string;
-  phoneNum: string;
-  createContact: string;
-  create: string;
-  note: string;
-  home: string;
-  scheduled: string;
-  contact: string;
-  exportData: string;
-  setting: string;
-  location: string;
-  isRequired: string;
-  title: string;
-  schedulePropertyVisit: string;
-  days: Record<string, string>;
-  properties: string[];
-  createSchedule: string;
-  clientName: string;
-  visitDateTime: string;
-  propertyToVisitors: string;
-  numberOfVisitors: string;
-  numberOfInfants: string;
-  AutomatedEmail: string;
-  visitConfirmed: string;
-  visitData: string;
-  propertyAddress: string;
-  visitDetail: string;
-  openInGoogleMaps: string;
-  Whatsapp: string;
-  ShareApp: string;
-  Copydata: string;
-  dataExport: string;
-  export: string;
-  clientVisitAppointmentTitle: string;
-  phone: string;
-  Infant: string;
-  googleMapsLocation: string;
-  viewOnMap: string;
-  calendarData: CalendarData;
-  selectDateRange: string;
-  editProfile: string;
-  notification: string;
-  language: string;
-  termsConditions: string;
-  privacyPolicy: string;
-  signOut: string;
-  save: string;
-  effectiveDate: string;
-  accountUse: string;
-  accountUseDetails: string;
-  accountUseDetails1: string;
-  appPurpose: string;
-  appPurposeDetails: string;
-  appPurposeDetails1: string;
-  dataPrivacy: string;
-  dataPrivacyDetails: string;
-  dataPrivacyDetails1: string;
-  communication: string;
-  communicationDetails: string;
-  emailsAndSharing: string;
-  emailsAndSharingDetails: string;
-  emailsAndSharingDetails1: string;
-  DataExport: string;
-  dataExportDetails: string;
-  security: string;
-  securityDetails: string;
-  termination: string;
-  terminationDetails: string;
-  terminationDetails1: string;
-  Contact: string;
-  Eemail: string;
-  Address: string;
-  termsAndConditionsTitle: string;
-  dataWeCollect: string;
-  agencyUserDetails: string;
-  propertyInfo: string;
-  clientVisitDetails: string;
-  howWeUseIt: string;
-  secureLogin: string;
-  scheduleManage: string;
-  sendConfirmation: string;
-  exportVisitData: string;
-  shareVisitInfo: string;
-  privacySecurity: string;
-  dataIsolation: string;
-  passwordEncryption: string;
-  secureDataStorage: string;
-  yourControl: string;
-  accountControl: string;
-  search: string;
-};
-
-export type LanguageData = {
-  locale: string;
-  translation: LanguageTranslation;
-};
+import { LanguageData, AppLanguage, VisitDetail } from "../../types/types";
 
 export const languageData: LanguageData[] = [
   {
     locale: "en",
     translation: {
-      welcome: "Welcome!",
-      trackVisits:
-        "Keep track of all your visits and export data whenever you need it.",
-      loginEmailPrompt: "Enter your email to login",
-      registerEmailPrompt: "Enter your email to get started",
+      welcomeBack: "Welcome Back!",
       pleaseLoginHere: "Please Login Here!",
       emailAddress: "Email Address",
-      agencyName: "Agency Name",
-      ownerName: "Owner’s Name",
       email: "E-mail",
       password: "Password",
       forgotPassword: "Forget Password?",
       rememberme: "Remember me",
-      donthaveaccount: "Don’t have account?",
-      recoverAccount: "Recover Your Account",
+      donthaveaccount: "Don't have account?",
       signup: "Sign up",
       or: "OR",
       signIn: "Login",
@@ -189,218 +22,143 @@ export const languageData: LanguageData[] = [
       alreadyhaveanaccount: "Already have an account?",
       TermsConditions: "Terms & Conditions",
       registerissucessfullyhaveenjoy: "Register is sucessfully have enjoy!",
-      resetpassword: "Reset password",
+      resetyourpassword: "Reset your password",
       enteryouremail: "Input your Email Address",
       rememberyourpassword: "Remember your password?",
       sendOtp: "SEND OTP",
       changePassword: "Change password",
-      enternewpassword: "Create the new password",
+      enteryournewpassword: "Create the new password",
       invalidEmail: "Please enter a valid email address",
       emailRequired: "Email is required",
       passwordRequired: "Password is required",
       passwordMin: "Password must be at least 6 characters long",
       fullnameRequired: "Full Name is required",
       roleRequired: "Role is required",
+      selectRole: "Select Role",
       confirmpasswordRequired: "Confirm Password is required",
       passwordsDoNotMatch: "Passwords do not match",
-      agencyNameRequired: "Agency Name is required",
-      ownerNameRequired: "Owner Name is required",
-      passwordsMustMatch: "Passwords must match",
-      resetEmail: "Reset Email",
-      sendEmail: "Send Email",
-      addProperty: "Add Property",
-      PhotoUpload: "PhotoUpload",
-      photo: "Photo",
-      addTitle: "Add Title",
-      addDes: "Add Description",
-      detail: "Detail",
-      desc: "Description",
-      otherDet: "Other details",
-      submit: "Submit",
-      AdFullView: "Ad Full View",
-      Notification: "Notification",
-      notiReceived: " Notification received",
-      notiNew: "New",
-      contact: "Contact",
-      Email: "Email",
-      name: "Name",
-      phoneNum: "Phone Number",
-      createContact: "Create Contact",
-      create: "Create",
-      note: "Note",
-      home: "Home",
-      scheduled: "Scheduled",
-      exportData: "Export Data",
-      setting: "Setting",
-      location: "Location",
-      isRequired: "is required",
-      title: "Title",
-      schedulePropertyVisit: "Schedule Property Visit",
-      days: {
-        Mo: "Mo",
-        Tu: "Tu",
-        We: "We",
-        Th: "Th",
-        Fr: "Fr",
-        Sa: "Sa",
-        Su: "Su",
-      },
-      properties: [
-        "Flat 1",
-        "Room 1",
-        "Bed 1",
-        "Countryside house 1",
-        "House 1",
-        "Terrace 1",
-        "Stead 1",
-      ],
-      createSchedule: "Create Schedule",
-      clientName: "Client’s Name",
-      visitDateTime: "Visit Date & Time",
-      propertyToVisitors: "Property to Visitors",
-      numberOfVisitors: "Number of Visitors",
-      numberOfInfants: "Number of Infants",
-      AutomatedEmail: "Automated Email",
-      visitConfirmed: "Your visit is confirmed",
-      visitData: "Visit Data",
-      propertyAddress: "Property Address",
-      visitDetail: "Visit Details",
-      openInGoogleMaps: "Open in Google Maps",
-      Whatsapp: "Whatsapp",
-      ShareApp: "Share App",
-      Copydata: "Copy data",
-      dataExport: "Data Export",
-      export: "Export",
-      clientVisitAppointmentTitle: "Client Visit Appointment Details",
-      phone: "Phone",
-      Infant: "Infant",
-      googleMapsLocation: "Google Maps location",
-      viewOnMap: "View on Map",
-      calendarData: {
-        monthNames: [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ],
-        monthNamesShort: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ],
-        dayNames: [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ],
-        dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        today: "Today",
-      },
-      selectDateRange: "Select Date Range",
+      goodMorning: "Good Morning",
+      seeAll: "See All",
+      category: "Category",
+      advertisements: "Advertisements",
+      service: "Service",
+      cleaning: "Cleaning",
+      repairing: "Repairing",
+      painting: "Painting",
+      laundry: "Laundry",
+      plumbing: "Plumbing",
+      electrical: "Electrical",
+      carpentry: "Carpentry",
+      moving: "Moving",
+      pestControl: "Pest Control",
+      gardening: "Gardening",
+      homeSecurity: "Home Security",
+      etc: "etc",
+      all: "All",
+      reviews: "Reviews",
       editProfile: "Edit Profile",
-      notification: "Notification",
-      language: "Language",
-      termsConditions: "Terms & Conditions",
+      notifications: "Notifications",
+      payments: "Payments",
+      security: "Security",
       privacyPolicy: "Privacy Policy",
-      signOut: "Sign Out",
+      helpCenter: "Help Center",
+      inviteFriends: "Invite Friends",
+      language: "Language",
+      logout: "Logout",
+      dateOfBirth: "Date of Birth",
       save: "Save",
-      effectiveDate: "Effective Date: 6/4/2025",
-      accountUse: "1. Account Use",
-      accountUseDetails: "Only real estate agencies can register.",
-      accountUseDetails1: `Keep your login info secure. You're responsible for your account activity.`,
-      appPurpose: "2. App Purpose",
-      appPurposeDetails:
-        "The app helps agencies manage property listings and client visit schedules.",
-      appPurposeDetails1:
-        "Clients do not use the app — their data is added manually by agencies.",
-      dataPrivacy: "3. Data Privacy",
-      dataPrivacyDetails:
-        "Each agency's data is private and not shared with others.",
-      dataPrivacyDetails1:
-        "You own your data and are responsible for its accuracy.",
-      communication: "4. Communication",
-      communicationDetails:
-        "No communication or data sharing is allowed between different agencies.",
-      emailsAndSharing: "5. Emails & Sharing",
-      emailsAndSharingDetails:
-        "The app sends automated emails for visit confirmations.",
-      emailsAndSharingDetails1:
-        "Sharing options (WhatsApp, copy, etc.) are provided for convenience.",
-      DataExport: "6. Data Export",
-      dataExportDetails:
-        "Agencies can export visit records in Excel for their own use.",
-      security: "7. Security",
-      securityDetails:
-        "We take standard steps to protect data but are not liable for misuse or technical issues.",
-      termination: "8. Termination",
-      terminationDetails: "Accounts may be suspended if terms are violated.",
-      terminationDetails1: "You can request account deletion anytime.",
-      Contact: "Contact",
-      Eemail: "Email: [Insert Email]",
-      Address: "Address: [Insert Address]",
-      termsAndConditionsTitle:
-        "By using this app, you agree to the following terms:",
-      dataWeCollect: "Data We Collect",
-      agencyUserDetails: "Agency user details (name, email, password)",
-      propertyInfo: "Property info (images, address, description)",
-      clientVisitDetails:
-        "Client visit details (name, email, phone, visitors count, visit time, property, location)",
-      howWeUseIt: "How We Use It",
-      secureLogin: "Secure login and account access",
-      scheduleManage: "Schedule and manage property visits",
-      sendConfirmation: "Send confirmation emails to clients and agency",
-      exportVisitData: "Export visit data to Excel for records",
-      shareVisitInfo: "Share visit info via WhatsApp or other apps",
-      privacySecurity: "Privacy & Security",
-      dataIsolation: "Each agency's data is isolated — no inter-agency sharing",
-      passwordEncryption: "Passwords are encrypted",
-      secureDataStorage:
-        "Data stored securely and accessed only by authorized users",
-      yourControl: "Your Control",
-      accountControl:
-        "Agency users can update or delete their data anytime. For account deletion, contact us at [Insert Email].",
-      search: "Search",
+      phoneNumber: "Phone Number",
+      fullName: "Full Name",
+      address: "Address",
+      cardHolderName: "Card Holder Name",
+      cardNumber: "Card Number",
+      expiryDate: "Expiry Date",
+      cvv: "CVV",
+      proceedToPay: "Proceed to Pay",
+      enterName: "Enter Name",
+      deleteAccount: "Delete Account",
+      deleteAccountConfirm: "Delete Account Confirm",
+      deleteYourAccount: "Delete Your Account",
+      enterYourPassword: "Enter Your Password",
+      warning: "Warning",
+      bookingHistory: "Booking History",
+      savedPaymentMethods: "Saved Payment Methods",
+      personalPreferences: "Personal Preferences",
+      proceedInstruction: "Proceed Instruction",
+      passwordPlaceholder: "Password Placeholder",
+      delete: "Delete",
+      warningDelete: "Warning Delete",
+      title: "Title",
+      description: "Description",
+      price: "Price",
+      location: "Location",
+      book: "Book",
+      AdFullView: "Ad Full View",
+      deleteChat: "Delete Chat",
+      areYourSureYouWant: "Are Your Sure You Want",
+      typeamsg: "Type a message",
+      request: "Request",
+      upcoming: "Upcoming",
+      ongoing: "Ongoing",
+      completed: "Completed",
+      canceled: "Canceled",
+      accept: "Accept",
+      cancel: "Cancel",
+      bookingDetails: "Booking Details",
+      pay: "Pay",
+      amount: "Amount",
+      vat: "VAT",
+      total: "Total",
+      bookmark: "Bookmark",
+      ourservices: "Our Services",
+      awayfromhome: "Away from Home",
+      becleanisaplatform: "BeClean is a platform",
+      personalizeyourexp: "Personalize your experience",
+      getstarted: "Get Started",
+      selectAppLanguage: "Select App Language",
+      selectLanguage: "Select Language",
+      priceError: "Price Error",
+      imagesRequired: "Images Required",
+      serviceName: "Service Name",
+      servicePrice: "Service Price",
+      servicePriceError: "Service Price Error",
+      bookingDateTime: "Booking Date & Time",
+      pinLocation: "Pin Location",
+      submit: "Submit",
+      additionalServices: "Additional Services",
+      addService: "Add Service",
+      categoryRequired: "Category Required",
+      titleRequired: "Title Required",
+      descriptionRequired: "Description Required",
+      priceRequired: "Price Required",
+      serviceNameRequired: "Service Name Required",
+      servicePriceRequired: "Service Price Required",
+      bookingRequired: "Booking Required",
+      addressRequired: "Address Required",
+      pinLocationRequired: "Pin Location Required",
+      createAd: "Create Ad",
+      selectCategory: "Select Category",
+      edit: "Edit",
+      myAds: "My Ads",
+      services: "Services",
+      jobs: "Jobs",
+      createJob: "Create Job",
+      createService: "Create Service",
+      image: "Image",
+      imageFullView: "Image Full View",
     },
   },
   {
     locale: "sp",
     translation: {
-      welcome: "¡Bienvenido!",
-      trackVisits:
-        "Lleva un registro de todas tus visitas y exporta los datos cuando los necesites.",
-      loginEmailPrompt: "Ingresa tu correo electrónico para iniciar sesión.",
-      registerEmailPrompt: "Ingresa tu correo electrónico para comenzar.",
+      welcomeBack: "¡Bienvenido de nuevo!",
       pleaseLoginHere: "¡Por favor, inicia sesión aquí!",
       emailAddress: "Dirección de correo electrónico",
-      agencyName: "Nombre de la agencia",
-      ownerName: "Nombre del propietario",
       email: "Correo electrónico",
       password: "Contraseña",
       forgotPassword: "¿Olvidaste tu contraseña?",
       rememberme: "Recuérdame",
       donthaveaccount: "¿No tienes cuenta?",
-      recoverAccount: "Recupera tu cuenta",
       signup: "Regístrate",
       or: "O",
       signIn: "Iniciar sesión",
@@ -411,12 +169,12 @@ export const languageData: LanguageData[] = [
       alreadyhaveanaccount: "¿Ya tienes una cuenta?",
       TermsConditions: "Términos y condiciones",
       registerissucessfullyhaveenjoy: "¡Registro exitoso, disfruta!",
-      resetpassword: "Restablecer contraseña",
+      resetyourpassword: "Restablecer tu contraseña",
       enteryouremail: "Ingresa tu dirección de correo electrónico",
       rememberyourpassword: "¿Recuerdas tu contraseña?",
       sendOtp: "ENVIAR CÓDIGO",
       changePassword: "Cambiar contraseña",
-      enternewpassword: "Crea la nueva contraseña",
+      enteryournewpassword: "Crea la nueva contraseña",
       invalidEmail:
         "Por favor, ingresa una dirección de correo electrónico válida",
       emailRequired: "El correo electrónico es obligatorio",
@@ -424,191 +182,121 @@ export const languageData: LanguageData[] = [
       passwordMin: "La contraseña debe tener al menos 6 caracteres",
       fullnameRequired: "El nombre completo es obligatorio",
       roleRequired: "El rol es obligatorio",
+      selectRole: "Seleccionar Rol",
       confirmpasswordRequired: "Confirmar contraseña es obligatorio",
       passwordsDoNotMatch: "Las contraseñas no coinciden",
-      agencyNameRequired: "El nombre de la agencia es obligatorio",
-      ownerNameRequired: "El nombre del propietario es obligatorio",
-      passwordsMustMatch: "Las contraseñas deben coincidir",
-      resetEmail: "Restablecer correo electrónico",
-      sendEmail: "Enviar correo electrónico",
-      addProperty: "Agregar propiedad",
-      PhotoUpload: "Subir foto",
-      photo: "Foto",
-      addTitle: "Agregar título...",
-      title: "Título",
-      schedulePropertyVisit: "Programar visita a la propiedad",
-      addDes: "Agregar descripción...",
-      detail: "Detalle",
-      desc: "Descripción",
-      otherDet: "Otros detalles",
-      submit: "Enviar",
-      AdFullView: "Vista completa del anuncio",
-      Notification: "Notificación",
-      notiReceived: "Notificación recibida",
-      notiNew: "Nuevo",
-      contact: "Contacto",
-      Email: "Correo electrónico",
-      name: "Nombre",
-      phoneNum: "Número de teléfono",
-      createContact: "Crear Contacto",
-      create: "Crear",
-      note: "Nota",
-      home: "Inicio",
-      scheduled: "Programado",
-      exportData: "Exportar Datos",
-      setting: "Configuración",
-      location: "ubicación",
-      isRequired: "es obligatorio",
-      days: {
-        Mo: "Lu",
-        Tu: "Ma",
-        We: "Mi",
-        Th: "Ju",
-        Fr: "Vi",
-        Sa: "Sa",
-        Su: "Do",
-      },
-      properties: [
-        "Piso 1",
-        "Habitación 1",
-        "Cama 1",
-        "Casa de campo 1",
-        "Casa 1",
-        "Terraza 1",
-        "Finca 1",
-      ],
-      createSchedule: "Crear horario",
-      clientName: "Nombre del cliente",
-      visitDateTime: "Fecha y hora de la visita",
-      propertyToVisitors: "Propiedad para los visitantes",
-      numberOfVisitors: "Número de visitantes",
-      numberOfInfants: "Número de infantes",
-      AutomatedEmail: "Correo electrónico automatizado",
-      visitConfirmed: "Tu visita está confirmada",
-      visitData: "Datos de la visita",
-      propertyAddress: "Dirección de la propiedad",
-      visitDetail: "Detalles de la visita",
-      openInGoogleMaps: "Abrir en Google Maps",
-      Whatsapp: "Whatsapp",
-      ShareApp: "Compartir aplicación",
-      Copydata: "Copiar datos",
-      dataExport: "Exportación de datos",
-      export: "Exportar",
-      clientVisitAppointmentTitle: "Detalles de la Cita de Visita del Cliente",
-      phone: "Teléfono",
-      Infant: "Niña",
-      googleMapsLocation: "Ubicación en Google Maps",
-      viewOnMap: "Ver en el mapa",
-      calendarData: {
-        monthNames: [
-          "Enero",
-          "Febrero",
-          "Marzo",
-          "Abril",
-          "Mayo",
-          "Junio",
-          "Julio",
-          "Agosto",
-          "Septiembre",
-          "Octubre",
-          "Noviembre",
-          "Diciembre",
-        ],
-        monthNamesShort: [
-          "Ene",
-          "Feb",
-          "Mar",
-          "Abr",
-          "May",
-          "Jun",
-          "Jul",
-          "Ago",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dic",
-        ],
-        dayNames: [
-          "Domingo",
-          "Lunes",
-          "Martes",
-          "Miércoles",
-          "Jueves",
-          "Viernes",
-          "Sábado",
-        ],
-        dayNamesShort: ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
-        today: "Hoy",
-      },
-      selectDateRange: "Seleccionar rango de fechas",
+      goodMorning: "Buenos días",
+      seeAll: "Ver todo",
+      category: "Categoría",
+      advertisements: "Anuncios",
+      service: "Servicio",
+      cleaning: "Limpieza",
+      repairing: "Reparación",
+      painting: "Pintura",
+      laundry: "Lavandería",
+      plumbing: "Fontanería",
+      electrical: "Eléctrico",
+      carpentry: "Carpintería",
+      moving: "Mudanza",
+      pestControl: "Control de plagas",
+      gardening: "Jardinería",
+      homeSecurity: "Seguridad del hogar",
+      etc: "etc",
+      all: "Todo",
+      reviews: "Reseñas",
       editProfile: "Editar perfil",
-      notification: "Notificación",
-      language: "Idioma",
-      termsConditions: "Términos y condiciones",
+      notifications: "Notificaciones",
+      payments: "Pagos",
+      security: "Seguridad",
       privacyPolicy: "Política de privacidad",
-      signOut: "Cerrar sesión",
-      save: "Ahorrar",
-      effectiveDate: "Fecha de vigencia: 6/4/2025",
-      accountUse: "1. Uso de cuenta",
-      accountUseDetails: `Solo las agencias inmobiliarias pueden registrarse.`,
-      accountUseDetails1: `Mantén tu información de inicio de sesión segura. Eres responsable de la actividad de tu cuenta.`,
-      appPurpose: "2. Propósito de la app",
-      appPurposeDetails: `La app ayuda a las agencias a gestionar anuncios de propiedades y horarios de visitas de clientes.`,
-      appPurposeDetails1: `Los clientes no usan la app, sus datos son añadidos manualmente por las agencias.`,
-      dataPrivacy: "3. Privacidad de los datos",
-      dataPrivacyDetails: `Los datos de cada agencia son privados y no se comparten con otras.`,
-      dataPrivacyDetails1: `Tú eres dueño de tus datos y eres responsable de su exactitud.`,
-      communication: "4. Comunicación",
-      communicationDetails: `No se permite la comunicación ni el intercambio de datos entre diferentes agencias.`,
-      emailsAndSharing: "5. Correos Electrónicos y Compartir",
-      emailsAndSharingDetails: `La app envía correos electrónicos automáticos para confirmar visitas.`,
-      emailsAndSharingDetails1: `Se proporcionan opciones para compartir (WhatsApp, copiar, etc.) por conveniencia.`,
-      DataExport: "6. Exportación de datos",
-      dataExportDetails: `Las agencias pueden exportar los registros de visitas en Excel para su propio uso.`,
-      security: "7. Seguridad",
-      securityDetails: `Tomamos medidas estándar para proteger los datos, pero no somos responsables de mal uso o problemas técnicos.`,
-      termination: "8. Terminación",
-      terminationDetails: `Las cuentas pueden ser suspendidas si se violan los términos.`,
-      terminationDetails1: `Puedes solicitar la eliminación de la cuenta en cualquier momento.`,
-      Contact: "Contacto",
-      Eemail: "Correo electrónico: [Insertar Correo]",
-      Address: "Dirección: [Insertar Dirección]",
-      termsAndConditionsTitle:
-        "Al utilizar esta aplicación, aceptas los siguientes términos:",
-      dataWeCollect: "Datos que recopilamos",
-      agencyUserDetails:
-        "Detalles de usuario de la agencia (nombre, correo electrónico, contraseña)",
-      propertyInfo:
-        "Información de la propiedad (imágenes, dirección, descripción)",
-      clientVisitDetails:
-        "Detalles de visita del cliente (nombre, correo electrónico, teléfono, recuento de visitantes, hora de visita, propiedad, ubicación)",
-      howWeUseIt: "Cómo lo usamos",
-      secureLogin: "Inicio de sesión seguro y acceso a la cuenta",
-      scheduleManage: "Programar y gestionar visitas a propiedades",
-      sendConfirmation:
-        "Enviar correos electrónicos de confirmación a clientes y agencia",
-      exportVisitData: "Exportar datos de visitas a Excel para registros",
-      shareVisitInfo:
-        "Compartir información de visitas a través de WhatsApp u otras aplicaciones",
-      privacySecurity: "Privacidad y seguridad",
-      dataIsolation:
-        "Los datos de cada agencia están aislados — sin compartir entre agencias",
-      passwordEncryption: "Las contraseñas están encriptadas",
-      secureDataStorage:
-        "Datos almacenados de forma segura y accesibles solo por usuarios autorizados",
-      yourControl: "Tu control",
-      accountControl:
-        "Los usuarios de la agencia pueden actualizar o eliminar sus datos en cualquier momento. Para eliminar la cuenta, contáctenos en [Insertar Correo].",
-      search: "Buscar",
+      helpCenter: "Centro de ayuda",
+      inviteFriends: "Invitar amigos",
+      language: "Idioma",
+      logout: "Cerrar sesión",
+      dateOfBirth: "Fecha de nacimiento",
+      save: "Guardar",
+      phoneNumber: "Número de teléfono",
+      fullName: "Nombre completo",
+      address: "Dirección",
+      cardHolderName: "Nombre del titular",
+      cardNumber: "Número de tarjeta",
+      expiryDate: "Fecha de vencimiento",
+      cvv: "CVV",
+      proceedToPay: "Proceder al pago",
+      enterName: "Ingresar nombre",
+      deleteAccount: "Eliminar cuenta",
+      deleteAccountConfirm: "Confirmar eliminación de cuenta",
+      deleteYourAccount: "Eliminar tu cuenta",
+      enterYourPassword: "Ingresa tu contraseña",
+      warning: "Advertencia",
+      bookingHistory: "Historial de reservas",
+      savedPaymentMethods: "Métodos de pago guardados",
+      personalPreferences: "Preferencias personales",
+      proceedInstruction: "Instrucciones para proceder",
+      passwordPlaceholder: "Contraseña",
+      delete: "Eliminar",
+      warningDelete: "Advertencia de eliminación",
+      title: "Título",
+      description: "Descripción",
+      price: "Precio",
+      location: "Ubicación",
+      book: "Reservar",
+      AdFullView: "Vista completa del anuncio",
+      deleteChat: "Eliminar chat",
+      areYourSureYouWant: "¿Estás seguro de que quieres?",
+      typeamsg: "Escribe un mensaje",
+      request: "Solicitud",
+      upcoming: "Próximos",
+      ongoing: "En curso",
+      completed: "Completados",
+      canceled: "Cancelados",
+      accept: "Aceptar",
+      cancel: "Cancelar",
+      bookingDetails: "Detalles de la reserva",
+      pay: "Pagar",
+      amount: "Cantidad",
+      vat: "IVA",
+      total: "Total",
+      bookmark: "Marcador",
+      ourservices: "Nuestros servicios",
+      awayfromhome: "Fuera de casa",
+      becleanisaplatform: "BeClean es una plataforma",
+      personalizeyourexp: "Personaliza tu experiencia",
+      getstarted: "Comenzar",
+      selectAppLanguage: "Seleccionar idioma de la aplicación",
+      selectLanguage: "Seleccionar idioma",
+      priceError: "Error de precio",
+      imagesRequired: "Imágenes requeridas",
+      serviceName: "Nombre del servicio",
+      servicePrice: "Precio del servicio",
+      servicePriceError: "Error en el precio del servicio",
+      bookingDateTime: "Fecha y hora de la reserva",
+      pinLocation: "Marcar ubicación",
+      submit: "Enviar",
+      additionalServices: "Servicios adicionales",
+      addService: "Agregar servicio",
+      categoryRequired: "Categoría requerida",
+      titleRequired: "Título requerido",
+      descriptionRequired: "Descripción requerida",
+      priceRequired: "Precio requerido",
+      serviceNameRequired: "Nombre del servicio requerido",
+      servicePriceRequired: "Precio del servicio requerido",
+      bookingRequired: "Reserva requerida",
+      addressRequired: "Dirección requerida",
+      pinLocationRequired: "Ubicación requerida",
+      createAd: "Crear anuncio",
+      selectCategory: "Seleccionar categoría",
+      edit: "Editar",
+      myAds: "Mis anuncios",
+      services: "Servicios",
+      jobs: "Trabajos",
+      createJob: "Crear trabajo",
+      createService: "Crear servicio",
+      image: "Imagen",
+      imageFullView: "Vista completa de la imagen",
     },
   },
 ];
-
-export type AppLanguage = {
-  id: string;
-  name: string;
-  code: string;
-};
 
 export const appLanguages: AppLanguage[] = [
   {
@@ -623,18 +311,11 @@ export const appLanguages: AppLanguage[] = [
   },
 ];
 
-export type VisitDetail = {
-  date: string;
-  numberOfVisitors: number;
-  numberOfInfants: number;
-  propertyAddress: string;
-};
-
 export const visitDetails: VisitDetail[] = [
   {
     date: "Feb 20, 2024",
-    numberOfVisitors: 2,
-    numberOfInfants: 1,
+    numberOfVisitors: "2",
+    numberOfInfants: "1",
     propertyAddress: "123 Male St, Springfield",
   },
 ];

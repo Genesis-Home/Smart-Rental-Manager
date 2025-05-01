@@ -1,12 +1,8 @@
 import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
-import { NavigationProp } from "@react-navigation/native";
 import { colors } from "../../utilities/constants";
 import { Logo } from "../../assets/icons";
-
-interface SplashProps {
-  navigation: NavigationProp<any, any>;
-}
+import { SplashProps } from "../../types/types";
 
 const Splash: React.FC<SplashProps> = ({ navigation }) => {
   useEffect(() => {

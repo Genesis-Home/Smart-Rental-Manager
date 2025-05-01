@@ -12,13 +12,7 @@ import { colors } from "../utilities/constants";
 import { Typography } from "../utilities/constants/constant.style";
 import { RFValue } from "react-native-responsive-fontsize";
 import screenResolution from "../utilities/constants/screenResolution";
-
-interface FormInputProps extends TextInputProps {
-  label: string;
-  error?: string | false;
-  showToggle?: boolean;
-  onToggleSecure?: () => void;
-}
+import { FormInputProps } from "../types/types";
 
 const FormInput: React.FC<FormInputProps> = ({
   label,

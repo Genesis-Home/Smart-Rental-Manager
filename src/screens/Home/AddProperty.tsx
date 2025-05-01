@@ -23,10 +23,7 @@ import { Cross } from "../../assets/icons";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import FormInput from "../../components/FormInput";
-
-interface AddPropertyProps {
-  navigation: any;
-}
+import { AddPropertyProps } from "../../types/types";
 
 const AddProperty: React.FC<AddPropertyProps> = () => {
   const styles = createStyles(colors);

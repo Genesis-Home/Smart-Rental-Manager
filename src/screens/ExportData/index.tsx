@@ -17,12 +17,9 @@ import { Typography } from "../../utilities/constants/constant.style";
 import Images from "../../assets/images";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/types";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
-
-type ExportScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import { ExportScreenNavigationProp } from "../../types/types";
 
 const ExportData: React.FC = () => {
   const { t } = useTranslation();
@@ -211,7 +208,12 @@ const ExportData: React.FC = () => {
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t("googleMapsLocation")}</Text>
-              <Text style={styles.mapLink}>{t("viewOnMap")}</Text>
+              <Text
+                onPress={() => navigation.navigate("Map")}
+                style={styles.mapLink}
+              >
+                {t("viewOnMap")}
+              </Text>
             </View>
           </View>
         </View>
@@ -329,7 +331,7 @@ const styles = StyleSheet.create({
   detailLabel: {
     ...Typography.f_14_nunito_medium,
     color: colors.black,
-    width:"45%"
+    width: "45%",
   },
   detailValue: {
     ...Typography.f_14_nunito_medium,
@@ -345,7 +347,7 @@ const styles = StyleSheet.create({
   mapLink: {
     ...Typography.f_14_nunito_medium,
     color: colors.Primary_01,
-    width: "50%",
+    width: "45%",
   },
   modalOverlay: {
     flex: 1,
