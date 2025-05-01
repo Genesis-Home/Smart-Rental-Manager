@@ -74,8 +74,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           </Text>
           <Formik
             initialValues={{
-              email: "smartrentalapp@gmail.com",
-              password: "12345678",
+              email: "",
+              password: "",
             }}
             validationSchema={validationSchema}
             onSubmit={submit}
