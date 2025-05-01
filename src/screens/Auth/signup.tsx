@@ -10,6 +10,8 @@ import Header from "../../components/Header";
 import FormInput from "../../components/FormInput";
 import { useTranslation } from "react-i18next";
 import { SignUpProps } from "../../types/types";
+import { registerUser } from "../../store/actions/action";
+import { useDispatch } from "react-redux";
 
 const validationSchema = Yup.object().shape({
   agencyName: Yup.string().required(t("agencyNameRequired")),
@@ -24,10 +26,22 @@ const validationSchema = Yup.object().shape({
 });
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
   const styles = createStyles(colors);
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState<boolean>(true);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(true);
+
+  const submit = (values: { agencyName: string; ownerName: string, email: string, password: string, confirmPassword: string, }) => {
+    let credentials = {
+      agencyName: values.agencyName,
+      ownerName: values.ownerName,
+      email: values.email,
+      password: values.password,
+      confirmPassword: values.confirmPassword,
+    };
+    dispatch(registerUser(credentials, navigation));
+  };
 
   return (
     <View
@@ -67,7 +81,9 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
               confirmPassword: "",
             }}
             validationSchema={validationSchema}
-            onSubmit={() => navigation.navigate("Tabs")}
+            // onSubmit={() => navigation.navigate("Tabs")}
+            onSubmit={submit}
+
           >
             {({
               handleChange,

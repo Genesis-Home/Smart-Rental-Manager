@@ -40,7 +40,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       email: values.email,
       password: values.password,
     };
-    dispatch(loginUser(credentials));
+    dispatch(loginUser(credentials, null, navigation));
   };
 
   return (
@@ -79,7 +79,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             }}
             validationSchema={validationSchema}
             onSubmit={submit}
-            // onSubmit={() => navigation.navigate("Tabs")}
+          // onSubmit={() => navigation.navigate("Tabs")}
           >
             {({
               handleChange,
