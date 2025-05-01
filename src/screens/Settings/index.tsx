@@ -45,6 +45,8 @@ const Settings: React.FC = () => {
         navigation.navigate("TermsAndConditions");
       } else if (option === "privacyPolicy") {
         navigation.navigate("PrivacyPolicy");
+      } else if (option === "signOut") {
+        navigation.navigate("Signin");
       }
     }
   };
