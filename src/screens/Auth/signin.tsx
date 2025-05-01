@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { SignInProps } from "../../types/types";
 import { loginUser } from "../../store/actions/action";
 import { useAppDispatch } from "../../store/hooks";
+import CheckBox from "@react-native-community/checkbox";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
@@ -33,6 +34,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const styles = createStyles(colors);
+  const [isSelectedRemember, setisSelectedRemember] = useState<boolean>(false);
   const [secureEntryState, setsecureEntryState] = useState<boolean>(true);
 
   const submit = (values: { email: string; password: string }) => {
@@ -40,7 +42,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       email: values.email,
       password: values.password,
     };
-    dispatch(loginUser(credentials, null, navigation));
+    dispatch(loginUser(credentials, isSelectedRemember, navigation));
   };
 
   return (
@@ -79,7 +81,6 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             }}
             validationSchema={validationSchema}
             onSubmit={submit}
-            // onSubmit={() => navigation.navigate("Tabs")}
           >
             {({
               handleChange,
@@ -109,20 +110,43 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   onBlur={handleBlur("password")}
                   error={touched.password && errors.password}
                 />
-                <TouchableOpacity
-                  activeOpacity={0.8}
+                <View
                   style={{
-                    flex: 1,
                     flexDirection: "row",
-                    flexWrap: "wrap",
-                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
                 >
+                  <View
+                    style={{
+                      alignItems: "center",
+                      gap: 5,
+                      flexDirection: "row",
+                    }}
+                  >
+                    <CheckBox
+                      tintColors={{
+                        true: colors.Primary_01,
+                        false: colors.Primary_01,
+                      }}
+                      disabled={false}
+                      value={isSelectedRemember}
+                      onValueChange={setisSelectedRemember}
+                    />
+                    <Text
+                      style={[
+                        styles.label,
+                        Typography.f_14_nunito_medium,
+                        { color: colors.Primary_01 },
+                      ]}
+                    >
+                      {t("rememberme")}
+                    </Text>
+                  </View>
                   <Text
                     style={[
                       Typography.f_14_nunito_medium,
                       {
-                        textAlign: "right",
                         color: colors.DARK_GREEN,
                         paddingVertical: 10,
                       },
@@ -131,7 +155,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   >
                     {t("forgotPassword")}
                   </Text>
-                </TouchableOpacity>
+                </View>
                 <View style={{ marginTop: 10 }}>
                   <CTAButton1
                     title={t("signIn")}
@@ -183,6 +207,9 @@ const createStyles = (colors: any) => {
       color: colors.DARK_GREEN,
       width: "90%",
       ...Typography.f_12_nunito_medium,
+    },
+    label: {
+      color: colors.black,
     },
   });
 };
