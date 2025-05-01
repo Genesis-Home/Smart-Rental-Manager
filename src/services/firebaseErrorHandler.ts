@@ -52,49 +52,53 @@ const translations: Translations = {
     "Ad deleted successfully!": "Ad deleted successfully!",
     "": "",
   },
-  it: {
-    "auth/invalid-email": "L'indirizzo email non è valido.",
-    "auth/user-disabled": "L'account utente è stato disabilitato.",
-    "auth/user-not-found": "Nessun utente trovato con questa email.",
-    "auth/wrong-password": "La password non è corretta.",
-    "auth/email-already-in-use": "L'indirizzo email è già in uso.",
-    "auth/weak-password": "La password è troppo debole.",
-    "auth/operation-not-allowed": "Questa operazione non è consentita.",
-    "auth/network-request-failed": "Errore di rete, riprova più tardi.",
-    "auth/too-many-requests": "Troppe richieste. Riprova più tardi.",
-    "auth/invalid-verification-code": "Il codice di verifica non è valido.",
-    "auth/session-expired": "La sessione di verifica è scaduta.",
+  sp: {
+    "auth/invalid-email": "La dirección de correo electrónico no es válida.",
+    "auth/user-disabled": "La cuenta de usuario ha sido deshabilitada.",
+    "auth/user-not-found":
+      "No se encontró un usuario con este correo electrónico.",
+    "auth/wrong-password": "La contraseña es incorrecta.",
+    "auth/email-already-in-use":
+      "La dirección de correo electrónico ya está en uso.",
+    "auth/weak-password": "La contraseña es demasiado débil.",
+    "auth/operation-not-allowed": "Esta operación no está permitida.",
+    "auth/network-request-failed":
+      "Error de red, por favor intenta nuevamente más tarde.",
+    "auth/too-many-requests": "Demasiadas solicitudes. Intenta más tarde.",
+    "auth/invalid-verification-code": "El código de verificación no es válido.",
+    "auth/session-expired": "La sesión de verificación ha caducado.",
     "auth/provider-already-linked":
-      "Questo provider è già collegato all'account.",
+      "Este proveedor ya está vinculado a la cuenta.",
     "auth/credential-already-in-use":
-      "Questa credenziale è già associata a un altro utente.",
+      "Esta credencial ya está asociada con otro usuario.",
     "auth/requires-recent-login":
-      "Questa operazione richiede un'autenticazione recente. Effettua nuovamente l'accesso.",
-    "auth/missing-email": "È richiesto un indirizzo email.",
-    "auth/invalid-credential": "La credenziale fornita non è valida.",
+      "Esta operación requiere autenticación reciente. Inicia sesión nuevamente.",
+    "auth/missing-email": "Se requiere una dirección de correo electrónico.",
+    "auth/invalid-credential": "La credencial proporcionada no es válida.",
     "auth/user-token-expired":
-      "Il token utente è scaduto. Effettua nuovamente l'accesso.",
-    "auth/invalid-api-key": "La chiave API fornita non è valida.",
+      "El token del usuario ha expirado. Inicia sesión nuevamente.",
+    "auth/invalid-api-key": "La clave API proporcionada no es válida.",
     "auth/app-not-authorized":
-      "L'app non è autorizzata a utilizzare Firebase Authentication.",
-    "auth/user-mismatch": "L'utente non corrisponde alle credenziali fornite.",
+      "La aplicación no está autorizada para usar Firebase Authentication.",
+    "auth/user-mismatch":
+      "El usuario no coincide con las credenciales proporcionadas.",
     "auth/account-exists-with-different-credential":
-      "Esiste già un account con la stessa email ma con credenziali diverse.",
+      "Ya existe una cuenta con el mismo correo electrónico pero con credenciales diferentes.",
     "auth/popup-closed-by-user":
-      "Il popup è stato chiuso prima del completamento dell'accesso.",
+      "El popup fue cerrado antes de completar el inicio de sesión.",
     "auth/internal-error":
-      "Si è verificato un errore interno. Riprova più tardi.",
+      "Ocurrió un error interno. Por favor intenta más tarde.",
     // custom toast
-    "Login successful!": "Accesso effettuato con successo!",
-    "Passwords do not match.": "Le password non corrispondono.",
-    "User registered successfully!": "Utente registrato con successo!",
+    "Login successful!": "¡Inicio de sesión exitoso!",
+    "Passwords do not match.": "Las contraseñas no coinciden.",
+    "User registered successfully!": "¡Usuario registrado con éxito!",
     "Password reset email sent successfully.":
-      "Email di reimpostazione della password inviata con successo.",
-    "User update successfully!": "Utente aggiornato con successo!",
-    jobCreatedSuccess: "Lavoro creato con successo!",
-    serviceCreatedSuccess: "Servizio creato con successo!",
-    "Ad updated successfully!": "Annuncio aggiornato con successo!",
-    "Ad deleted successfully!": "Annuncio eliminato con successo!",
+      "Correo de restablecimiento de contraseña enviado exitosamente.",
+    "User update successfully!": "¡Usuario actualizado con éxito!",
+    jobCreatedSuccess: "¡Trabajo creado exitosamente!",
+    serviceCreatedSuccess: "¡Servicio creado exitosamente!",
+    "Ad updated successfully!": "¡Anuncio actualizado exitosamente!",
+    "Ad deleted successfully!": "¡Anuncio eliminado exitosamente!",
     "": "",
   },
 };
