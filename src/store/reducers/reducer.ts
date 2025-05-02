@@ -6,7 +6,8 @@ const initState: State = {
   isLocation: false,
   savedCords: [],
   isError: false,
-  properties: [] 
+  properties: [] ,
+  property: null,
 };
 
 const reducer = (state = initState, action: Action): State => {
@@ -35,6 +36,11 @@ const reducer = (state = initState, action: Action): State => {
       return {
         ...state,
         properties: action.payload,
+      };
+      case "SET_PROPERTY":
+      return {
+        ...state,
+        property: action.payload, 
       };
     default:
       return state;

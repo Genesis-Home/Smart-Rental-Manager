@@ -10,7 +10,7 @@ import {
   Text,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
-import { AppIcon, Location, Notification, Search } from "../../assets/icons";
+import { AppIcon, Notification, Search } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import Images from "../../assets/images";
 import { Heart, Prev, Next, Address, Add } from "../../assets/icons";
@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { HomeScreenNavigationProp, Property } from "../../types/types";
 import { fetchProperties } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { colors } from "../../utilities/constants";
 
 const { width } = Dimensions.get("window");
 
@@ -138,12 +139,12 @@ const Home: React.FC = () => {
                 />
               ))}
             </View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               activeOpacity={0.8}
               style={{ position: "absolute", bottom: 10, right: 10 }}
             >
               <Heart height={30} width={30} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
         <View style={{ marginVertical: 20, gap: 5 }}>
@@ -208,12 +209,18 @@ const Home: React.FC = () => {
           />
         </View>
       </View>
-      <FlatList
-        data={filteredProperties}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-      />
+      {filteredProperties.length === 0 ? (
+        <View style={styles.noPropertiesFound}>
+          <Text style={styles.noPropertiesText}>{t("noApartmentsFound")}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredProperties}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
       <TouchableOpacity
         onPress={() => navigation.navigate("AddProperty")}
         style={{ position: "absolute", bottom: 5, right: 0 }}
@@ -312,5 +319,14 @@ const styles = StyleSheet.create({
   },
   activeDot: {
     backgroundColor: Colors.white,
+  },
+  noPropertiesFound: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noPropertiesText: {
+    ...Typography.f_14_nunito_medium,
+    color: colors.Primary_01,
   },
 });

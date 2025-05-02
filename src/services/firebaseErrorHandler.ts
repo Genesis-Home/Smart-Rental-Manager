@@ -56,7 +56,8 @@ const translations: Translations = {
     "User not authenticated": "User not authenticated",
     "Failed to select images":"Failed to select images",
     "Property added successfully":"Property added successfully",
-    "Failed to upload images. Please try again.":"Failed to upload images. Please try again."
+    "Failed to upload images. Please try again.":"Failed to upload images. Please try again.",
+    "Property not found.":"Property not found."
   },
   sp: {
     "auth/invalid-email": "La dirección de correo electrónico no es válida.",
@@ -111,7 +112,8 @@ const translations: Translations = {
     "User not authenticated": "Usuario no autenticado",
     "Failed to select images": "Error al seleccionar imágenes",
     "Property added successfully":"Propiedad añadida con éxito",
-    "Failed to upload images. Please try again.":"No se pudieron cargar las imágenes. Por favor, inténtalo de nuevo."
+    "Failed to upload images. Please try again.":"No se pudieron cargar las imágenes. Por favor, inténtalo de nuevo.",
+    "Property not found.":"Propiedad no encontrada."
 
   },
 };

@@ -221,7 +221,8 @@ export const languageData: LanguageData[] = [
       accountControl:
         "Agency users can update or delete their data anytime. For account deletion, contact us at [Insert Email].",
       search: "Search",
-      noLocation: "Location not available"
+      noLocation: "Location not available",
+      noApartmentsFound: "No apartments found",
     },
   },
   {
@@ -441,7 +442,8 @@ export const languageData: LanguageData[] = [
       accountControl:
         "Los usuarios de la agencia pueden actualizar o eliminar sus datos en cualquier momento. Para eliminar la cuenta, contáctenos en [Insertar Correo].",
       search: "Buscar",
-      noLocation: "Ubicación no disponible"
+      noLocation: "Ubicación no disponible",
+      noApartmentsFound: "No se encontraron apartamentos",
     },
   },
 ];

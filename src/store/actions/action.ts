@@ -171,3 +171,41 @@ export const fetchProperties = () => async (dispatch: any) => {
     Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
   }
 };
+
+// Fetch property by ID
+export const fetchPropertyById =
+  (propertyId: string) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+
+      const propertyDoc = await firestore()
+        .collection("properties")
+        .doc(propertyId)
+        .get();
+
+      if (!propertyDoc.exists) {
+        dispatch({ type: "SET_PROPERTY", payload: null });
+        const errorMessage = await getFirebaseErrorMessage(
+          "Property not found."
+        );
+        Toast.show({
+          type: "error",
+          text1: errorMessage,
+          position: "bottom",
+        });
+      } else {
+        const property = {
+          ...propertyDoc.data(),
+          id: propertyDoc.id,
+        };
+        dispatch({ type: "SET_PROPERTY", payload: property });
+      }
+      dispatch({ type: "IS_LOADER", payload: false });
+    } catch (error) {
+      console.log(error, "fetchPropertyById_error");
+      dispatch({ type: "IS_LOADER", payload: false });
+
+      const errorMessage = await getFirebaseErrorMessage((error as any).code);
+      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+    }
+  };

@@ -1,14 +1,27 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { colors } from "../../utilities/constants";
 import { Logo } from "../../assets/icons";
 import { SplashProps } from "../../types/types";
+import { getItem } from "../../services/assynsStorage";
 
 const Splash: React.FC<SplashProps> = ({ navigation }) => {
   useEffect(() => {
-    setTimeout(() => {
+    checkUserSession();
+  }, []);
+
+  const checkUserSession = useCallback(async () => {
+    try {
+      const user = await getItem("user", null);
+      if (user) {
+        navigation.navigate("Tabs");
+      } else {
+        navigation.navigate("Splash1");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
       navigation.navigate("Splash1");
-    }, 500);
+    }
   }, [navigation]);
 
   return (

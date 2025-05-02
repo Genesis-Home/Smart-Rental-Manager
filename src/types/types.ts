@@ -298,7 +298,8 @@ export type LanguageTranslation = {
   yourControl: string;
   accountControl: string;
   search: string;
-  noLocation:string
+  noLocation:string;
+  noApartmentsFound:string
 };
 
 export type LanguageData = {
@@ -331,6 +332,7 @@ export interface State {
   savedCords: number[];
   isLocation: boolean;
   properties: any[];
+  property: Property | null;
 }
 
 export interface Action {
@@ -346,4 +348,8 @@ export interface Property {
   location: string | null;
   images: string[];
   otherDetails: string;
+}
+
+export interface RouteParams {
+  id: string;
 }
