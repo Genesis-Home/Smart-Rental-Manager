@@ -17,7 +17,7 @@ import * as Yup from "yup";
 import ImageView from "react-native-image-viewing";
 import { launchImageLibrary } from "react-native-image-picker";
 import Toast from "react-native-toast-message";
-import storage from "@react-native-firebase/storage";
+import { NavigationProp } from "@react-navigation/native";
 
 // UI components
 import Header from "../../components/Header";
@@ -25,19 +25,20 @@ import CTAButton1 from "../../components/CTA_BUTTON1";
 import FormInput from "../../components/FormInput";
 import { AddPhoto, Cross } from "../../assets/icons";
 import Images from "../../assets/images";
-import Colors from "../../utilities/constants/colors";
 import { Typography } from "../../utilities/constants/constant.style";
 import { colors } from "../../utilities/constants";
 
 // Redux action
 import { addProperty } from "../../store/actions/action";
 
-const AddProperty: React.FC = () => {
+import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
+
+const AddProperty: React.FC<{ navigation: NavigationProp<any> }> = ({
+  navigation,
+}) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const user = useSelector((state: any) => state.reducer.user);
-
-  console.log(user, "USER");
 
   const styles = createStyles(colors);
 
@@ -51,7 +52,7 @@ const AddProperty: React.FC = () => {
     otherDetails: Yup.string().required(t("detail") + " " + t("isRequired")),
   });
 
-  const handleImagePick = () => {
+  const handleImagePick = async () => {
     launchImageLibrary(
       {
         mediaType: "photo",
@@ -61,16 +62,19 @@ const AddProperty: React.FC = () => {
         maxWidth: 1024,
         maxHeight: 1024,
       },
-      (response) => {
+      async (response) => {
         if (response.didCancel) {
           console.log("User cancelled image picker");
           return;
         }
         if (response.errorCode) {
           console.error("Image picker error:", response.errorMessage);
+          const errorMessage = await getFirebaseErrorMessage(
+            "Failed to select images"
+          );
           Toast.show({
             type: "error",
-            text1: "Failed to select images",
+            text1: errorMessage,
             position: "bottom",
           });
           return;
@@ -135,28 +139,6 @@ const AddProperty: React.FC = () => {
     );
   };
 
-  const uploadImages = async (images: any[]) => {
-    try {
-      const uploadedURLs = await Promise.all(
-        images.map(async (img, index) => {
-          const imageUri = img.uri;
-          const filename = `properties/${
-            user.userId
-          }_${Date.now()}_${index}.jpg`;
-          const reference = storage().ref(filename);
-
-          await reference.putFile(imageUri);
-          const downloadURL = await reference.getDownloadURL();
-          return downloadURL;
-        })
-      );
-      return uploadedURLs;
-    } catch (error) {
-      console.error("Error uploading images:", error);
-      throw error;
-    }
-  };
-
   return (
     <View style={[styles.mainContainer, styles.platformMarginTop]}>
       <View style={styles.contentContainer}>
@@ -206,44 +188,38 @@ const AddProperty: React.FC = () => {
             validationSchema={validationSchema}
             onSubmit={async (values, { resetForm }) => {
               try {
-                if (galleryImages.length === 0) {
-                  Toast.show({
-                    type: "error",
-                    text1: "Please select at least one image",
-                    position: "bottom",
-                  });
-                  return;
-                }
-
-                dispatch({ type: "IS_LOADER", payload: true });
-
-                // Upload images first
-                const imageURLs = await uploadImages(galleryImages);
-
                 const formData = {
                   ...values,
-                  images: imageURLs,
+                  images: [
+                    "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                    "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                    "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                  ],
                 };
 
                 if (user?.userId) {
-                  dispatch(addProperty(formData, user.userId));
+                  dispatch(addProperty(formData, user.userId, navigation));
                   resetForm();
                   setGalleryImages([]);
                 } else {
+                  const errorMessage = await getFirebaseErrorMessage(
+                    "User not authenticated"
+                  );
                   Toast.show({
                     type: "error",
-                    text1: "User not authenticated",
+                    text1: errorMessage,
                   });
                 }
               } catch (error) {
                 console.error("Form submission error:", error);
+                const errorMessage = await getFirebaseErrorMessage(
+                  "Failed to upload images. Please try again."
+                );
                 Toast.show({
                   type: "error",
-                  text1: "Failed to upload images. Please try again.",
+                  text1: errorMessage,
                   position: "bottom",
                 });
-              } finally {
-                dispatch({ type: "IS_LOADER", payload: false });
               }
             }}
           >
@@ -287,7 +263,7 @@ const AddProperty: React.FC = () => {
                   <Text
                     style={[
                       Typography.f_16_nunito_medium,
-                      { color: Colors.black, paddingLeft: 3 },
+                      { color: colors.black, paddingLeft: 3 },
                     ]}
                   >
                     {t("location")}
@@ -337,7 +313,7 @@ const createStyles = (colors: any) =>
       marginVertical: 20,
     },
     photoUploadLabel: {
-      color: Colors.DARK_GREEN,
+      color: colors.DARK_GREEN,
     },
     photoUploadActionRow: {
       flexDirection: "row",
@@ -345,15 +321,11 @@ const createStyles = (colors: any) =>
       gap: 10,
     },
     photoTextLabel: {
-      color: Colors.Primary_01,
-    },
-    submitButtonContainer: {
-      marginTop: 20,
+      color: colors.DARK_GREEN,
     },
     imageContainer: {
-      width: "32%",
-      aspectRatio: 1,
-      marginBottom: 8,
+      width: 100,
+      height: 100,
       position: "relative",
     },
     image: {
@@ -362,17 +334,20 @@ const createStyles = (colors: any) =>
       borderRadius: 8,
     },
     overlay: {
-      ...StyleSheet.absoluteFillObject,
-      backgroundColor: Colors.Primary_01,
-      justifyContent: "center",
-      alignItems: "center",
+      position: "absolute",
+      top: 0,
+      right: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
       borderRadius: 8,
-      borderWidth: 1,
-      borderColor: Colors.Primary_01,
+      padding: 5,
     },
     overlayText: {
-      color: colors.white,
-      ...Typography.f_16_nunito_medium,
+      color: "white",
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    submitButtonContainer: {
+      marginTop: 20,
     },
   });
 

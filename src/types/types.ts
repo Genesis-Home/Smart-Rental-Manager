@@ -328,7 +328,7 @@ export interface State {
   isLoader: boolean;
   user: Record<string, any>;
   savedCords: number[];
-  isLocation: boolean;
+  isLocation: boolean
 }
 
 export interface Action {

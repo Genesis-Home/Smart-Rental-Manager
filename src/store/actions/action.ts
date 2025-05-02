@@ -1,12 +1,10 @@
 import { Dispatch } from "redux";
 import { CommonActions, NavigationProp } from "@react-navigation/native";
-import { Credentials } from "../../types/types";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import { deleteItem, setItem } from "../../services/assynsStorage";
 import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
-import storage from "@react-native-firebase/storage";
 
 export const getCurrentUser =
   (navigation: NavigationProp<any>): any =>
@@ -106,34 +104,46 @@ export const forgotPassword =
   };
 
 export const addProperty =
-  (formData: any, userId: string) => async (dispatch: any) => {
+  (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
+
+      const propertyRef = firestore().collection("properties").doc();
+      const propertyId = propertyRef.id;
 
       const propertyData = {
         title: formData.title,
         description: formData.description,
         otherDetails: formData.otherDetails,
         location: null,
-        images: null,
+        images: formData.images,
         createdBy: userId,
+        propertyId: propertyId,
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
 
-      await firestore().collection("properties").add(propertyData);
+      await propertyRef.set(propertyData);
 
       dispatch({ type: "IS_LOADER", payload: false });
+      const customMessage = await getFirebaseErrorMessage(
+        "Property added successfully"
+      );
       Toast.show({
         type: "success",
-        text1: "Property added successfully",
+        text1: customMessage,
         position: "bottom",
       });
+
+      navigation.navigate("Tabs", { screen: "Home1" });
     } catch (error: any) {
       console.error("Add Property Error:", error);
       dispatch({ type: "IS_LOADER", payload: false });
+      const errorMessage = await getFirebaseErrorMessage(
+        "Failed to add property. Please try again."
+      );
       Toast.show({
         type: "error",
-        text1: "Failed to add property. Please try again.",
+        text1: errorMessage,
         position: "bottom",
       });
     }
