@@ -17,7 +17,7 @@ import { Heart, Prev, Next, Address, Add } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { HomeScreenNavigationProp, Property } from "../../types/types";
-
+import { useSelector } from "react-redux";
 const { width } = Dimensions.get("window");
 
 const data = [
@@ -59,6 +59,10 @@ const Home: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { i18n, t } = useTranslation();
   const currentLanguage = i18n.language === "sp" ? "sp" : "en";
+
+  const properties = useSelector((state: any) => state.reducer.properties);
+
+  console.log(properties, "properties");
 
   const [activeIndexes, setActiveIndexes] = useState<{ [key: string]: number }>(
     {}

@@ -10,25 +10,38 @@ import {
   Image,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../utilities/constants";
-import { Typography } from "../../utilities/constants/constant.style";
-import ImageView from "react-native-image-viewing";
-import { AddPhoto } from "../../assets/icons";
-import Colors from "../../utilities/constants/colors";
-import CTAButton1 from "../../components/CTA_BUTTON1";
-import Images from "../../assets/images";
-import { launchImageLibrary } from "react-native-image-picker";
-import Header from "../../components/Header";
-import { Cross } from "../../assets/icons";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../store/hooks";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import ImageView from "react-native-image-viewing";
+import { launchImageLibrary } from "react-native-image-picker";
+import Toast from "react-native-toast-message";
+import storage from "@react-native-firebase/storage";
+
+// UI components
+import Header from "../../components/Header";
+import CTAButton1 from "../../components/CTA_BUTTON1";
 import FormInput from "../../components/FormInput";
-import { AddPropertyProps } from "../../types/types";
+import { AddPhoto, Cross } from "../../assets/icons";
+import Images from "../../assets/images";
+import Colors from "../../utilities/constants/colors";
+import { Typography } from "../../utilities/constants/constant.style";
+import { colors } from "../../utilities/constants";
 
-const AddProperty: React.FC<AddPropertyProps> = () => {
-  const styles = createStyles(colors);
+// Redux action
+import { addProperty } from "../../store/actions/action";
+
+const AddProperty: React.FC = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const user = useSelector((state: any) => state.reducer.user);
 
+  console.log(user, "USER");
+
+  const styles = createStyles(colors);
+
+  const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -38,41 +51,52 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
     otherDetails: Yup.string().required(t("detail") + " " + t("isRequired")),
   });
 
+  const handleImagePick = () => {
+    launchImageLibrary(
+      {
+        mediaType: "photo",
+        selectionLimit: 5,
+        includeBase64: false,
+        quality: 0.8,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      },
+      (response) => {
+        if (response.didCancel) {
+          console.log("User cancelled image picker");
+          return;
+        }
+        if (response.errorCode) {
+          console.error("Image picker error:", response.errorMessage);
+          Toast.show({
+            type: "error",
+            text1: "Failed to select images",
+            position: "bottom",
+          });
+          return;
+        }
+        if (response.assets?.length) {
+          console.log("Selected images:", response.assets);
+          const newImages = response.assets.map((img) => ({
+            uri: img.uri,
+            type: img.type || "image/jpeg",
+            name: img.fileName || `image_${Date.now()}.jpg`,
+          }));
+          setGalleryImages((prev) => [...prev, ...newImages]);
+        }
+      }
+    );
+  };
+
   const handleRemoveImage = (indexToRemove: number) => {
     setGalleryImages((prevImages) =>
       prevImages.filter((_, index) => index !== indexToRemove)
     );
   };
 
-  const [galleryImages, setGalleryImages] = useState<any[]>([
-    Images.GalleryImage1,
-    Images.GalleryImage2,
-    Images.GalleryImage3,
-    Images.GalleryImage4,
-    Images.GalleryImage5,
-    Images.GalleryImage6,
-    Images.GalleryImage6,
-  ]);
-
   const openImageView = (index: number) => {
     setSelectedIndex(index);
     setIsVisible(true);
-  };
-
-  const handleImagePick = () => {
-    launchImageLibrary(
-      { mediaType: "photo", selectionLimit: 1 },
-      (response) => {
-        if (response.didCancel) {
-          console.log("User cancelled image picker");
-        } else if (response.errorCode) {
-          console.log("Image Picker Error:", response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          const pickedImage = response.assets[0];
-          setGalleryImages((prev) => [...prev, { uri: pickedImage.uri }]);
-        }
-      }
-    );
   };
 
   const renderImages = () => {
@@ -111,6 +135,28 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
     );
   };
 
+  const uploadImages = async (images: any[]) => {
+    try {
+      const uploadedURLs = await Promise.all(
+        images.map(async (img, index) => {
+          const imageUri = img.uri;
+          const filename = `properties/${
+            user.userId
+          }_${Date.now()}_${index}.jpg`;
+          const reference = storage().ref(filename);
+
+          await reference.putFile(imageUri);
+          const downloadURL = await reference.getDownloadURL();
+          return downloadURL;
+        })
+      );
+      return uploadedURLs;
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      throw error;
+    }
+  };
+
   return (
     <View style={[styles.mainContainer, styles.platformMarginTop]}>
       <View style={styles.contentContainer}>
@@ -145,9 +191,7 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
           {renderImages()}
 
           <ImageView
-            images={galleryImages.map((img) => ({
-              uri: img.uri ? img.uri : Image.resolveAssetSource(img).uri,
-            }))}
+            images={galleryImages.map((img) => ({ uri: img.uri }))}
             imageIndex={selectedIndex}
             visible={visible}
             onRequestClose={() => setIsVisible(false)}
@@ -160,14 +204,47 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
               otherDetails: "",
             }}
             validationSchema={validationSchema}
-            onSubmit={(values) => {
-              const formData = {
-                ...values,
-                images: galleryImages.map((img) =>
-                  img.uri ? img.uri : Image.resolveAssetSource(img).uri
-                ),
-              };
-              console.log("Form Data:", formData);
+            onSubmit={async (values, { resetForm }) => {
+              try {
+                if (galleryImages.length === 0) {
+                  Toast.show({
+                    type: "error",
+                    text1: "Please select at least one image",
+                    position: "bottom",
+                  });
+                  return;
+                }
+
+                dispatch({ type: "IS_LOADER", payload: true });
+
+                // Upload images first
+                const imageURLs = await uploadImages(galleryImages);
+
+                const formData = {
+                  ...values,
+                  images: imageURLs,
+                };
+
+                if (user?.userId) {
+                  dispatch(addProperty(formData, user.userId));
+                  resetForm();
+                  setGalleryImages([]);
+                } else {
+                  Toast.show({
+                    type: "error",
+                    text1: "User not authenticated",
+                  });
+                }
+              } catch (error) {
+                console.error("Form submission error:", error);
+                Toast.show({
+                  type: "error",
+                  text1: "Failed to upload images. Please try again.",
+                  position: "bottom",
+                });
+              } finally {
+                dispatch({ type: "IS_LOADER", payload: false });
+              }
             }}
           >
             {({
@@ -206,7 +283,7 @@ const AddProperty: React.FC<AddPropertyProps> = () => {
                   multiline
                 />
 
-                <View style={{ gap: 8 }}>
+                <View style={{ gap: 8, marginTop: 15 }}>
                   <Text
                     style={[
                       Typography.f_16_nunito_medium,

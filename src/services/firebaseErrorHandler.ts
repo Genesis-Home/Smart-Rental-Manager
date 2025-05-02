@@ -45,12 +45,17 @@ const translations: Translations = {
     "User registered successfully!": "User registered successfully!",
     "Password reset email sent successfully.":
       "Password reset email sent successfully.",
+    "Property added successfully!": "Property added successfully!",
     "User update successfully!": "User update successfully!",
     jobCreatedSuccess: "Job created successfully!",
     serviceCreatedSuccess: "Service created successfully!",
     "Ad updated successfully!": "Ad updated successfully!",
     "Ad deleted successfully!": "Ad deleted successfully!",
     "": "",
+    "Failed to add property. Please try again.":
+      "Failed to add property. Please try again.",
+    "User not authenticated": "User not authenticated",
+    "Failed to select images":"Failed to select images"
   },
   sp: {
     "auth/invalid-email": "La dirección de correo electrónico no es válida.",
@@ -94,12 +99,17 @@ const translations: Translations = {
     "User registered successfully!": "¡Usuario registrado con éxito!",
     "Password reset email sent successfully.":
       "Correo de restablecimiento de contraseña enviado exitosamente.",
+    "Property added successfully!": "¡Propiedad añadida con éxito!",
     "User update successfully!": "¡Usuario actualizado con éxito!",
     jobCreatedSuccess: "¡Trabajo creado exitosamente!",
     serviceCreatedSuccess: "¡Servicio creado exitosamente!",
     "Ad updated successfully!": "¡Anuncio actualizado exitosamente!",
     "Ad deleted successfully!": "¡Anuncio eliminado exitosamente!",
     "": "",
+    "Failed to add property. Please try again.":
+      "No se pudo agregar la propiedad. Por favor, inténtelo de nuevo.",
+    "User not authenticated": "Usuario no autenticado",
+    "Failed to select images": "Error al seleccionar imágenes",
   },
 };
 
