@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -17,52 +17,42 @@ import { Heart, Prev, Next, Address, Add } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { HomeScreenNavigationProp, Property } from "../../types/types";
-const { width } = Dimensions.get("window");
+import { fetchProperties } from "../../store/actions/action";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
-const data = [
-  {
-    id: "1",
-    title: {
-      en: "Modern Apartment",
-      sp: "Apartamento Moderno",
-    },
-    description: {
-      en: "A spacious living room with contemporary furnishings and decor.",
-      sp: "Una sala de estar espaciosa con mobiliario y decoración contemporáneos.",
-    },
-    address: {
-      en: "R592 Elm St, Springfield",
-      sp: "R592 Elm St, Springfield",
-    },
-    images: [Images.Banner, Images.Banner, Images.Banner],
-  },
-  {
-    id: "2",
-    title: {
-      en: "Luxury Penthouse",
-      sp: "Ático de Lujo",
-    },
-    description: {
-      en: "A stunning penthouse with panoramic views and elegant interiors.",
-      sp: "Un impresionante ático con vistas panorámicas e interiores elegantes.",
-    },
-    address: {
-      en: "12th Avenue, New York",
-      sp: "12th Avenue, Nueva York",
-    },
-    images: [Images.Banner, Images.Banner, Images.Banner],
-  },
-];
+const { width } = Dimensions.get("window");
 
 const Home: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const { i18n, t } = useTranslation();
-  const currentLanguage = i18n.language === "sp" ? "sp" : "en";
+  const dispatch = useAppDispatch();
+  const { t } = useTranslation();
+
+  const properties = useAppSelector((state) => state.reducer.properties);
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filteredProperties, setFilteredProperties] =
+    useState<Property[]>(properties);
 
   const [activeIndexes, setActiveIndexes] = useState<{ [key: string]: number }>(
     {}
   );
   const scrollRefs = useRef<{ [key: string]: FlatList<any> | null }>({});
+
+  useEffect(() => {
+    dispatch(fetchProperties());
+  }, [dispatch]);
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim() === "") {
+      setFilteredProperties(properties);
+    } else {
+      const filtered = properties.filter((property) =>
+        property.title.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredProperties(filtered);
+    }
+  };
 
   const handleScroll = (event: any, id: string) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -110,7 +100,7 @@ const Home: React.FC = () => {
             renderItem={({ item: image, index }) => (
               <Image
                 key={index}
-                source={image}
+                source={{ uri: image }}
                 resizeMode="cover"
                 style={styles.carouselImage}
               />
@@ -160,7 +150,7 @@ const Home: React.FC = () => {
           <Text
             style={[Typography.f_20_montserrat_bold, { color: Colors.black }]}
           >
-            {item.title[currentLanguage]}
+            {item.title}
           </Text>
           <Text
             style={[
@@ -168,7 +158,7 @@ const Home: React.FC = () => {
               { color: Colors.black, lineHeight: 24, width: "70%" },
             ]}
           >
-            {item.description[currentLanguage]}
+            {item.description}
           </Text>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <Address />
@@ -178,7 +168,7 @@ const Home: React.FC = () => {
                 { color: Colors.DARK_GREEN, lineHeight: 24 },
               ]}
             >
-              {item.address[currentLanguage]}
+              {item.location ? item.location : t("noLocation")}
             </Text>
           </View>
         </View>
@@ -191,12 +181,6 @@ const Home: React.FC = () => {
       <View style={styles.topBar}>
         <AppIcon />
         <View style={styles.iconWrapper}>
-          {/* <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate("Map")}
-          >
-            <Location />
-          </TouchableOpacity> */}
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate("Notification")}
@@ -212,6 +196,8 @@ const Home: React.FC = () => {
             placeholder={t("search")}
             placeholderTextColor={Colors.PLACE_HOLDER}
             style={[Typography.f_14_nunito_medium, styles.searchInputField]}
+            value={searchQuery}
+            onChangeText={handleSearchChange}
           />
         </View>
         <View style={styles.profileImageContainer}>
@@ -223,7 +209,7 @@ const Home: React.FC = () => {
         </View>
       </View>
       <FlatList
-        data={data}
+        data={filteredProperties}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}

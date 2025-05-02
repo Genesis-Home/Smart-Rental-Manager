@@ -298,6 +298,7 @@ export type LanguageTranslation = {
   yourControl: string;
   accountControl: string;
   search: string;
+  noLocation:string
 };
 
 export type LanguageData = {
@@ -328,7 +329,8 @@ export interface State {
   isLoader: boolean;
   user: Record<string, any>;
   savedCords: number[];
-  isLocation: boolean
+  isLocation: boolean;
+  properties: any[];
 }
 
 export interface Action {
@@ -339,17 +341,9 @@ export interface Action {
 // Property Types
 export interface Property {
   id: string;
-  title: {
-    en: string;
-    sp: string;
-  };
-  description: {
-    en: string;
-    sp: string;
-  };
-  address: {
-    en: string;
-    sp: string;
-  };
-  images: any[];
+  title: string;
+  description: string;
+  location: string | null;
+  images: string[];
+  otherDetails: string;
 }

@@ -109,8 +109,6 @@ export const addProperty =
       dispatch({ type: "IS_LOADER", payload: true });
 
       const propertyRef = firestore().collection("properties").doc();
-      const propertyId = propertyRef.id;
-
       const propertyData = {
         title: formData.title,
         description: formData.description,
@@ -118,7 +116,6 @@ export const addProperty =
         location: null,
         images: formData.images,
         createdBy: userId,
-        propertyId: propertyId,
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
 
@@ -148,3 +145,29 @@ export const addProperty =
       });
     }
   };
+
+// fetch properties
+export const fetchProperties = () => async (dispatch: any) => {
+  try {
+    dispatch({ type: "IS_LOADER", payload: true });
+
+    const snapshot = await firestore().collection("properties").get();
+
+    if (snapshot.empty) {
+      dispatch({ type: "SET_PROPERTIES", payload: [] });
+    } else {
+      const properties = snapshot.docs.map((doc: any) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      dispatch({ type: "SET_PROPERTIES", payload: properties });
+    }
+    dispatch({ type: "IS_LOADER", payload: false });
+  } catch (error) {
+    console.log(error, "fetchProperty_error");
+    dispatch({ type: "IS_LOADER", payload: false });
+
+    const errorMessage = await getFirebaseErrorMessage((error as any).code);
+    Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+  }
+};
