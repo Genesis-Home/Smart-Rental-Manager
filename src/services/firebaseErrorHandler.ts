@@ -54,10 +54,15 @@ const translations: Translations = {
     "Failed to add property. Please try again.":
       "Failed to add property. Please try again.",
     "User not authenticated": "User not authenticated",
-    "Failed to select images":"Failed to select images",
-    "Property added successfully":"Property added successfully",
-    "Failed to upload images. Please try again.":"Failed to upload images. Please try again.",
-    "Property not found.":"Property not found."
+    "Failed to select images": "Failed to select images",
+    "Property added successfully": "Property added successfully",
+    "Failed to upload images. Please try again.":
+      "Failed to upload images. Please try again.",
+    "Property not found.": "Property not found.",
+    "Contact added successfully": "Contact added successfully",
+    "Failed to add contact. Please try again.":
+      "Failed to add contact. Please try again.",
+    "logout successfully!": "logout successfully!",
   },
   sp: {
     "auth/invalid-email": "La dirección de correo electrónico no es válida.",
@@ -111,10 +116,14 @@ const translations: Translations = {
       "No se pudo agregar la propiedad. Por favor, inténtelo de nuevo.",
     "User not authenticated": "Usuario no autenticado",
     "Failed to select images": "Error al seleccionar imágenes",
-    "Property added successfully":"Propiedad añadida con éxito",
-    "Failed to upload images. Please try again.":"No se pudieron cargar las imágenes. Por favor, inténtalo de nuevo.",
-    "Property not found.":"Propiedad no encontrada."
-
+    "Property added successfully": "Propiedad añadida con éxito",
+    "Failed to upload images. Please try again.":
+      "No se pudieron cargar las imágenes. Por favor, inténtalo de nuevo.",
+    "Property not found.": "Propiedad no encontrada.",
+    "Contact added successfully": "Contacto añadido con éxito",
+    "Failed to add contact. Please try again.":
+      "Error al agregar el contacto. Por favor, inténtelo de nuevo.",
+    "logout successfully!": "¡Cierre de sesión exitoso!",
   },
 };
 

@@ -7,9 +7,18 @@ import FormInput from "../../components/FormInput";
 import Header from "../../components/Header";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { CreateContactProps } from "../../types/types";
+import { useAppDispatch } from "../../store/hooks";
+import { useSelector } from "react-redux";
+import { addContact } from "../../store/actions/action";
+import { NavigationProp } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
+import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 
-const CreateContact: React.FC<CreateContactProps> = () => {
+const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
+  navigation,
+}) => {
+  const dispatch = useAppDispatch();
+  const user = useSelector((state: any) => state.reducer.user);
   const styles = createStyles(colors);
   const { t } = useTranslation();
 
@@ -22,8 +31,21 @@ const CreateContact: React.FC<CreateContactProps> = () => {
     notes: Yup.string().required(t("note") + " " + t("isRequired")),
   });
 
-  const handleCreate = (values: any) => {
-    console.log("Form Data:", values);
+  const handleCreate = async (values: any) => {
+    if (user?.userId) {
+      dispatch(addContact(values, user.userId, navigation));
+      navigation.navigate("Profile1");
+    } else {
+      const customMessage = await getFirebaseErrorMessage(
+        "User not authenticated"
+      );
+      Toast.show({
+        type: "error",
+        text1: customMessage,
+        position: "bottom",
+      });
+      navigation.navigate("Signin");
+    }
   };
 
   return (

@@ -209,3 +209,121 @@ export const fetchPropertyById =
       Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
     }
   };
+
+export const addContact =
+  (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+
+      const contactRef = firestore().collection("contacts").doc();
+      const contactData = {
+        name: formData.name,
+        emailAddress: formData.email,
+        phoneNumber: formData.phoneNum,
+        notes: formData.notes,
+        createdBy: userId,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      };
+
+      await contactRef.set(contactData);
+
+      dispatch({ type: "IS_LOADER", payload: false });
+      const customMessage = await getFirebaseErrorMessage(
+        "Contact added successfully"
+      );
+      Toast.show({
+        type: "success",
+        text1: customMessage,
+        position: "bottom",
+      });
+
+      navigation.navigate("Tabs", { screen: "Profile1" });
+    } catch (error: any) {
+      console.error("Add Contact Error:", error);
+      dispatch({ type: "IS_LOADER", payload: false });
+      const errorMessage = await getFirebaseErrorMessage(
+        "Failed to add contact. Please try again."
+      );
+      Toast.show({
+        type: "error",
+        text1: errorMessage,
+        position: "bottom",
+      });
+    }
+  };
+
+// fetch contacts by user id
+export const fetchContactsByUserID =
+  (userID: string) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+
+      const snapshot = await firestore()
+        .collection("contacts")
+        .where("createdBy", "==", userID)
+        .get();
+
+      if (snapshot.empty) {
+        dispatch({ type: "SET_USER_CONTACTS", payload: [] });
+      } else {
+        const contacts = snapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_USER_CONTACTS", payload: contacts });
+      }
+      dispatch({ type: "IS_LOADER", payload: false });
+    } catch (error) {
+      console.log(error, "fetchcontact_error");
+      dispatch({ type: "IS_LOADER", payload: false });
+
+      const errorMessage = await getFirebaseErrorMessage((error as any).code);
+      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+    }
+  };
+
+//logout user
+export const logoutUser = (navigation: any) => async (dispatch: any) => {
+  try {
+    dispatch({ type: "IS_LOADER", payload: true });
+    await auth().signOut();
+    deleteItem("user");
+    navigation.replace("Signin");
+    dispatch({ type: "IS_LOADER", payload: false });
+    const customMessage = await getFirebaseErrorMessage("logout successfully!");
+    Toast.show({
+      type: "success",
+      text1: customMessage,
+      position: "bottom",
+    });
+  } catch (error) {
+    const errorMessage = await getFirebaseErrorMessage((error as any).message);
+    dispatch({ type: "IS_LOADER", payload: false });
+    Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+  }
+};
+
+//update user
+export const updateUser =
+  (credentials: any, userId: any, navigation: any) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+      await firestore().collection("users").doc(userId).update(credentials);
+      const userDoc = await firestore().collection("users").doc(userId).get();
+      const userData = userDoc.data();
+      setItem("user", userData);
+      dispatch({ type: "SET_USER", payload: userData });
+      dispatch({ type: "IS_LOADER", payload: false });
+      setItem("user", userData);
+      const customMessage = await getFirebaseErrorMessage(
+        "User update successfully!"
+      );
+      Toast.show({ type: "success", text1: customMessage, position: "bottom" });
+      navigation.goBack();
+    } catch (error) {
+      console.log(error, "updateUser_error");
+      dispatch({ type: "IS_LOADER", payload: false });
+      const errorMessage = await getFirebaseErrorMessage((error as any).code);
+      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+    }
+  };

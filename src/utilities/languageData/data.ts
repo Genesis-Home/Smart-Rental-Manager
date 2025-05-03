@@ -222,7 +222,11 @@ export const languageData: LanguageData[] = [
         "Agency users can update or delete their data anytime. For account deletion, contact us at [Insert Email].",
       search: "Search",
       noLocation: "Location not available",
-      noApartmentsFound: "No apartments found",
+      noApartmentsFound: "No Apartments found",
+      noContactsFound: "No Contacts found",
+      confirmLogout: "Are you sure you want to log out?",
+      ok: "OK",
+      cancel: "Cancel",
     },
   },
   {
@@ -444,6 +448,10 @@ export const languageData: LanguageData[] = [
       search: "Buscar",
       noLocation: "Ubicación no disponible",
       noApartmentsFound: "No se encontraron apartamentos",
+      noContactsFound: "No se encontraron contactos",
+      confirmLogout: "¿Estás seguro de que quieres cerrar sesión?",
+      ok: "OK",
+      cancel: "Cancelar",
     },
   },
 ];

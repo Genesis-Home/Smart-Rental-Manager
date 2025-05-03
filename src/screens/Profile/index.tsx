@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -7,6 +7,7 @@ import {
   FlatList,
   ListRenderItemInfo,
   TextInput,
+  Keyboard,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { useNavigation } from "@react-navigation/native";
@@ -15,44 +16,47 @@ import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header";
 import { Contact, CreateContactScreenNavigationProp } from "../../types/types";
-
-const contacts: Contact[] = [
-  {
-    id: "1",
-    name: "Frank Williams",
-    email: "frank-williams@gmail.com",
-    phone: "+92 123456789",
-  },
-  {
-    id: "2",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+92 987654321",
-  },
-  {
-    id: "3",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    phone: "+92 1122334455",
-  },
-  {
-    id: "4",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    phone: "+92 1122334455",
-  },
-];
+import { fetchContactsByUserID } from "../../store/actions/action";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 const Profile: React.FC = () => {
   const navigation = useNavigation<CreateContactScreenNavigationProp>();
+  const dispatch = useAppDispatch();
+  const contacts = useAppSelector((state) => state.reducer.contacts);
+  const user = useAppSelector((state: any) => state.reducer.user);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [search, setSearch] = useState("");
   const { t } = useTranslation();
+
+  useEffect(() => {
+    dispatch(fetchContactsByUserID(user?.userId));
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, [dispatch]);
+
+  const filteredContacts = contacts.filter((contact) =>
+    contact.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const renderContactItem = ({ item, index }: ListRenderItemInfo<Contact>) => (
     <View
       style={[
         styles.contactView,
-        index === contacts.length - 1 && styles.lastItemMarginBottom,
+        index === filteredContacts.length - 1 && styles.lastItemMarginBottom,
       ]}
     >
       <View style={styles.contactRow}>
@@ -61,11 +65,11 @@ const Profile: React.FC = () => {
       </View>
       <View style={styles.contactRow}>
         <Text style={styles.contactLabel}>{t("Email")}</Text>
-        <Text style={styles.contactValue}>{item.email}</Text>
+        <Text style={styles.contactValue}>{item.emailAddress}</Text>
       </View>
       <View style={styles.contactRow}>
         <Text style={styles.contactLabel}>{t("phoneNum")}</Text>
-        <Text style={styles.contactValue}>{item.phone}</Text>
+        <Text style={styles.contactValue}>{item.phoneNumber}</Text>
       </View>
     </View>
   );
@@ -83,17 +87,27 @@ const Profile: React.FC = () => {
           onChangeText={setSearch}
         />
       </View>
-      <FlatList
-        data={contacts}
-        renderItem={renderContactItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.flatListContainer}
-        showsVerticalScrollIndicator={false}
-      />
+      {filteredContacts.length === 0 ? (
+        <View style={styles.noContactsFound}>
+          <Text style={styles.noContactsText}>{t("noContactsFound")}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredContacts}
+          renderItem={renderContactItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.flatListContainer}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
       <TouchableOpacity
         onPress={() => navigation.navigate("createContact")}
         activeOpacity={0.8}
-        style={{ position: "absolute", bottom: 10, right: 0 }}
+        style={{
+          position: "absolute",
+          bottom: keyboardVisible ? 40 : 5,
+          right: 0,
+        }}
       >
         <Add />
       </TouchableOpacity>
@@ -153,5 +167,14 @@ const styles = StyleSheet.create({
   searchInputField: {
     color: Colors.DARK_GREEN,
     flex: 1,
+  },
+  noContactsFound: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noContactsText: {
+    ...Typography.f_14_nunito_extra_bold,
+    color: Colors.Primary_01,
   },
 });

@@ -6,6 +6,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import Header from "../../components/Header";
@@ -15,14 +16,18 @@ import { Typography } from "../../utilities/constants/constant.style";
 import { colors } from "../../utilities/constants";
 import { Down, DropRight, Signout } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { appLanguages } from "../../utilities/languageData/data";
 import i18n from "i18next";
 import { SettingNavigationProp } from "../../types/types";
+import { logoutUser } from "../../store/actions/action";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation<SettingNavigationProp>();
+  const user = useAppSelector((state: any) => state.reducer.user);
+  console.log(user, "user");
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState(() => {
@@ -30,6 +35,7 @@ const Settings: React.FC = () => {
     const langObj = appLanguages.find((lang) => lang.code === currentLang);
     return langObj ? langObj.name : "English";
   });
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handlePress = (option: string) => {
     if (option === "language") {
@@ -46,7 +52,7 @@ const Settings: React.FC = () => {
       } else if (option === "privacyPolicy") {
         navigation.navigate("PrivacyPolicy");
       } else if (option === "signOut") {
-        navigation.navigate("Signin");
+        setShowLogoutModal(true);
       }
     }
   };
@@ -57,19 +63,34 @@ const Settings: React.FC = () => {
     setShowLanguageDropdown(false);
   };
 
+  const handleLogoutConfirm = () => {
+    setShowLogoutModal(false);
+    dispatch(logoutUser(navigation));
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
+  };
+
   return (
     <View style={styles.container}>
       <Header title={t("setting")} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.profileContainer}>
           <Image
-            source={Images.Profile}
-            resizeMode="contain"
+            source={
+              user?.profilePhoto ? { uri: user.profilePhoto } : Images.Profile
+            }
+            resizeMode="cover"
             style={styles.profileImage}
           />
           <View>
-            <Text style={styles.profileName}>Frank Williams</Text>
-            <Text style={styles.profileEmail}>frank-williams@em</Text>
+            <Text style={styles.profileName}>
+              {user?.ownerName ?? "Frank Williams"}
+            </Text>
+            <Text style={styles.profileEmail}>
+              {user?.email ?? "frank-williams@em"}
+            </Text>
           </View>
         </View>
         <View style={styles.optionsContainer}>
@@ -197,6 +218,32 @@ const Settings: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <Modal
+        transparent={true}
+        visible={showLogoutModal}
+        animationType="fade"
+        onRequestClose={handleLogoutCancel}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>{t("confirmLogout")}</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleLogoutConfirm}
+              >
+                <Text style={styles.modalButtonText}>{t("ok")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleLogoutCancel}
+              >
+                <Text style={styles.modalButtonText}>{t("cancel")}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -268,5 +315,37 @@ const styles = StyleSheet.create({
   languageText: {
     ...Typography.f_14_nunito_medium,
     color: colors.DARK_GREEN,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    backgroundColor: Colors.white,
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalTitle: {
+    ...Typography.f_16_nunito_bold,
+    color: colors.DARK_GREEN,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    gap: 20,
+  },
+  modalButton: {
+    backgroundColor: colors.Primary_01,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    ...Typography.f_14_nunito_medium,
+    color: colors.white,
   },
 });

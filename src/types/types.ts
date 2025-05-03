@@ -100,15 +100,11 @@ export interface AddPropertyProps {
 export interface HomeScreenNavigationProp
   extends NativeStackNavigationProp<RootStackParamList> {}
 
-export interface CreateContactProps {
-  navigation: any;
-}
-
 export interface Contact {
   id: string;
   name: string;
-  email: string;
-  phone: string;
+  emailAddress: string;
+  phoneNumber: string;
 }
 
 export interface CreateContactScreenNavigationProp
@@ -299,7 +295,11 @@ export type LanguageTranslation = {
   accountControl: string;
   search: string;
   noLocation:string;
-  noApartmentsFound:string
+  noApartmentsFound:string;
+  noContactsFound:string;
+  confirmLogout: string,
+  ok: string,
+  cancel: string
 };
 
 export type LanguageData = {
@@ -332,6 +332,7 @@ export interface State {
   savedCords: number[];
   isLocation: boolean;
   properties: any[];
+  contacts:any[];
   property: Property | null;
 }
 

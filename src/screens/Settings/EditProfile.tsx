@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { StyleSheet, View, ScrollView, Platform, Image } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Platform,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import { t } from "i18next";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -11,24 +18,50 @@ import FormInput from "../../components/FormInput";
 import Images from "../../assets/images";
 import { Edit } from "../../assets/icons";
 import { EditProfileProps } from "../../types/types";
+import { updateUser } from "../../store/actions/action";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { launchImageLibrary } from "react-native-image-picker";
 
 const validationSchema = Yup.object().shape({
   agencyName: Yup.string().required(t("agencyNameRequired")),
   ownerName: Yup.string().required(t("ownerNameRequired")),
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
-  password: Yup.string()
-    .min(6, t("passwordMin"))
-    .required(t("passwordRequired")),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password")], t("passwordsMustMatch"))
-    .required(t("confirmpasswordRequired")),
 });
 
-
 const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
+  const dispatch = useAppDispatch();
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const user = useAppSelector((state: any) => state.reducer.user);
   const styles = createStyles(colors);
-  const [showPassword, setShowPassword] = useState<boolean>(true);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(true);
+
+  const selectImage = () => {
+    launchImageLibrary(
+      {
+        mediaType: "photo",
+        quality: 0.5,
+        includeBase64: true,
+      },
+      (response) => {
+        if (response.assets && response.assets[0]?.uri) {
+          setProfileImage(response.assets[0].uri);
+        } else {
+          setProfileImage(null);
+        }
+      }
+    );
+  };
+
+  const handleSubmitForm = (values: any) => {
+    const credentials = {
+      agencyName: values.agencyName,
+      ownerName: values.ownerName,
+      email: values.email,
+      profilePhoto: profileImage,
+    };
+    if (credentials && user?.userId) {
+      dispatch(updateUser(credentials, user.userId, navigation));
+    }
+  };
 
   return (
     <View
@@ -43,26 +76,28 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
           contentContainerStyle={styles.containerC1}
           showsVerticalScrollIndicator={false}
         >
-          <View style={{ alignItems: "center", marginTop: 20 }}>
+          <TouchableOpacity
+            onPress={selectImage}
+            activeOpacity={0.8}
+            style={{ alignItems: "center", marginTop: 20 }}
+          >
             <Image
-              source={Images.Profile}
+              source={profileImage ? { uri: profileImage } : Images.Profile}
               resizeMode="contain"
               style={{ height: 90, width: 90, borderRadius: 50 }}
             />
             <Edit
               style={{ position: "absolute", bottom: "10%", right: "40%" }}
             />
-          </View>
+          </TouchableOpacity>
           <Formik
             initialValues={{
-              agencyName: "",
-              ownerName: "",
-              email: "",
-              password: "",
-              confirmPassword: "",
+              agencyName: user?.agencyName,
+              ownerName: user?.ownerName,
+              email: user?.email,
             }}
             validationSchema={validationSchema}
-            onSubmit={() => navigation.navigate("Home")}
+            onSubmit={handleSubmitForm}
           >
             {({
               handleChange,
@@ -79,7 +114,11 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
                   value={values.agencyName}
                   onChangeText={handleChange("agencyName")}
                   onBlur={() => handleBlur("agencyName")}
-                  error={touched.agencyName && errors.agencyName}
+                  error={
+                    touched.agencyName && errors.agencyName
+                      ? String(errors.agencyName)
+                      : undefined
+                  }
                 />
                 <FormInput
                   label={t("ownerName")}
@@ -87,7 +126,11 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
                   value={values.ownerName}
                   onChangeText={handleChange("ownerName")}
                   onBlur={() => handleBlur("ownerName")}
-                  error={touched.ownerName && errors.ownerName}
+                  error={
+                    touched.ownerName && errors.ownerName
+                      ? String(errors.ownerName)
+                      : undefined
+                  }
                 />
                 <FormInput
                   label={t("emailAddress")}
@@ -95,32 +138,12 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
                   value={values.email}
                   onChangeText={handleChange("email")}
                   onBlur={() => handleBlur("email")}
-                  error={touched.email && errors.email}
-                  keyboardType="email-address"
-                />
-                <FormInput
-                  label={t("password")}
-                  placeholder={t("password")}
-                  value={values.password}
-                  onChangeText={handleChange("password")}
-                  onBlur={() => handleBlur("password")}
-                  error={touched.password && errors.password}
-                  secureTextEntry={showPassword}
-                  showToggle
-                  onToggleSecure={() => setShowPassword(!showPassword)}
-                />
-                <FormInput
-                  label={t("confirmpassword")}
-                  placeholder={t("confirmpassword")}
-                  value={values.confirmPassword}
-                  onChangeText={handleChange("confirmPassword")}
-                  onBlur={() => handleBlur("confirmPassword")}
-                  error={touched.confirmPassword && errors.confirmPassword}
-                  secureTextEntry={showConfirmPassword}
-                  showToggle
-                  onToggleSecure={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
+                  error={
+                    touched.email && errors.email
+                      ? String(errors.email)
+                      : undefined
                   }
+                  keyboardType="email-address"
                 />
                 <View style={{ marginTop: 40 }}>
                   <CTAButton1 title={t("save")} submitHandler={handleSubmit} />

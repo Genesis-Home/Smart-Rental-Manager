@@ -8,6 +8,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Text,
+  Keyboard,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { AppIcon, Notification, Search } from "../../assets/icons";
@@ -25,6 +26,9 @@ const { width } = Dimensions.get("window");
 
 const Home: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const user = useAppSelector((state: any) => state.reducer.user);
+
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
@@ -41,6 +45,22 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchProperties());
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
   }, [dispatch]);
 
   const handleSearchChange = (query: string) => {
@@ -203,8 +223,12 @@ const Home: React.FC = () => {
         </View>
         <View style={styles.profileImageContainer}>
           <Image
-            source={Images.ProfilePlaceholder}
-            resizeMode="contain"
+            source={
+              user?.profilePhoto
+                ? { uri: user.profilePhoto }
+                : Images.ProfilePlaceholder
+            }
+            resizeMode="cover"
             style={styles.profileImage}
           />
         </View>
@@ -223,7 +247,11 @@ const Home: React.FC = () => {
       )}
       <TouchableOpacity
         onPress={() => navigation.navigate("AddProperty")}
-        style={{ position: "absolute", bottom: 5, right: 0 }}
+        style={{
+          position: "absolute",
+          bottom: keyboardVisible ? 40 : 5,
+          right: 0,
+        }}
         activeOpacity={0.8}
       >
         <Add />
@@ -326,7 +354,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   noPropertiesText: {
-    ...Typography.f_14_nunito_medium,
+    ...Typography.f_14_nunito_extra_bold,
     color: colors.Primary_01,
   },
 });

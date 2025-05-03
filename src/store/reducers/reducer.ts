@@ -6,8 +6,9 @@ const initState: State = {
   isLocation: false,
   savedCords: [],
   isError: false,
-  properties: [] ,
+  properties: [],
   property: null,
+  contacts: [],
 };
 
 const reducer = (state = initState, action: Action): State => {
@@ -32,15 +33,20 @@ const reducer = (state = initState, action: Action): State => {
         ...state,
         savedCords: action.payload,
       };
-      case "SET_PROPERTIES": 
+    case "SET_PROPERTIES":
       return {
         ...state,
         properties: action.payload,
       };
-      case "SET_PROPERTY":
+    case "SET_USER_CONTACTS":
       return {
         ...state,
-        property: action.payload, 
+        contacts: action.payload,
+      };
+    case "SET_PROPERTY":
+      return {
+        ...state,
+        property: action.payload,
       };
     default:
       return state;
