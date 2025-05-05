@@ -35,8 +35,6 @@ export { default as Copy } from './copy.svg';
 export { default as Share } from './share.svg';
 export { default as Whatsapp } from './whatsapp.svg';
 export { default as DownIcon } from './downIcon.svg';
-export { default as True } from './true.svg';
-export { default as False } from './false.svg';
 export { default as Left } from './Left.svg'; 
 export { default as Right } from './Right.svg'; 
 export { default as DropRight } from './dropRight.svg'; 

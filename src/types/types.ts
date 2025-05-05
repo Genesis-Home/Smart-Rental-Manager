@@ -302,7 +302,14 @@ export type LanguageTranslation = {
   cancel: string;
   selectProperty:string;
   property:string;
-  visitTime:string
+  visitTime:string;
+  infants:string,
+  adults:string,
+  noSchedulesInRange: string,
+  fileSaved: string,
+  permissionDenied: string,
+  exportFailed: string,
+  selectDateRangeFirst:string
 };
 
 export type LanguageData = {
@@ -337,7 +344,8 @@ export interface State {
   properties: any[];
   contacts:any[];
   property: Property | null;
-  userProperties:any[]
+  userProperties:any[];
+  schedules:any[]
 }
 
 export interface Action {

@@ -230,6 +230,13 @@ export const languageData: LanguageData[] = [
       selectProperty: "Select Property",
       property: "Property",
       visitTime: "Visit Time",
+      infants: "Infants",
+      adults: "Adults",
+      noSchedulesInRange: "No schedules found in the selected date range.",
+      fileSaved: "CSV file saved successfully!",
+      permissionDenied: "Permission to write files was denied.",
+      exportFailed: "Failed to export CSV file.",
+      selectDateRangeFirst:'Please select a date range first.'
     },
   },
   {
@@ -458,6 +465,14 @@ export const languageData: LanguageData[] = [
       selectProperty: "Seleccionar propiedad",
       property: "Propiedad",
       visitTime: "Hora de la visita",
+      infants: "Infantes",
+      adults: "Adulto",
+      noSchedulesInRange:
+        "No se encontraron horarios en el rango de fechas seleccionado.",
+      fileSaved: "¡Archivo CSV guardado con éxito!",
+      permissionDenied: "Permiso para escribir archivos denegado.",
+      exportFailed: "Error al exportar el archivo CSV.",
+      selectDateRangeFirst:'Por favor, selecciona un rango de fechas primero.'
     },
   },
 ];

@@ -8,10 +8,13 @@ import {
   ScrollView,
   Modal,
   TouchableWithoutFeedback,
+  FlatList,
+  Platform,
+  PermissionsAndroid,
 } from "react-native";
 import Header from "../../components/Header";
 import { useTranslation } from "react-i18next";
-import { DownIcon, Left, Right, True, False } from "../../assets/icons";
+import { DownIcon, Left, Right } from "../../assets/icons";
 import { colors } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
 import Images from "../../assets/images";
@@ -20,9 +23,16 @@ import { useNavigation } from "@react-navigation/native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { ExportScreenNavigationProp } from "../../types/types";
+import { fetchSchedulesByUserID } from "../../store/actions/action";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
+import Toast from "react-native-toast-message";
+import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
+import RNFS from "react-native-fs";
+import moment from "moment";
 
 const ExportData: React.FC = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation<ExportScreenNavigationProp>();
   const [displayedMonth, setDisplayedMonth] = useState(new Date());
   const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
@@ -30,6 +40,88 @@ const ExportData: React.FC = () => {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
+  const user = useAppSelector((state: any) => state.reducer.user);
+  const userSchedules = useAppSelector((state: any) => state.reducer.schedules);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user?.userId) {
+        dispatch(fetchSchedulesByUserID(user.userId));
+      } else {
+        const customMessage = await getFirebaseErrorMessage(
+          "User not authenticated"
+        );
+        Toast.show({
+          type: "error",
+          text1: customMessage,
+          position: "bottom",
+        });
+        navigation.navigate("Signin");
+      }
+    };
+
+    fetchData();
+  }, [dispatch, user?.userId, userSchedules]);
+
+  const filterSchedulesByDateRange = () => {
+    if (!startDate || !endDate) return userSchedules;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    return userSchedules.filter((schedule: any) => {
+      const visitDate = moment(schedule.visitDates, "MMMM D, YYYY").toDate();
+      console.log(visitDate,'visitDate')
+      return visitDate >= start && visitDate <= end;
+    });
+  };
+
+  const filteredSchedules = filterSchedulesByDateRange();
+
+  const exportToCSV = async () => {
+    if (!startDate || !endDate) {
+      Toast.show({ type: "error", text1: t("selectDateRangeFirst") });
+      return;
+    }
+
+    const schedules = filterSchedulesByDateRange();
+    if (schedules.length === 0) {
+      Toast.show({ type: "info", text1: t("noSchedulesInRange") });
+      return;
+    }
+
+    let csv =
+      "Client Name,Email,Phone,Visit Dates,Visit Time,Visitors,Infants,Property\n";
+    schedules.forEach((item: any) => {
+      csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.visitTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.propertyToVisit}"\n`;
+    });
+
+    const fileName = `Export_${startDate}_to_${endDate}.csv`;
+    const path = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+    try {
+      if (Platform.OS === "android") {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          Toast.show({ type: "error", text1: t("permissionDenied") });
+          return;
+        }
+      }
+
+      await RNFS.writeFile(path, csv, "utf8");
+
+      Toast.show({
+        type: "success",
+        text1: t("fileSaved"),
+        text2: path,
+      });
+    } catch (error) {
+      Toast.show({ type: "error", text1: t("exportFailed") });
+      console.error("CSV export error", error);
+    }
+  };
 
   useEffect(() => {
     if (
@@ -162,61 +254,78 @@ const ExportData: React.FC = () => {
           />
         </View>
         <View style={styles.exportBtnWrapper}>
-          <CTAButton1
-            title={t("export")}
-            submitHandler={() => navigation.navigate("Home")}
-          />
+          <CTAButton1 title={t("export")} submitHandler={exportToCSV} />
         </View>
-        <View style={styles.visitCard}>
-          <Text style={styles.visitDate}>26-5-2025</Text>
-          <Text style={styles.visitTitle}>
-            {t("clientVisitAppointmentTitle")}
-          </Text>
-          <View style={styles.visitDetailsWrapper}>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t("clientName")}</Text>
-              <Text style={styles.detailValue}>Frank Williams</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t("Email")}</Text>
-              <Text style={styles.detailValue}>frank-williams@em</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t("phone")}</Text>
-              <Text style={styles.detailValue}>+92 345055862</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t("visitDateTime")}</Text>
-              <Text style={styles.detailValue}>15 April 2025 – 3:30 PM</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t("numberOfVisitors")}</Text>
-              <Text style={styles.detailValue}>2 Adults</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t("Infant")}</Text>
-              <View style={styles.booleanIcons}>
-                <True />
-                <False />
+        <FlatList
+          keyExtractor={(item) => item.id}
+          data={filteredSchedules}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => (
+            <View
+              style={[
+                styles.visitCard,
+                { marginBottom: index === userSchedules.length - 1 ? 40 : 0 },
+              ]}
+            >
+              <Text style={styles.visitTitle}>
+                {t("clientVisitAppointmentTitle")}
+              </Text>
+              <View style={styles.visitDetailsWrapper}>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>{t("clientName")}</Text>
+                  <Text style={styles.detailValue}>{item.clientName}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>{t("Email")}</Text>
+                  <Text style={styles.detailValue}>{item.email}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>{t("phone")}</Text>
+                  <Text style={styles.detailValue}>{item.phoneNum}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>{t("visitDates")}</Text>
+                  <Text style={styles.detailValue}>{item.visitDates}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>{t("visitTime")}</Text>
+                  <Text style={styles.detailValue}>{item.visitTime}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>
+                    {t("numberOfVisitors")}
+                  </Text>
+                  <Text style={styles.detailValue}>
+                    {item.numberOfVisitors} {t("adults")}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>{t("Infant")}</Text>
+                  <Text style={styles.detailValue}>
+                    {item.numberOfInfants} {t("infants")}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>
+                    {t("propertyToVisitors")}
+                  </Text>
+                  <Text style={styles.detailValue}>{item.propertyToVisit}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>
+                    {t("googleMapsLocation")}
+                  </Text>
+                  <Text
+                    onPress={() => navigation.navigate("Map")}
+                    style={styles.mapLink}
+                  >
+                    {t("viewOnMap")}
+                  </Text>
+                </View>
               </View>
             </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t("propertyToVisitors")}</Text>
-              <Text style={styles.detailValue}>
-                592 Clifton Heights, Block 5, Karachi
-              </Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t("googleMapsLocation")}</Text>
-              <Text
-                onPress={() => navigation.navigate("Map")}
-                style={styles.mapLink}
-              >
-                {t("viewOnMap")}
-              </Text>
-            </View>
-          </View>
-        </View>
+          )}
+        />
       </ScrollView>
       <Modal visible={calendarVisible} transparent animationType="fade">
         <TouchableWithoutFeedback onPress={() => setCalendarVisible(false)}>
@@ -303,16 +412,11 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   visitCard: {
-    marginVertical: 25,
+    marginTop: 25,
     borderWidth: 1,
     borderColor: colors.Neutral_01,
     padding: 15,
     borderRadius: 4,
-  },
-  visitDate: {
-    ...Typography.f_14_nunito_bold,
-    color: colors.black,
-    textAlign: "center",
   },
   visitTitle: {
     ...Typography.f_14_nunito_bold,
@@ -336,12 +440,6 @@ const styles = StyleSheet.create({
   detailValue: {
     ...Typography.f_14_nunito_medium,
     color: colors.black,
-    width: "45%",
-  },
-  booleanIcons: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
     width: "45%",
   },
   mapLink: {

@@ -186,8 +186,18 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
 
       setEndDate(day.dateString);
       setMarkedDates(newMarkedDates);
+      const formatDate = (dateStr: string) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString(i18n.language || "en", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      };
 
-      const visitDates = `${startDate} - ${day.dateString}`;
+      const visitDates = `${formatDate(startDate)} - ${formatDate(
+        day.dateString
+      )}`;
       setFieldValue("visitDates", visitDates);
       setCalendarVisible(false);
     }

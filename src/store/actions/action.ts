@@ -402,3 +402,33 @@ export const addSchedule =
       });
     }
   };
+
+// fetch schedules by user id
+export const fetchSchedulesByUserID =
+  (userID: string) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+
+      const snapshot = await firestore()
+        .collection("schedules")
+        .where("createdBy", "==", userID)
+        .get();
+
+      if (snapshot.empty) {
+        dispatch({ type: "SET_USER_SCHEDULES", payload: [] });
+      } else {
+        const schedules = snapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_USER_SCHEDULES", payload: schedules });
+      }
+      dispatch({ type: "IS_LOADER", payload: false });
+    } catch (error) {
+      console.log(error, "fetchschedule_error");
+      dispatch({ type: "IS_LOADER", payload: false });
+
+      const errorMessage = await getFirebaseErrorMessage((error as any).code);
+      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+    }
+  };

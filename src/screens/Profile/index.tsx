@@ -46,7 +46,7 @@ const Profile: React.FC = () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
-  }, [dispatch]);
+  }, [dispatch,contacts]);
 
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(search.toLowerCase())

@@ -10,6 +10,7 @@ const initState: State = {
   property: null,
   contacts: [],
   userProperties: [],
+  schedules:[]
 };
 
 const reducer = (state = initState, action: Action): State => {
@@ -48,6 +49,11 @@ const reducer = (state = initState, action: Action): State => {
       return {
         ...state,
         userProperties: action.payload,
+      };
+    case "SET_USER_SCHEDULES":
+      return {
+        ...state,
+        schedules: action.payload,
       };
     case "SET_PROPERTY":
       return {
