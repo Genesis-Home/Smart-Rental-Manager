@@ -46,6 +46,7 @@ const translations: Translations = {
     "Password reset email sent successfully.":
       "Password reset email sent successfully.",
     "User update successfully!": "User update successfully!",
+    "Schedule added successfully": "Schedule added successfully",
     jobCreatedSuccess: "Job created successfully!",
     serviceCreatedSuccess: "Service created successfully!",
     "Ad updated successfully!": "Ad updated successfully!",
@@ -63,6 +64,7 @@ const translations: Translations = {
     "Failed to add contact. Please try again.":
       "Failed to add contact. Please try again.",
     "logout successfully!": "logout successfully!",
+    "Failed to add schedule. Please try again.":"Failed to add schedule. Please try again."
   },
   sp: {
     "auth/invalid-email": "La dirección de correo electrónico no es válida.",
@@ -107,6 +109,7 @@ const translations: Translations = {
     "Password reset email sent successfully.":
       "Correo de restablecimiento de contraseña enviado exitosamente.",
     "User update successfully!": "¡Usuario actualizado con éxito!",
+    "Schedule added successfully": "Programa añadido con éxito",
     jobCreatedSuccess: "¡Trabajo creado exitosamente!",
     serviceCreatedSuccess: "¡Servicio creado exitosamente!",
     "Ad updated successfully!": "¡Anuncio actualizado exitosamente!",
@@ -124,6 +127,7 @@ const translations: Translations = {
     "Failed to add contact. Please try again.":
       "Error al agregar el contacto. Por favor, inténtelo de nuevo.",
     "logout successfully!": "¡Cierre de sesión exitoso!",
+    "Failed to add schedule. Please try again.":"No se pudo agregar el horario. Por favor, inténtelo de nuevo."
   },
 };
 

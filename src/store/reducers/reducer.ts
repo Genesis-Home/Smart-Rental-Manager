@@ -9,6 +9,7 @@ const initState: State = {
   properties: [],
   property: null,
   contacts: [],
+  userProperties: [],
 };
 
 const reducer = (state = initState, action: Action): State => {
@@ -42,6 +43,11 @@ const reducer = (state = initState, action: Action): State => {
       return {
         ...state,
         contacts: action.payload,
+      };
+    case "SET_USER_PROPERTIES":
+      return {
+        ...state,
+        userProperties: action.payload,
       };
     case "SET_PROPERTY":
       return {

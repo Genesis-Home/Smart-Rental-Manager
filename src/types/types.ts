@@ -222,7 +222,7 @@ export type LanguageTranslation = {
   properties: string[];
   createSchedule: string;
   clientName: string;
-  visitDateTime: string;
+  visitDates: string;
   propertyToVisitors: string;
   numberOfVisitors: string;
   numberOfInfants: string;
@@ -299,7 +299,10 @@ export type LanguageTranslation = {
   noContactsFound:string;
   confirmLogout: string,
   ok: string,
-  cancel: string
+  cancel: string;
+  selectProperty:string;
+  property:string;
+  visitTime:string
 };
 
 export type LanguageData = {
@@ -334,6 +337,7 @@ export interface State {
   properties: any[];
   contacts:any[];
   property: Property | null;
+  userProperties:any[]
 }
 
 export interface Action {

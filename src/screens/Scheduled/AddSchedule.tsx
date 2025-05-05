@@ -17,45 +17,99 @@ import Header from "../../components/Header";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { Calendar, LocaleConfig } from "react-native-calendars";
-import { Left, Right } from "../../assets/icons";
+import { Left, Right, Down, DropRight } from "../../assets/icons";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
-import { AddScheduleProps } from "../../types/types";
+import { AddScheduleProps, Property } from "../../types/types";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { addSchedule } from "../../store/actions/action";
+import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
+import Toast from "react-native-toast-message";
+import { fetchPropertiesByUserID } from "../../store/actions/action";
+import { TimePickerModal } from "react-native-paper-dates";
 
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
-  const { t } = useTranslation();
-
+  const dispatch = useAppDispatch();
+  const { t, i18n } = useTranslation();
+  const user = useAppSelector((state: any) => state.reducer.user);
+  const userProperties = useAppSelector(
+    (state: any) => state.reducer.userProperties
+  );
   const [calendarVisible, setCalendarVisible] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [displayedMonth, setDisplayedMonth] = useState(new Date());
   const [isLocaleReady, setIsLocaleReady] = useState(false);
+  const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState<Property>();
+  const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  const handleShowDropdown = () => {
+    setShowPropertyDropdown(!showPropertyDropdown);
+  };
+
+  const handleSelectApartment = (
+    property: Property,
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    setSelectedProperty(property);
+    setFieldValue("property", property.title);
+    setShowPropertyDropdown(false);
+  };
 
   useEffect(() => {
-    LocaleConfig.locales[DEFAULT_LANGUAGE] = {
-      monthNames: t("calendarData.monthNames", { returnObjects: true }),
-      monthNamesShort: t("calendarData.monthNamesShort", {
-        returnObjects: true,
-      }),
-      dayNames: t("calendarData.dayNames", { returnObjects: true }),
-      dayNamesShort: t("calendarData.dayNamesShort", {
-        returnObjects: true,
-      }),
-      today: t("calendarData.today"),
-    };
-    LocaleConfig.defaultLocale = DEFAULT_LANGUAGE;
-    setIsLocaleReady(true);
+    if (
+      t("calendarData.monthNames") &&
+      t("calendarData.monthNamesShort") &&
+      t("calendarData.dayNames") &&
+      t("calendarData.dayNamesShort") &&
+      t("calendarData.today")
+    ) {
+      LocaleConfig.locales[DEFAULT_LANGUAGE] = {
+        monthNames: t("calendarData.monthNames", { returnObjects: true }),
+        monthNamesShort: t("calendarData.monthNamesShort", {
+          returnObjects: true,
+        }),
+        dayNames: t("calendarData.dayNames", { returnObjects: true }),
+        dayNamesShort: t("calendarData.dayNamesShort", { returnObjects: true }),
+        today: t("calendarData.today"),
+      };
+      LocaleConfig.defaultLocale = DEFAULT_LANGUAGE;
+      setIsLocaleReady(true);
+    }
   }, []);
 
+  useEffect(() => {
+    const initialize = async () => {
+      if (user?.userId) {
+        dispatch(fetchPropertiesByUserID(user.userId));
+      } else {
+        const customMessage = await getFirebaseErrorMessage(
+          "User not authenticated"
+        );
+        Toast.show({
+          type: "error",
+          text1: customMessage,
+          position: "bottom",
+        });
+        navigation.navigate("Signin");
+      }
+    };
+
+    initialize();
+  }, [dispatch, user?.userId]);
+
   const validationSchema = Yup.object().shape({
+    property: Yup.string().required(t("property") + " " + t("isRequired")),
     clientName: Yup.string().required(t("clientName") + " " + t("isRequired")),
     email: Yup.string()
       .email(t("invalidEmail"))
       .required(t("Email") + " " + t("isRequired")),
     phoneNum: Yup.string().required(t("phoneNum") + " " + t("isRequired")),
-    visitDateTime: Yup.string().required(
-      t("visitDateTime") + " " + t("isRequired")
-    ),
+    visitDates: Yup.string().required(t("visitDates") + " " + t("isRequired")),
+    visitTime: Yup.string().required(t("visitTime") + " " + t("isRequired")),
     propertyToVisit: Yup.string().required(
       t("propertyToVisitors") + " " + t("isRequired")
     ),
@@ -67,18 +121,76 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     ),
   });
 
-  const handleCreate = (values: any) => {
-    console.log("Form Data:", values);
-    navigation.navigate("AutomatedEmail");
+  const handleCreate = async (formData: any) => {
+    dispatch(addSchedule(formData, user?.userId, navigation));
   };
 
-  const handleDaySelect = (
+  const onDayPress = (
     day: { dateString: string },
     setFieldValue: (field: string, value: any) => void
   ) => {
-    setSelectedDate(day.dateString);
-    setFieldValue("visitDateTime", day.dateString);
-    setCalendarVisible(false);
+    if (!startDate || (startDate && endDate)) {
+      setStartDate(day.dateString);
+      setEndDate(null);
+      setMarkedDates({
+        [day.dateString]: {
+          startingDay: true,
+          endingDay: true,
+          color: colors.Primary_01,
+          textColor: colors.white,
+        },
+      });
+    } else {
+      const start = new Date(startDate);
+      const end = new Date(day.dateString);
+
+      if (end < start) {
+        setStartDate(day.dateString);
+        setEndDate(null);
+        setMarkedDates({
+          [day.dateString]: {
+            startingDay: true,
+            endingDay: true,
+            color: colors.Primary_01,
+            textColor: colors.white,
+          },
+        });
+        return;
+      }
+
+      const newMarkedDates: Record<string, any> = {};
+      let current = new Date(start);
+
+      while (current <= end) {
+        const dateStr = current.toISOString().split("T")[0];
+        if (dateStr === startDate) {
+          newMarkedDates[dateStr] = {
+            startingDay: true,
+            color: colors.Primary_01,
+            textColor: colors.white,
+          };
+        } else if (dateStr === day.dateString) {
+          newMarkedDates[dateStr] = {
+            endingDay: true,
+            color: colors.Primary_01,
+            textColor: colors.white,
+          };
+        } else {
+          newMarkedDates[dateStr] = {
+            color: "#b0dfdc",
+            textColor: colors.black,
+          };
+        }
+        current.setDate(current.getDate() + 1);
+      }
+
+      setEndDate(day.dateString);
+      setMarkedDates(newMarkedDates);
+
+      const visitDates = `${startDate} - ${day.dateString}`;
+      setFieldValue("visitDates", visitDates);
+      setCalendarVisible(false);
+    }
   };
 
   const handlePrevMonth = () => {
@@ -110,14 +222,15 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         >
           <Formik
             initialValues={{
-              clientName: "Smart Rental",
-              email: "smartrental@gmail.com",
-              phoneNum: "45301",
-              visitDateTime:
-                selectedDate || new Date().toISOString().split("T")[0],
-              propertyToVisit: "2",
-              numberOfVisitors: "2",
-              numberOfInfants: "2",
+              property: "",
+              clientName: "",
+              email: "",
+              phoneNum: "",
+              visitDates: "",
+              visitTime: "",
+              propertyToVisit: "",
+              numberOfVisitors: "",
+              numberOfInfants: "",
             }}
             validationSchema={validationSchema}
             onSubmit={handleCreate}
@@ -133,6 +246,43 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
             }) => (
               <>
                 <View style={styles.textInputSection}>
+                  <Text style={styles.label}>{t("selectProperty")}</Text>
+                  <TouchableOpacity
+                    onPress={handleShowDropdown}
+                    activeOpacity={0.8}
+                    style={[
+                      styles.optionButton,
+                      {
+                        borderColor: showPropertyDropdown
+                          ? colors.Primary_01
+                          : colors.black,
+                        borderBottomLeftRadius: showPropertyDropdown ? 0 : 4,
+                        borderBottomRightRadius: showPropertyDropdown ? 0 : 4,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.optionText}>
+                      {selectedProperty?.title || t("selectProperty")}
+                    </Text>
+                    {showPropertyDropdown ? <Down /> : <DropRight />}
+                  </TouchableOpacity>
+                  {showPropertyDropdown && (
+                    <View style={styles.propertyDropdown}>
+                      {userProperties.map((property: Property) => (
+                        <TouchableOpacity
+                          key={property.id}
+                          style={styles.propertyOption}
+                          onPress={() =>
+                            handleSelectApartment(property, setFieldValue)
+                          }
+                        >
+                          <Text style={styles.propertyText}>
+                            {property.title}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
                   <FormInput
                     label={t("clientName")}
                     placeholder={t("clientName")}
@@ -162,11 +312,23 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     onPress={() => setCalendarVisible(true)}
                   >
                     <FormInput
-                      label={t("visitDateTime")}
-                      placeholder={t("visitDateTime")}
-                      value={values.visitDateTime}
+                      label={t("visitDates")}
+                      placeholder={t("visitDates")}
+                      value={values.visitDates}
                       editable={false}
-                      error={touched.visitDateTime && errors.visitDateTime}
+                      error={touched.visitDates && errors.visitDates}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setVisible(true)}
+                  >
+                    <FormInput
+                      label={t("visitTime")}
+                      placeholder={t("visitTime")}
+                      value={values.visitTime}
+                      editable={false}
+                      error={touched.visitTime && errors.visitTime}
                     />
                   </TouchableOpacity>
                   <FormInput
@@ -214,24 +376,24 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                           {isLocaleReady && (
                             <Calendar
                               key={displayedMonth.toISOString()}
+                              hideExtraDays
+                              markingType="period"
+                              markedDates={markedDates}
+                              onDayPress={(day) =>
+                                onDayPress(day, setFieldValue)
+                              }
+                              hideArrows
                               current={
                                 displayedMonth.toISOString().split("T")[0]
                               }
-                              onDayPress={(day) =>
-                                handleDaySelect(day, setFieldValue)
-                              }
-                              hideExtraDays
-                              hideArrows
-                              markedDates={
-                                selectedDate
-                                  ? {
-                                      [selectedDate]: {
-                                        selected: true,
-                                        selectedColor: colors.Primary_01,
-                                      },
-                                    }
-                                  : {}
-                              }
+                              theme={{
+                                todayTextColor: colors.Primary_01,
+                                dayTextColor: colors.black,
+                                textDayFontFamily: "Nunito-Medium",
+                                textDayFontSize: 14,
+                                textDayHeaderFontFamily: "Nunito-Medium",
+                                textSectionTitleColor: colors.PLACE_HOLDER,
+                              }}
                               renderHeader={() => (
                                 <View style={styles.calendarHeader}>
                                   <TouchableOpacity onPress={handlePrevMonth}>
@@ -245,14 +407,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                                   </TouchableOpacity>
                                 </View>
                               )}
-                              theme={{
-                                todayTextColor: colors.Primary_01,
-                                dayTextColor: colors.black,
-                                textDayFontSize: 14,
-                                textDayFontFamily: "Nunito-Medium",
-                                textDayHeaderFontFamily: "Nunito-Medium",
-                                textSectionTitleColor: colors.PLACE_HOLDER,
-                              }}
                             />
                           )}
                         </View>
@@ -260,6 +414,26 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     </View>
                   </TouchableWithoutFeedback>
                 </Modal>
+                {visible && (
+                  <TimePickerModal
+                    visible={visible}
+                    onDismiss={() => setVisible(false)}
+                    onConfirm={({ hours, minutes }) => {
+                      const ampm = hours >= 12 ? "PM" : "AM";
+                      const formattedHours = hours % 12 || 12;
+                      const formattedTime = `${formattedHours}:${minutes
+                        .toString()
+                        .padStart(2, "0")} ${ampm}`;
+                      setFieldValue("visitTime", formattedTime);
+                      setVisible(false);
+                    }}
+                    locale={i18n.language}
+                    label={t("visitTime")}
+                    cancelLabel={t("cancel")}
+                    confirmLabel={t("ok")}
+                    defaultInputType="keyboard"
+                  />
+                )}
               </>
             )}
           </Formik>
@@ -316,6 +490,44 @@ const createStyles = (colors: any) =>
     headerMonthText: {
       ...Typography.f_14_nunito_bold,
       color: colors.black,
+    },
+    optionButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderRadius: 4,
+      borderWidth: 0.5,
+      paddingHorizontal: 13,
+      paddingVertical: 15,
+    },
+    optionText: {
+      ...Typography.f_14_nunito_medium,
+      color: colors.DARK_GREEN,
+    },
+    propertyOption: {
+      paddingVertical: 12,
+      paddingHorizontal: 13,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.Neutral_01,
+    },
+    propertyText: {
+      ...Typography.f_14_nunito_medium,
+      color: colors.DARK_GREEN,
+    },
+    propertyDropdown: {
+      borderWidth: 1,
+      borderTopWidth: 0,
+      borderColor: colors.Primary_01,
+      borderBottomLeftRadius: 4,
+      borderBottomRightRadius: 4,
+      overflow: "hidden",
+      marginTop: -1,
+      zIndex: 10,
+    },
+    label: {
+      color: colors.DARK_GREEN,
+      ...Typography.f_14_nunito_medium,
+      marginBottom: 10,
     },
   });
 

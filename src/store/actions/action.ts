@@ -172,7 +172,7 @@ export const fetchProperties = () => async (dispatch: any) => {
   }
 };
 
-// Fetch property by ID
+// Fetch property by property ID
 export const fetchPropertyById =
   (propertyId: string) => async (dispatch: any) => {
     try {
@@ -203,6 +203,35 @@ export const fetchPropertyById =
       dispatch({ type: "IS_LOADER", payload: false });
     } catch (error) {
       console.log(error, "fetchPropertyById_error");
+      dispatch({ type: "IS_LOADER", payload: false });
+
+      const errorMessage = await getFirebaseErrorMessage((error as any).code);
+      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+    }
+  };
+// fetch properties by user id
+export const fetchPropertiesByUserID =
+  (userID: string) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+
+      const snapshot = await firestore()
+        .collection("properties")
+        .where("createdBy", "==", userID)
+        .get();
+
+      if (snapshot.empty) {
+        dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
+      } else {
+        const properties = snapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
+      }
+      dispatch({ type: "IS_LOADER", payload: false });
+    } catch (error) {
+      console.log(error, "fetchproperty_error");
       dispatch({ type: "IS_LOADER", payload: false });
 
       const errorMessage = await getFirebaseErrorMessage((error as any).code);
@@ -325,5 +354,51 @@ export const updateUser =
       dispatch({ type: "IS_LOADER", payload: false });
       const errorMessage = await getFirebaseErrorMessage((error as any).code);
       Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+    }
+  };
+
+export const addSchedule =
+  (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+
+      const scheduleRef = firestore().collection("schedules").doc();
+      const scheduleData = {
+        clientName: formData.clientName,
+        email: formData.email,
+        phoneNum: formData.phoneNum,
+        visitDates: formData.visitDates,
+        visitTime: formData.visitTime,
+        property: formData.property,
+        propertyToVisit: formData.propertyToVisit,
+        numberOfVisitors: formData.numberOfVisitors,
+        numberOfInfants: formData.numberOfInfants,
+        createdBy: userId,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      };
+
+      await scheduleRef.set(scheduleData);
+      dispatch({ type: "IS_LOADER", payload: false });
+      const customMessage = await getFirebaseErrorMessage(
+        "Schedule added successfully"
+      );
+      Toast.show({
+        type: "success",
+        text1: customMessage,
+        position: "bottom",
+      });
+
+      navigation.goBack();
+    } catch (error: any) {
+      console.error("Add Schedule Error:", error);
+      dispatch({ type: "IS_LOADER", payload: false });
+      const errorMessage = await getFirebaseErrorMessage(
+        "Failed to add schedule. Please try again."
+      );
+      Toast.show({
+        type: "error",
+        text1: errorMessage,
+        position: "bottom",
+      });
     }
   };
