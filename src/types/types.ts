@@ -294,22 +294,23 @@ export type LanguageTranslation = {
   yourControl: string;
   accountControl: string;
   search: string;
-  noLocation:string;
-  noApartmentsFound:string;
-  noContactsFound:string;
-  confirmLogout: string,
-  ok: string,
+  noLocation: string;
+  noApartmentsFound: string;
+  noContactsFound: string;
+  confirmLogout: string;
+  ok: string;
   cancel: string;
-  selectProperty:string;
-  property:string;
-  visitTime:string;
-  infants:string,
-  adults:string,
-  noSchedulesInRange: string,
-  fileSaved: string,
-  permissionDenied: string,
-  exportFailed: string,
-  selectDateRangeFirst:string
+  selectProperty: string;
+  property: string;
+  visitTime: string;
+  infants: string;
+  adults: string;
+  noSchedulesInRange: string;
+  fileSaved: string;
+  permissionDenied: string;
+  exportFailed: string;
+  selectDateRangeFirst: string;
+  noSchedulesFound: string;
 };
 
 export type LanguageData = {
@@ -342,10 +343,10 @@ export interface State {
   savedCords: number[];
   isLocation: boolean;
   properties: any[];
-  contacts:any[];
+  contacts: any[];
   property: Property | null;
-  userProperties:any[];
-  schedules:any[]
+  userProperties: any[];
+  schedules: any[];
 }
 
 export interface Action {

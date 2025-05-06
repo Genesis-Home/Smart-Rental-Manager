@@ -61,46 +61,51 @@ const ExportData: React.FC = () => {
     };
 
     fetchData();
-  }, [dispatch, user?.userId, userSchedules]);
+  }, [dispatch, user?.userId]);
 
   const filterSchedulesByDateRange = () => {
     if (!startDate || !endDate) return userSchedules;
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const selectedStart = moment(startDate, "YYYY-MM-DD").startOf("day");
+    const selectedEnd = moment(endDate, "YYYY-MM-DD").endOf("day");
 
     return userSchedules.filter((schedule: any) => {
-      const visitDate = moment(schedule.visitDates, "MMMM D, YYYY").toDate();
-      console.log(visitDate,'visitDate')
-      return visitDate >= start && visitDate <= end;
+      if (!schedule.visitDates || typeof schedule.visitDates !== "string")
+        return false;
+
+      const [rangeStartStr, rangeEndStr] = schedule.visitDates.split(" - ");
+      if (!rangeStartStr || !rangeEndStr) return false;
+
+      const rangeStart = moment(rangeStartStr.trim(), "MMM D, YYYY").startOf(
+        "day"
+      );
+      const rangeEnd = moment(rangeEndStr.trim(), "MMM D, YYYY").endOf("day");
+
+      if (!rangeStart.isValid() || !rangeEnd.isValid()) {
+        console.error("Failed to parse dates:", rangeStartStr, rangeEndStr);
+        return false;
+      }
+
+      const hasOverlap = !(
+        rangeEnd.isBefore(selectedStart) || rangeStart.isAfter(selectedEnd)
+      );
+      console.log("Has overlap:", hasOverlap);
+
+      return hasOverlap;
     });
   };
 
   const filteredSchedules = filterSchedulesByDateRange();
 
   const exportToCSV = async () => {
-    if (!startDate || !endDate) {
-      Toast.show({ type: "error", text1: t("selectDateRangeFirst") });
-      return;
-    }
-
     const schedules = filterSchedulesByDateRange();
     if (schedules.length === 0) {
       Toast.show({ type: "info", text1: t("noSchedulesInRange") });
       return;
     }
 
-    let csv =
-      "Client Name,Email,Phone,Visit Dates,Visit Time,Visitors,Infants,Property\n";
-    schedules.forEach((item: any) => {
-      csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.visitTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.propertyToVisit}"\n`;
-    });
-
-    const fileName = `Export_${startDate}_to_${endDate}.csv`;
-    const path = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-
     try {
-      if (Platform.OS === "android") {
+      if (Platform.OS === "android" && Platform.Version < 30) {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
         );
@@ -110,16 +115,28 @@ const ExportData: React.FC = () => {
         }
       }
 
+      let csv =
+        "Client Name,Email,Phone,Visit Dates,Visit Time,Visitors,Infants,Property\n";
+      schedules.forEach((item: any) => {
+        csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.visitTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.propertyToVisit}"\n`;
+      });
+
+      const fileName =
+        startDate && endDate
+          ? `Export_${startDate}_to_${endDate}.csv`
+          : `All_Schedules_Export.csv`;
+      const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+
       await RNFS.writeFile(path, csv, "utf8");
 
       Toast.show({
         type: "success",
         text1: t("fileSaved"),
-        text2: path,
+        text2: `Downloads/${fileName}`,
       });
     } catch (error) {
-      Toast.show({ type: "error", text1: t("exportFailed") });
       console.error("CSV export error", error);
+      Toast.show({ type: "error", text1: t("exportFailed") });
     }
   };
 
@@ -256,76 +273,87 @@ const ExportData: React.FC = () => {
         <View style={styles.exportBtnWrapper}>
           <CTAButton1 title={t("export")} submitHandler={exportToCSV} />
         </View>
-        <FlatList
-          keyExtractor={(item) => item.id}
-          data={filteredSchedules}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => (
-            <View
-              style={[
-                styles.visitCard,
-                { marginBottom: index === userSchedules.length - 1 ? 40 : 0 },
-              ]}
-            >
-              <Text style={styles.visitTitle}>
-                {t("clientVisitAppointmentTitle")}
-              </Text>
-              <View style={styles.visitDetailsWrapper}>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>{t("clientName")}</Text>
-                  <Text style={styles.detailValue}>{item.clientName}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>{t("Email")}</Text>
-                  <Text style={styles.detailValue}>{item.email}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>{t("phone")}</Text>
-                  <Text style={styles.detailValue}>{item.phoneNum}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>{t("visitDates")}</Text>
-                  <Text style={styles.detailValue}>{item.visitDates}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>{t("visitTime")}</Text>
-                  <Text style={styles.detailValue}>{item.visitTime}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>
-                    {t("numberOfVisitors")}
-                  </Text>
-                  <Text style={styles.detailValue}>
-                    {item.numberOfVisitors} {t("adults")}
-                  </Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>{t("Infant")}</Text>
-                  <Text style={styles.detailValue}>
-                    {item.numberOfInfants} {t("infants")}
-                  </Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>
-                    {t("propertyToVisitors")}
-                  </Text>
-                  <Text style={styles.detailValue}>{item.propertyToVisit}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>
-                    {t("googleMapsLocation")}
-                  </Text>
-                  <Text
-                    onPress={() => navigation.navigate("Map")}
-                    style={styles.mapLink}
-                  >
-                    {t("viewOnMap")}
-                  </Text>
+        {filteredSchedules.length === 0 ? (
+          <View style={styles.noSchedulesFound}>
+            <Text style={styles.noSchedulesText}>{t("noSchedulesFound")}</Text>
+          </View>
+        ) : (
+          <FlatList
+            keyExtractor={(item) => item.id}
+            data={filteredSchedules}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item, index }) => (
+              <View
+                style={[
+                  styles.visitCard,
+                  {
+                    marginBottom:
+                      index === filteredSchedules.length - 1 ? 40 : 0,
+                  },
+                ]}
+              >
+                <Text style={styles.visitTitle}>
+                  {t("clientVisitAppointmentTitle")}
+                </Text>
+                <View style={styles.visitDetailsWrapper}>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>{t("clientName")}</Text>
+                    <Text style={styles.detailValue}>{item.clientName}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>{t("Email")}</Text>
+                    <Text style={styles.detailValue}>{item.email}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>{t("phone")}</Text>
+                    <Text style={styles.detailValue}>{item.phoneNum}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>{t("visitDates")}</Text>
+                    <Text style={styles.detailValue}>{item.visitDates}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>{t("visitTime")}</Text>
+                    <Text style={styles.detailValue}>{item.visitTime}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>
+                      {t("numberOfVisitors")}
+                    </Text>
+                    <Text style={styles.detailValue}>
+                      {item.numberOfVisitors} {t("adults")}
+                    </Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>{t("Infant")}</Text>
+                    <Text style={styles.detailValue}>
+                      {item.numberOfInfants} {t("infants")}
+                    </Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>
+                      {t("propertyToVisitors")}
+                    </Text>
+                    <Text style={styles.detailValue}>
+                      {item.propertyToVisit}
+                    </Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>
+                      {t("googleMapsLocation")}
+                    </Text>
+                    <Text
+                      onPress={() => navigation.navigate("Map")}
+                      style={styles.mapLink}
+                    >
+                      {t("viewOnMap")}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          )}
-        />
+            )}
+          />
+        )}
       </ScrollView>
       <Modal visible={calendarVisible} transparent animationType="fade">
         <TouchableWithoutFeedback onPress={() => setCalendarVisible(false)}>
@@ -472,5 +500,13 @@ const styles = StyleSheet.create({
   headerMonthText: {
     ...Typography.f_14_nunito_medium,
     color: colors.black,
+  },
+  noSchedulesFound: {
+    alignItems: "center",
+    marginTop: 40,
+  },
+  noSchedulesText: {
+    ...Typography.f_14_nunito_extra_bold,
+    color: colors.Primary_01,
   },
 });

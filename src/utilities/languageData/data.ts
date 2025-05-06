@@ -236,7 +236,8 @@ export const languageData: LanguageData[] = [
       fileSaved: "CSV file saved successfully!",
       permissionDenied: "Permission to write files was denied.",
       exportFailed: "Failed to export CSV file.",
-      selectDateRangeFirst:'Please select a date range first.'
+      selectDateRangeFirst: "Please select a date range first.",
+      noSchedulesFound: "No schedules found",
     },
   },
   {
@@ -472,7 +473,8 @@ export const languageData: LanguageData[] = [
       fileSaved: "¡Archivo CSV guardado con éxito!",
       permissionDenied: "Permiso para escribir archivos denegado.",
       exportFailed: "Error al exportar el archivo CSV.",
-      selectDateRangeFirst:'Por favor, selecciona un rango de fechas primero.'
+      selectDateRangeFirst: "Por favor, selecciona un rango de fechas primero.",
+      noSchedulesFound: "No se encontraron horarios",
     },
   },
 ];
