@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   TouchableWithoutFeedback,
+  FlatList,
 } from "react-native";
 import Header from "../../components/Header";
 import { useTranslation } from "react-i18next";
@@ -19,18 +20,43 @@ import { enUS, es } from "date-fns/locale";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { ScheduledScreenNavigationProp, Day } from "../../types/types";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
+import { fetchSchedulesByUserID } from "../../store/actions/action";
+import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
+import Toast from "react-native-toast-message";
+import moment from "moment";
 
 const Scheduled: React.FC = () => {
   const navigation = useNavigation<ScheduledScreenNavigationProp>();
   const { t, i18n } = useTranslation();
-
+  const dispatch = useAppDispatch();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [days, setDays] = useState<Day[]>([]);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isLocaleReady, setIsLocaleReady] = useState(false);
+  const user = useAppSelector((state: any) => state.reducer.user);
+  const userSchedules = useAppSelector((state: any) => state.reducer.schedules);
 
-  const properties = t("properties", { returnObjects: true }) as string[];
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user?.userId) {
+        dispatch(fetchSchedulesByUserID(user.userId));
+      } else {
+        const customMessage = await getFirebaseErrorMessage(
+          "User not authenticated"
+        );
+        Toast.show({
+          type: "error",
+          text1: customMessage,
+          position: "bottom",
+        });
+        navigation.navigate("Signin");
+      }
+    };
+
+    fetchData();
+  }, [dispatch, user?.userId]);
 
   const getLocale = () => {
     switch (i18n.language) {
@@ -124,23 +150,25 @@ const Scheduled: React.FC = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.daysContainer}>
           {days.map((item, index) => {
-            const isSelected =
-              item.number ===
-              parseInt(
-                format(new Date(selectedDate ? selectedDate : currentDate), "d")
-              );
+            const today = new Date();
+            const dateToCheck = addDays(
+              startOfWeek(currentDate, { weekStartsOn: 5 }),
+              index
+            );
+            const isToday =
+              format(dateToCheck, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
             return (
               <View
                 key={index}
                 style={[
                   styles.dayItem,
-                  isSelected && { backgroundColor: colors.Primary_01 },
+                  isToday && { backgroundColor: colors.Primary_01 },
                 ]}
               >
                 <Text
                   style={[
                     styles.dayText,
-                    { color: isSelected ? colors.white : colors.PLACE_HOLDER },
+                    { color: isToday ? colors.white : colors.PLACE_HOLDER },
                   ]}
                 >
                   {item.day}
@@ -148,7 +176,7 @@ const Scheduled: React.FC = () => {
                 <Text
                   style={[
                     styles.numberText,
-                    { color: isSelected ? colors.white : colors.black },
+                    { color: isToday ? colors.white : colors.black },
                   ]}
                 >
                   {item.number}
@@ -158,16 +186,70 @@ const Scheduled: React.FC = () => {
           })}
         </View>
         <View style={{ marginBottom: 40 }}>
-          {properties.map((item, index) => (
-            <View key={index} style={styles.propertyRow}>
-              <Text style={styles.propertyText}>{item}</Text>
-              <View style={styles.slotsContainer}>
-                {[...Array(8)].map((_, i) => (
-                  <View key={i} style={styles.slot} />
-                ))}
-              </View>
+          {userSchedules.length === 0 ? (
+            <View style={styles.noSchedulesFound}>
+              <Text style={styles.noSchedulesText}>
+                {t("noSchedulesFound")}
+              </Text>
             </View>
-          ))}
+          ) : (
+            <FlatList
+              data={userSchedules}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item: schedule }) => (
+                <View style={styles.propertyRow}>
+                  <Text style={styles.propertyText}>{schedule.property}</Text>
+                  <View style={styles.slotsContainer}>
+                    {[...Array(8)].map((_, i) => {
+                      const slotDate = addDays(
+                        startOfWeek(currentDate, { weekStartsOn: 5 }),
+                        i
+                      );
+                      let isBooked = false;
+                      if (schedule.visitDates) {
+                        const [startStr, endStr] =
+                          schedule.visitDates.split(" - ");
+                        const startDate = moment(
+                          startStr,
+                          "MMM D, YYYY"
+                        ).startOf("day");
+                        const endDate = moment(endStr, "MMM D, YYYY").endOf(
+                          "day"
+                        );
+
+                        const slotMoment = moment(slotDate);
+                        if (
+                          slotMoment.isSameOrAfter(startDate) &&
+                          slotMoment.isSameOrBefore(endDate)
+                        ) {
+                          isBooked = true;
+                        }
+                      }
+
+                      const randomColors = [
+                        "#FF8A65",
+                        "#4DB6AC",
+                        "#9575CD",
+                        "#FFD54F",
+                      ];
+                      const backgroundColor = isBooked
+                        ? randomColors[
+                            Math.floor(Math.random() * randomColors.length)
+                          ]
+                        : colors.Neutral_01;
+
+                      return (
+                        <View
+                          key={i}
+                          style={[styles.slot, { backgroundColor }]}
+                        />
+                      );
+                    })}
+                  </View>
+                </View>
+              )}
+            />
+          )}
         </View>
       </ScrollView>
       <Modal visible={showCalendar} transparent animationType="fade">
@@ -312,6 +394,14 @@ const styles = StyleSheet.create({
   headerMonthText: {
     ...Typography.f_14_nunito_bold,
     color: colors.black,
+  },
+  noSchedulesFound: {
+    alignItems: "center",
+    marginTop: 40,
+  },
+  noSchedulesText: {
+    ...Typography.f_14_nunito_extra_bold,
+    color: colors.Primary_01,
   },
 });
 

@@ -61,7 +61,7 @@ const Home: React.FC = () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
-  }, [dispatch,properties]);
+  }, [dispatch]);
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);

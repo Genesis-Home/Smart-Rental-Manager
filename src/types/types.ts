@@ -219,7 +219,6 @@ export type LanguageTranslation = {
   title: string;
   schedulePropertyVisit: string;
   days: Record<string, string>;
-  properties: string[];
   createSchedule: string;
   clientName: string;
   visitDates: string;
