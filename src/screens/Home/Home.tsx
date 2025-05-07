@@ -9,12 +9,13 @@ import {
   TouchableOpacity,
   Text,
   Keyboard,
+  Share,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
-import { AppIcon, Notification, Search } from "../../assets/icons";
+import { AppIcon, Notification, Search, ShareIcon } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import Images from "../../assets/images";
-import { Heart, Prev, Next, Address, Add } from "../../assets/icons";
+import { Prev, Next, Address, Add } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { HomeScreenNavigationProp, Property } from "../../types/types";
@@ -74,6 +75,23 @@ const Home: React.FC = () => {
       setFilteredProperties(filtered);
     }
   };
+
+  const handleShare = async (item: Property) => {
+    try {
+      const imageUrls = item.images?.map((image) => image); 
+  
+      const message = `
+        Title: ${item.title}\nDescription: ${item.description}\nLocation: ${item.location ?? "No location"}\nImages:\n${imageUrls.map((url) => `${url}\n\n`).join("")}`;
+  
+      await Share.share({
+        message,
+        title: item.title,
+      });
+    } catch (error) {
+      console.error("Error sharing property:", error);
+    }
+  };
+  
 
   const handleScroll = (event: any, id: string) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -159,12 +177,23 @@ const Home: React.FC = () => {
                 />
               ))}
             </View>
-            {/* <TouchableOpacity
+            <TouchableOpacity
+              onPress={() => handleShare(item)}
               activeOpacity={0.8}
-              style={{ position: "absolute", bottom: 10, right: 10 }}
+              style={{
+                position: "absolute",
+                bottom: 10,
+                right: 10,
+                height: 35,
+                width: 35,
+                backgroundColor: colors.Primary_01,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 50,
+              }}
             >
-              <Heart height={30} width={30} />
-            </TouchableOpacity> */}
+              <ShareIcon height={20} width={20} />
+            </TouchableOpacity>
           </View>
         </View>
         <View style={{ marginVertical: 20, gap: 5 }}>

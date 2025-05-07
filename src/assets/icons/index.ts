@@ -33,6 +33,7 @@ export { default as SettingA } from './settingA.svg';
 export { default as Email } from './Email.svg';
 export { default as Copy } from './copy.svg';
 export { default as Share } from './share.svg';
+export { default as ShareIcon } from './shareIcon.svg';
 export { default as Whatsapp } from './whatsapp.svg';
 export { default as DownIcon } from './downIcon.svg';
 export { default as Left } from './Left.svg'; 
