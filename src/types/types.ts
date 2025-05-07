@@ -347,6 +347,7 @@ export interface State {
   property: Property | null;
   userProperties: any[];
   schedules: any[];
+  userPropertySchedules:any[]
 }
 
 export interface Action {

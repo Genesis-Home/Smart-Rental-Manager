@@ -27,12 +27,16 @@ import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import Toast from "react-native-toast-message";
 import { fetchPropertiesByUserID } from "../../store/actions/action";
 import { TimePickerModal } from "react-native-paper-dates";
+import { fetchSchedulesByPropertyIdAndUserId } from "../../store/actions/action";
 
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
   const dispatch = useAppDispatch();
   const { t, i18n } = useTranslation();
   const user = useAppSelector((state: any) => state.reducer.user);
+  const userPropertySchedules = useAppSelector(
+    (state: any) => state.reducer.userPropertySchedules
+  );
   const userProperties = useAppSelector(
     (state: any) => state.reducer.userProperties
   );
@@ -46,6 +50,14 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const [endDate, setEndDate] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
 
+  useEffect(() => {
+    if (selectedProperty?.id) {
+      dispatch(
+        fetchSchedulesByPropertyIdAndUserId(selectedProperty.id, user?.userId)
+      );
+    }
+  }, [selectedProperty]);
+
   const handleShowDropdown = () => {
     setShowPropertyDropdown(!showPropertyDropdown);
   };
@@ -55,6 +67,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     setFieldValue: (field: string, value: any) => void
   ) => {
     setSelectedProperty(property);
+    setFieldValue("propertyId", property.id);
     setFieldValue("property", property.title);
     setShowPropertyDropdown(false);
   };
@@ -125,7 +138,23 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   });
 
   const handleCreate = async (formData: any) => {
-    dispatch(addSchedule(formData, user?.userId, navigation));
+    if (selectedProperty?.id) {
+      dispatch(
+        fetchSchedulesByPropertyIdAndUserId(selectedProperty.id, user?.userId)
+      );
+
+      const totalRevenue = userPropertySchedules.reduce(
+        (acc: number, schedule: any) =>
+          acc + parseFloat(schedule.agreedPrice || "0"),
+        0
+      );
+
+      const newRevenue = totalRevenue + parseFloat(formData.agreedPrice || "0");
+
+      formData.revenue = newRevenue;
+
+      dispatch(addSchedule(formData, user?.userId, navigation));
+    }
   };
 
   const onDayPress = (
@@ -235,6 +264,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         >
           <Formik
             initialValues={{
+              propertyId: "",
               property: "",
               clientName: "",
               email: "",
@@ -244,7 +274,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
               propertyToVisit: "",
               numberOfVisitors: "",
               numberOfInfants: "",
-              agreedPrice:""
+              agreedPrice: "",
             }}
             validationSchema={validationSchema}
             onSubmit={handleCreate}
