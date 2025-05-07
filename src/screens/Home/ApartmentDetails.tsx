@@ -36,6 +36,8 @@ const ApartmentDetails: React.FC = () => {
 
   const property = useAppSelector((state: any) => state.reducer.property);
 
+  console.log(property, "property");
+
   console.log(apartmentDetail, "apartmentDetail");
 
   useEffect(() => {
@@ -136,13 +138,24 @@ const ApartmentDetails: React.FC = () => {
               {apartmentDetail?.description}
             </Text>
             <View style={styles.addressRow}>
-              <Address />
+              <Address style={{ top: -3 }} />
               <Text style={[styles.addressText, Typography.f_14_nunito_medium]}>
                 {apartmentDetail?.location
                   ? apartmentDetail.location
                   : t("noLocation")}
               </Text>
             </View>
+            {apartmentDetail?.revenue && (
+              <Text
+                style={[
+                  Typography.f_14_nunito_medium,
+                  { color: Colors.black, marginBottom: 10 },
+                ]}
+              >
+                <Text style={{ ...Typography.f_14_nunito_bold }}>Revenue:</Text>{" "}
+                {apartmentDetail.revenue}
+              </Text>
+            )}
           </View>
           <Text style={[Typography.f_16_nunito_bold, { color: Colors.black }]}>
             {t("otherDet")}
@@ -213,9 +226,9 @@ const styles = StyleSheet.create({
   detailsWrapper: {
     marginTop: 20,
     marginBottom: 15,
-    gap: 5,
     borderBottomWidth: 1,
     borderColor: Colors.Neutral_01,
+    gap: 5,
   },
   titleText: {
     color: Colors.black,

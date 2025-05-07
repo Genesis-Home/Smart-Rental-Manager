@@ -27,7 +27,10 @@ import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import Toast from "react-native-toast-message";
 import { fetchPropertiesByUserID } from "../../store/actions/action";
 import { TimePickerModal } from "react-native-paper-dates";
-import { fetchSchedulesByPropertyIdAndUserId } from "../../store/actions/action";
+import {
+  fetchSchedulesByPropertyIdAndUserId,
+  updatePropertyRevenue,
+} from "../../store/actions/action";
 
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
@@ -154,6 +157,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       formData.revenue = newRevenue;
 
       dispatch(addSchedule(formData, user?.userId, navigation));
+      dispatch(updatePropertyRevenue(selectedProperty.id, newRevenue));
     }
   };
 

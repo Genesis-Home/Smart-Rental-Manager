@@ -115,6 +115,7 @@ export const addProperty =
         otherDetails: formData.otherDetails,
         location: null,
         images: formData.images,
+        revenue: 0,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
@@ -462,5 +463,34 @@ export const fetchSchedulesByPropertyIdAndUserId =
 
       const errorMessage = await getFirebaseErrorMessage((error as any).code);
       Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+    }
+  };
+
+export const updatePropertyRevenue =
+  (propertyId: string, newRevenue: number) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+
+      await firestore().collection("properties").doc(propertyId).update({
+        revenue: newRevenue,
+      });
+
+      const updatedPropertyDoc = await firestore()
+        .collection("properties")
+        .doc(propertyId)
+        .get();
+
+      const updatedProperty = {
+        ...updatedPropertyDoc.data(),
+        id: updatedPropertyDoc.id,
+      };
+
+      dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
+
+      dispatch({ type: "IS_LOADER", payload: false });
+      console.log("Revenue Updated Successfully");
+    } catch (error) {
+      console.log(error, "updatePropertyRevenue_error");
+      dispatch({ type: "IS_LOADER", payload: false });
     }
   };
