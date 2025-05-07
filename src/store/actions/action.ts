@@ -373,6 +373,7 @@ export const addSchedule =
         propertyToVisit: formData.propertyToVisit,
         numberOfVisitors: formData.numberOfVisitors,
         numberOfInfants: formData.numberOfInfants,
+        agreedPrice: formData.agreedPrice,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
       };

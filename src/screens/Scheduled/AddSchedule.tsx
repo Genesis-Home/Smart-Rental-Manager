@@ -119,6 +119,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     numberOfInfants: Yup.string().required(
       t("numberOfInfants") + " " + t("isRequired")
     ),
+    agreedPrice: Yup.string().required(
+      t("agreedPrice") + " " + t("isRequired")
+    ),
   });
 
   const handleCreate = async (formData: any) => {
@@ -241,6 +244,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
               propertyToVisit: "",
               numberOfVisitors: "",
               numberOfInfants: "",
+              agreedPrice:""
             }}
             validationSchema={validationSchema}
             onSubmit={handleCreate}
@@ -364,6 +368,14 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     onChangeText={handleChange("numberOfInfants")}
                     onBlur={handleBlur("numberOfInfants")}
                     error={touched.numberOfInfants && errors.numberOfInfants}
+                  />
+                  <FormInput
+                    label={t("agreedPrice")}
+                    placeholder={t("agreedPrice")}
+                    value={values.agreedPrice}
+                    onChangeText={handleChange("agreedPrice")}
+                    onBlur={handleBlur("agreedPrice")}
+                    error={touched.agreedPrice && errors.agreedPrice}
                   />
                 </View>
                 <View style={styles.createBTnContainer}>

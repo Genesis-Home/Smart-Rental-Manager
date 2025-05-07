@@ -229,6 +229,7 @@ export const languageData: LanguageData[] = [
       exportFailed: "Failed to export CSV file.",
       selectDateRangeFirst: "Please select a date range first.",
       noSchedulesFound: "No schedules found",
+      agreedPrice:'Agreed Price'
     },
   },
   {
@@ -457,6 +458,7 @@ export const languageData: LanguageData[] = [
       exportFailed: "Error al exportar el archivo CSV.",
       selectDateRangeFirst: "Por favor, selecciona un rango de fechas primero.",
       noSchedulesFound: "No se encontraron horarios",
+      agreedPrice:'Precio Acordado'
     },
   },
 ];

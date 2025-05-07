@@ -310,6 +310,7 @@ export type LanguageTranslation = {
   exportFailed: string;
   selectDateRangeFirst: string;
   noSchedulesFound: string;
+  agreedPrice:string
 };
 
 export type LanguageData = {
