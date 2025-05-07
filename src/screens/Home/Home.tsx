@@ -80,8 +80,7 @@ const Home: React.FC = () => {
     try {
       const imageUrls = item.images?.map((image) => image); 
   
-      const message = `
-        Title: ${item.title}\nDescription: ${item.description}\nLocation: ${item.location ?? "No location"}\nImages:\n${imageUrls.map((url) => `${url}\n\n`).join("")}`;
+      const message = `Title: ${item.title}\nDescription: ${item.description}\nLocation: ${item.location ?? "No location"}\nImages:\n${imageUrls.map((url) => `${url}\n\n`).join("")}`;
   
       await Share.share({
         message,

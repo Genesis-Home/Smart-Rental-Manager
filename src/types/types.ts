@@ -308,11 +308,14 @@ export type LanguageTranslation = {
   fileSaved: string;
   permissionDenied: string;
   exportFailed: string;
-  selectDateRangeFirst: string;
   noSchedulesFound: string;
   agreedPrice: string;
   noRevenue: string;
   noRevenueAvailable: string;
+  selectVisitDates: string;
+  bookedBy: string;
+  conflictingDates: string;
+  datesAlreadyBooked: string;
 };
 
 export type LanguageData = {

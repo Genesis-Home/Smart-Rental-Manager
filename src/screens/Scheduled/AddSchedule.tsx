@@ -31,6 +31,7 @@ import {
   fetchSchedulesByPropertyIdAndUserId,
   updatePropertyRevenue,
 } from "../../store/actions/action";
+import moment from "moment";
 
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
@@ -52,6 +53,10 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
+  const [conflictModalVisible, setConflictModalVisible] = useState(false);
+  const [conflictingDates, setConflictingDates] = useState<
+    { dates: string; clientName: string }[]
+  >([]);
 
   useEffect(() => {
     if (selectedProperty?.id) {
@@ -141,7 +146,60 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   });
 
   const handleCreate = async (formData: any) => {
+    if (!startDate || !endDate) {
+      Toast.show({
+        type: "error",
+        text1: t("selectVisitDates"),
+        position: "bottom",
+      });
+      return;
+    }
+
     if (selectedProperty?.id) {
+      const existingSchedules = userPropertySchedules.filter(
+        (schedule: any) => schedule.propertyId === selectedProperty.id
+      );
+
+      const selectedStart = moment(startDate, "YYYY-MM-DD").startOf("day");
+      const selectedEnd = moment(endDate, "YYYY-MM-DD").endOf("day");
+
+      const conflicts: { dates: string; clientName: string }[] = [];
+
+      existingSchedules.forEach((schedule: any) => {
+        if (!schedule.visitDates || typeof schedule.visitDates !== "string")
+          return;
+
+        const [rangeStartStr, rangeEndStr] = schedule.visitDates.split(" - ");
+        if (!rangeStartStr || !rangeEndStr) return;
+
+        const rangeStart = moment(rangeStartStr.trim(), "MMM D, YYYY").startOf(
+          "day"
+        );
+        const rangeEnd = moment(rangeEndStr.trim(), "MMM D, YYYY").endOf("day");
+
+        if (!rangeStart.isValid() || !rangeEnd.isValid()) {
+          console.error("Failed to parse dates:", rangeStartStr, rangeEndStr);
+          return;
+        }
+
+        const hasOverlap = !(
+          rangeEnd.isBefore(selectedStart) || rangeStart.isAfter(selectedEnd)
+        );
+
+        if (hasOverlap) {
+          conflicts.push({
+            dates: schedule.visitDates,
+            clientName: schedule.clientName || "Unknown",
+          });
+        }
+      });
+
+      if (conflicts.length > 0) {
+        setConflictingDates(conflicts);
+        setConflictModalVisible(true);
+        return;
+      }
+
       dispatch(
         fetchSchedulesByPropertyIdAndUserId(selectedProperty.id, user?.userId)
       );
@@ -177,10 +235,10 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         },
       });
     } else {
-      const start = new Date(startDate);
-      const end = new Date(day.dateString);
+      const start = moment(startDate, "YYYY-MM-DD").startOf("day");
+      const end = moment(day.dateString, "YYYY-MM-DD").startOf("day");
 
-      if (end < start) {
+      if (end.isBefore(start)) {
         setStartDate(day.dateString);
         setEndDate(null);
         setMarkedDates({
@@ -193,12 +251,11 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         });
         return;
       }
-
       const newMarkedDates: Record<string, any> = {};
-      let current = new Date(start);
+      let current = start.clone();
 
-      while (current <= end) {
-        const dateStr = current.toISOString().split("T")[0];
+      while (current.isSameOrBefore(end)) {
+        const dateStr = current.format("YYYY-MM-DD");
         if (dateStr === startDate) {
           newMarkedDates[dateStr] = {
             startingDay: true,
@@ -217,18 +274,14 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
             textColor: colors.black,
           };
         }
-        current.setDate(current.getDate() + 1);
+        current.add(1, "days");
       }
 
       setEndDate(day.dateString);
       setMarkedDates(newMarkedDates);
+
       const formatDate = (dateStr: string) => {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString(i18n.language || "en", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        });
+        return moment(dateStr, "YYYY-MM-DD").format("MMM D, YYYY");
       };
 
       const visitDates = `${formatDate(startDate)} - ${formatDate(
@@ -490,6 +543,45 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     defaultInputType="keyboard"
                   />
                 )}
+                <Modal
+                  visible={conflictModalVisible}
+                  transparent
+                  animationType="fade"
+                >
+                  <View style={styles.modalOverlay}>
+                    <View style={styles.conflictModal}>
+                      <Text style={styles.conflictTitle}>
+                        {t("datesAlreadyBooked")}
+                      </Text>
+                      <Text style={styles.conflictSubtitle}>
+                        {t("conflictingDates")}:
+                      </Text>
+
+                      <ScrollView
+                        style={styles.conflictList}
+                        showsVerticalScrollIndicator={false}
+                      >
+                        {conflictingDates.map((conflict, index) => (
+                          <View key={index} style={styles.conflictItem}>
+                            <Text style={styles.conflictDate}>
+                              {conflict.dates}
+                            </Text>
+                            <Text style={styles.conflictClient}>
+                              {t("bookedBy")}: {conflict.clientName}
+                            </Text>
+                          </View>
+                        ))}
+                      </ScrollView>
+
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() => setConflictModalVisible(false)}
+                      >
+                        <Text style={styles.closeButtonText}>{t("ok")}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </Modal>
               </>
             )}
           </Formik>
@@ -584,6 +676,52 @@ const createStyles = (colors: any) =>
       color: colors.DARK_GREEN,
       ...Typography.f_14_nunito_medium,
       marginBottom: 10,
+    },
+    conflictModal: {
+      backgroundColor: colors.white,
+      borderRadius: 10,
+      padding: 20,
+      width: "90%",
+      maxHeight: "70%",
+    },
+    conflictTitle: {
+      ...Typography.f_16_nunito_bold,
+      color: colors.Primary_01,
+      marginBottom: 10,
+      textAlign: "center",
+    },
+    conflictSubtitle: {
+      ...Typography.f_16_nunito_medium,
+      color: colors.black,
+      marginBottom: 15,
+    },
+    conflictList: {
+      maxHeight: 200,
+    },
+    conflictItem: {
+      borderBottomWidth: 1,
+      borderBottomColor: colors.Neutral_01,
+      paddingVertical: 10,
+    },
+    conflictDate: {
+      ...Typography.f_14_nunito_bold,
+      color: colors.DARK_GREEN,
+    },
+    conflictClient: {
+      ...Typography.f_14_nunito_medium,
+      color: colors.PLACE_HOLDER,
+      marginTop: 5,
+    },
+    closeButton: {
+      backgroundColor: colors.Primary_01,
+      borderRadius: 8,
+      paddingVertical: 12,
+      alignItems: "center",
+      marginTop: 20,
+    },
+    closeButtonText: {
+      ...Typography.f_16_nunito_bold,
+      color: colors.white,
     },
   });
 
