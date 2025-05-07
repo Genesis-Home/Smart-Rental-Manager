@@ -36,10 +36,6 @@ const ApartmentDetails: React.FC = () => {
 
   const property = useAppSelector((state: any) => state.reducer.property);
 
-  console.log(property, "property");
-
-  console.log(apartmentDetail, "apartmentDetail");
-
   useEffect(() => {
     if (apartmentID) {
       dispatch(fetchPropertyById(apartmentID));
@@ -145,15 +141,52 @@ const ApartmentDetails: React.FC = () => {
                   : t("noLocation")}
               </Text>
             </View>
-            {apartmentDetail?.revenue && (
+            {apartmentDetail?.revenue !== undefined &&
+            apartmentDetail?.revenue !== null ? (
+              apartmentDetail.revenue > 0 ? (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 5,
+                    marginBottom: 10,
+                  }}
+                >
+                  <Text
+                    style={[
+                      Typography.f_14_nunito_bold,
+                      { color: Colors.black },
+                    ]}
+                  >
+                    Revenue:
+                  </Text>
+                  <Text
+                    style={[
+                      Typography.f_14_nunito_medium,
+                      { color: Colors.black },
+                    ]}
+                  >
+                    {String(apartmentDetail.revenue)}
+                  </Text>
+                </View>
+              ) : (
+                <Text
+                  style={[
+                    Typography.f_14_nunito_medium,
+                    { color: Colors.black, marginBottom: 10 },
+                  ]}
+                >
+                  Revenue: {t("noRevenue")}
+                </Text>
+              )
+            ) : (
               <Text
                 style={[
                   Typography.f_14_nunito_medium,
                   { color: Colors.black, marginBottom: 10 },
                 ]}
               >
-                <Text style={{ ...Typography.f_14_nunito_bold }}>Revenue:</Text>{" "}
-                {apartmentDetail.revenue}
+                Revenue: {t("noRevenueAvailable")}
               </Text>
             )}
           </View>

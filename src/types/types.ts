@@ -310,7 +310,9 @@ export type LanguageTranslation = {
   exportFailed: string;
   selectDateRangeFirst: string;
   noSchedulesFound: string;
-  agreedPrice:string
+  agreedPrice: string;
+  noRevenue: string;
+  noRevenueAvailable: string;
 };
 
 export type LanguageData = {
@@ -347,7 +349,7 @@ export interface State {
   property: Property | null;
   userProperties: any[];
   schedules: any[];
-  userPropertySchedules:any[]
+  userPropertySchedules: any[];
 }
 
 export interface Action {
