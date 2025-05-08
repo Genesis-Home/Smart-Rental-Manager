@@ -1,71 +1,33 @@
-import React from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  FlatList
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Text, FlatList } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { Tick } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
+import {
+  getStoredNotifications,
+  logFCMToken,
+} from "../../services/notificationService";
 import Header from "../../components/Header";
 
 const Notification: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const [notifications, setNotifications] = useState([]);
 
-  const notifications = [
-    {
-      id: "1",
-      notiMsg: {
-        en: "Your reservation has been confirmed.",
-        sp: "Su reserva ha sido confirmada.",
-      },
-      status: "new",
-      date: "2025-04-18",
-      time: "09:24 AM",
-    },
-    {
-      id: "2",
-      notiMsg: {
-        en: "Payment received successfully.",
-        sp: "Pago recibido con éxito.",
-      },
-      status: "new",
-      date: "2025-04-17",
-      time: "02:14 PM",
-    },
-    {
-      id: "3",
-      notiMsg: {
-        en: "Reminder: Your bike rental ends tomorrow.",
-        sp: "Recordatorio: Su alquiler de bicicleta termina mañana.",
-      },
-      status: "read",
-      date: "2025-04-16",
-      time: "11:00 AM",
-    },
-    {
-      id: "4",
-      notiMsg: {
-        en: "New offer available in your area!",
-        sp: "¡Nueva oferta disponible en su área!",
-      },
-      status: "read",
-      date: "2025-04-15",
-      time: "06:45 PM",
-    },
-    {
-      id: "5",
-      notiMsg: {
-        en: "Profile updated successfully.",
-        sp: "Perfil actualizado con éxito.",
-      },
-      status: "read",
-      date: "2025-04-14",
-      time: "10:30 AM",
-    },
-  ];
+  console.log(notifications, "notifications");
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const data = await getStoredNotifications();
+      setNotifications(data);
+
+      // Test FCM token
+      const token = await logFCMToken();
+      console.log("FCM Token for testing:", token);
+    };
+
+    fetchNotifications();
+  }, []);
 
   const renderItem = ({ item }: any) => {
     return (
@@ -102,7 +64,7 @@ const Notification: React.FC = () => {
       <Header title={t("Notification")} />
       <FlatList
         data={notifications}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}

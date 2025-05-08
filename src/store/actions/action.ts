@@ -5,6 +5,7 @@ import firestore from "@react-native-firebase/firestore";
 import { deleteItem, setItem } from "../../services/assynsStorage";
 import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
+import { scheduleBookingNotifications } from "../../services/notificationService";
 
 export const getCurrentUser =
   (navigation: NavigationProp<any>): any =>
@@ -40,7 +41,6 @@ export const loginUser =
       navigation.dispatch(
         CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
       );
-
       const customMessage = await getFirebaseErrorMessage("Login successful!");
       Toast.show({ type: "success", text1: customMessage, position: "bottom" });
       Toast.show({ type: "success", text1: customMessage, position: "bottom" });
@@ -381,6 +381,10 @@ export const addSchedule =
       };
 
       await scheduleRef.set(scheduleData);
+
+      // Schedule notifications for the booking
+      await scheduleBookingNotifications(scheduleData);
+
       dispatch({ type: "IS_LOADER", payload: false });
       const customMessage = await getFirebaseErrorMessage(
         "Schedule added successfully"
