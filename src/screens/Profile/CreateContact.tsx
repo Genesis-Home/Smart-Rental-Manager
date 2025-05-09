@@ -35,7 +35,6 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
     if (user?.userId) {
       dispatch(addContact(values, user.userId, navigation));
       resetForm();
-      navigation.navigate("Profile1");
     } else {
       const customMessage = await getFirebaseErrorMessage(
         "User not authenticated"

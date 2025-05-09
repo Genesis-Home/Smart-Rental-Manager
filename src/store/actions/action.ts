@@ -267,7 +267,7 @@ export const addContact =
         position: "bottom",
       });
 
-      navigation.navigate("Tabs", { screen: "Profile1" });
+      navigation.goBack();
     } catch (error: any) {
       console.error("Add Contact Error:", error);
       dispatch({ type: "IS_LOADER", payload: false });
