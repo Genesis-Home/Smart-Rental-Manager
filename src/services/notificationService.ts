@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
 import firestore from "@react-native-firebase/firestore";
 import messaging from "@react-native-firebase/messaging";
+import Toast from "react-native-toast-message";
 
 // Function to log FCM token for testing
 export const logFCMToken = async () => {
@@ -63,6 +64,26 @@ export const setupNotificationHandlers = () => {
 // Function to schedule booking notifications
 export async function scheduleBookingNotifications(bookingData: any) {
   try {
+    // Validate booking data
+    if (!bookingData) {
+      console.error("No booking data provided");
+      return;
+    }
+
+    if (!bookingData.createdBy) {
+      console.error("No user ID provided in booking data");
+      return;
+    }
+
+    if (
+      !bookingData.visitDates ||
+      !bookingData.visitTime ||
+      !bookingData.property
+    ) {
+      console.error("Missing required booking information");
+      return;
+    }
+
     // Request permission
     await notifee.requestPermission();
 
@@ -129,20 +150,31 @@ export async function scheduleBookingNotifications(bookingData: any) {
 
       // Schedule FCM notification
       try {
-        await firestore()
+        const notificationData = {
+          title: "Upcoming Check-in",
+          body: `Your booking for ${bookingData.property} starts tomorrow at ${bookingData.visitTime}!`,
+          scheduledTime: checkInNotificationDate.toDate(),
+          type: "check-in",
+          bookingId: bookingData.id || null, // Make bookingId optional
+          userId: bookingData.createdBy,
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        };
+
+        const notificationRef = await firestore()
           .collection("scheduledNotifications")
-          .add({
-            title: "Upcoming Check-in",
-            body: `Your booking for ${bookingData.property} starts tomorrow at ${bookingData.visitTime}!`,
-            scheduledTime: checkInNotificationDate.toDate(),
-            type: "check-in",
-            bookingId: bookingData.id,
-            userId: bookingData.createdBy,
-            createdAt: firestore.FieldValue.serverTimestamp(),
-          });
+          .add(notificationData);
+        console.log(
+          "Created check-in notification with ID:",
+          notificationRef.id
+        );
       } catch (fcmError) {
-        console.log("Error scheduling FCM notification:", fcmError);
-        // Continue with local notifications even if FCM fails
+        console.error("Error scheduling FCM notification:", fcmError);
+        // Show error to user
+        Toast.show({
+          type: "error",
+          text1: "Failed to schedule check-in notification",
+          position: "bottom",
+        });
       }
     }
 
@@ -167,19 +199,31 @@ export async function scheduleBookingNotifications(bookingData: any) {
       );
       // Schedule FCM notification
       try {
-        await firestore()
+        const notificationData = {
+          title: "Check-in Reminder",
+          body: `Your check-in is in 1 hour at ${bookingData.visitTime}!`,
+          scheduledTime: checkInOneHourBefore.toDate(),
+          type: "check-in-1hr",
+          bookingId: bookingData.id || null, // Make bookingId optional
+          userId: bookingData.createdBy,
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        };
+
+        const notificationRef = await firestore()
           .collection("scheduledNotifications")
-          .add({
-            title: "Check-in Reminder",
-            body: `Your check-in is in 1 hour at ${bookingData.visitTime}!`,
-            scheduledTime: checkInOneHourBefore.toDate(),
-            type: "check-in-1hr",
-            bookingId: bookingData.id,
-            userId: bookingData.createdBy,
-            createdAt: firestore.FieldValue.serverTimestamp(),
-          });
+          .add(notificationData);
+        console.log(
+          "Created 1hr check-in notification with ID:",
+          notificationRef.id
+        );
       } catch (fcmError) {
-        console.log("Error scheduling 1hr FCM notification:", fcmError);
+        console.error("Error scheduling 1hr FCM notification:", fcmError);
+        // Show error to user
+        Toast.show({
+          type: "error",
+          text1: "Failed to schedule 1-hour check-in notification",
+          position: "bottom",
+        });
       }
     }
 
@@ -207,20 +251,31 @@ export async function scheduleBookingNotifications(bookingData: any) {
 
       // Schedule FCM notification
       try {
-        await firestore()
+        const notificationData = {
+          title: "Upcoming Check-out",
+          body: `Your booking for ${bookingData.property} ends tomorrow at ${bookingData.visitTime}!`,
+          scheduledTime: checkOutNotificationDate.toDate(),
+          type: "check-out",
+          bookingId: bookingData.id || null, // Make bookingId optional
+          userId: bookingData.createdBy,
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        };
+
+        const notificationRef = await firestore()
           .collection("scheduledNotifications")
-          .add({
-            title: "Upcoming Check-out",
-            body: `Your booking for ${bookingData.property} ends tomorrow at ${bookingData.visitTime}!`,
-            scheduledTime: checkOutNotificationDate.toDate(),
-            type: "check-out",
-            bookingId: bookingData.id,
-            userId: bookingData.createdBy,
-            createdAt: firestore.FieldValue.serverTimestamp(),
-          });
+          .add(notificationData);
+        console.log(
+          "Created check-out notification with ID:",
+          notificationRef.id
+        );
       } catch (fcmError) {
-        console.log("Error scheduling FCM notification:", fcmError);
-        // Continue with local notifications even if FCM fails
+        console.error("Error scheduling FCM notification:", fcmError);
+        // Show error to user
+        Toast.show({
+          type: "error",
+          text1: "Failed to schedule check-out notification",
+          position: "bottom",
+        });
       }
     }
 
@@ -245,19 +300,31 @@ export async function scheduleBookingNotifications(bookingData: any) {
       );
       // Schedule FCM notification
       try {
-        await firestore()
+        const notificationData = {
+          title: "Check-out Reminder",
+          body: `Your check-out is in 1 hour at ${bookingData.visitTime}!`,
+          scheduledTime: checkOutOneHourBefore.toDate(),
+          type: "check-out-1hr",
+          bookingId: bookingData.id || null, // Make bookingId optional
+          userId: bookingData.createdBy,
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        };
+
+        const notificationRef = await firestore()
           .collection("scheduledNotifications")
-          .add({
-            title: "Check-out Reminder",
-            body: `Your check-out is in 1 hour at ${bookingData.visitTime}!`,
-            scheduledTime: checkOutOneHourBefore.toDate(),
-            type: "check-out-1hr",
-            bookingId: bookingData.id,
-            userId: bookingData.createdBy,
-            createdAt: firestore.FieldValue.serverTimestamp(),
-          });
+          .add(notificationData);
+        console.log(
+          "Created 1hr check-out notification with ID:",
+          notificationRef.id
+        );
       } catch (fcmError) {
-        console.log("Error scheduling 1hr FCM notification:", fcmError);
+        console.error("Error scheduling 1hr FCM notification:", fcmError);
+        // Show error to user
+        Toast.show({
+          type: "error",
+          text1: "Failed to schedule 1-hour check-out notification",
+          position: "bottom",
+        });
       }
     }
 
