@@ -78,10 +78,14 @@ const Home: React.FC = () => {
 
   const handleShare = async (item: Property) => {
     try {
-      const imageUrls = item.images?.map((image) => image); 
-  
-      const message = `Title: ${item.title}\nDescription: ${item.description}\nLocation: ${item.location ?? "No location"}\nImages:\n${imageUrls.map((url) => `${url}\n\n`).join("")}`;
-  
+      const imageUrls = item.images?.map((image) => image);
+
+      const message = `Title: ${item.title}\nDescription: ${
+        item.description
+      }\nLocation: ${item.location ?? "No location"}\nImages:\n${imageUrls
+        .map((url) => `${url}\n\n`)
+        .join("")}`;
+
       await Share.share({
         message,
         title: item.title,
@@ -90,7 +94,6 @@ const Home: React.FC = () => {
       console.error("Error sharing property:", error);
     }
   };
-  
 
   const handleScroll = (event: any, id: string) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -127,7 +130,12 @@ const Home: React.FC = () => {
       <TouchableOpacity
         style={{ marginBottom: 5 }}
         activeOpacity={0.8}
-        onPress={() => navigation.navigate("ApartmentDetails", { id: item.id })}
+        onPress={() =>
+          navigation.navigate("Home", {
+            screen: "ApartmentDetails",
+            params: { id: item.id },
+          })
+        }
       >
         <View style={styles.carouselWrapper}>
           <FlatList

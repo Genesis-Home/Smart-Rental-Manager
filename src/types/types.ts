@@ -19,7 +19,12 @@ export type RootStackParamList = {
   EditProfile: undefined;
   PrivacyPolicy: undefined;
   TermsAndConditions: undefined;
-  Home: undefined;
+  Home: {
+    screen?: string;
+    params?: {
+      id?: string;
+    };
+  };
   Scheduled: undefined;
   ExportData: undefined;
   Profile: undefined;
@@ -30,7 +35,7 @@ export type RootStackParamList = {
 
 export type RootStackParamListBottomNavigation = {
   Home1: undefined;
-  ApartmentDetails: undefined;
+  ApartmentDetails: { id: string };
   Scheduled1: undefined;
   AddSchedule: undefined;
   ExportData1: undefined;

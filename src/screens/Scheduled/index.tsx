@@ -197,7 +197,16 @@ const Scheduled: React.FC = () => {
               data={userSchedules}
               keyExtractor={(_, index) => index.toString()}
               renderItem={({ item: schedule }) => (
-                <View style={styles.propertyRow}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() =>
+                    navigation.navigate("Home", {
+                      screen: "ApartmentDetails",
+                      params: { id: schedule.propertyId },
+                    })
+                  }
+                  style={styles.propertyRow}
+                >
                   <Text style={styles.propertyText}>{schedule.property}</Text>
                   <View style={styles.slotsContainer}>
                     {[...Array(8)].map((_, i) => {
@@ -246,7 +255,7 @@ const Scheduled: React.FC = () => {
                       );
                     })}
                   </View>
-                </View>
+                </TouchableOpacity>
               )}
             />
           )}
