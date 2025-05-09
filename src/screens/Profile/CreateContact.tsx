@@ -31,14 +31,13 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
     notes: Yup.string().required(t("note") + " " + t("isRequired")),
   });
 
-  const handleCreate = async (values: any) => {
+  const handleCreate = async (values: any, resetForm: () => void) => {
     if (user?.userId) {
       dispatch(addContact(values, user.userId, navigation));
+      resetForm(); 
       navigation.navigate("Profile1");
     } else {
-      const customMessage = await getFirebaseErrorMessage(
-        "User not authenticated"
-      );
+      const customMessage = await getFirebaseErrorMessage("User not authenticated");
       Toast.show({
         type: "error",
         text1: customMessage,
@@ -47,6 +46,7 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
       navigation.navigate("Signin");
     }
   };
+  
 
   return (
     <View style={[styles.mainContainer, styles.platformMarginTop]}>
@@ -64,7 +64,7 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
               notes: "",
             }}
             validationSchema={validationSchema}
-            onSubmit={handleCreate}
+            onSubmit={(values, { resetForm }) => handleCreate(values, resetForm)}
           >
             {({
               values,
