@@ -98,6 +98,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   onChangeText={handleChange("email")}
                   onBlur={handleBlur("email")}
                   error={touched.email && errors.email}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
                 />
                 <FormInput
                   label={t("password")}

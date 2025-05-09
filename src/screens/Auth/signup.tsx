@@ -32,7 +32,13 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState<boolean>(true);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(true);
 
-  const submit = (values: { agencyName: string; ownerName: string, email: string, password: string, confirmPassword: string, }) => {
+  const submit = (values: {
+    agencyName: string;
+    ownerName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }) => {
     let credentials = {
       agencyName: values.agencyName,
       ownerName: values.ownerName,
@@ -83,7 +89,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             validationSchema={validationSchema}
             // onSubmit={() => navigation.navigate("Tabs")}
             onSubmit={submit}
-
           >
             {({
               handleChange,
@@ -118,6 +123,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                   onBlur={() => handleBlur("email")}
                   error={touched.email && errors.email}
                   keyboardType="email-address"
+                  autoCapitalize="none"
                 />
                 <FormInput
                   label={t("password")}

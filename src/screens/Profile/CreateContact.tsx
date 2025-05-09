@@ -34,10 +34,12 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
   const handleCreate = async (values: any, resetForm: () => void) => {
     if (user?.userId) {
       dispatch(addContact(values, user.userId, navigation));
-      resetForm(); 
+      resetForm();
       navigation.navigate("Profile1");
     } else {
-      const customMessage = await getFirebaseErrorMessage("User not authenticated");
+      const customMessage = await getFirebaseErrorMessage(
+        "User not authenticated"
+      );
       Toast.show({
         type: "error",
         text1: customMessage,
@@ -46,7 +48,6 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
       navigation.navigate("Signin");
     }
   };
-  
 
   return (
     <View style={[styles.mainContainer, styles.platformMarginTop]}>
@@ -64,7 +65,9 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
               notes: "",
             }}
             validationSchema={validationSchema}
-            onSubmit={(values, { resetForm }) => handleCreate(values, resetForm)}
+            onSubmit={(values, { resetForm }) =>
+              handleCreate(values, resetForm)
+            }
           >
             {({
               values,
@@ -91,6 +94,8 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
                     error={touched.email && errors.email}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
                   />
                   <FormInput
                     label={t("phoneNum")}
@@ -99,6 +104,7 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
                     onChangeText={handleChange("phoneNum")}
                     onBlur={handleBlur("phoneNum")}
                     error={touched.phoneNum && errors.phoneNum}
+                    keyboardType="phone-pad"
                   />
                   <FormInput
                     label={t("note")}

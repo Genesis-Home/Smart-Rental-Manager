@@ -399,6 +399,8 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
                     error={touched.email && errors.email}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
                   />
                   <FormInput
                     label={t("phoneNum")}
@@ -407,6 +409,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     onChangeText={handleChange("phoneNum")}
                     onBlur={handleBlur("phoneNum")}
                     error={touched.phoneNum && errors.phoneNum}
+                    keyboardType="phone-pad"
                   />
                   <TouchableOpacity
                     activeOpacity={0.8}
@@ -447,6 +450,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     onChangeText={handleChange("numberOfVisitors")}
                     onBlur={handleBlur("numberOfVisitors")}
                     error={touched.numberOfVisitors && errors.numberOfVisitors}
+                    keyboardType="numeric"
                   />
                   <FormInput
                     label={t("numberOfInfants")}
@@ -455,6 +459,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     onChangeText={handleChange("numberOfInfants")}
                     onBlur={handleBlur("numberOfInfants")}
                     error={touched.numberOfInfants && errors.numberOfInfants}
+                    keyboardType="numeric"
                   />
                   <FormInput
                     label={t("agreedPrice")}
@@ -463,6 +468,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     onChangeText={handleChange("agreedPrice")}
                     onBlur={handleBlur("agreedPrice")}
                     error={touched.agreedPrice && errors.agreedPrice}
+                    keyboardType="decimal-pad"
                   />
                 </View>
                 <View style={styles.createBTnContainer}>

@@ -144,6 +144,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
                       : undefined
                   }
                   keyboardType="email-address"
+                  autoCapitalize="none"
                 />
                 <View style={{ marginTop: 40 }}>
                   <CTAButton1 title={t("save")} submitHandler={handleSubmit} />
