@@ -4,30 +4,11 @@ import Colors from "../../utilities/constants/colors";
 import { Tick } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
-import {
-  getStoredNotifications,
-  logFCMToken,
-} from "../../services/notificationService";
 import Header from "../../components/Header";
 
 const Notification: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [notifications, setNotifications] = useState([]);
-
-  console.log(notifications, "notifications");
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      const data = await getStoredNotifications();
-      setNotifications(data);
-
-      // Test FCM token
-      const token = await logFCMToken();
-      console.log("FCM Token for testing:", token);
-    };
-
-    fetchNotifications();
-  }, []);
 
   const renderItem = ({ item }: any) => {
     return (

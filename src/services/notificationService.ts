@@ -327,38 +327,8 @@ export async function scheduleBookingNotifications(bookingData: any) {
         });
       }
     }
-
-    // Save notification data
-    const notificationData = {
-      title: "Booking Created",
-      body: `Booking created for ${bookingData.property} from ${bookingData.visitDates} at ${bookingData.visitTime}`,
-      time: new Date().toISOString(),
-      type: "booking",
-      bookingData: bookingData,
-    };
-
-    const existingNotifications = await AsyncStorage.getItem("notifications");
-    const notificationsArray = existingNotifications
-      ? JSON.parse(existingNotifications)
-      : [];
-
-    notificationsArray.push(notificationData);
-    await AsyncStorage.setItem(
-      "notifications",
-      JSON.stringify(notificationsArray)
-    );
   } catch (error) {
     console.error("Error scheduling booking notifications:", error);
   }
 }
 
-// Function to get stored notifications
-export async function getStoredNotifications() {
-  try {
-    const storedNotifications = await AsyncStorage.getItem("notifications");
-    return storedNotifications ? JSON.parse(storedNotifications) : [];
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-    return [];
-  }
-}

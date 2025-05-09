@@ -22,6 +22,8 @@ exports.sendScheduledNotifications = functions.pubsub
       });
     });
 
+    console.log(notifications,'notifications')
+
     // Send notifications
     for (const notification of notifications) {
       try {
