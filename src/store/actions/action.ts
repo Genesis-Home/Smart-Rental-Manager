@@ -6,6 +6,7 @@ import { deleteItem, setItem } from "../../services/assynsStorage";
 import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import { scheduleBookingNotifications } from "../../services/notificationService";
+import { sendEmailAPI } from "../../services/emailService";
 
 export const getCurrentUser =
   (navigation: NavigationProp<any>): any =>
@@ -381,7 +382,7 @@ export const addSchedule =
       };
 
       await scheduleRef.set(scheduleData);
-
+      await sendEmailAPI(formData);
       // Schedule notifications for the booking
       await scheduleBookingNotifications(scheduleData);
 
