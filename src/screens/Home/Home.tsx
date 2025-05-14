@@ -159,31 +159,35 @@ const Home: React.FC = () => {
             }}
           />
           <View style={styles.carouselOverlay}>
-            <View style={styles.carouselControlWrapper}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => handlePrev(item.id, item.images.length)}
-              >
-                <Prev height={30} width={30} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => handleNext(item.id, item.images.length)}
-              >
-                <Next height={30} width={30} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.dotContainer}>
-              {item.images.map((_, idx) => (
-                <View
-                  key={idx}
-                  style={[
-                    styles.dot,
-                    idx === activeIndex ? styles.activeDot : null,
-                  ]}
-                />
-              ))}
-            </View>
+            {item.images.length > 1 && (
+              <View style={styles.carouselControlWrapper}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => handlePrev(item.id, item.images.length)}
+                >
+                  <Prev height={30} width={30} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => handleNext(item.id, item.images.length)}
+                >
+                  <Next height={30} width={30} />
+                </TouchableOpacity>
+              </View>
+            )}
+            {item.images.length > 1 && (
+              <View style={styles.dotContainer}>
+                {item.images.map((_, idx) => (
+                  <View
+                    key={idx}
+                    style={[
+                      styles.dot,
+                      idx === activeIndex ? styles.activeDot : null,
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
             <TouchableOpacity
               onPress={() => handleShare(item)}
               activeOpacity={0.8}

@@ -6,6 +6,7 @@ import {
   Platform,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { t } from "i18next";
 import { Formik } from "formik";
@@ -21,6 +22,7 @@ import { EditProfileProps } from "../../types/types";
 import { updateUser } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { launchImageLibrary } from "react-native-image-picker";
+import storage from "@react-native-firebase/storage";
 
 const validationSchema = Yup.object().shape({
   agencyName: Yup.string().required(t("agencyNameRequired")),
@@ -31,6 +33,7 @@ const validationSchema = Yup.object().shape({
 const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const user = useAppSelector((state: any) => state.reducer.user);
   const styles = createStyles(colors);
 
@@ -41,9 +44,28 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
         quality: 0.5,
         includeBase64: true,
       },
-      (response) => {
+      async (response) => {
         if (response.assets && response.assets[0]?.uri) {
-          setProfileImage(response.assets[0].uri);
+          const imageUri = response.assets[0].uri;
+
+          const fileName = imageUri.substring(imageUri.lastIndexOf("/") + 1);
+          const reference = storage().ref(fileName);
+          const task = reference.putFile(imageUri);
+
+          task.on("state_changed", (taskSnapshot) => {
+            setIsUploading(true);
+          });
+
+          task
+            .then(async () => {
+              const downloadUrl = await reference.getDownloadURL();
+              setProfileImage(downloadUrl);
+              setIsUploading(false);
+            })
+            .catch((error) => {
+              console.error("Image upload error:", error);
+              setProfileImage(null);
+            });
         } else {
           setProfileImage(null);
         }
@@ -58,6 +80,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
       email: values.email,
       profilePhoto: profileImage,
     };
+
     if (credentials && user?.userId) {
       dispatch(updateUser(credentials, user.userId, navigation));
     }
@@ -76,20 +99,29 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
           contentContainerStyle={styles.containerC1}
           showsVerticalScrollIndicator={false}
         >
-          <TouchableOpacity
-            onPress={selectImage}
-            activeOpacity={0.8}
-            style={{ alignItems: "center", marginTop: 20 }}
-          >
-            <Image
-              source={profileImage ? { uri: profileImage } : Images.Profile}
-              resizeMode="contain"
-              style={{ height: 90, width: 90, borderRadius: 50 }}
+          {isUploading ? (
+            <ActivityIndicator
+              size="large"
+              color={colors.Primary_01}
+              style={{ marginTop: 20 }}
             />
-            <Edit
-              style={{ position: "absolute", bottom: "10%", right: "40%" }}
-            />
-          </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={selectImage}
+              activeOpacity={0.8}
+              style={{ alignItems: "center", marginTop: 20 }}
+            >
+              <Image
+                source={profileImage ? { uri: profileImage } : Images.Profile}
+                resizeMode="cover"
+                style={{ height: 90, width: 90, borderRadius: 50 }}
+              />
+              <Edit
+                style={{ position: "absolute", bottom: "10%", right: "40%" }}
+              />
+            </TouchableOpacity>
+          )}
+
           <Formik
             initialValues={{
               agencyName: user?.agencyName,

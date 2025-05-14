@@ -8,6 +8,7 @@ import {
   Platform,
   FlatList,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -18,8 +19,7 @@ import ImageView from "react-native-image-viewing";
 import { launchImageLibrary } from "react-native-image-picker";
 import Toast from "react-native-toast-message";
 import { NavigationProp } from "@react-navigation/native";
-
-// UI components
+import storage from "@react-native-firebase/storage";
 import Header from "../../components/Header";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import FormInput from "../../components/FormInput";
@@ -27,10 +27,7 @@ import { AddPhoto, Cross } from "../../assets/icons";
 import Images from "../../assets/images";
 import { Typography } from "../../utilities/constants/constant.style";
 import { colors } from "../../utilities/constants";
-
-// Redux action
 import { addProperty } from "../../store/actions/action";
-
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 
 const AddProperty: React.FC<{ navigation: NavigationProp<any> }> = ({
@@ -41,7 +38,7 @@ const AddProperty: React.FC<{ navigation: NavigationProp<any> }> = ({
   const user = useSelector((state: any) => state.reducer.user);
 
   const styles = createStyles(colors);
-
+  const [isUploading, setIsUploading] = useState(false);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -81,12 +78,39 @@ const AddProperty: React.FC<{ navigation: NavigationProp<any> }> = ({
         }
         if (response.assets?.length) {
           console.log("Selected images:", response.assets);
-          const newImages = response.assets.map((img) => ({
-            uri: img.uri,
-            type: img.type || "image/jpeg",
-            name: img.fileName || `image_${Date.now()}.jpg`,
-          }));
-          setGalleryImages((prev) => [...prev, ...newImages]);
+          setIsUploading(true);
+          const uploadedImages = await Promise.all(
+            response.assets.map(async (img) => {
+              const fileName = img.fileName || `image_${Date.now()}.jpg`;
+              const uri = img.uri;
+
+              if (!uri) {
+                console.error("No URI found for image:", img);
+                return null;
+              }
+
+              const reference = storage().ref(fileName);
+              const task = reference.putFile(uri);
+
+              try {
+                await task;
+                const downloadUrl = await reference.getDownloadURL();
+                return downloadUrl;
+              } catch (uploadError) {
+                console.error("Image upload error:", uploadError);
+                Toast.show({
+                  type: "error",
+                  text1: "Image upload failed",
+                  position: "bottom",
+                });
+                return null;
+              }
+            })
+          );
+
+          const validImages = uploadedImages.filter((image) => image !== null);
+          setGalleryImages((prev) => [...prev, ...validImages]);
+          setIsUploading(false);
         }
       }
     );
@@ -170,7 +194,15 @@ const AddProperty: React.FC<{ navigation: NavigationProp<any> }> = ({
             </View>
           </TouchableOpacity>
 
-          {renderImages()}
+          {isUploading ? (
+            <ActivityIndicator
+              size="large"
+              color={colors.Primary_01}
+              style={{ marginTop: 20 }}
+            />
+          ) : (
+            renderImages() 
+          )}
 
           <ImageView
             images={galleryImages.map((img) => ({ uri: img.uri }))}
@@ -184,17 +216,14 @@ const AddProperty: React.FC<{ navigation: NavigationProp<any> }> = ({
               title: "",
               description: "",
               otherDetails: "",
+              images: [],
             }}
             validationSchema={validationSchema}
             onSubmit={async (values, { resetForm }) => {
               try {
                 const formData = {
                   ...values,
-                  images: [
-                    "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                    "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                    "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                  ],
+                  images: galleryImages,
                 };
 
                 if (user?.userId) {
