@@ -7,51 +7,75 @@ import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import { scheduleBookingNotifications } from "../../services/notificationService";
 import { sendEmailAPI } from "../../services/emailService";
+import axios from "axios";
 
-export const getCurrentUser =
-  (navigation: NavigationProp<any>): any =>
-  async (dispatch: Dispatch) => {
-    // Add your implementation here
-  };
+export const getCurrentUser = (navigation: NavigationProp<any>): any => async (dispatch: Dispatch) => {
+  // Add your implementation here
+};
+
+export const sendEmail = (navigation: NavigationProp<any>): any => async (dispatch: Dispatch) => {
+  try {
+    const token = await auth().currentUser.getIdToken();
+    const response = await axios.post(
+      'https://api-youshwrkza-uc.a.run.app/send-email',
+      {
+        to: 'abddullahshah@gmail.com',
+        subject: 'Test email',
+        message: 'This is a test email.',
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    console.log('Email sent successfully:', response.data);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+};
+
 
 export const loginUser =
   (credentials: any, isSelectedRemember: any, navigation: any) =>
-  async (dispatch: any) => {
-    try {
-      dispatch({ type: "IS_LOADER", payload: true });
-      // User Login
-      const userCredential = await auth().signInWithEmailAndPassword(
-        credentials.email,
-        credentials.password
-      );
-      console.log("user", userCredential);
+    async (dispatch: any) => {
+      try {
+        dispatch({ type: "IS_LOADER", payload: true });
+        // User Login
+        const userCredential = await auth().signInWithEmailAndPassword(
+          credentials.email,
+          credentials.password
+        );
+        console.log("user", userCredential);
 
-      const user = (userCredential.user as any)._user;
+        const user = (userCredential.user as any)._user;
 
-      const userDoc = await firestore().collection("users").doc(user.uid).get();
+        const userDoc = await firestore().collection("users").doc(user.uid).get();
 
-      const userData = userDoc.data();
+        const userData = userDoc.data();
 
-      isSelectedRemember && setItem("user", userData);
+        isSelectedRemember && setItem("user", userData);
 
-      !isSelectedRemember && deleteItem("user");
+        !isSelectedRemember && deleteItem("user");
 
-      dispatch({ type: "SET_USER", payload: userData });
-      dispatch({ type: "IS_LOADER", payload: false });
+        dispatch({ type: "SET_USER", payload: userData });
+        dispatch({ type: "IS_LOADER", payload: false });
 
-      navigation.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
-      );
-      const customMessage = await getFirebaseErrorMessage("Login successful!");
-      Toast.show({ type: "success", text1: customMessage, position: "bottom" });
-      Toast.show({ type: "success", text1: customMessage, position: "bottom" });
-    } catch (error) {
-      console.log(error, "loginUser_error");
-      dispatch({ type: "IS_LOADER", payload: false });
-      const errorMessage = await getFirebaseErrorMessage((error as any).code);
-      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
-    }
-  };
+        navigation.dispatch(
+          CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
+        );
+        const customMessage = await getFirebaseErrorMessage("Login successful!");
+        Toast.show({ type: "success", text1: customMessage, position: "bottom" });
+        Toast.show({ type: "success", text1: customMessage, position: "bottom" });
+        dispatch(sendEmail(navigation));
+
+      } catch (error) {
+        console.log(error, "loginUser_error");
+        dispatch({ type: "IS_LOADER", payload: false });
+        const errorMessage = await getFirebaseErrorMessage((error as any).code);
+        Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+      }
+    };
 
 //register user
 export const registerUser =
