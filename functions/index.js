@@ -27,6 +27,7 @@ exports.sendScheduledNotifications = functions
 
       // Send notifications
       for (const notification of notifications) {
+        console.log(notification.id, "notification.id");
         try {
         // Get user's FCM tokens
           const userDoc = await admin
@@ -38,20 +39,33 @@ exports.sendScheduledNotifications = functions
           const userData = userDoc.data();
           const userTokens = userData && userData.tokens ? userData.tokens : [];
 
+          console.log(userTokens, "userTokens");
+
           if (userTokens.length > 0) {
           // Send to all user devices
-            await admin.messaging().sendMulticast({
+            await admin.messaging().sendEachForMulticast({
               tokens: userTokens,
               notification: {
                 title: notification.title,
                 body: notification.body,
               },
               data: {
-                type: notification.type,
-                bookingId: notification.bookingId,
+                type: notification.type ? String(notification.type) : "",
+                bookingId: notification.bookingId ?
+                String(notification.bookingId) :
+                "",
               },
             });
           }
+
+          await admin.firestore().collection("deliveredNotifications").add({
+            userId: notification.userId,
+            title: notification.title,
+            body: notification.body,
+            type: notification.type,
+            bookingId: notification.bookingId,
+            sentAt: admin.firestore.Timestamp.now(),
+          });
 
           // Delete the scheduled notification
           await admin

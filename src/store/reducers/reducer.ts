@@ -12,6 +12,7 @@ const initState: State = {
   userProperties: [],
   schedules: [],
   userPropertySchedules: [],
+  notifications: [],
 };
 
 const reducer = (state = initState, action: Action): State => {
@@ -65,6 +66,11 @@ const reducer = (state = initState, action: Action): State => {
       return {
         ...state,
         property: action.payload,
+      };
+    case "SET_NOTIFICATIONS":
+      return {
+        ...state,
+        notifications: action.payload,
       };
     default:
       return state;

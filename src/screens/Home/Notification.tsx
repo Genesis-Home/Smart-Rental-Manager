@@ -1,16 +1,50 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Text, FlatList } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { Tick } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
+import { fetchNotificationsByUserID } from "../../store/actions/action";
+import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
+import Toast from "react-native-toast-message";
+import { NotificationScreenNavigationProp } from "../../types/types";
+import { useNavigation } from "@react-navigation/native";
 
 const Notification: React.FC = () => {
-  const { t, i18n } = useTranslation();
-  const [notifications, setNotifications] = useState([]);
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const navigation = useNavigation<NotificationScreenNavigationProp>();
+  const notifications = useAppSelector((state) => state.reducer.notifications);
+  const user = useAppSelector((state) => state.reducer.user);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user?.userId) {
+        dispatch(fetchNotificationsByUserID(user.userId));
+      } else {
+        const customMessage = await getFirebaseErrorMessage(
+          "User not authenticated"
+        );
+        Toast.show({
+          type: "error",
+          text1: customMessage,
+          position: "bottom",
+        });
+        navigation.navigate("Signin");
+      }
+    };
+
+    fetchData();
+  }, [dispatch, user?.userId]);
+
 
   const renderItem = ({ item }: any) => {
+    const sentAtDate = new Date(item.sentAt._seconds * 1000);
+    const date = sentAtDate.toLocaleDateString();
+    const time = sentAtDate.toLocaleTimeString();
+
     return (
       <View style={styles.notificationWrapper}>
         <View style={styles.notificationHeader}>
@@ -18,12 +52,12 @@ const Notification: React.FC = () => {
             <Tick />
             <View style={styles.notificationTextWrapper}>
               <Text style={styles.notificationMessage}>
-                {t("notiReceived")}
+                {item.title || t("notiReceived")}
               </Text>
               <View style={styles.dateTimeWrapper}>
-                <Text style={styles.dateText}>{item.date}</Text>
+                <Text style={styles.dateText}>{date}</Text>
                 <View style={styles.separatorLine} />
-                <Text style={styles.timeText}>{item.time}</Text>
+                <Text style={styles.timeText}>{time}</Text>
               </View>
             </View>
           </View>
@@ -34,7 +68,7 @@ const Notification: React.FC = () => {
           )}
         </View>
         <Text style={styles.notificationDetails}>
-          {item.notiMsg[i18n.language] || item.notiMsg["en"]}
+          {item.body || t("notiNoDetails")}
         </Text>
       </View>
     );
@@ -45,7 +79,7 @@ const Notification: React.FC = () => {
       <Header title={t("Notification")} />
       <FlatList
         data={notifications}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}

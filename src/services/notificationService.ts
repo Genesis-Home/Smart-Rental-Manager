@@ -3,7 +3,6 @@ import notifee, {
   EventType,
   TriggerType,
 } from "@notifee/react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
 import firestore from "@react-native-firebase/firestore";
 import messaging from "@react-native-firebase/messaging";

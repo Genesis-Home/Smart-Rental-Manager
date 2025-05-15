@@ -406,7 +406,7 @@ export const addSchedule =
       };
 
       await scheduleRef.set(scheduleData);
-      await sendEmailAPI(formData);
+      // await sendEmailAPI(formData);
       // Schedule notifications for the booking
       await scheduleBookingNotifications(scheduleData);
 
@@ -521,5 +521,35 @@ export const updatePropertyRevenue =
     } catch (error) {
       console.log(error, "updatePropertyRevenue_error");
       dispatch({ type: "IS_LOADER", payload: false });
+    }
+  };
+  
+// fetch notifications by user id
+export const fetchNotificationsByUserID =
+  (userID: string) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+
+      const snapshot = await firestore()
+        .collection("deliveredNotifications")
+        .where("userId", "==", userID)
+        .get();
+
+      if (snapshot.empty) {
+        dispatch({ type: "SET_NOTIFICATIONS", payload: [] });
+      } else {
+        const notifications = snapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_NOTIFICATIONS", payload: notifications });
+      }
+      dispatch({ type: "IS_LOADER", payload: false });
+    } catch (error) {
+      console.log(error, "fetchnotification_error");
+      dispatch({ type: "IS_LOADER", payload: false });
+
+      const errorMessage = await getFirebaseErrorMessage((error as any).code);
+      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
     }
   };

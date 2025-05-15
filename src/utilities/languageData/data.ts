@@ -235,6 +235,7 @@ export const languageData: LanguageData[] = [
       bookedBy: "Booked By",
       conflictingDates: "Conflicting Dates",
       datesAlreadyBooked: "Dates Already Booked",
+      notiNoDetails: "No details available",
     },
   },
   {
@@ -469,6 +470,7 @@ export const languageData: LanguageData[] = [
       bookedBy: "Reservado por",
       conflictingDates: "Fechas conflictivas",
       datesAlreadyBooked: "Fechas ya reservadas",
+       notiNoDetails: "No hay detalles disponibles",
     },
   },
 ];

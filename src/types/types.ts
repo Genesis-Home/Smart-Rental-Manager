@@ -97,6 +97,8 @@ export interface ForgotPasswordProps {
 export interface ResetPasswordProps {
   navigation: any;
 }
+export interface NotificationScreenNavigationProp
+  extends NativeStackNavigationProp<RootStackParamList> {}
 
 export interface AddPropertyProps {
   navigation: any;
@@ -321,6 +323,7 @@ export type LanguageTranslation = {
   bookedBy: string;
   conflictingDates: string;
   datesAlreadyBooked: string;
+  notiNoDetails: string;
 };
 
 export type LanguageData = {
@@ -358,6 +361,7 @@ export interface State {
   userProperties: any[];
   schedules: any[];
   userPropertySchedules: any[];
+  notifications: any[];
 }
 
 export interface Action {
