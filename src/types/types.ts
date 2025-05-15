@@ -324,6 +324,7 @@ export type LanguageTranslation = {
   conflictingDates: string;
   datesAlreadyBooked: string;
   notiNoDetails: string;
+  noNotificationsFound:string
 };
 
 export type LanguageData = {

@@ -39,6 +39,11 @@ const Notification: React.FC = () => {
     fetchData();
   }, [dispatch, user?.userId]);
 
+  const sortedNotifications = notifications.sort((a, b) => {
+    const dateA = new Date(a.sentAt._seconds * 1000);
+    const dateB = new Date(b.sentAt._seconds * 1000);
+    return dateB.getTime() - dateA.getTime();
+  });
 
   const renderItem = ({ item }: any) => {
     const sentAtDate = new Date(item.sentAt._seconds * 1000);
@@ -77,13 +82,19 @@ const Notification: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header title={t("Notification")} />
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={false}
-      />
+      {notifications.length === 0 ? (
+        <View style={styles.emptyListWrapper}>
+          <Text style={styles.emptyListText}>{t("noNotificationsFound")}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={sortedNotifications}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.scrollViewContent}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 };
@@ -153,5 +164,14 @@ const styles = StyleSheet.create({
     color: Colors.PLACE_HOLDER,
     marginTop: 10,
     lineHeight: 20,
+  },
+  emptyListWrapper: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyListText: {
+    ...Typography.f_16_nunito_semi_bold,
+    color: Colors.Primary_01,
   },
 });
