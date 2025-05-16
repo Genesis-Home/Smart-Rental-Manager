@@ -1,19 +1,60 @@
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, Share, Linking } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import Header from "../../components/Header";
 import { useTranslation } from "react-i18next";
-import { Address, Email, Whatsapp, Share, Copy } from "../../assets/icons";
+import {
+  Address,
+  Email,
+  Whatsapp,
+  Share as ShareIcon,
+  Copy,
+} from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import CTAButton1 from "../../components/CTA_BUTTON1";
-import { useRoute,RouteProp } from "@react-navigation/native";
+import { useRoute, RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../types/types";
+import Clipboard from "@react-native-clipboard/clipboard";
+import Toast from "react-native-toast-message";
 
 const AutomatedEmail: React.FC = () => {
   const { t } = useTranslation();
- const route = useRoute<RouteProp<RootStackParamList, "AutomatedEmail">>();
+  const route = useRoute<RouteProp<RootStackParamList, "AutomatedEmail">>();
   const visit = route.params?.visitDetails;
 
+  const visitMessage = `${t("visitDetails")}\n${t("visitData")}: ${
+    visit?.visitDates
+  }, ${visit?.visitTime}\n${t("numberOfVisitors")}: ${
+    visit?.numberOfVisitors
+  }\n${t("numberOfInfants")}: ${visit?.numberOfInfants}\n${t(
+    "propertyAddress"
+  )}: ${visit?.property}`;
+
+  const handleWhatsappShare = () => {
+    const url = `whatsapp://send?text=${encodeURIComponent(visitMessage)}`;
+    Linking.openURL(url).catch(() => {
+      Toast.show({
+        type: "info",
+        text1: t("whatsappNotInstall"),
+        position: "bottom",
+      });
+    });
+  };
+
+  const handleShareApp = async () => {
+    try {
+      await Share.share({
+        message: visitMessage,
+      });
+    } catch (error) {
+      Toast.show({ type: "error", text1: t("shareErr"), position: "bottom" });
+    }
+  };
+
+  const handleCopyData = () => {
+    Clipboard.setString(visitMessage);
+    Toast.show({ type: "success", text1: t("copyMsg"), position: "bottom" });
+  };
 
   return (
     <View style={styles.screenWrapper}>
@@ -55,19 +96,19 @@ const AutomatedEmail: React.FC = () => {
       <View style={styles.buttonGroup}>
         <CTAButton1
           title={t("Whatsapp")}
-          submitHandler={() => console.log("Whatsapp")}
+          submitHandler={handleWhatsappShare}
           icon={<Whatsapp />}
         />
         <CTAButton1
           title={t("ShareApp")}
-          submitHandler={() => console.log("Share App")}
+          submitHandler={handleShareApp}
           backgroundColor={Colors.white}
           textColor={Colors.Primary_01}
-          icon={<Share />}
+          icon={<ShareIcon />}
         />
         <CTAButton1
           title={t("Copydata")}
-          submitHandler={() => console.log("Copy data")}
+          submitHandler={handleCopyData}
           backgroundColor={Colors.white}
           textColor={Colors.black}
           icon={<Copy />}

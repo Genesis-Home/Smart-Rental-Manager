@@ -332,7 +332,11 @@ export type LanguageTranslation = {
   conflictingDates: string;
   datesAlreadyBooked: string;
   notiNoDetails: string;
-  noNotificationsFound:string
+  noNotificationsFound: string;
+  visitDetails: string;
+  copyMsg: string;
+  shareErr: string;
+  whatsappNotInstall: string;
 };
 
 export type LanguageData = {

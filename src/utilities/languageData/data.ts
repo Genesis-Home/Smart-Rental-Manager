@@ -106,6 +106,7 @@ export const languageData: LanguageData[] = [
       phone: "Phone",
       Infant: "Infant",
       googleMapsLocation: "Google Maps location",
+      visitDetails: "Visit Details",
       viewOnMap: "View on Map",
       calendarData: {
         monthNames: [
@@ -237,6 +238,9 @@ export const languageData: LanguageData[] = [
       datesAlreadyBooked: "Dates Already Booked",
       notiNoDetails: "No details available",
       noNotificationsFound: "No notifications found.",
+      whatsappNotInstall: "Whatsapp is not installed on your system",
+      shareErr: "Unable to Share",
+      copyMsg: "Visit details copied to clipboard.",
     },
   },
   {
@@ -345,6 +349,7 @@ export const languageData: LanguageData[] = [
       phone: "Teléfono",
       Infant: "Niña",
       googleMapsLocation: "Ubicación en Google Maps",
+      visitDetails: "Detalles de la visita",
       viewOnMap: "Ver en el mapa",
       calendarData: {
         monthNames: [
@@ -473,6 +478,9 @@ export const languageData: LanguageData[] = [
       datesAlreadyBooked: "Fechas ya reservadas",
       notiNoDetails: "No hay detalles disponibles",
       noNotificationsFound: "No se encontraron notificaciones.",
+      whatsappNotInstall: "WhatsApp no está instalado en tu dispositivo",
+      shareErr: "No se pudo compartir",
+      copyMsg: "Detalles de la visita copiados al portapapeles",
     },
   },
 ];
@@ -489,4 +497,3 @@ export const appLanguages: AppLanguage[] = [
     code: "sp",
   },
 ];
-
