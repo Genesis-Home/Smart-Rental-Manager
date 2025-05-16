@@ -144,7 +144,7 @@ const AddProperty: React.FC<{ navigation: NavigationProp<any> }> = ({
             onPress={() => openImageView(index)}
             style={styles.imageContainer}
           >
-            <Image style={styles.image} source={item} resizeMode="cover" />
+           <Image style={styles.image} source={{ uri: item }} resizeMode="cover" />
             <TouchableOpacity
               activeOpacity={0.8}
               style={{ position: "absolute", right: 0, padding: 10 }}
@@ -203,9 +203,8 @@ const AddProperty: React.FC<{ navigation: NavigationProp<any> }> = ({
           ) : (
             renderImages() 
           )}
-
           <ImageView
-            images={galleryImages.map((img) => ({ uri: img.uri }))}
+            images={galleryImages.map((url) => ({ uri: url }))}
             imageIndex={selectedIndex}
             visible={visible}
             onRequestClose={() => setIsVisible(false)}
@@ -238,6 +237,7 @@ const AddProperty: React.FC<{ navigation: NavigationProp<any> }> = ({
                     type: "error",
                     text1: errorMessage,
                   });
+                  navigation.navigate('Signin')
                 }
               } catch (error) {
                 console.error("Form submission error:", error);
