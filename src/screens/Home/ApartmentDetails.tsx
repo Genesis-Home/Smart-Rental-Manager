@@ -97,25 +97,29 @@ const ApartmentDetails: React.FC = () => {
               ref={scrollRef}
             />
             <View style={styles.carouselOverlay}>
-              <View style={styles.carouselControlWrapper}>
-                <TouchableOpacity activeOpacity={0.8} onPress={handlePrev}>
-                  <Prev height={30} width={30} />
-                </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.8} onPress={handleNext}>
-                  <Next height={30} width={30} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.dotContainer}>
-                {apartmentDetail?.images.map((idx: any) => (
-                  <View
-                    key={idx}
-                    style={[
-                      styles.dot,
-                      idx === activeIndex ? styles.activeDot : null,
-                    ]}
-                  />
-                ))}
-              </View>
+              {apartmentDetail?.images.length > 1 && (
+                <>
+                  <View style={styles.carouselControlWrapper}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={handlePrev}>
+                      <Prev height={30} width={30} />
+                    </TouchableOpacity>
+                    <TouchableOpacity activeOpacity={0.8} onPress={handleNext}>
+                      <Next height={30} width={30} />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.dotContainer}>
+                    {apartmentDetail?.images.map((idx: any) => (
+                      <View
+                        key={idx}
+                        style={[
+                          styles.dot,
+                          idx === activeIndex ? styles.activeDot : null,
+                        ]}
+                      />
+                    ))}
+                  </View>
+                </>
+              )}
               {/* <TouchableOpacity
                 activeOpacity={0.8}
                 style={{ position: "absolute", bottom: 10, right: 10 }}
