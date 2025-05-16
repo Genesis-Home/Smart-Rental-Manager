@@ -490,11 +490,3 @@ export const appLanguages: AppLanguage[] = [
   },
 ];
 
-export const visitDetails: VisitDetail[] = [
-  {
-    date: "Feb 20, 2024",
-    numberOfVisitors: "2",
-    numberOfInfants: "1",
-    propertyAddress: "123 Male St, Springfield",
-  },
-];

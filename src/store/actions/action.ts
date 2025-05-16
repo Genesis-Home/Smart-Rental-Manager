@@ -41,7 +41,15 @@ export const sendEmail =
         }
       );
       console.log("Email sent successfully:", response.data);
-      navigation.navigate("AutomatedEmail");
+      navigation.navigate("AutomatedEmail", {
+        visitDetails: {
+          visitDates: formattedVisitDates,
+          visitTime,
+          numberOfVisitors,
+          numberOfInfants,
+          property,
+        },
+      });
     } catch (error) {
       console.error("Error sending email:", error);
     }

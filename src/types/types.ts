@@ -14,7 +14,15 @@ export type RootStackParamList = {
   Tabs: undefined;
   AddProperty: undefined;
   Notification: undefined;
-  AutomatedEmail: undefined;
+  AutomatedEmail: {
+    visitDetails: {
+      visitDates: string;
+      visitTime: string;
+      numberOfVisitors: string;
+      numberOfInfants: string;
+      property: string;
+    };
+  };
   Map: undefined;
   EditProfile: undefined;
   PrivacyPolicy: undefined;

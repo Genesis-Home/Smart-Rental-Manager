@@ -5,12 +5,15 @@ import Header from "../../components/Header";
 import { useTranslation } from "react-i18next";
 import { Address, Email, Whatsapp, Share, Copy } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
-import { visitDetails } from "../../utilities/languageData/data";
 import CTAButton1 from "../../components/CTA_BUTTON1";
+import { useRoute,RouteProp } from "@react-navigation/native";
+import { RootStackParamList } from "../../types/types";
 
 const AutomatedEmail: React.FC = () => {
   const { t } = useTranslation();
-  const visit = visitDetails[0];
+ const route = useRoute<RouteProp<RootStackParamList, "AutomatedEmail">>();
+  const visit = route.params?.visitDetails;
+
 
   return (
     <View style={styles.screenWrapper}>
@@ -25,22 +28,22 @@ const AutomatedEmail: React.FC = () => {
 
         <Text style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("visitData")}: </Text>
-          {visit.date}
+          {visit?.visitDates},{visit?.visitTime}
         </Text>
 
         <Text style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("numberOfVisitors")}: </Text>
-          {visit.numberOfVisitors}
+          {visit?.numberOfVisitors}
         </Text>
 
         <Text style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("numberOfInfants")}: </Text>
-          {visit.numberOfInfants}
+          {visit?.numberOfInfants}
         </Text>
 
         <Text style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("propertyAddress")}: </Text>
-          {visit.propertyAddress}
+          {visit?.property}
         </Text>
       </View>
 
