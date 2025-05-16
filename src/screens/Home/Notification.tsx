@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, FlatList } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { Tick } from "../../assets/icons";
@@ -18,6 +18,8 @@ const Notification: React.FC = () => {
   const navigation = useNavigation<NotificationScreenNavigationProp>();
   const notifications = useAppSelector((state) => state.reducer.notifications);
   const user = useAppSelector((state) => state.reducer.user);
+
+  const [latestNotification, setLatestNotification] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,16 +41,36 @@ const Notification: React.FC = () => {
     fetchData();
   }, [dispatch, user?.userId]);
 
+  const getTodayDate = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  };
+
+  const todayDate = getTodayDate();
+
   const sortedNotifications = notifications.sort((a, b) => {
     const dateA = new Date(a.sentAt._seconds * 1000);
     const dateB = new Date(b.sentAt._seconds * 1000);
     return dateB.getTime() - dateA.getTime();
   });
 
+  useEffect(() => {
+    const latest = sortedNotifications.find((item) => {
+      const sentAtDate = new Date(item.sentAt._seconds * 1000);
+      return sentAtDate.toLocaleDateString() === todayDate.toLocaleDateString();
+    });
+    if (latest) {
+      setLatestNotification(latest);
+    }
+  }, [notifications]);
+
   const renderItem = ({ item }: any) => {
     const sentAtDate = new Date(item.sentAt._seconds * 1000);
     const date = sentAtDate.toLocaleDateString();
     const time = sentAtDate.toLocaleTimeString();
+
+    const isLatestOfToday = item.id === latestNotification?.id;
 
     return (
       <View style={styles.notificationWrapper}>
@@ -66,7 +88,7 @@ const Notification: React.FC = () => {
               </View>
             </View>
           </View>
-          {item.status === "new" && (
+          {isLatestOfToday && (
             <View style={styles.statusBadge}>
               <Text style={styles.statusText}>{t("notiNew")}</Text>
             </View>
