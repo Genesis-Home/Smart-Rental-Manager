@@ -4,7 +4,7 @@
  *
  * @format
  */
-
+ import 'react-native-get-random-values';
 import React, { useEffect } from "react";
 import { StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
