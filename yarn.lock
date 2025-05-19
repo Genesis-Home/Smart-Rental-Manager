@@ -6195,15 +6195,14 @@ react-native-get-random-values@^1.11.0:
   dependencies:
     fast-base64-decode "^1.0.0"
 
-react-native-google-places-autocomplete@^2.5.7:
-  version "2.5.7"
-  resolved "https://registry.npmjs.org/react-native-google-places-autocomplete/-/react-native-google-places-autocomplete-2.5.7.tgz"
-  integrity sha512-yWEJ31gsRptStEZDele9no0J6Z+MxtNpQKKwjvGmFrWmpYDEAzpRtxy1Xq0u+ckMepJfrg/EU+OL5LgtMbnCDA==
+react-native-google-places-autocomplete@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.npmjs.org/react-native-google-places-autocomplete/-/react-native-google-places-autocomplete-1.9.0.tgz"
+  integrity sha512-gYWwI6ZeCxW8zkknMPcQ8oSGe5vckNFagIrGx9Fpqf4j/CAoxAYm7gHrHvipTLLKtEIhwlK3gb4VntyQg4bwmw==
   dependencies:
     lodash.debounce "^4.0.8"
-    prop-types "^15.7.2"
+    prop-types "^15.5.10"
     qs "~6.9.1"
-    uuid "^10.0.0"
 
 react-native-image-picker@^8.2.0:
   version "8.2.0"
@@ -6220,10 +6219,10 @@ react-native-iphone-x-helper@^1.3.1:
   resolved "https://registry.npmjs.org/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.3.1.tgz"
   integrity sha512-HOf0jzRnq2/aFUcdCJ9w9JGzN3gdEg0zFE4FyYlp4jtidqU03D5X7ZegGKfT1EWteR0gPBGp9ye5T5FvSWi9Yg==
 
-react-native-maps@^1.23.8:
-  version "1.23.8"
-  resolved "https://registry.npmjs.org/react-native-maps/-/react-native-maps-1.23.8.tgz"
-  integrity sha512-oYuJFZ/MV5URkJRloDlZM3+tb4PkT93Qg19b9c03txCPUpUj70HKXjDTrr7RTRGY1Nu66NTlLoKeV635WI8wQQ==
+react-native-maps@^1.20.0:
+  version "1.20.0"
+  resolved "https://registry.npmjs.org/react-native-maps/-/react-native-maps-1.20.0.tgz"
+  integrity sha512-3NoLwcmdDTLeEhCq+BVOTRlNDte7+RlLkVwMR/hZZFk8jKM/94eznI+mown2NxuRARXD9vdd33NSXQz1oMuozA==
   dependencies:
     "@types/geojson" "^7946.0.13"
 
@@ -6234,14 +6233,19 @@ react-native-paper-dates@^0.22.40:
   dependencies:
     color "^4.2.3"
 
-react-native-paper@*:
-  version "5.14.0"
-  resolved "https://registry.npmjs.org/react-native-paper/-/react-native-paper-5.14.0.tgz"
-  integrity sha512-lKqIerPMBHuFYVeKqQV6uyMQ3HPEQps3a1TUv3QqkuNQeCSUzoKDmOMFR7gW8E7a7ay6px166ngYO1Sgy9HsVg==
+react-native-paper@*, react-native-paper@^5.14.4:
+  version "5.14.4"
+  resolved "https://registry.npmjs.org/react-native-paper/-/react-native-paper-5.14.4.tgz"
+  integrity sha512-XtL9ilZGNZfGopt469vNCYqePNvHrZ1v6if0EXIQfXUx0vZ+lY0Cq7wi0Ap4CBxJTPbj71A1BcRyZDu6ogJKpg==
   dependencies:
     "@callstack/react-theme-provider" "^3.0.9"
     color "^3.1.2"
     use-latest-callback "^0.2.3"
+
+react-native-permissions@^5.4.0:
+  version "5.4.0"
+  resolved "https://registry.npmjs.org/react-native-permissions/-/react-native-permissions-5.4.0.tgz"
+  integrity sha512-D+YOIss+aKXi/VuZvm7hAq4WSugYyif58AIAWsT2/uLh9pz9ukOttGzPttjrv617J3bOEnt7C6cJBWoXmj/QRw==
 
 react-native-responsive-fontsize@^0.5.1:
   version "0.5.1"
@@ -6318,7 +6322,7 @@ react-native-webview@>=13:
     escape-string-regexp "^4.0.0"
     invariant "2.2.4"
 
-react-native@*, "react-native@^0.0.0-0 || >=0.65 <1.0", "react-native@>= 0.30.0", "react-native@>= 0.59", "react-native@>= 0.61.5", "react-native@>= 0.62", "react-native@>= 0.76.0", react-native@>=0.42.0, react-native@>=0.56, react-native@>=0.59, react-native@>=0.59.0, react-native@>=0.60.0, react-native@>=0.61.3, react-native@0.79.0:
+react-native@*, "react-native@^0.0.0-0 || >=0.65 <1.0", "react-native@>= 0.30.0", "react-native@>= 0.46", "react-native@>= 0.61.5", "react-native@>= 0.62", "react-native@>= 0.64.3", react-native@>=0.42.0, react-native@>=0.56, react-native@>=0.59, react-native@>=0.59.0, react-native@>=0.60.0, react-native@>=0.61.3, react-native@>=0.70.0, react-native@0.79.0:
   version "0.79.0"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.79.0.tgz"
   integrity sha512-fLG/zl/YF30TWTmp2bbo3flHSFGe4WTyVkb7/wJnMEC39jjXVSCxfDtvSUVavhCc03fA/RTkWWvlmg7NEJk7Vg==
@@ -6385,7 +6389,7 @@ react-test-renderer@19.0.0:
     react-is "^19.0.0"
     scheduler "^0.25.0"
 
-react@*, "react@^16.8 || ^17.0 || ^18.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^17 || ^18", react@^19.0.0, "react@>= 15.2.1", "react@>= 16.8.0", "react@>= 16.9.0", "react@>= 18.2.0", "react@>= 18.3.1", react@>=16.11.0, react@>=16.3.0, react@>=16.8, react@>=16.8.0, react@>=17.0.0, react@19.0.0:
+react@*, "react@^16.8 || ^17.0 || ^18.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^17 || ^18", react@^19.0.0, "react@>= 15.2.1", "react@>= 16.8.0", "react@>= 16.9.0", "react@>= 17.0.1", "react@>= 18.2.0", react@>=16.11.0, react@>=16.3.0, react@>=16.8, react@>=16.8.0, react@>=17.0.0, react@>=18.1.0, react@19.0.0:
   version "19.0.0"
   resolved "https://registry.npmjs.org/react/-/react-19.0.0.tgz"
   integrity sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==
@@ -7351,11 +7355,6 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/utils-merge/-/utils-merge-1.0.1.tgz"
   integrity sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==
-
-uuid@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.npmjs.org/uuid/-/uuid-10.0.0.tgz"
-  integrity sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==
 
 v8-to-istanbul@^9.0.1:
   version "9.3.0"

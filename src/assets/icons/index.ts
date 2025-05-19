@@ -42,6 +42,7 @@ export { default as DropRight } from './dropRight.svg';
 export { default as Signout } from './signout.svg'; 
 export { default as Down } from './down.svg'; 
 export { default as Edit } from './Edit.svg'; 
+export { default as Marker } from './marker.svg'; 
 
 
 
