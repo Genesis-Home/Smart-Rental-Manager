@@ -33,7 +33,7 @@ export const sendEmail =
         {
           to: email,
           subject: "Your visit is confirmed",
-          message: `Visit Details\nVisit Date & Time: ${formattedVisitDates}, ${visitTime}\nNumber of Visitors: ${numberOfVisitors}\nNumber of Infants: ${numberOfInfants}\nProperty Address: ${property}`,
+          message: `Visit Details\nVisit Date & Time: ${formattedVisitDates}, ${visitTime}\nNumber of Visitors: ${numberOfVisitors}\nNumber of Infants: ${numberOfInfants}\nProperty Address: ${location}`,
         },
         {
           headers: {
