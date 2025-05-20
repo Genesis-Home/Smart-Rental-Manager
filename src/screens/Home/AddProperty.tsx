@@ -252,7 +252,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       long: details.geometry?.location?.lng || 0,
     };
 
-    setFieldValue("location", location);
+    setFieldValue("location", JSON.parse(location));
     updateMapAndMarker(location.lat, location.long);
     setInputValue(details.formatted_address);
   };
