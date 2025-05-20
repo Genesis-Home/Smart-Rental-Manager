@@ -2,6 +2,8 @@ import { NavigationProp } from "@react-navigation/native";
 import { TextInputProps } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import rootReducer from "../store/reducers/rootReducer";
+import { GooglePlaceData as GooglePlaceDataAutocomplete } from 'react-native-google-places-autocomplete';
+
 
 // Navigation Types
 export type RootStackParamList = {
@@ -51,6 +53,17 @@ export type RootStackParamListBottomNavigation = {
   Profile1: undefined;
   createContact: undefined;
 };
+
+export interface MarkerProps {
+  latitude: number;
+  longitude: number;
+}
+
+export interface AddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[];
+}
 
 export type TabParamList = {
   Home: undefined;
@@ -126,6 +139,9 @@ export interface CreateContactScreenNavigationProp
   extends NativeStackNavigationProp<RootStackParamList> {}
 
 export interface EditProfileProps {
+  navigation: any;
+}
+export interface AddPropertyProps {
   navigation: any;
 }
 
@@ -354,7 +370,6 @@ export type VisitDetail = {
   [key: string]: string;
 };
 
-// Store Types
 export type RootState = ReturnType<typeof rootReducer>;
 
 export interface Credentials {
@@ -382,7 +397,45 @@ export interface Action {
   payload: any;
 }
 
-// Property Types
+export interface Event {
+  nativeEvent: {
+    coordinate: {
+      latitude: number;
+      longitude: number;
+    };
+  };
+}
+export interface Location {
+  address: string;
+  lat: number;
+  long: number;
+}
+interface Geometry {
+  location: {
+    lat: number;
+    lng: number;
+  };
+}
+
+declare module 'react-native-google-places-autocomplete' {
+  export interface GooglePlaceData {
+    types: string[];  
+  }
+}
+declare module 'react-native-google-places-autocomplete' {
+  export interface GooglePlaceData {
+    types: string[];  
+  }
+}
+export interface GooglePlaceData extends GooglePlaceDataAutocomplete {
+  types: string[];
+}
+
+export interface GooglePlaceDetail {
+  formatted_address: string;
+  geometry: Geometry;
+}
+
 export interface Property {
   id: string;
   title: string;

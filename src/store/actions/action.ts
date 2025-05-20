@@ -155,7 +155,7 @@ export const addProperty =
         title: formData.title,
         description: formData.description,
         otherDetails: formData.otherDetails,
-        location: null,
+        location: formData.location,
         images: formData.images,
         revenue: 0,
         createdBy: userId,

@@ -221,8 +221,8 @@ const Home: React.FC = () => {
           >
             {item.description}
           </Text>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <Address />
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <Address style={{top:3}}/>
             <Text
               style={[
                 Typography.f_14_nunito_medium,

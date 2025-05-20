@@ -138,7 +138,7 @@ const ApartmentDetails: React.FC = () => {
               {apartmentDetail?.description}
             </Text>
             <View style={styles.addressRow}>
-              <Address style={{ top: -3 }} />
+              <Address style={{ top: 3 }} />
               <Text style={[styles.addressText, Typography.f_14_nunito_medium]}>
                 {apartmentDetail?.location
                   ? apartmentDetail.location
@@ -277,7 +277,6 @@ const styles = StyleSheet.create({
   },
   addressRow: {
     flexDirection: "row",
-    alignItems: "center",
     gap: 10,
   },
   addressText: {
