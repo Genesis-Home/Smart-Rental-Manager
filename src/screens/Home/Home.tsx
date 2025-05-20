@@ -82,7 +82,7 @@ const Home: React.FC = () => {
 
       const message = `Title: ${item.title}\nDescription: ${
         item.description
-      }\nLocation: ${item.location ?? "No location"}\nImages:\n${imageUrls
+      }\nLocation: ${item.location?.address ?? "No location"}\nImages:\n${imageUrls
         .map((url) => `${url}\n\n`)
         .join("")}`;
 

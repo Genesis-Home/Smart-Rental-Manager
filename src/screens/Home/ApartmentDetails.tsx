@@ -140,8 +140,8 @@ const ApartmentDetails: React.FC = () => {
             <View style={styles.addressRow}>
               <Address style={{ top: 3 }} />
               <Text style={[styles.addressText, Typography.f_14_nunito_medium]}>
-                {apartmentDetail?.location
-                  ? apartmentDetail.location
+                {apartmentDetail?.location?.address
+                  ? apartmentDetail.location.address
                   : t("noLocation")}
               </Text>
             </View>

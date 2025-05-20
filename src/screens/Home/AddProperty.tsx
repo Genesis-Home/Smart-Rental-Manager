@@ -71,7 +71,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     title: Yup.string().required(t("title") + " " + t("isRequired")),
     description: Yup.string().required(t("desc") + " " + t("isRequired")),
     otherDetails: Yup.string().required(t("detail") + " " + t("isRequired")),
-    location: Yup.string().required(t("location") + " " + t("isRequired")),
+    location: Yup.object().shape({
+      address: Yup.string().required(t("location") + " " + t("isRequired")),
+      lat: Yup.number().required(),
+      long: Yup.number().required(),
+    }),
   });
 
   const handleImagePick = async () => {
@@ -252,7 +256,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       long: details.geometry?.location?.lng || 0,
     };
 
-    setFieldValue("location", JSON.parse(location));
+    setFieldValue("location", location);
     updateMapAndMarker(location.lat, location.long);
     setInputValue(details.formatted_address);
   };

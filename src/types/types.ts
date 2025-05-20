@@ -78,7 +78,7 @@ export type TabParamList = {
 // Component Props Types
 export interface HeaderProps {
   title: string;
-  onBackPress?: () => void;
+  isAutomatedEmail?: boolean;  
 }
 
 export interface FormInputProps extends TextInputProps {

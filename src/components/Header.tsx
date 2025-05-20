@@ -1,19 +1,27 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { BackIcon } from "../assets/icons";
 import { Typography } from "../utilities/constants/constant.style";
 import Colors from "../utilities/constants/colors";
 import { HeaderProps } from "../types/types";
 
-const Header: React.FC<HeaderProps> = ({ title }) => {
-  const navigation = useNavigation();
+const Header: React.FC<HeaderProps> = ({ title, isAutomatedEmail = false }) => {
+  const navigation = useNavigation<NavigationProp<any>>();
+
+  const handleBackPress = () => {
+    if (isAutomatedEmail) {
+      navigation.navigate("Tabs", { screen: "Home" });
+    } else {
+      navigation.goBack();
+    }
+  };
 
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity
         activeOpacity={0.8}
-        onPress={() => navigation.goBack()}
+        onPress={handleBackPress}
         style={{ position: "absolute", left: 0 }}
       >
         <BackIcon />

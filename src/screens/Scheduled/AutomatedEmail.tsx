@@ -59,7 +59,7 @@ const AutomatedEmail: React.FC = () => {
 
   return (
     <View style={styles.screenWrapper}>
-      <Header title={t("AutomatedEmail")} />
+      <Header title={t("AutomatedEmail")}  isAutomatedEmail/>
 
       <Email style={styles.emailIconStyle} />
 
