@@ -2,8 +2,8 @@ import { NavigationProp } from "@react-navigation/native";
 import { TextInputProps } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import rootReducer from "../store/reducers/rootReducer";
-import { GooglePlaceData as GooglePlaceDataAutocomplete } from 'react-native-google-places-autocomplete';
-
+import { RouteProp } from "@react-navigation/native";
+import { GooglePlaceData as GooglePlaceDataAutocomplete } from "react-native-google-places-autocomplete";
 
 // Navigation Types
 export type RootStackParamList = {
@@ -22,10 +22,10 @@ export type RootStackParamList = {
       visitTime: string;
       numberOfVisitors: string;
       numberOfInfants: string;
-      property: string;
+      location: Location;
     };
   };
-  Map: undefined;
+  Map: { location: Location };
   EditProfile: undefined;
   PrivacyPolicy: undefined;
   TermsAndConditions: undefined;
@@ -42,6 +42,8 @@ export type RootStackParamList = {
   AddSchedule: undefined;
   ApartmentDetails: { id: string };
 };
+
+export type MapScreenRouteProp = RouteProp<RootStackParamList, "Map">;
 
 export type RootStackParamListBottomNavigation = {
   Home1: undefined;
@@ -408,23 +410,33 @@ export interface Event {
 export interface Location {
   address: string;
   lat: number;
-  long: number;
+  long: number ;
 }
 interface Geometry {
   location: {
     lat: number;
     lng: number;
   };
+  viewport?: {
+    northeast: {
+      lat: number;
+      lng: number;
+    };
+    southwest: {
+      lat: number;
+      lng: number;
+    };
+  };
 }
 
-declare module 'react-native-google-places-autocomplete' {
+declare module "react-native-google-places-autocomplete" {
   export interface GooglePlaceData {
-    types: string[];  
+    types: string[];
   }
 }
-declare module 'react-native-google-places-autocomplete' {
+declare module "react-native-google-places-autocomplete" {
   export interface GooglePlaceData {
-    types: string[];  
+    types: string[];
   }
 }
 export interface GooglePlaceData extends GooglePlaceDataAutocomplete {
@@ -440,7 +452,7 @@ export interface Property {
   id: string;
   title: string;
   description: string;
-  location: string | null;
+  location: { address: string; lat: number; long: number | null };
   images: string[];
   otherDetails: string;
 }

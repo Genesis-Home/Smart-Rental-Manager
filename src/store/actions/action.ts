@@ -22,7 +22,8 @@ export const sendEmail =
     visitTime: string,
     numberOfVisitors: string,
     numberOfInfants: string,
-    property: string
+    property: string,
+    location:string
   ): any =>
   async (dispatch: Dispatch) => {
     try {
@@ -48,6 +49,7 @@ export const sendEmail =
           numberOfVisitors,
           numberOfInfants,
           property,
+          location
         },
       });
     } catch (error) {
@@ -147,6 +149,7 @@ export const forgotPassword =
 
 export const addProperty =
   (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
+    console.log(formData,'formData')
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -417,6 +420,7 @@ export const addSchedule =
         propertyToVisit: formData.propertyToVisit,
         numberOfVisitors: formData.numberOfVisitors,
         numberOfInfants: formData.numberOfInfants,
+        location:formData.location,
         agreedPrice: formData.agreedPrice,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
@@ -444,7 +448,8 @@ export const addSchedule =
           formData.visitTime,
           formData.numberOfVisitors,
           formData.numberOfVisitors,
-          formData.property
+          formData.property,
+          formData.location
         )
       );
     } catch (error: any) {

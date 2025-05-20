@@ -334,16 +334,16 @@ const ExportData: React.FC = () => {
                     <Text style={styles.detailLabel}>
                       {t("propertyToVisitors")}
                     </Text>
-                    <Text style={styles.detailValue}>
-                      {item.propertyToVisit}
-                    </Text>
+                    <Text style={styles.detailValue}>{item.location.address}</Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>
                       {t("googleMapsLocation")}
                     </Text>
                     <Text
-                      onPress={() => navigation.navigate("Map")}
+                      onPress={() =>
+                        navigation.navigate("Map", { location: item.location })
+                      }
                       style={styles.mapLink}
                     >
                       {t("viewOnMap")}

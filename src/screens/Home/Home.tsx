@@ -229,7 +229,7 @@ const Home: React.FC = () => {
                 { color: Colors.DARK_GREEN, lineHeight: 24 },
               ]}
             >
-              {item.location ? item.location : t("noLocation")}
+              {item.location.address ? item.location.address : t("noLocation")}
             </Text>
           </View>
         </View>

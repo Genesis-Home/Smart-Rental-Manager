@@ -12,23 +12,24 @@ import {
 } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import CTAButton1 from "../../components/CTA_BUTTON1";
-import { useRoute, RouteProp } from "@react-navigation/native";
+import { useRoute, RouteProp, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../types/types";
 import Clipboard from "@react-native-clipboard/clipboard";
 import Toast from "react-native-toast-message";
+import { useNavigation } from "@react-navigation/native";
 
 const AutomatedEmail: React.FC = () => {
   const { t } = useTranslation();
   const route = useRoute<RouteProp<RootStackParamList, "AutomatedEmail">>();
   const visit = route.params?.visitDetails;
-
+  const navigation = useNavigation<NavigationProp<RootStackParamList, "Map">>();
   const visitMessage = `${t("visitDetails")}\n${t("visitData")}: ${
     visit?.visitDates
   }, ${visit?.visitTime}\n${t("numberOfVisitors")}: ${
     visit?.numberOfVisitors
   }\n${t("numberOfInfants")}: ${visit?.numberOfInfants}\n${t(
     "propertyAddress"
-  )}: ${visit?.property}`;
+  )}: ${visit?.location}`;
 
   const handleWhatsappShare = () => {
     const url = `whatsapp://send?text=${encodeURIComponent(visitMessage)}`;
@@ -84,13 +85,20 @@ const AutomatedEmail: React.FC = () => {
 
         <Text style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("propertyAddress")}: </Text>
-          {visit?.property}
+          {visit?.location?.address}
         </Text>
       </View>
 
       <View style={styles.mapLinkWrapper}>
         <Address />
-        <Text style={styles.googleMapsText}>{t("openInGoogleMaps")}</Text>
+        <Text
+          onPress={() =>
+            navigation.navigate("Map", { location: visit.location })
+          }
+          style={styles.googleMapsText}
+        >
+          {t("openInGoogleMaps")}
+        </Text>
       </View>
 
       <View style={styles.buttonGroup}>

@@ -36,7 +36,6 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import axios from "axios";
 import {
   Event,
-  AddressComponent,
   MarkerProps,
   AddPropertyProps,
   GooglePlaceData,
@@ -221,8 +220,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAN1-XDuQSu2O6V4nwbQP7M-U3xWO1ENDM`
       );
 
-      const addressComponents =
-        response.data.results[0]?.address_components || [];
       const formattedAddress =
         response.data.results[0]?.formatted_address || "";
 
@@ -255,7 +252,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       long: details.geometry?.location?.lng || 0,
     };
 
-    setFieldValue("location", location.address);
+    setFieldValue("location", location);
     updateMapAndMarker(location.lat, location.long);
     setInputValue(details.formatted_address);
   };
