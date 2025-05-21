@@ -83,16 +83,6 @@ export async function scheduleBookingNotifications(bookingData: any) {
       return;
     }
 
-    // Request permission
-    await notifee.requestPermission();
-
-    // Ensure channel is created
-    await notifee.createChannel({
-      id: "bookings",
-      name: "Booking Notifications",
-      importance: AndroidImportance.HIGH,
-    });
-
     // Parse dates and time
     const [startStr, endStr] = bookingData.visitDates.split(" - ");
     const checkInDate = moment(startStr, "MMM D, YYYY");
@@ -122,39 +112,19 @@ export async function scheduleBookingNotifications(bookingData: any) {
         });
     } catch (tokenError) {
       console.log("Error handling FCM token:", tokenError);
-      // Continue with local notifications even if FCM fails
+      return;
     }
 
     // Schedule check-in notification (exactly 24 hours before)
     const checkInNotificationDate = checkInDate.clone().subtract(1, "day");
     if (checkInNotificationDate.isAfter(moment())) {
-      // Schedule local notification
-      await notifee.createTriggerNotification(
-        {
-          title: "Upcoming Check-in",
-          body: `Your booking for ${bookingData.property} starts tomorrow at ${bookingData.visitTime}!`,
-          android: {
-            channelId: "bookings",
-            importance: AndroidImportance.HIGH,
-            pressAction: {
-              id: "default",
-            },
-          },
-        },
-        {
-          type: TriggerType.TIMESTAMP,
-          timestamp: checkInNotificationDate.valueOf(),
-        }
-      );
-
-      // Schedule FCM notification
       try {
         const notificationData = {
           title: "Upcoming Check-in",
           body: `Your booking for ${bookingData.property} starts tomorrow at ${bookingData.visitTime}!`,
           scheduledTime: checkInNotificationDate.toDate(),
           type: "check-in",
-          bookingId: bookingData.id || null, // Make bookingId optional
+          bookingId: bookingData.id || null,
           userId: bookingData.createdBy,
           createdAt: firestore.FieldValue.serverTimestamp(),
         };
@@ -168,7 +138,6 @@ export async function scheduleBookingNotifications(bookingData: any) {
         );
       } catch (fcmError) {
         console.error("Error scheduling FCM notification:", fcmError);
-        // Show error to user
         Toast.show({
           type: "error",
           text1: "Failed to schedule check-in notification",
@@ -180,30 +149,13 @@ export async function scheduleBookingNotifications(bookingData: any) {
     // Schedule check-in notification (exactly 1 hour before)
     const checkInOneHourBefore = checkInDate.clone().subtract(1, "hour");
     if (checkInOneHourBefore.isAfter(moment())) {
-      // Schedule local notification
-      await notifee.createTriggerNotification(
-        {
-          title: "Check-in Reminder",
-          body: `Your check-in is in 1 hour at ${bookingData.visitTime}!`,
-          android: {
-            channelId: "bookings",
-            importance: AndroidImportance.HIGH,
-            pressAction: { id: "default" },
-          },
-        },
-        {
-          type: TriggerType.TIMESTAMP,
-          timestamp: checkInOneHourBefore.valueOf(),
-        }
-      );
-      // Schedule FCM notification
       try {
         const notificationData = {
           title: "Check-in Reminder",
           body: `Your check-in is in 1 hour at ${bookingData.visitTime}!`,
           scheduledTime: checkInOneHourBefore.toDate(),
           type: "check-in-1hr",
-          bookingId: bookingData.id || null, // Make bookingId optional
+          bookingId: bookingData.id || null,
           userId: bookingData.createdBy,
           createdAt: firestore.FieldValue.serverTimestamp(),
         };
@@ -217,7 +169,6 @@ export async function scheduleBookingNotifications(bookingData: any) {
         );
       } catch (fcmError) {
         console.error("Error scheduling 1hr FCM notification:", fcmError);
-        // Show error to user
         Toast.show({
           type: "error",
           text1: "Failed to schedule 1-hour check-in notification",
@@ -229,33 +180,13 @@ export async function scheduleBookingNotifications(bookingData: any) {
     // Schedule check-out notification (exactly 24 hours before)
     const checkOutNotificationDate = checkOutDate.clone().subtract(1, "day");
     if (checkOutNotificationDate.isAfter(moment())) {
-      // Schedule local notification
-      await notifee.createTriggerNotification(
-        {
-          title: "Upcoming Check-out",
-          body: `Your booking for ${bookingData.property} ends tomorrow at ${bookingData.visitTime}!`,
-          android: {
-            channelId: "bookings",
-            importance: AndroidImportance.HIGH,
-            pressAction: {
-              id: "default",
-            },
-          },
-        },
-        {
-          type: TriggerType.TIMESTAMP,
-          timestamp: checkOutNotificationDate.valueOf(),
-        }
-      );
-
-      // Schedule FCM notification
       try {
         const notificationData = {
           title: "Upcoming Check-out",
           body: `Your booking for ${bookingData.property} ends tomorrow at ${bookingData.visitTime}!`,
           scheduledTime: checkOutNotificationDate.toDate(),
           type: "check-out",
-          bookingId: bookingData.id || null, // Make bookingId optional
+          bookingId: bookingData.id || null,
           userId: bookingData.createdBy,
           createdAt: firestore.FieldValue.serverTimestamp(),
         };
@@ -269,7 +200,6 @@ export async function scheduleBookingNotifications(bookingData: any) {
         );
       } catch (fcmError) {
         console.error("Error scheduling FCM notification:", fcmError);
-        // Show error to user
         Toast.show({
           type: "error",
           text1: "Failed to schedule check-out notification",
@@ -281,30 +211,13 @@ export async function scheduleBookingNotifications(bookingData: any) {
     // Schedule check-out notification (exactly 1 hour before)
     const checkOutOneHourBefore = checkOutDate.clone().subtract(1, "hour");
     if (checkOutOneHourBefore.isAfter(moment())) {
-      // Schedule local notification
-      await notifee.createTriggerNotification(
-        {
-          title: "Check-out Reminder",
-          body: `Your check-out is in 1 hour at ${bookingData.visitTime}!`,
-          android: {
-            channelId: "bookings",
-            importance: AndroidImportance.HIGH,
-            pressAction: { id: "default" },
-          },
-        },
-        {
-          type: TriggerType.TIMESTAMP,
-          timestamp: checkOutOneHourBefore.valueOf(),
-        }
-      );
-      // Schedule FCM notification
       try {
         const notificationData = {
           title: "Check-out Reminder",
           body: `Your check-out is in 1 hour at ${bookingData.visitTime}!`,
           scheduledTime: checkOutOneHourBefore.toDate(),
           type: "check-out-1hr",
-          bookingId: bookingData.id || null, // Make bookingId optional
+          bookingId: bookingData.id || null,
           userId: bookingData.createdBy,
           createdAt: firestore.FieldValue.serverTimestamp(),
         };
@@ -318,7 +231,6 @@ export async function scheduleBookingNotifications(bookingData: any) {
         );
       } catch (fcmError) {
         console.error("Error scheduling 1hr FCM notification:", fcmError);
-        // Show error to user
         Toast.show({
           type: "error",
           text1: "Failed to schedule 1-hour check-out notification",
