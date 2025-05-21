@@ -32,27 +32,6 @@ export const setupNotificationHandlers = () => {
         pressAction: {
           id: "default",
         },
-        smallIcon: "ic_launcher",
-        largeIcon: "ic_launcher",
-        showTimestamp: true,
-      },
-    });
-  });
-
-  messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-    console.log("Received background FCM message:", remoteMessage);
-    await notifee.displayNotification({
-      title: remoteMessage.notification?.title,
-      body: remoteMessage.notification?.body,
-      android: {
-        channelId: "bookings",
-        importance: AndroidImportance.HIGH,
-        pressAction: {
-          id: "default",
-        },
-        smallIcon: "ic_launcher",
-        largeIcon: "ic_launcher",
-        showTimestamp: true,
       },
     });
   });
@@ -241,4 +220,3 @@ export async function scheduleBookingNotifications(bookingData: any) {
     console.error("Error scheduling booking notifications:", error);
   }
 }
-
