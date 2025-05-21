@@ -29,7 +29,7 @@ const AutomatedEmail: React.FC = () => {
     visit?.numberOfVisitors
   }\n${t("numberOfInfants")}: ${visit?.numberOfInfants}\n${t(
     "propertyAddress"
-  )}: ${visit?.location}`;
+  )}: ${visit?.location.address}`;
 
   const handleWhatsappShare = () => {
     const url = `whatsapp://send?text=${encodeURIComponent(visitMessage)}`;
