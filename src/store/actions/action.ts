@@ -24,7 +24,7 @@ export const sendEmail =
     numberOfVisitors: string,
     numberOfInfants: string,
     property: string,
-    location:Location
+    location: Location
   ): any =>
   async (dispatch: Dispatch) => {
     try {
@@ -50,7 +50,7 @@ export const sendEmail =
           numberOfVisitors,
           numberOfInfants,
           property,
-          location
+          location,
         },
       });
     } catch (error) {
@@ -150,7 +150,7 @@ export const forgotPassword =
 
 export const addProperty =
   (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
-    console.log(formData,'formData')
+    console.log(formData, "formData");
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -167,6 +167,19 @@ export const addProperty =
       };
 
       await propertyRef.set(propertyData);
+
+      // Fetch updated properties list after creating new property
+      const snapshot = await firestore().collection("properties").get();
+
+      if (snapshot.empty) {
+        dispatch({ type: "SET_PROPERTIES", payload: [] });
+      } else {
+        const properties = snapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_PROPERTIES", payload: properties });
+      }
 
       dispatch({ type: "IS_LOADER", payload: false });
       const customMessage = await getFirebaseErrorMessage(
@@ -437,7 +450,7 @@ export const addSchedule =
         propertyToVisit: formData.propertyToVisit,
         numberOfVisitors: formData.numberOfVisitors,
         numberOfInfants: formData.numberOfInfants,
-        location:formData.location,
+        location: formData.location,
         agreedPrice: formData.agreedPrice,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
