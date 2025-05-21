@@ -7,6 +7,7 @@ import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import { scheduleBookingNotifications } from "../../services/notificationService";
 import axios from "axios";
+import { Location } from "../../types/types";
 
 export const getCurrentUser =
   (navigation: NavigationProp<any>): any =>
@@ -23,7 +24,7 @@ export const sendEmail =
     numberOfVisitors: string,
     numberOfInfants: string,
     property: string,
-    location:string
+    location:Location
   ): any =>
   async (dispatch: Dispatch) => {
     try {
@@ -33,7 +34,7 @@ export const sendEmail =
         {
           to: email,
           subject: "Your visit is confirmed",
-          message: `Visit Details\nVisit Date & Time: ${formattedVisitDates}, ${visitTime}\nNumber of Visitors: ${numberOfVisitors}\nNumber of Infants: ${numberOfInfants}\nProperty Address: ${location}`,
+          message: `Visit Details\nVisit Date & Time: ${formattedVisitDates}, ${visitTime}\nNumber of Visitors: ${numberOfVisitors}\nNumber of Infants: ${numberOfInfants}\nProperty Address: ${location.address}`,
         },
         {
           headers: {
