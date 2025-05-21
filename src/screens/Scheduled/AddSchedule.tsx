@@ -675,10 +675,7 @@ const createStyles = (colors: any) =>
       borderTopWidth: 0,
       borderColor: colors.Primary_01,
       borderBottomLeftRadius: 4,
-      borderBottomRightRadius: 4,
-      overflow: "hidden",
-      marginTop: -1,
-      zIndex: 10,
+      borderBottomRightRadius: 4
     },
     label: {
       color: colors.DARK_GREEN,
