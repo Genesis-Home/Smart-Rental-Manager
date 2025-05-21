@@ -301,10 +301,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     borderColor: colors.Primary_01,
     borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
-    overflow: "hidden",
-    marginTop: -1,
-    zIndex: 10,
+    borderBottomRightRadius: 4
   },
   languageOption: {
     paddingVertical: 12,
