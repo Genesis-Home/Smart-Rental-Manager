@@ -1,6 +1,4 @@
-import { ConfigAPI } from "@babel/core";
-
-module.exports = (api: ConfigAPI) => {
+module.exports = (api) => {
   api.cache.forever();
 
   return {
