@@ -303,6 +303,22 @@ export const addContact =
 
       await contactRef.set(contactData);
 
+      // Fetch updated contacts list after creating new contact
+      const snapshot = await firestore()
+        .collection("contacts")
+        .where("createdBy", "==", userId)
+        .get();
+
+      if (snapshot.empty) {
+        dispatch({ type: "SET_USER_CONTACTS", payload: [] });
+      } else {
+        const contacts = snapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_USER_CONTACTS", payload: contacts });
+      }
+
       dispatch({ type: "IS_LOADER", payload: false });
       const customMessage = await getFirebaseErrorMessage(
         "Contact added successfully"
