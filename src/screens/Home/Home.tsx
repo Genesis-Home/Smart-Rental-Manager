@@ -45,6 +45,10 @@ const Home: React.FC = () => {
   const scrollRefs = useRef<{ [key: string]: FlatList<any> | null }>({});
 
   useEffect(() => {
+    setFilteredProperties(properties);
+  }, [properties]);
+
+  useEffect(() => {
     dispatch(fetchProperties());
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
