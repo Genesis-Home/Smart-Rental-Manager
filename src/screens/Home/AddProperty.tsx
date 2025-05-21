@@ -215,7 +215,10 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     });
   };
 
-  const handleMapPress = async (event: Event) => {
+  const handleMapPress = async (
+    event: Event,
+    setFieldValue: (field: string, value: any) => void
+  ) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
     clearInput();
 
@@ -235,6 +238,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
       updateMapAndMarker(location.lat, location.long);
       setInputValue(formattedAddress);
+      setFieldValue("location", location);
     } catch (error) {
       console.error("Error reverse geocoding:", error);
     }
@@ -312,7 +316,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
               description: "",
               otherDetails: "",
               images: [],
-              location: "",
+              location: { address: "", lat: 0, long: 0 },
             }}
             validationSchema={validationSchema}
             onSubmit={async (values, { resetForm }) => {
@@ -461,7 +465,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                     style={{ height: 200, width: "100%" }}
                     provider={PROVIDER_GOOGLE}
                     region={mapRegion}
-                    onPress={handleMapPress}
+                    onPress={(event) => handleMapPress(event, setFieldValue)}
                   >
                     {marker && (
                       <Marker
