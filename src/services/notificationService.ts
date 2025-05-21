@@ -1,14 +1,12 @@
 import notifee, {
   AndroidImportance,
   EventType,
-  TriggerType,
 } from "@notifee/react-native";
 import moment from "moment";
 import firestore from "@react-native-firebase/firestore";
 import messaging from "@react-native-firebase/messaging";
 import Toast from "react-native-toast-message";
 
-// Function to log FCM token for testing
 export const logFCMToken = async () => {
   try {
     const token = await messaging().getToken();
@@ -20,15 +18,11 @@ export const logFCMToken = async () => {
   }
 };
 
-// Setup notification handlers
 export const setupNotificationHandlers = () => {
-  // Log FCM token on setup
   logFCMToken();
 
-  // Handle FCM notifications
   messaging().onMessage(async (remoteMessage) => {
     console.log("Received FCM message:", remoteMessage);
-    // Display notification when app is in foreground
     await notifee.displayNotification({
       title: remoteMessage.notification?.title,
       body: remoteMessage.notification?.body,
@@ -42,28 +36,21 @@ export const setupNotificationHandlers = () => {
     });
   });
 
-  // Handle notification clicks
   notifee.onForegroundEvent(async ({ type, detail }) => {
     if (type === EventType.PRESS) {
-      // Handle notification click
       console.log("Notification clicked:", detail.notification);
-      // You can add navigation logic here
     }
   });
 
   notifee.onBackgroundEvent(async ({ type, detail }) => {
     if (type === EventType.PRESS) {
-      // Handle notification click when app is in background
       console.log("Background notification clicked:", detail.notification);
-      // You can add navigation logic here
     }
   });
 };
 
-// Function to schedule booking notifications
 export async function scheduleBookingNotifications(bookingData: any) {
   try {
-    // Validate booking data
     if (!bookingData) {
       console.error("No booking data provided");
       return;
@@ -83,27 +70,22 @@ export async function scheduleBookingNotifications(bookingData: any) {
       return;
     }
 
-    // Parse dates and time
     const [startStr, endStr] = bookingData.visitDates.split(" - ");
     const checkInDate = moment(startStr, "MMM D, YYYY");
     const checkOutDate = moment(endStr, "MMM D, YYYY");
 
-    // Parse visit time
     const [timeStr, period] = bookingData.visitTime.split(" ");
     const [hours, minutes] = timeStr.split(":");
     let visitHour = parseInt(hours);
     if (period === "PM" && visitHour !== 12) visitHour += 12;
     if (period === "AM" && visitHour === 12) visitHour = 0;
 
-    // Set the time for check-in and check-out dates
     checkInDate.hours(visitHour).minutes(parseInt(minutes)).seconds(0);
     checkOutDate.hours(visitHour).minutes(parseInt(minutes)).seconds(0);
 
     try {
-      // Get FCM token for current device
       const fcmToken = await messaging().getToken();
 
-      // Update user's FCM tokens in Firestore
       await firestore()
         .collection("users")
         .doc(bookingData.createdBy)
@@ -115,7 +97,6 @@ export async function scheduleBookingNotifications(bookingData: any) {
       return;
     }
 
-    // Schedule check-in notification (exactly 24 hours before)
     const checkInNotificationDate = checkInDate.clone().subtract(1, "day");
     if (checkInNotificationDate.isAfter(moment())) {
       try {
@@ -146,7 +127,6 @@ export async function scheduleBookingNotifications(bookingData: any) {
       }
     }
 
-    // Schedule check-in notification (exactly 1 hour before)
     const checkInOneHourBefore = checkInDate.clone().subtract(1, "hour");
     if (checkInOneHourBefore.isAfter(moment())) {
       try {
@@ -177,7 +157,6 @@ export async function scheduleBookingNotifications(bookingData: any) {
       }
     }
 
-    // Schedule check-out notification (exactly 24 hours before)
     const checkOutNotificationDate = checkOutDate.clone().subtract(1, "day");
     if (checkOutNotificationDate.isAfter(moment())) {
       try {
@@ -208,7 +187,6 @@ export async function scheduleBookingNotifications(bookingData: any) {
       }
     }
 
-    // Schedule check-out notification (exactly 1 hour before)
     const checkOutOneHourBefore = checkOutDate.clone().subtract(1, "hour");
     if (checkOutOneHourBefore.isAfter(moment())) {
       try {

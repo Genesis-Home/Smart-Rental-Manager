@@ -213,7 +213,7 @@ const Home: React.FC = () => {
         </View>
         <View style={{ marginVertical: 20, gap: 5 }}>
           <Text
-            style={[Typography.f_20_montserrat_bold, { color: Colors.black }]}
+            style={[Typography.f_20_nunito_bold, { color: Colors.black }]}
           >
             {item.title}
           </Text>

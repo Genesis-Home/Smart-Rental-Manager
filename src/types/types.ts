@@ -202,8 +202,6 @@ export type LanguageTranslation = {
   confirmpassword: string;
   role: string;
   alreadyhaveanaccount: string;
-  TermsConditions: string;
-  registerissucessfullyhaveenjoy: string;
   resetpassword: string;
   enteryouremail: string;
   rememberyourpassword: string;
@@ -248,7 +246,6 @@ export type LanguageTranslation = {
   exportData: string;
   setting: string;
   location: string;
-  isRequired: string;
   title: string;
   schedulePropertyVisit: string;
   days: Record<string, string>;

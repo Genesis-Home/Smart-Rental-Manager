@@ -39,10 +39,6 @@ export const Typography = StyleSheet.create({
     fontFamily: "Nunito-Bold",
     fontSize: RFValue(16, screenResolution.screenHeight),
   },
-  f_20_montserrat_bold: {
-    fontFamily: "Montserrat-Bold",
-    fontSize: RFValue(20, screenResolution.screenHeight),
-  },
   f_14_nunito_extra_bold: {
     fontFamily: "Nunito-ExtraBold",
     fontSize: RFValue(14, screenResolution.screenHeight),
