@@ -2,7 +2,7 @@ import { Dispatch } from "redux";
 import { CommonActions, NavigationProp } from "@react-navigation/native";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
-import { deleteItem, setItem } from "../../services/assynsStorage";
+import { deleteItem, setItem, getItem } from "../../services/assynsStorage";
 import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import { scheduleBookingNotifications } from "../../services/notificationService";
@@ -12,7 +12,17 @@ import { Location } from "../../types/types";
 export const getCurrentUser =
   (navigation: NavigationProp<any>): any =>
   async (dispatch: Dispatch) => {
-    // Add your implementation here
+    try {
+      const user = await getItem("user", null);
+      if (user) {
+        dispatch({ type: "SET_USER", payload: user });
+        return user;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error getting current user:", error);
+      return null;
+    }
   };
 
 export const sendEmail =
@@ -68,26 +78,27 @@ export const loginUser =
         credentials.email,
         credentials.password
       );
-      console.log("user", userCredential);
 
       const user = (userCredential.user as any)._user;
-
       const userDoc = await firestore().collection("users").doc(user.uid).get();
-
       const userData = userDoc.data();
 
-      isSelectedRemember && setItem("user", userData);
+      if (!userData) {
+        throw new Error("User data not found");
+      }
 
-      !isSelectedRemember && deleteItem("user");
-
+      // Always store user data in AsyncStorage for persistence
+      await setItem("user", userData);
+      
+      // Update Redux state
       dispatch({ type: "SET_USER", payload: userData });
       dispatch({ type: "IS_LOADER", payload: false });
 
       navigation.dispatch(
         CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
       );
+      
       const customMessage = await getFirebaseErrorMessage("Login successful!");
-      Toast.show({ type: "success", text1: customMessage, position: "bottom" });
       Toast.show({ type: "success", text1: customMessage, position: "bottom" });
     } catch (error) {
       console.log(error, "loginUser_error");
