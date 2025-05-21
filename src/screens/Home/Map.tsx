@@ -17,6 +17,7 @@ import axios from "axios";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import { RFValue } from "react-native-responsive-fontsize";
 import { MapScreenRouteProp } from "../../types/types";
+import { EnvConfig } from "../../config/envConfig";
 
 const Map = ({ route }: { route: MapScreenRouteProp }) => {
   const regionTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -60,7 +61,7 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
 
       try {
         const response = await axios.get(
-          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyAN1-XDuQSu2O6V4nwbQP7M-U3xWO1ENDM`
+          `${EnvConfig.googleMaps.geocodeUrl}?latlng=${lat},${lng}&key=${EnvConfig.googleMaps.apiKey}`
         );
 
         if (response.data.status === "OK") {
@@ -140,7 +141,7 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
           placeholder={t("search")}
           onPress={handlePlaceSelect}
           query={{
-            key: "AIzaSyAN1-XDuQSu2O6V4nwbQP7M-U3xWO1ENDM",
+           key: EnvConfig.googleMaps.apiKey,
             language: DEFAULT_LANGUAGE as Language,
             location:
               mapRegion.latitude && mapRegion.longitude

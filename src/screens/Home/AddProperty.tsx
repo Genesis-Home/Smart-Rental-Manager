@@ -18,6 +18,7 @@ import * as Yup from "yup";
 import ImageView from "react-native-image-viewing";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { EnvConfig } from "../../config/envConfig";
 import {
   launchImageLibrary,
   ImagePickerResponse,
@@ -224,7 +225,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
     try {
       const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAN1-XDuQSu2O6V4nwbQP7M-U3xWO1ENDM`
+        `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
       );
 
       const formattedAddress =
@@ -403,7 +404,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                       ref={placesRef}
                       placeholder={t("location")}
                       query={{
-                        key: "AIzaSyAN1-XDuQSu2O6V4nwbQP7M-U3xWO1ENDM",
+                        key: EnvConfig.googleMaps.apiKey,
                         language: DEFAULT_LANGUAGE as Language,
                       }}
                       fetchDetails={true}

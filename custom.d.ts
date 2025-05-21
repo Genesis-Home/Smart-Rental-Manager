@@ -17,3 +17,8 @@ declare module "*.svg" {
 
     export default auth;
   }
+
+  declare module '@env' {
+  export const GOOGLE_MAPS_API_KEY: string;
+  export const GOOGLE_MAPS_URL: string;
+}
