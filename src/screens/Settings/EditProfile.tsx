@@ -112,12 +112,17 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
               style={{ alignItems: "center", marginTop: 20 }}
             >
               <Image
-                source={profileImage ? { uri: profileImage } : Images.Profile}
+                source={
+                  profileImage || user?.profilePhoto
+                    ? { uri: profileImage || user.profilePhoto }
+                    : Images.Profile 
+                }
                 resizeMode="cover"
                 style={{ height: 90, width: 90, borderRadius: 50 }}
               />
+
               <Edit
-                style={{ position: "absolute", bottom: "10%", right: "40%" }}
+                style={{ position: "absolute", bottom: "10%", right: "38%" }}
               />
             </TouchableOpacity>
           )}
