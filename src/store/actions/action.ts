@@ -9,8 +9,7 @@ import { scheduleBookingNotifications } from "../../services/notificationService
 import axios from "axios";
 import { Location } from "../../types/types";
 
-export const getCurrentUser =
-  (navigation: NavigationProp<any>): any =>
+export const getCurrentUser =(navigation: NavigationProp<any>): any =>
   async (dispatch: Dispatch) => {
     try {
       const user = await getItem("user", null);
@@ -25,17 +24,7 @@ export const getCurrentUser =
     }
   };
 
-export const sendEmail =
-  (
-    navigation: NavigationProp<any>,
-    email: string,
-    visitDates: string,
-    visitTime: string,
-    numberOfVisitors: string,
-    numberOfInfants: string,
-    property: string,
-    location: Location
-  ): any =>
+export const sendEmail = ( navigation: NavigationProp<any>,email: string,visitDates: string,visitTime: string, numberOfVisitors: string, numberOfInfants: string, property: string,location: Location  ): any =>
   async (dispatch: Dispatch) => {
     try {
       const formattedVisitDates = visitDates.replace(" - ", " to ");
@@ -65,11 +54,9 @@ export const sendEmail =
       });
     } catch (error) {
       console.error("Error sending email:", error);
-    }
-  };
+    }};
 
-export const loginUser =
-  (credentials: any, isSelectedRemember: any, navigation: any) =>
+export const loginUser = (credentials: any, isSelectedRemember: any, navigation: any) =>
   async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
@@ -108,9 +95,7 @@ export const loginUser =
     }
   };
 
-//register user
-export const registerUser =
-  (credentials: any, navigation: any) => async (dispatch: any) => {
+export const registerUser = (credentials: any, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       const userCredential = await auth().createUserWithEmailAndPassword(
@@ -141,8 +126,7 @@ export const registerUser =
     }
   };
 
-export const forgotPassword =
-  (email: string, navigation: any) => async (dispatch: any) => {
+export const forgotPassword = (email: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       await auth().sendPasswordResetEmail(email);
@@ -159,8 +143,7 @@ export const forgotPassword =
     }
   };
 
-export const addProperty =
-  (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
+export const addProperty =(formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     console.log(formData, "formData");
     try {
       dispatch({ type: "IS_LOADER", payload: true });
@@ -217,7 +200,6 @@ export const addProperty =
     }
   };
 
-// fetch properties
 export const fetchProperties = () => async (dispatch: any) => {
   try {
     dispatch({ type: "IS_LOADER", payload: true });
@@ -243,9 +225,7 @@ export const fetchProperties = () => async (dispatch: any) => {
   }
 };
 
-// Fetch property by property ID
-export const fetchPropertyById =
-  (propertyId: string) => async (dispatch: any) => {
+export const fetchPropertyById = (propertyId: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -280,9 +260,8 @@ export const fetchPropertyById =
       Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
     }
   };
-// fetch properties by user id
-export const fetchPropertiesByUserID =
-  (userID: string) => async (dispatch: any) => {
+
+export const fetchPropertiesByUserID =(userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -310,8 +289,7 @@ export const fetchPropertiesByUserID =
     }
   };
 
-export const addContact =
-  (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
+export const addContact = (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -368,9 +346,7 @@ export const addContact =
     }
   };
 
-// fetch contacts by user id
-export const fetchContactsByUserID =
-  (userID: string) => async (dispatch: any) => {
+export const fetchContactsByUserID =(userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -398,7 +374,6 @@ export const fetchContactsByUserID =
     }
   };
 
-//logout user
 export const logoutUser = (navigation: any) => async (dispatch: any) => {
   try {
     dispatch({ type: "IS_LOADER", payload: true });
@@ -419,9 +394,7 @@ export const logoutUser = (navigation: any) => async (dispatch: any) => {
   }
 };
 
-//update user
-export const updateUser =
-  (credentials: any, userId: any, navigation: any) => async (dispatch: any) => {
+export const updateUser =(credentials: any, userId: any, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       await firestore().collection("users").doc(userId).update(credentials);
@@ -444,8 +417,7 @@ export const updateUser =
     }
   };
 
-export const addSchedule =
-  (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
+export const addSchedule =(formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       const scheduleRef = firestore().collection("schedules").doc();
@@ -507,9 +479,7 @@ export const addSchedule =
     }
   };
 
-// fetch schedules by user id
-export const fetchSchedulesByUserID =
-  (userID: string) => async (dispatch: any) => {
+export const fetchSchedulesByUserID =(userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -537,8 +507,7 @@ export const fetchSchedulesByUserID =
     }
   };
 
-export const fetchSchedulesByPropertyIdAndUserId =
-  (propertyId: string, userId: string) => async (dispatch: any) => {
+export const fetchSchedulesByPropertyIdAndUserId =(propertyId: string, userId: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -567,8 +536,7 @@ export const fetchSchedulesByPropertyIdAndUserId =
     }
   };
 
-export const updatePropertyRevenue =
-  (propertyId: string, newRevenue: number) => async (dispatch: any) => {
+export const updatePropertyRevenue =(propertyId: string, newRevenue: number) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -596,9 +564,7 @@ export const updatePropertyRevenue =
     }
   };
 
-// fetch notifications by user id
-export const fetchNotificationsByUserID =
-  (userID: string) => async (dispatch: any) => {
+export const fetchNotificationsByUserID = (userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -626,8 +592,7 @@ export const fetchNotificationsByUserID =
     }
   };
 
-export const deletePropertyById =
-  (propertyId: string, userID: string) => async (dispatch: any) => {
+export const deletePropertyById = (propertyId: string, userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       await firestore().collection("properties").doc(propertyId).delete();

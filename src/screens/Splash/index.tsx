@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
-import { colors } from "../../utilities/constants";
+import Colors from "../../utilities/constants/colors";
 import { Logo } from "../../assets/icons";
 import { SplashProps } from "../../types/types";
 import { useAppDispatch } from "../../store/hooks";
@@ -10,7 +10,11 @@ const Splash: React.FC<SplashProps> = ({ navigation }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    checkUserSession();
+    const timer = setTimeout(() => {
+      checkUserSession();
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const checkUserSession = useCallback(async () => {
@@ -39,7 +43,7 @@ const Splash: React.FC<SplashProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: Colors.Primary_01,
   },
   overlay: {
     flex: 1,
