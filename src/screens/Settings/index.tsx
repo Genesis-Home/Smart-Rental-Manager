@@ -45,6 +45,8 @@ const Settings: React.FC = () => {
       setSelectedOption(option);
       if (option === "notification") {
         navigation.navigate("Notification");
+      } else if (option === "myads") {
+        navigation.navigate("MyAds");
       } else if (option === "editProfile") {
         navigation.navigate("EditProfile");
       } else if (option === "termsConditions") {
@@ -108,6 +110,22 @@ const Settings: React.FC = () => {
             onPress={() => handlePress("editProfile")}
           >
             <Text style={styles.optionText}>{t("editProfile")}</Text>
+            <DropRight />
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={[
+              styles.optionButton,
+              {
+                borderColor:
+                  selectedOption === "myads"
+                    ? colors.Primary_01
+                    : colors.Neutral_01,
+              },
+            ]}
+            onPress={() => handlePress("myads")}
+          >
+            <Text style={styles.optionText}>{t("myads")}</Text>
             <DropRight />
           </TouchableOpacity>
           <TouchableOpacity

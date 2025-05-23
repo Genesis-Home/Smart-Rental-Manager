@@ -12,6 +12,7 @@ import ResetPassword from "../screens/Auth/resetPassword";
 import AddProperty from "../screens/Home/AddProperty";
 import Notification from "../screens/Home/Notification";
 import AutomatedEmail from "../screens/Scheduled/AutomatedEmail";
+import MyAds from "../screens/Settings/MyAds";
 import Map from "../screens/Home/Map";
 import EditProfile from "../screens/Settings/EditProfile";
 import PrivacyPolicy from "../screens/Settings/PrivacyPolicy";
@@ -84,6 +85,11 @@ function App() {
           options={{ headerShown: false }}
           component={EditProfile}
           name="EditProfile"
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          component={MyAds}
+          name="MyAds"
         />
         <Stack.Screen
           options={{ headerShown: false }}

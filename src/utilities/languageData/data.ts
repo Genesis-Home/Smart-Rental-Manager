@@ -225,6 +225,7 @@ export const languageData: LanguageData[] = [
       copyMsg: "Visit details copied to clipboard.",
       shareErr: "Unable to Share",
       whatsappNotInstall: "Whatsapp is not installed on your system",
+       myads:'My Ads'
     },
   },
   {
@@ -450,6 +451,7 @@ export const languageData: LanguageData[] = [
       copyMsg: "Detalles de la visita copiados al portapapeles.",
       shareErr: "No se pudo compartir",
       whatsappNotInstall: "WhatsApp no está instalado en su dispositivo",
+      myads:'Mis Anuncios.'
     },
   },
 ];

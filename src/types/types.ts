@@ -13,7 +13,14 @@ export type RootStackParamList = {
   Signup: undefined;
   ForgotPassword: undefined;
   ResetPassword: undefined;
-  Tabs: undefined;
+  MyAds:undefined;
+  Tabs: {
+    screen?: string;
+    params?: {
+      screen?: string;
+      params?: { id?: string };
+    };
+  };
   AddProperty: undefined;
   Notification: undefined;
   AutomatedEmail: {
@@ -352,6 +359,7 @@ export type LanguageTranslation = {
   copyMsg: string;
   shareErr: string;
   whatsappNotInstall: string;
+  myads:string
 };
 
 export type LanguageData = {
