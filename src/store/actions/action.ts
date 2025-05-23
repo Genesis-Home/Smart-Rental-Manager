@@ -647,3 +647,65 @@ export const deletePropertyById = (propertyId: string, userID: string) => async 
       });
     }
   };
+
+export const updateProperty = (propertyId: string, formData: any, navigation: any) => async (dispatch: any) => {
+  try {
+    dispatch({ type: "IS_LOADER", payload: true });
+
+    const propertyData = {
+      title: formData.title,
+      description: formData.description,
+      otherDetails: formData.otherDetails,
+      location: formData.location,
+      images: formData.images,
+      updatedAt: firestore.FieldValue.serverTimestamp(),
+    };
+
+    await firestore().collection("properties").doc(propertyId).update(propertyData);
+
+    // Fetch updated property
+    const propertyDoc = await firestore().collection("properties").doc(propertyId).get();
+    const updatedProperty = {
+      ...propertyDoc.data(),
+      id: propertyDoc.id,
+    };
+    dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
+
+    // Update user properties list
+    const snapshot = await firestore()
+      .collection("properties")
+      .where("createdBy", "==", formData.createdBy)
+      .get();
+
+    if (snapshot.empty) {
+      dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
+    } else {
+      const properties = snapshot.docs.map((doc: any) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
+    }
+
+    dispatch({ type: "IS_LOADER", payload: false });
+    const customMessage = await getFirebaseErrorMessage("Property updated successfully");
+    Toast.show({
+      type: "success",
+      text1: customMessage,
+      position: "bottom",
+    });
+
+    navigation.navigate("Tabs", { screen: "Home1" });
+  } catch (error: any) {
+    console.error("Update Property Error:", error);
+    dispatch({ type: "IS_LOADER", payload: false });
+    const errorMessage = await getFirebaseErrorMessage(
+      "Failed to update property. Please try again."
+    );
+    Toast.show({
+      type: "error",
+      text1: errorMessage,
+      position: "bottom",
+    });
+  }
+};

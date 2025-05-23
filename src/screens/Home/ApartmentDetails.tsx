@@ -167,38 +167,40 @@ const ApartmentDetails: React.FC = () => {
               <Text style={[styles.titleText, Typography.f_20_nunito_bold]}>
                 {apartmentDetail?.title}
               </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginRight: 10,
-                }}
-              >
-                <TouchableOpacity
-                  activeOpacity={0.8}
+              {user?.userId === apartmentDetail?.createdBy && (
+                <View
                   style={{
+                    flexDirection: "row",
                     marginRight: 10,
-                    backgroundColor: Colors.Primary_01,
-                    padding: 8,
-                    borderRadius: 8,
                   }}
-                  onPress={() =>
-                    navigation.navigate("EditProperty", { id: apartmentID })
-                  }
                 >
-                  <MaterialIcons name="edit" size={18} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={{
-                    backgroundColor: Colors.Primary_01,
-                    padding: 8,
-                    borderRadius: 8,
-                  }}
-                  onPress={() => setShowDeleteModal(true)}
-                >
-                  <MaterialIcons name="delete" size={18} color="white" />
-                </TouchableOpacity>
-              </View>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={{
+                      marginRight: 10,
+                      backgroundColor: Colors.Primary_01,
+                      padding: 8,
+                      borderRadius: 8,
+                    }}
+                    onPress={() =>
+                      navigation.navigate("EditProperty", { id: apartmentID })
+                    }
+                  >
+                    <MaterialIcons name="edit" size={18} color="white" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={{
+                      backgroundColor: Colors.Primary_01,
+                      padding: 8,
+                      borderRadius: 8,
+                    }}
+                    onPress={() => setShowDeleteModal(true)}
+                  >
+                    <MaterialIcons name="delete" size={18} color="white" />
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
             <Text
               style={[styles.descriptionText, Typography.f_14_nunito_medium]}

@@ -66,7 +66,9 @@ const translations: Translations = {
     "Failed to add contact. Please try again.":
       "Failed to add contact. Please try again.",
     "logout successfully!": "logout successfully!",
-    "Failed to add schedule. Please try again.":"Failed to add schedule. Please try again."
+    "Failed to add schedule. Please try again.":"Failed to add schedule. Please try again.",
+    "Property updated successfully": "Property updated successfully",
+    "Failed to update property. Please try again.": "Failed to update property. Please try again."
   },
   sp: {
     "auth/invalid-email": "La dirección de correo electrónico no es válida.",
@@ -131,7 +133,9 @@ const translations: Translations = {
     "Failed to add contact. Please try again.":
       "Error al agregar el contacto. Por favor, inténtelo de nuevo.",
     "logout successfully!": "¡Cierre de sesión exitoso!",
-    "Failed to add schedule. Please try again.":"No se pudo agregar el horario. Por favor, inténtelo de nuevo."
+    "Failed to add schedule. Please try again.":"No se pudo agregar el horario. Por favor, inténtelo de nuevo.",
+    "Property updated successfully": "Propiedad actualizada con éxito",
+    "Failed to update property. Please try again.": "No se pudo actualizar la propiedad. Por favor, inténtelo de nuevo."
   },
 };
 

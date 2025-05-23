@@ -151,6 +151,9 @@ export interface CreateContactScreenNavigationProp
 export interface EditProfileProps {
   navigation: any;
 }
+export interface EditPropertyProps {
+  navigation: any;
+}
 export interface AddPropertyProps {
   navigation: any;
 }
@@ -362,7 +365,9 @@ export type LanguageTranslation = {
   whatsappNotInstall: string;
   myads:string;
   Revenue:string;
-  confirmDelete:string
+  confirmDelete:string;
+  editProperty:string;
+  editPhotos:string
 };
 
 export type LanguageData = {
