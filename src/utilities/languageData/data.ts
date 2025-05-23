@@ -156,33 +156,45 @@ export const languageData: LanguageData[] = [
       effectiveDate: "Effective Date: 6/4/2025",
       accountUse: "1. Account Use",
       accountUseDetails: "Only real estate agencies can register.",
-      accountUseDetails1: "Keep your login info secure. You're responsible for your account activity.",
+      accountUseDetails1:
+        "Keep your login info secure. You're responsible for your account activity.",
       appPurpose: "2. App Purpose",
-      appPurposeDetails: "The app helps agencies manage property listings and client visit schedules.",
-      appPurposeDetails1: "Clients do not use the app — their data is added manually by agencies.",
+      appPurposeDetails:
+        "The app helps agencies manage property listings and client visit schedules.",
+      appPurposeDetails1:
+        "Clients do not use the app — their data is added manually by agencies.",
       dataPrivacy: "3. Data Privacy",
-      dataPrivacyDetails: "Each agency's data is private and not shared with others.",
-      dataPrivacyDetails1: "You own your data and are responsible for its accuracy.",
+      dataPrivacyDetails:
+        "Each agency's data is private and not shared with others.",
+      dataPrivacyDetails1:
+        "You own your data and are responsible for its accuracy.",
       communication: "4. Communication",
-      communicationDetails: "No communication or data sharing is allowed between different agencies.",
+      communicationDetails:
+        "No communication or data sharing is allowed between different agencies.",
       emailsAndSharing: "5. Emails & Sharing",
-      emailsAndSharingDetails: "The app sends automated emails for visit confirmations.",
-      emailsAndSharingDetails1: "Sharing options (WhatsApp, copy, etc.) are provided for convenience.",
+      emailsAndSharingDetails:
+        "The app sends automated emails for visit confirmations.",
+      emailsAndSharingDetails1:
+        "Sharing options (WhatsApp, copy, etc.) are provided for convenience.",
       DataExport: "6. Data Export",
-      dataExportDetails: "Agencies can export visit records in Excel for their own use.",
+      dataExportDetails:
+        "Agencies can export visit records in Excel for their own use.",
       security: "7. Security",
-      securityDetails: "We take standard steps to protect data but are not liable for misuse or technical issues.",
+      securityDetails:
+        "We take standard steps to protect data but are not liable for misuse or technical issues.",
       termination: "8. Termination",
       terminationDetails: "Accounts may be suspended if terms are violated.",
       terminationDetails1: "You can request account deletion anytime.",
       Contact: "Contact",
       Eemail: "Email: [Insert Email]",
       Address: "Address: [Insert Address]",
-      termsAndConditionsTitle: "By using this app, you agree to the following terms:",
+      termsAndConditionsTitle:
+        "By using this app, you agree to the following terms:",
       dataWeCollect: "Data We Collect",
       agencyUserDetails: "Agency user details (name, email, password)",
       propertyInfo: "Property info (images, address, description)",
-      clientVisitDetails: "Client visit details (name, email, phone, visitors count, visit time, property, location)",
+      clientVisitDetails:
+        "Client visit details (name, email, phone, visitors count, visit time, property, location)",
       howWeUseIt: "How We Use It",
       secureLogin: "Secure login and account access",
       scheduleManage: "Schedule and manage property visits",
@@ -192,9 +204,11 @@ export const languageData: LanguageData[] = [
       privacySecurity: "Privacy & Security",
       dataIsolation: "Each agency's data is isolated — no inter-agency sharing",
       passwordEncryption: "Passwords are encrypted",
-      secureDataStorage: "Data stored securely and accessed only by authorized users",
+      secureDataStorage:
+        "Data stored securely and accessed only by authorized users",
       yourControl: "Your Control",
-      accountControl: "Agency users can update or delete their data anytime. For account deletion, contact us at [Insert Email].",
+      accountControl:
+        "Agency users can update or delete their data anytime. For account deletion, contact us at [Insert Email].",
       search: "Search",
       noLocation: "Location not available",
       noApartmentsFound: "No Apartments found",
@@ -225,14 +239,17 @@ export const languageData: LanguageData[] = [
       copyMsg: "Visit details copied to clipboard.",
       shareErr: "Unable to Share",
       whatsappNotInstall: "Whatsapp is not installed on your system",
-       myads:'My Ads'
+      myads: "My Ads",
+      Revenue: "Revenue",
+      confirmDelete: "Are you sure you want to delete this apartment?",
     },
   },
   {
     locale: "sp",
     translation: {
       welcome: "¡Bienvenido!",
-      trackVisits: "Mantenga un registro de todas sus visitas y exporte datos cuando los necesite.",
+      trackVisits:
+        "Mantenga un registro de todas sus visitas y exporte datos cuando los necesite.",
       loginEmailPrompt: "Ingrese su correo electrónico para iniciar sesión",
       registerEmailPrompt: "Ingrese su correo electrónico para comenzar",
       pleaseLoginHere: "¡Por favor inicie sesión aquí!",
@@ -259,7 +276,8 @@ export const languageData: LanguageData[] = [
       sendOtp: "ENVIAR OTP",
       changePassword: "Cambiar contraseña",
       enternewpassword: "Crear la nueva contraseña",
-      invalidEmail: "Por favor ingrese una dirección de correo electrónico válida",
+      invalidEmail:
+        "Por favor ingrese una dirección de correo electrónico válida",
       emailRequired: "El correo electrónico es obligatorio",
       passwordRequired: "La contraseña es obligatoria",
       passwordMin: "La contraseña debe tener al menos 6 caracteres",
@@ -382,45 +400,66 @@ export const languageData: LanguageData[] = [
       effectiveDate: "Fecha efectiva: 6/4/2025",
       accountUse: "1. Uso de la cuenta",
       accountUseDetails: "Solo las agencias inmobiliarias pueden registrarse.",
-      accountUseDetails1: "Mantenga segura su información de inicio de sesión. Usted es responsable de la actividad de su cuenta.",
+      accountUseDetails1:
+        "Mantenga segura su información de inicio de sesión. Usted es responsable de la actividad de su cuenta.",
       appPurpose: "2. Propósito de la aplicación",
-      appPurposeDetails: "La aplicación ayuda a las agencias a gestionar listados de propiedades y programar visitas de clientes.",
-      appPurposeDetails1: "Los clientes no utilizan la aplicación — sus datos se agregan manualmente por las agencias.",
+      appPurposeDetails:
+        "La aplicación ayuda a las agencias a gestionar listados de propiedades y programar visitas de clientes.",
+      appPurposeDetails1:
+        "Los clientes no utilizan la aplicación — sus datos se agregan manualmente por las agencias.",
       dataPrivacy: "3. Privacidad de datos",
-      dataPrivacyDetails: "Los datos de cada agencia son privados y no se comparten con otros.",
-      dataPrivacyDetails1: "Usted es propietario de sus datos y es responsable de su precisión.",
+      dataPrivacyDetails:
+        "Los datos de cada agencia son privados y no se comparten con otros.",
+      dataPrivacyDetails1:
+        "Usted es propietario de sus datos y es responsable de su precisión.",
       communication: "4. Comunicación",
-      communicationDetails: "No se permite la comunicación ni el intercambio de datos entre diferentes agencias.",
+      communicationDetails:
+        "No se permite la comunicación ni el intercambio de datos entre diferentes agencias.",
       emailsAndSharing: "5. Correos electrónicos y compartir",
-      emailsAndSharingDetails: "La aplicación envía correos electrónicos automatizados para confirmaciones de visita.",
-      emailsAndSharingDetails1: "Las opciones de compartir (WhatsApp, copiar, etc.) se proporcionan por conveniencia.",
+      emailsAndSharingDetails:
+        "La aplicación envía correos electrónicos automatizados para confirmaciones de visita.",
+      emailsAndSharingDetails1:
+        "Las opciones de compartir (WhatsApp, copiar, etc.) se proporcionan por conveniencia.",
       DataExport: "6. Exportación de datos",
-      dataExportDetails: "Las agencias pueden exportar registros de visitas en Excel para su propio uso.",
+      dataExportDetails:
+        "Las agencias pueden exportar registros de visitas en Excel para su propio uso.",
       security: "7. Seguridad",
-      securityDetails: "Tomamos medidas estándar para proteger los datos, pero no somos responsables del uso indebido o problemas técnicos.",
+      securityDetails:
+        "Tomamos medidas estándar para proteger los datos, pero no somos responsables del uso indebido o problemas técnicos.",
       termination: "8. Terminación",
-      terminationDetails: "Las cuentas pueden ser suspendidas si se violan los términos.",
-      terminationDetails1: "Puede solicitar la eliminación de la cuenta en cualquier momento.",
+      terminationDetails:
+        "Las cuentas pueden ser suspendidas si se violan los términos.",
+      terminationDetails1:
+        "Puede solicitar la eliminación de la cuenta en cualquier momento.",
       Contact: "Contacto",
       Eemail: "Correo electrónico: [Insertar correo electrónico]",
       Address: "Dirección: [Insertar dirección]",
-      termsAndConditionsTitle: "Al usar esta aplicación, acepta los siguientes términos:",
+      termsAndConditionsTitle:
+        "Al usar esta aplicación, acepta los siguientes términos:",
       dataWeCollect: "Datos que recopilamos",
-      agencyUserDetails: "Detalles del usuario de la agencia (nombre, correo electrónico, contraseña)",
-      propertyInfo: "Información de la propiedad (imágenes, dirección, descripción)",
-      clientVisitDetails: "Detalles de la visita del cliente (nombre, correo electrónico, teléfono, número de visitantes, hora de visita, propiedad, ubicación)",
+      agencyUserDetails:
+        "Detalles del usuario de la agencia (nombre, correo electrónico, contraseña)",
+      propertyInfo:
+        "Información de la propiedad (imágenes, dirección, descripción)",
+      clientVisitDetails:
+        "Detalles de la visita del cliente (nombre, correo electrónico, teléfono, número de visitantes, hora de visita, propiedad, ubicación)",
       howWeUseIt: "Cómo lo usamos",
       secureLogin: "Inicio de sesión seguro y acceso a la cuenta",
       scheduleManage: "Programar y gestionar visitas a propiedades",
-      sendConfirmation: "Enviar correos electrónicos de confirmación a clientes y agencia",
+      sendConfirmation:
+        "Enviar correos electrónicos de confirmación a clientes y agencia",
       exportVisitData: "Exportar datos de visitas a Excel para registros",
-      shareVisitInfo: "Compartir información de visita a través de WhatsApp u otras aplicaciones",
+      shareVisitInfo:
+        "Compartir información de visita a través de WhatsApp u otras aplicaciones",
       privacySecurity: "Privacidad y seguridad",
-      dataIsolation: "Los datos de cada agencia están aislados — sin intercambio entre agencias",
+      dataIsolation:
+        "Los datos de cada agencia están aislados — sin intercambio entre agencias",
       passwordEncryption: "Las contraseñas están encriptadas",
-      secureDataStorage: "Los datos se almacenan de forma segura y solo los usuarios autorizados pueden acceder",
+      secureDataStorage:
+        "Los datos se almacenan de forma segura y solo los usuarios autorizados pueden acceder",
       yourControl: "Su control",
-      accountControl: "Los usuarios de la agencia pueden actualizar o eliminar sus datos en cualquier momento. Para eliminar la cuenta, contáctenos en [Insertar correo electrónico].",
+      accountControl:
+        "Los usuarios de la agencia pueden actualizar o eliminar sus datos en cualquier momento. Para eliminar la cuenta, contáctenos en [Insertar correo electrónico].",
       search: "Buscar",
       noLocation: "Ubicación no disponible",
       noApartmentsFound: "No se encontraron apartamentos",
@@ -433,7 +472,8 @@ export const languageData: LanguageData[] = [
       visitTime: "Hora de visita",
       infants: "Bebés",
       adults: "Adultos",
-      noSchedulesInRange: "No se encontraron programaciones en el rango de fechas seleccionado.",
+      noSchedulesInRange:
+        "No se encontraron programaciones en el rango de fechas seleccionado.",
       fileSaved: "¡Archivo CSV guardado exitosamente!",
       permissionDenied: "Se denegó el permiso para escribir archivos.",
       exportFailed: "Error al exportar el archivo CSV.",
@@ -451,7 +491,9 @@ export const languageData: LanguageData[] = [
       copyMsg: "Detalles de la visita copiados al portapapeles.",
       shareErr: "No se pudo compartir",
       whatsappNotInstall: "WhatsApp no está instalado en su dispositivo",
-      myads:'Mis Anuncios.'
+      myads: "Mis Anuncios.",
+      Revenue: "Ingresos",
+      confirmDelete: "¿Estás seguro de que quieres eliminar este apartamento?",
     },
   },
 ];

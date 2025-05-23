@@ -12,6 +12,7 @@ export type RootStackParamList = {
   Signin: undefined;
   Signup: undefined;
   ForgotPassword: undefined;
+  EditProfile:undefined;
   ResetPassword: undefined;
   MyAds:undefined;
   Tabs: {
@@ -33,7 +34,7 @@ export type RootStackParamList = {
     };
   };
   Map: { location: Location };
-  EditProfile: undefined;
+  EditProperty: { id: string };
   PrivacyPolicy: undefined;
   TermsAndConditions: undefined;
   Home: {
@@ -359,7 +360,9 @@ export type LanguageTranslation = {
   copyMsg: string;
   shareErr: string;
   whatsappNotInstall: string;
-  myads:string
+  myads:string;
+  Revenue:string;
+  confirmDelete:string
 };
 
 export type LanguageData = {

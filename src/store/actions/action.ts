@@ -89,7 +89,7 @@ export const loginUser =
 
       // Always store user data in AsyncStorage for persistence
       await setItem("user", userData);
-      
+
       // Update Redux state
       dispatch({ type: "SET_USER", payload: userData });
       dispatch({ type: "IS_LOADER", payload: false });
@@ -97,7 +97,7 @@ export const loginUser =
       navigation.dispatch(
         CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
       );
-      
+
       const customMessage = await getFirebaseErrorMessage("Login successful!");
       Toast.show({ type: "success", text1: customMessage, position: "bottom" });
     } catch (error) {
@@ -626,4 +626,44 @@ export const fetchNotificationsByUserID =
     }
   };
 
-  
+export const deletePropertyById =
+  (propertyId: string, userID: string) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+      await firestore().collection("properties").doc(propertyId).delete();
+
+      const snapshot = await firestore()
+        .collection("properties")
+        .where("createdBy", "==", userID)
+        .get();
+
+      if (snapshot.empty) {
+        dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
+      } else {
+        const properties = snapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
+      }
+      dispatch({ type: "IS_LOADER", payload: false });
+      const customMessage = await getFirebaseErrorMessage(
+        "Property deleted successfully"
+      );
+      Toast.show({
+        type: "success",
+        text1: customMessage,
+        position: "bottom",
+      });
+    } catch (error) {
+      dispatch({ type: "IS_LOADER", payload: false });
+      const errorMessage = await getFirebaseErrorMessage(
+        (error as any).code || "Failed to delete property"
+      );
+      Toast.show({
+        type: "error",
+        text1: errorMessage,
+        position: "bottom",
+      });
+    }
+  };

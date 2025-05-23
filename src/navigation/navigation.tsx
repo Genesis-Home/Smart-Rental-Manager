@@ -17,6 +17,7 @@ import Map from "../screens/Home/Map";
 import EditProfile from "../screens/Settings/EditProfile";
 import PrivacyPolicy from "../screens/Settings/PrivacyPolicy";
 import TermsAndConditions from "../screens/Settings/TermsAndConditions";
+import EditProperty from "../screens/EditProperty";
 import { AppBottomNavigator } from "./BottomNavigation";
 import { RootStackParamList } from "../types/types";
 
@@ -100,6 +101,11 @@ function App() {
           options={{ headerShown: false }}
           component={PrivacyPolicy}
           name="PrivacyPolicy"
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          component={EditProperty}
+          name="EditProperty"
         />
         <Stack.Screen
           options={{ headerShown: false }}

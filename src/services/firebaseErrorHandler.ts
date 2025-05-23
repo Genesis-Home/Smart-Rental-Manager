@@ -51,6 +51,8 @@ const translations: Translations = {
     serviceCreatedSuccess: "Service created successfully!",
     "Ad updated successfully!": "Ad updated successfully!",
     "Ad deleted successfully!": "Ad deleted successfully!",
+    "Property deleted successfully": "Property deleted successfully",
+    "Failed to delete property": "Failed to delete property",
     "": "",
     "Failed to add property. Please try again.":
       "Failed to add property. Please try again.",
@@ -114,6 +116,8 @@ const translations: Translations = {
     serviceCreatedSuccess: "¡Servicio creado exitosamente!",
     "Ad updated successfully!": "¡Anuncio actualizado exitosamente!",
     "Ad deleted successfully!": "¡Anuncio eliminado exitosamente!",
+    "Property deleted successfully": "Propiedad eliminada con éxito",
+    "Failed to delete property": "No se pudo eliminar la propiedad",
     "": "",
     "Failed to add property. Please try again.":
       "No se pudo agregar la propiedad. Por favor, inténtelo de nuevo.",

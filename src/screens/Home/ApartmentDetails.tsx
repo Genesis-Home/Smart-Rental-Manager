@@ -8,22 +8,31 @@ import {
   FlatList,
   Image,
   Dimensions,
+  Modal,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
-import { Prev, Next, Heart, Address } from "../../assets/icons";
+import { Prev, Next, Address } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header";
-import { useRoute, RouteProp } from "@react-navigation/native";
-import { RouteParams } from "../../types/types";
-import { fetchPropertyById } from "../../store/actions/action";
+import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
+import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
+import { RouteParams, RootStackParamList } from "../../types/types";
+import {
+  fetchPropertyById,
+  deletePropertyById,
+} from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window");
 
 const ApartmentDetails: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [apartmentDetail, setApartmentDetail] = useState<any>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const scrollRef = useRef<FlatList>(null);
@@ -31,10 +40,13 @@ const ApartmentDetails: React.FC = () => {
     useRoute<
       RouteProp<{ ApartmentDetails: RouteParams }, "ApartmentDetails">
     >();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const { id: apartmentID } = route?.params || {};
 
   const property = useAppSelector((state: any) => state.reducer.property);
+  const user = useAppSelector((state: any) => state.reducer.user);
 
   useEffect(() => {
     if (apartmentID) {
@@ -47,6 +59,28 @@ const ApartmentDetails: React.FC = () => {
       setApartmentDetail(property);
     }
   }, [property]);
+
+  const handleLogoutConfirm = async () => {
+    setShowDeleteModal(false);
+    if (user?.userId) {
+      await dispatch(deletePropertyById(apartmentID, user.userId));
+      navigation.goBack();
+    } else {
+      const customMessage = await getFirebaseErrorMessage(
+        "User not authenticated"
+      );
+      Toast.show({
+        type: "error",
+        text1: customMessage,
+        position: "bottom",
+      });
+      navigation.navigate("Signin");
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowDeleteModal(false);
+  };
 
   const handleScroll = (event: any) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -120,18 +154,52 @@ const ApartmentDetails: React.FC = () => {
                   </View>
                 </>
               )}
-              {/* <TouchableOpacity
-                activeOpacity={0.8}
-                style={{ position: "absolute", bottom: 10, right: 10 }}
-              >
-                <Heart height={30} width={30} />
-              </TouchableOpacity> */}
             </View>
           </View>
           <View style={styles.detailsWrapper}>
-            <Text style={[styles.titleText, Typography.f_20_montserrat_bold]}>
-              {apartmentDetail?.title}
-            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text style={[styles.titleText, Typography.f_20_nunito_bold]}>
+                {apartmentDetail?.title}
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginRight: 10,
+                }}
+              >
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={{
+                    marginRight: 10,
+                    backgroundColor: Colors.Primary_01,
+                    padding: 8,
+                    borderRadius: 8,
+                  }}
+                  onPress={() =>
+                    navigation.navigate("EditProperty", { id: apartmentID })
+                  }
+                >
+                  <MaterialIcons name="edit" size={18} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={{
+                    backgroundColor: Colors.Primary_01,
+                    padding: 8,
+                    borderRadius: 8,
+                  }}
+                  onPress={() => setShowDeleteModal(true)}
+                >
+                  <MaterialIcons name="delete" size={18} color="white" />
+                </TouchableOpacity>
+              </View>
+            </View>
             <Text
               style={[styles.descriptionText, Typography.f_14_nunito_medium]}
             >
@@ -162,7 +230,7 @@ const ApartmentDetails: React.FC = () => {
                       { color: Colors.black },
                     ]}
                   >
-                    Revenue:
+                    {t("Revenue")}:
                   </Text>
                   <Text
                     style={[
@@ -180,7 +248,7 @@ const ApartmentDetails: React.FC = () => {
                     { color: Colors.black, marginBottom: 10 },
                   ]}
                 >
-                  Revenue: {t("noRevenue")}
+                  {t("Revenue")}: {t("noRevenue")}
                 </Text>
               )
             ) : (
@@ -206,6 +274,32 @@ const ApartmentDetails: React.FC = () => {
             {apartmentDetail?.otherDetails}
           </Text>
         </View>
+        <Modal
+          transparent={true}
+          visible={showDeleteModal}
+          animationType="fade"
+          onRequestClose={handleLogoutCancel}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>{t("confirmDelete")}</Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={handleLogoutConfirm}
+                >
+                  <Text style={styles.modalButtonText}>{t("ok")}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={handleLogoutCancel}
+                >
+                  <Text style={styles.modalButtonText}>{t("cancel")}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </View>
   );
@@ -283,5 +377,37 @@ const styles = StyleSheet.create({
     color: Colors.DARK_GREEN,
     lineHeight: 24,
     marginBottom: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    backgroundColor: Colors.white,
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalTitle: {
+    ...Typography.f_16_nunito_bold,
+    color: Colors.DARK_GREEN,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    gap: 20,
+  },
+  modalButton: {
+    backgroundColor: Colors.Primary_01,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    ...Typography.f_14_nunito_medium,
+    color: Colors.white,
   },
 });
