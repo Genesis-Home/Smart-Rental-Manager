@@ -220,7 +220,7 @@ const Home: React.FC = () => {
           <Text
             style={[
               Typography.f_14_nunito_medium,
-              { color: Colors.black, lineHeight: 24, width: "70%" },
+              { color: Colors.black, lineHeight: 24 },
             ]}
           >
             {item.description}

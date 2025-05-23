@@ -171,7 +171,7 @@ const ApartmentDetails: React.FC = () => {
                 <View
                   style={{
                     flexDirection: "row",
-                    marginRight: 10,
+                    // width:"30%"
                   }}
                 >
                   <TouchableOpacity
@@ -365,11 +365,11 @@ const styles = StyleSheet.create({
   },
   titleText: {
     color: Colors.black,
+    width:"70%"
   },
   descriptionText: {
     color: Colors.black,
     lineHeight: 24,
-    width: "70%",
   },
   addressRow: {
     flexDirection: "row",
