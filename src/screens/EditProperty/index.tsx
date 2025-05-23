@@ -13,7 +13,7 @@ import {
 import { t } from "i18next";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { colors } from "../../utilities/constants";
+import { colors, DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
@@ -24,14 +24,19 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { launchImageLibrary } from "react-native-image-picker";
 import storage from "@react-native-firebase/storage";
 import { updateProperty, fetchPropertyById } from "../../store/actions/action";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import { useRoute } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import {
+  GooglePlacesAutocomplete,
+  Language,
+} from "react-native-google-places-autocomplete";
 import { EnvConfig } from "../../config/envConfig";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { Marker as MarkerIcon } from "../../assets/icons";
 import axios from "axios";
+import Colors from "../../utilities/constants/colors";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required(t("title") + " " + t("isRequired")),
@@ -50,6 +55,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
   const { id } = route.params as { id: string };
   const user = useAppSelector((state: any) => state.reducer.user);
   const property = useAppSelector((state: any) => state.reducer.property);
+  const [inputText, setInputText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [marker, setMarker] = useState<{
@@ -72,22 +78,21 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
   }, [id]);
 
   useEffect(() => {
-    if (property) {
-      setGalleryImages(property.images || []);
-      if (property.location) {
-        setMarker({
-          latitude: property.location.lat,
-          longitude: property.location.long,
-        });
-        setMapRegion({
-          latitude: property.location.lat,
-          longitude: property.location.long,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        });
-        if (placesRef.current && property.location.address) {
-          placesRef.current.setAddressText(property.location.address);
-        }
+    if (property && property.location) {
+      const { lat, long, address } = property.location;
+      setInputText(address || "");
+      setMarker({ latitude: lat, longitude: long });
+      setMapRegion({
+        latitude: lat,
+        longitude: long,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
+      if (placesRef.current) {
+        placesRef.current.setAddressText(address);
+      }
+      if (property.images && property.images.length > 0) {
+        setGalleryImages(property.images);
       }
     }
   }, [property]);
@@ -198,10 +203,23 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       });
+      setInputText(formattedAddress);
       setFieldValue("location", location);
     } catch (error) {
       console.error("Error reverse geocoding:", error);
     }
+  };
+
+  const handleClearInput = () => {
+    setInputText("");
+    placesRef.current?.setAddressText("");
+    setMarker(null);
+    setMapRegion({
+      latitude: 30.4419,
+      longitude: -84.2985,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
   };
 
   return (
@@ -212,7 +230,9 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
       ]}
     >
       <View style={{ flex: 8 }}>
-        <Header title={t("editProperty")} />
+        <View style={{ marginHorizontal: "5%" }}>
+          <Header title={t("editProperty")} />
+        </View>
         <ScrollView
           contentContainerStyle={styles.containerC1}
           showsVerticalScrollIndicator={false}
@@ -239,7 +259,6 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
               </Text>
             </View>
           </TouchableOpacity>
-
           {isUploading ? (
             <ActivityIndicator
               size="large"
@@ -249,7 +268,6 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
           ) : (
             renderImages()
           )}
-
           {property && (
             <Formik
               initialValues={{
@@ -301,7 +319,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                 errors,
                 touched,
               }) => (
-                <View style={styles.containerc1_c2}>
+                <>
                   <FormInput
                     label={t("title")}
                     placeholder={t("title")}
@@ -314,6 +332,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                         : undefined
                     }
                   />
+
                   <FormInput
                     label={t("description")}
                     placeholder={t("description")}
@@ -328,6 +347,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                     multiline
                     numberOfLines={4}
                   />
+
                   <FormInput
                     label={t("otherDet")}
                     placeholder={t("otherDet")}
@@ -342,12 +362,11 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                     multiline
                     numberOfLines={4}
                   />
-
                   <View style={styles.locationContainer}>
                     <Text
                       style={[
                         styles.locationLabel,
-                        Typography.f_14_nunito_bold,
+                        Typography.f_14_nunito_semi_bold,
                       ]}
                     >
                       {t("location")}
@@ -355,6 +374,13 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                     <GooglePlacesAutocomplete
                       ref={placesRef}
                       placeholder={t("location")}
+                      fetchDetails={true}
+                      enablePoweredByContainer={false}
+                      textInputProps={{
+                        value: inputText,
+                        onChangeText: setInputText,
+                      }}
+                      minLength={2}
                       onPress={(data, details) => {
                         if (details) {
                           const location = {
@@ -362,6 +388,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                             lat: details.geometry?.location?.lat || 0,
                             long: details.geometry?.location?.lng || 0,
                           };
+                          setInputText(details.formatted_address);
                           setFieldValue("location", location);
                           setMarker({
                             latitude: location.lat,
@@ -377,7 +404,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                       }}
                       query={{
                         key: EnvConfig.googleMaps.apiKey,
-                        language: "en",
+                        language: DEFAULT_LANGUAGE as Language,
                       }}
                       styles={{
                         textInput: {
@@ -389,7 +416,6 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                           borderRadius: 8,
                           backgroundColor: colors.white,
                           height: 40,
-                          marginTop: 0,
                           marginLeft: 0,
                           marginRight: 0,
                         },
@@ -415,8 +441,15 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                         },
                       }}
                     />
+                    {inputText ? (
+                      <TouchableOpacity
+                        style={styles.clearButton}
+                        onPress={handleClearInput}
+                      >
+                        <Icon name="close" size={20} color={colors.DARK_GRAY} />
+                      </TouchableOpacity>
+                    ) : null}
                   </View>
-
                   <MapView
                     style={{ height: 200, width: "100%", marginTop: 10 }}
                     provider={PROVIDER_GOOGLE}
@@ -434,14 +467,13 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                       </Marker>
                     )}
                   </MapView>
-
-                  <View style={{ marginTop: 40 }}>
+                  <View style={{ marginVertical: 40 }}>
                     <CTAButton1
                       title={t("save")}
                       submitHandler={handleSubmit}
                     />
                   </View>
-                </View>
+                </>
               )}
             </Formik>
           )}
@@ -451,57 +483,64 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
   );
 };
 
-const createStyles = (colors: any) =>
-  StyleSheet.create({
+const createStyles = (colors: any) => {
+  return StyleSheet.create({
     mainContainer: {
       flex: 1,
-      backgroundColor: colors.white,
-      marginHorizontal: "5%",
+      backgroundColor: colors.background,
     },
     containerC1: {
-      paddingBottom: 50,
-    },
-    containerc1_c2: {
-      width: "100%",
-      marginTop: 10,
+      paddingHorizontal: 15,
+      paddingTop: 10,
+      flexGrow: 1,
     },
     photoUploadSection: {
-      marginTop: 20,
-      paddingVertical: 15,
+      paddingBottom: 10,
+      marginTop: 10,
+      backgroundColor: colors.lightGray,
       borderRadius: 8,
       flexDirection: "row",
+      alignItems: "center",
       justifyContent: "space-between",
-      alignItems: "flex-end",
     },
     photoUploadLabel: {
-      color: colors.DARK_GREEN,
+      color: colors.black,
+      ...Typography.f_16_nunito_medium,
     },
     photoUploadActionRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
     },
     photoTextLabel: {
-      color: colors.DARK_GREEN,
+      color: colors.black,
+      marginLeft: 5,
+      ...Typography.f_14_nunito_medium,
     },
     imageContainer: {
-      width: "30%",
-      aspectRatio: 1,
-      borderRadius: 8,
-      overflow: "hidden",
       position: "relative",
+      width: 100,
+      height: 100,
+      marginBottom: 10,
     },
     image: {
       width: "100%",
       height: "100%",
+      borderRadius: 8,
     },
     locationContainer: {
-      marginTop: 20,
+      marginVertical: 15,
     },
     locationLabel: {
-      color: colors.DARK_GREEN,
-      marginBottom: 10,
+      color: Colors.DARK_GREEN,
+      ...Typography.f_16_nunito_medium,
+    },
+    clearButton: {
+      position: "absolute",
+      right: 5,
+      backgroundColor: colors.white,
+      top: 35,
     },
   });
+};
 
 export default EditProperty;
