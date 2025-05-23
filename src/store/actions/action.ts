@@ -632,20 +632,35 @@ export const deletePropertyById =
       dispatch({ type: "IS_LOADER", payload: true });
       await firestore().collection("properties").doc(propertyId).delete();
 
-      const snapshot = await firestore()
+      const snapshotuserproperties = await firestore()
         .collection("properties")
         .where("createdBy", "==", userID)
         .get();
 
-      if (snapshot.empty) {
+      if (snapshotuserproperties.empty) {
         dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
       } else {
-        const properties = snapshot.docs.map((doc: any) => ({
+        const properties = snapshotuserproperties.docs.map((doc: any) => ({
           ...doc.data(),
           id: doc.id,
         }));
         dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
       }
+
+      const snapshotproperties = await firestore()
+        .collection("properties")
+        .get();
+
+      if (snapshotproperties.empty) {
+        dispatch({ type: "SET_PROPERTIES", payload: [] });
+      } else {
+        const properties = snapshotproperties.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_PROPERTIES", payload: properties });
+      }
+
       dispatch({ type: "IS_LOADER", payload: false });
       const customMessage = await getFirebaseErrorMessage(
         "Property deleted successfully"
