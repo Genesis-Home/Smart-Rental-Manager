@@ -164,6 +164,23 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                     submitHandler={handleSubmit}
                   />
                 </View>
+                <Text
+                onPress={()=>navigation.navigate('Signup')}
+                  style={[
+                    Typography.f_16_nunito_semi_bold,
+                    {
+                      color: colors.DARK_GREEN,
+                      paddingVertical: 10,
+                      textAlign: "center",
+                      marginTop: 20,
+                    },
+                  ]}
+                >
+                  {t("donthaveaccount")}{" "}
+                  <Text style={[{ color: colors.Primary_01 },Typography.f_16_nunito_bold]}>
+                    {t("signup")}
+                  </Text>
+                </Text>
               </View>
             )}
           </Formik>
