@@ -23,13 +23,17 @@ const AutomatedEmail: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, "AutomatedEmail">>();
   const visit = route.params?.visitDetails;
   const navigation = useNavigation<NavigationProp<RootStackParamList, "Map">>();
-  const visitMessage = `${t("visitDetails")}\n${t("visitData")}: ${
-    visit?.visitDates
-  }, ${visit?.visitTime}\n${t("numberOfVisitors")}: ${
-    visit?.numberOfVisitors
-  }\n${t("numberOfInfants")}: ${visit?.numberOfInfants}\n${t(
-    "propertyAddress"
-  )}: ${visit?.location.address}`;
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${visit?.location.lat},${visit?.location.long}`;
+
+  const visitMessage = `${t("visitDetails")}:
+
+📅 ${t("visitData")}: ${visit?.visitDates}, ${visit?.visitTime}
+👨‍👩‍👧‍👦 ${t("numberOfVisitors")}: ${visit?.numberOfVisitors}
+👶 ${t("numberOfInfants")}: ${visit?.numberOfInfants}
+🏠 ${t("propertyAddress")}: ${visit?.location.address}
+
+🗺️ ${t("mapLink")}: ${googleMapsUrl}
+`;
 
   const handleWhatsappShare = () => {
     const url = `whatsapp://send?text=${encodeURIComponent(visitMessage)}`;
@@ -59,7 +63,7 @@ const AutomatedEmail: React.FC = () => {
 
   return (
     <View style={styles.screenWrapper}>
-      <Header title={t("AutomatedEmail")}  isAutomatedEmail/>
+      <Header title={t("AutomatedEmail")} isAutomatedEmail />
 
       <Email style={styles.emailIconStyle} />
 

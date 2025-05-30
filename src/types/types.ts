@@ -367,7 +367,8 @@ export type LanguageTranslation = {
   Revenue:string;
   confirmDelete:string;
   editProperty:string;
-  editPhotos:string
+  editPhotos:string;
+  mapLink:string
 };
 
 export type LanguageData = {

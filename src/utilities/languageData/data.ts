@@ -242,8 +242,9 @@ export const languageData: LanguageData[] = [
       myads: "My Ads",
       Revenue: "Revenue",
       confirmDelete: "Are you sure you want to delete this apartment?",
-      editProperty:'Edit Property',
-      editPhotos:'Edit Photos'
+      editProperty: "Edit Property",
+      editPhotos: "Edit Photos",
+      mapLink: "Map Link",
     },
   },
   {
@@ -496,9 +497,9 @@ export const languageData: LanguageData[] = [
       myads: "Mis Anuncios.",
       Revenue: "Ingresos",
       confirmDelete: "¿Estás seguro de que quieres eliminar este apartamento?",
-            editProperty:'Editar propiedad',
-                  editPhotos:'Editar fotos'
-
+      editProperty: "Editar propiedad",
+      editPhotos: "Editar fotos",
+      mapLink: "Enlace de mapa",
     },
   },
 ];

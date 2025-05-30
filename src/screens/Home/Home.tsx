@@ -79,20 +79,31 @@ const Home: React.FC = () => {
       setFilteredProperties(filtered);
     }
   };
-
   const handleShare = async (item: Property) => {
     try {
-      const imageUrls = item.images?.map((image) => image);
+      const imageUrls = item.images?.map((url) => url).join("\n\n");
+      const title = item.title || "No Title";
+      const description = item.description || "No Description";
+      const address = item.location?.address || "No location available";
+      const lat = item.location?.lat;
+      const lng = item.location?.long;
 
-      const message = `Title: ${item.title}\nDescription: ${
-        item.description
-      }\nLocation: ${item.location?.address ?? "No location"}\nImages:\n${imageUrls
-        .map((url) => `${url}\n\n`)
-        .join("")}`;
+      const mapsUrl =
+        lat && lng
+          ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+          : address !== "No location available"
+          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+              address
+            )}`
+          : "";
+
+      const message = `🏢 *${title}*\n\n📝 *Description:*\n${description}\n\n📍 *Location:*\n${address}\n${
+        mapsUrl ? `${mapsUrl}` : ""
+      }\n\n🖼️ *Images:*\n${imageUrls}`;
 
       await Share.share({
         message,
-        title: item.title,
+        title,
       });
     } catch (error) {
       console.error("Error sharing property:", error);
@@ -212,9 +223,7 @@ const Home: React.FC = () => {
           </View>
         </View>
         <View style={{ marginVertical: 20, gap: 5 }}>
-          <Text
-            style={[Typography.f_20_nunito_bold, { color: Colors.black }]}
-          >
+          <Text style={[Typography.f_20_nunito_bold, { color: Colors.black }]}>
             {item.title}
           </Text>
           <Text
@@ -226,7 +235,7 @@ const Home: React.FC = () => {
             {item.description}
           </Text>
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <Address style={{top:3}}/>
+            <Address style={{ top: 3 }} />
             <Text
               style={[
                 Typography.f_14_nunito_medium,
