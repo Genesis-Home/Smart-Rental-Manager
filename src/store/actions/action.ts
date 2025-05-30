@@ -9,7 +9,8 @@ import { scheduleBookingNotifications } from "../../services/notificationService
 import axios from "axios";
 import { Location } from "../../types/types";
 
-export const getCurrentUser =(navigation: NavigationProp<any>): any =>
+export const getCurrentUser =
+  (navigation: NavigationProp<any>): any =>
   async (dispatch: Dispatch) => {
     try {
       const user = await getItem("user", null);
@@ -24,16 +25,39 @@ export const getCurrentUser =(navigation: NavigationProp<any>): any =>
     }
   };
 
-export const sendEmail = ( navigation: NavigationProp<any>,email: string,visitDates: string,visitTime: string, numberOfVisitors: string, numberOfInfants: string, property: string,location: Location  ): any =>
+export const sendEmail =
+  (
+    navigation: NavigationProp<any>,
+    email: string,
+    visitDates: string,
+    visitTime: string,
+    numberOfVisitors: string,
+    numberOfInfants: string,
+    property: string,
+    location: Location
+  ): any =>
   async (dispatch: Dispatch) => {
     try {
       const formattedVisitDates = visitDates.replace(" - ", " to ");
+
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.long}`;
+
+      const message = `Visit Details:
+
+📅 Visit Date & Time: ${formattedVisitDates}, ${visitTime}
+👨‍👩‍👧‍👦 Number of Visitors: ${numberOfVisitors}
+👶 Number of Infants: ${numberOfInfants}
+🏠 Property Address: ${location.address}
+
+🗺️ Google Maps Location: ${googleMapsUrl}
+`;
+
       const response = await axios.post(
         "https://api-youshwrkza-uc.a.run.app/send-email",
         {
           to: email,
           subject: "Your visit is confirmed",
-          message: `Visit Details\nVisit Date & Time: ${formattedVisitDates}, ${visitTime}\nNumber of Visitors: ${numberOfVisitors}\nNumber of Infants: ${numberOfInfants}\nProperty Address: ${location.address}`,
+          message,
         },
         {
           headers: {
@@ -41,7 +65,9 @@ export const sendEmail = ( navigation: NavigationProp<any>,email: string,visitDa
           },
         }
       );
+
       console.log("Email sent successfully:", response.data);
+
       navigation.navigate("AutomatedEmail", {
         visitDetails: {
           visitDates: formattedVisitDates,
@@ -54,9 +80,11 @@ export const sendEmail = ( navigation: NavigationProp<any>,email: string,visitDa
       });
     } catch (error) {
       console.error("Error sending email:", error);
-    }};
+    }
+  };
 
-export const loginUser = (credentials: any, isSelectedRemember: any, navigation: any) =>
+export const loginUser =
+  (credentials: any, isSelectedRemember: any, navigation: any) =>
   async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
@@ -95,7 +123,8 @@ export const loginUser = (credentials: any, isSelectedRemember: any, navigation:
     }
   };
 
-export const registerUser = (credentials: any, navigation: any) => async (dispatch: any) => {
+export const registerUser =
+  (credentials: any, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       const userCredential = await auth().createUserWithEmailAndPassword(
@@ -126,7 +155,8 @@ export const registerUser = (credentials: any, navigation: any) => async (dispat
     }
   };
 
-export const forgotPassword = (email: string, navigation: any) => async (dispatch: any) => {
+export const forgotPassword =
+  (email: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       await auth().sendPasswordResetEmail(email);
@@ -143,7 +173,8 @@ export const forgotPassword = (email: string, navigation: any) => async (dispatc
     }
   };
 
-export const addProperty =(formData: any, userId: string, navigation: any) => async (dispatch: any) => {
+export const addProperty =
+  (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     console.log(formData, "formData");
     try {
       dispatch({ type: "IS_LOADER", payload: true });
@@ -225,7 +256,8 @@ export const fetchProperties = () => async (dispatch: any) => {
   }
 };
 
-export const fetchPropertyById = (propertyId: string) => async (dispatch: any) => {
+export const fetchPropertyById =
+  (propertyId: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -261,7 +293,8 @@ export const fetchPropertyById = (propertyId: string) => async (dispatch: any) =
     }
   };
 
-export const fetchPropertiesByUserID =(userID: string) => async (dispatch: any) => {
+export const fetchPropertiesByUserID =
+  (userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -289,7 +322,8 @@ export const fetchPropertiesByUserID =(userID: string) => async (dispatch: any) 
     }
   };
 
-export const addContact = (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
+export const addContact =
+  (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -346,7 +380,8 @@ export const addContact = (formData: any, userId: string, navigation: any) => as
     }
   };
 
-export const fetchContactsByUserID =(userID: string) => async (dispatch: any) => {
+export const fetchContactsByUserID =
+  (userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -394,7 +429,8 @@ export const logoutUser = (navigation: any) => async (dispatch: any) => {
   }
 };
 
-export const updateUser =(credentials: any, userId: any, navigation: any) => async (dispatch: any) => {
+export const updateUser =
+  (credentials: any, userId: any, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       await firestore().collection("users").doc(userId).update(credentials);
@@ -417,7 +453,8 @@ export const updateUser =(credentials: any, userId: any, navigation: any) => asy
     }
   };
 
-export const addSchedule =(formData: any, userId: string, navigation: any) => async (dispatch: any) => {
+export const addSchedule =
+  (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       const scheduleRef = firestore().collection("schedules").doc();
@@ -479,7 +516,8 @@ export const addSchedule =(formData: any, userId: string, navigation: any) => as
     }
   };
 
-export const fetchSchedulesByUserID =(userID: string) => async (dispatch: any) => {
+export const fetchSchedulesByUserID =
+  (userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -507,7 +545,8 @@ export const fetchSchedulesByUserID =(userID: string) => async (dispatch: any) =
     }
   };
 
-export const fetchSchedulesByPropertyIdAndUserId =(propertyId: string, userId: string) => async (dispatch: any) => {
+export const fetchSchedulesByPropertyIdAndUserId =
+  (propertyId: string, userId: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -536,7 +575,8 @@ export const fetchSchedulesByPropertyIdAndUserId =(propertyId: string, userId: s
     }
   };
 
-export const updatePropertyRevenue =(propertyId: string, newRevenue: number) => async (dispatch: any) => {
+export const updatePropertyRevenue =
+  (propertyId: string, newRevenue: number) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -564,7 +604,8 @@ export const updatePropertyRevenue =(propertyId: string, newRevenue: number) => 
     }
   };
 
-export const fetchNotificationsByUserID = (userID: string) => async (dispatch: any) => {
+export const fetchNotificationsByUserID =
+  (userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
@@ -592,7 +633,8 @@ export const fetchNotificationsByUserID = (userID: string) => async (dispatch: a
     }
   };
 
-export const deletePropertyById = (propertyId: string, userID: string) => async (dispatch: any) => {
+export const deletePropertyById =
+  (propertyId: string, userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       await firestore().collection("properties").doc(propertyId).delete();
@@ -648,64 +690,74 @@ export const deletePropertyById = (propertyId: string, userID: string) => async 
     }
   };
 
-export const updateProperty = (propertyId: string, formData: any, navigation: any) => async (dispatch: any) => {
-  try {
-    dispatch({ type: "IS_LOADER", payload: true });
+export const updateProperty =
+  (propertyId: string, formData: any, navigation: any) =>
+  async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
 
-    const propertyData = {
-      title: formData.title,
-      description: formData.description,
-      otherDetails: formData.otherDetails,
-      location: formData.location,
-      images: formData.images,
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-    };
+      const propertyData = {
+        title: formData.title,
+        description: formData.description,
+        otherDetails: formData.otherDetails,
+        location: formData.location,
+        images: formData.images,
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+      };
 
-    await firestore().collection("properties").doc(propertyId).update(propertyData);
+      await firestore()
+        .collection("properties")
+        .doc(propertyId)
+        .update(propertyData);
 
-    // Fetch updated property
-    const propertyDoc = await firestore().collection("properties").doc(propertyId).get();
-    const updatedProperty = {
-      ...propertyDoc.data(),
-      id: propertyDoc.id,
-    };
-    dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
+      // Fetch updated property
+      const propertyDoc = await firestore()
+        .collection("properties")
+        .doc(propertyId)
+        .get();
+      const updatedProperty = {
+        ...propertyDoc.data(),
+        id: propertyDoc.id,
+      };
+      dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
 
-    // Update user properties list
-    const snapshot = await firestore()
-      .collection("properties")
-      .where("createdBy", "==", formData.createdBy)
-      .get();
+      // Update user properties list
+      const snapshot = await firestore()
+        .collection("properties")
+        .where("createdBy", "==", formData.createdBy)
+        .get();
 
-    if (snapshot.empty) {
-      dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
-    } else {
-      const properties = snapshot.docs.map((doc: any) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
+      if (snapshot.empty) {
+        dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
+      } else {
+        const properties = snapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
+      }
+
+      dispatch({ type: "IS_LOADER", payload: false });
+      const customMessage = await getFirebaseErrorMessage(
+        "Property updated successfully"
+      );
+      Toast.show({
+        type: "success",
+        text1: customMessage,
+        position: "bottom",
+      });
+
+      navigation.navigate("Tabs", { screen: "Home1" });
+    } catch (error: any) {
+      console.error("Update Property Error:", error);
+      dispatch({ type: "IS_LOADER", payload: false });
+      const errorMessage = await getFirebaseErrorMessage(
+        "Failed to update property. Please try again."
+      );
+      Toast.show({
+        type: "error",
+        text1: errorMessage,
+        position: "bottom",
+      });
     }
-
-    dispatch({ type: "IS_LOADER", payload: false });
-    const customMessage = await getFirebaseErrorMessage("Property updated successfully");
-    Toast.show({
-      type: "success",
-      text1: customMessage,
-      position: "bottom",
-    });
-
-    navigation.navigate("Tabs", { screen: "Home1" });
-  } catch (error: any) {
-    console.error("Update Property Error:", error);
-    dispatch({ type: "IS_LOADER", payload: false });
-    const errorMessage = await getFirebaseErrorMessage(
-      "Failed to update property. Please try again."
-    );
-    Toast.show({
-      type: "error",
-      text1: errorMessage,
-      position: "bottom",
-    });
-  }
-};
+  };
