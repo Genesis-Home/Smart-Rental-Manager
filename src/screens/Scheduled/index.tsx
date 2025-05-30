@@ -16,7 +16,7 @@ import { colors } from "../../utilities/constants";
 import { AddPhoto, Left, Right } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
 import { addDays, format, startOfWeek, startOfMonth } from "date-fns";
-import { enUS, es } from "date-fns/locale";
+import { enUS, es, el } from "date-fns/locale";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { ScheduledScreenNavigationProp, Day } from "../../types/types";
@@ -60,8 +60,8 @@ const Scheduled: React.FC = () => {
 
   const getLocale = () => {
     switch (i18n.language) {
-      case "sp":
-        return es;
+      case "gr":
+        return el;
       case "en":
       default:
         return enUS;

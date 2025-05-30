@@ -70,72 +70,34 @@ const translations: Translations = {
     "Property updated successfully": "Property updated successfully",
     "Failed to update property. Please try again.": "Failed to update property. Please try again."
   },
-  sp: {
-    "auth/invalid-email": "La dirección de correo electrónico no es válida.",
-    "auth/user-disabled": "La cuenta de usuario ha sido deshabilitada.",
-    "auth/user-not-found":
-      "No se encontró un usuario con este correo electrónico.",
-    "auth/wrong-password": "La contraseña es incorrecta.",
-    "auth/email-already-in-use":
-      "La dirección de correo electrónico ya está en uso.",
-    "auth/weak-password": "La contraseña es demasiado débil.",
-    "auth/operation-not-allowed": "Esta operación no está permitida.",
-    "auth/network-request-failed":
-      "Error de red, por favor intenta nuevamente más tarde.",
-    "auth/too-many-requests": "Demasiadas solicitudes. Intenta más tarde.",
-    "auth/invalid-verification-code": "El código de verificación no es válido.",
-    "auth/session-expired": "La sesión de verificación ha caducado.",
-    "auth/provider-already-linked":
-      "Este proveedor ya está vinculado a la cuenta.",
-    "auth/credential-already-in-use":
-      "Esta credencial ya está asociada con otro usuario.",
-    "auth/requires-recent-login":
-      "Esta operación requiere autenticación reciente. Inicia sesión nuevamente.",
-    "auth/missing-email": "Se requiere una dirección de correo electrónico.",
-    "auth/invalid-credential": "La credencial proporcionada no es válida.",
-    "auth/user-token-expired":
-      "El token del usuario ha expirado. Inicia sesión nuevamente.",
-    "auth/invalid-api-key": "La clave API proporcionada no es válida.",
-    "auth/app-not-authorized":
-      "La aplicación no está autorizada para usar Firebase Authentication.",
-    "auth/user-mismatch":
-      "El usuario no coincide con las credenciales proporcionadas.",
-    "auth/account-exists-with-different-credential":
-      "Ya existe una cuenta con el mismo correo electrónico pero con credenciales diferentes.",
-    "auth/popup-closed-by-user":
-      "El popup fue cerrado antes de completar el inicio de sesión.",
-    "auth/internal-error":
-      "Ocurrió un error interno. Por favor intenta más tarde.",
+  gr: {
+    "auth/invalid-email": "Η διεύθυνση email δεν είναι έγκυρη.",
+    "auth/user-disabled": "Ο λογαριασμός χρήστη έχει απενεργοποιηθεί.",
+    "auth/user-not-found": "Δεν βρέθηκε χρήστης με αυτό το email.",
+    "auth/wrong-password": "Ο κωδικός είναι λανθασμένος.",
+    "auth/email-already-in-use": "Η διεύθυνση email χρησιμοποιείται ήδη.",
+    "auth/weak-password": "Ο κωδικός είναι πολύ αδύναμος.",
+    "auth/operation-not-allowed": "Αυτή η λειτουργία δεν επιτρέπεται.",
+    "auth/network-request-failed": "Σφάλμα δικτύου, παρακαλώ δοκιμάστε ξανά αργότερα.",
+    "auth/too-many-requests": "Πάρα πολλές αιτήσεις. Δοκιμάστε ξανά αργότερα.",
+    "auth/invalid-verification-code": "Ο κωδικός επαλήθευσης δεν είναι έγκυρος.",
+    "auth/session-expired": "Η συνεδρία επαλήθευσης έχει λήξει.",
+    "auth/provider-already-linked": "Αυτός ο πάροχος είναι ήδη συνδεδεμένος με τον λογαριασμό.",
+    "auth/credential-already-in-use": "Αυτά τα διαπιστευτήρια χρησιμοποιούνται ήδη από άλλο χρήστη.",
+    "auth/requires-recent-login": "Αυτή η λειτουργία απαιτεί πρόσφατη πιστοποίηση. Παρακαλώ συνδεθείτε ξανά.",
+    "auth/missing-email": "Απαιτείται διεύθυνση email.",
+    "auth/invalid-credential": "Τα διαπιστευτήρια που παρέχονται δεν είναι έγκυρα.",
+    "auth/user-token-expired": "Το διακριτικό χρήστη έχει λήξει. Παρακαλώ συνδεθείτε ξανά.",
+    "auth/invalid-api-key": "Το κλειδί API που παρέχεται δεν είναι έγκυρο.",
+    "auth/app-not-authorized": "Η εφαρμογή δεν έχει εξουσιοδότηση να χρησιμοποιεί το Firebase Authentication.",
+    "auth/user-mismatch": "Ο χρήστης δεν ταιριάζει με τα παρεχόμενα διαπιστευτήρια.",
+    "auth/account-exists-with-different-credential": "Υπάρχει ήδη λογαριασμός με το ίδιο email αλλά με διαφορετικά διαπιστευτήρια.",
+    "auth/popup-closed-by-user": "Το αναδυόμενο παράθυρο έκλεισε πριν ολοκληρωθεί η σύνδεση.",
+    "auth/internal-error": "Παρουσιάστηκε εσωτερικό σφάλμα. Παρακαλώ δοκιμάστε ξανά αργότερα.",
     // custom toast
-    "Login successful!": "¡Inicio de sesión exitoso!",
-    "Passwords do not match.": "Las contraseñas no coinciden.",
-    "User registered successfully!": "¡Usuario registrado con éxito!",
-    "Password reset email sent successfully.":
-      "Correo de restablecimiento de contraseña enviado exitosamente.",
-    "User update successfully!": "¡Usuario actualizado con éxito!",
-    "Schedule added successfully": "Programa añadido con éxito",
-    jobCreatedSuccess: "¡Trabajo creado exitosamente!",
-    serviceCreatedSuccess: "¡Servicio creado exitosamente!",
-    "Ad updated successfully!": "¡Anuncio actualizado exitosamente!",
-    "Ad deleted successfully!": "¡Anuncio eliminado exitosamente!",
-    "Property deleted successfully": "Propiedad eliminada con éxito",
-    "Failed to delete property": "No se pudo eliminar la propiedad",
-    "": "",
-    "Failed to add property. Please try again.":
-      "No se pudo agregar la propiedad. Por favor, inténtelo de nuevo.",
-    "User not authenticated": "Usuario no autenticado",
-    "Failed to select images": "Error al seleccionar imágenes",
-    "Property added successfully": "Propiedad añadida con éxito",
-    "Failed to upload images. Please try again.":
-      "No se pudieron cargar las imágenes. Por favor, inténtalo de nuevo.",
-    "Property not found.": "Propiedad no encontrada.",
-    "Contact added successfully": "Contacto añadido con éxito",
-    "Failed to add contact. Please try again.":
-      "Error al agregar el contacto. Por favor, inténtelo de nuevo.",
-    "logout successfully!": "¡Cierre de sesión exitoso!",
-    "Failed to add schedule. Please try again.":"No se pudo agregar el horario. Por favor, inténtelo de nuevo.",
-    "Property updated successfully": "Propiedad actualizada con éxito",
-    "Failed to update property. Please try again.": "No se pudo actualizar la propiedad. Por favor, inténtelo de nuevo."
+    "Login successful!": "Επιτυχής σύνδεση!",
+    "Property updated successfully": "Η ιδιοκτησία ενημερώθηκε με επιτυχία",
+    "Failed to update property. Please try again.": "Αποτυχία ενημέρωσης της ιδιοκτησίας. Παρακαλώ δοκιμάστε ξανά."
   },
 };
 
