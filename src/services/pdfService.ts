@@ -58,6 +58,24 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               <span class="label">Visit Time:</span>
               <span class="value"> ${scheduleData.visitTime}</span>
             </div>
+            ${scheduleData.propertyToVisit ? `
+            <div class="row">
+              <span class="label">Property to Visit:</span>
+              <span class="value"> ${scheduleData.propertyToVisit}</span>
+            </div>
+            ` : ''}
+            ${scheduleData.numberOfVisitors ? `
+            <div class="row">
+              <span class="label">Number of Visitors:</span>
+              <span class="value"> ${scheduleData.numberOfVisitors}</span>
+            </div>
+            ` : ''}
+            ${scheduleData.numberOfInfants ? `
+            <div class="row">
+              <span class="label">Number of Infants:</span>
+              <span class="value"> ${scheduleData.numberOfInfants}</span>
+            </div>
+            ` : ''}
           </div>
 
           <div class="section">

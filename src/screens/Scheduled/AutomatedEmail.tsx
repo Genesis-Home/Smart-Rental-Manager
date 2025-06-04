@@ -77,15 +77,19 @@ const AutomatedEmail: React.FC = () => {
           {visit?.visitDates},{visit?.visitTime}
         </Text>
 
-        <Text style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("numberOfVisitors")}: </Text>
-          {visit?.numberOfVisitors}
-        </Text>
+        {visit?.numberOfVisitors && (
+          <Text style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t("numberOfVisitors")}: </Text>
+            {visit.numberOfVisitors}
+          </Text>
+        )}
 
-        <Text style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("numberOfInfants")}: </Text>
-          {visit?.numberOfInfants}
-        </Text>
+        {visit?.numberOfInfants && (
+          <Text style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t("numberOfInfants")}: </Text>
+            {visit.numberOfInfants}
+          </Text>
+        )}
 
         <Text style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("propertyAddress")}: </Text>

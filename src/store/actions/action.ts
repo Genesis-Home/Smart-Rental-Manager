@@ -40,18 +40,18 @@ export const sendEmail =
   async (dispatch: Dispatch) => {
     try {
       const formattedVisitDates = visitDates.replace(" - ", " to ");
-
       const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.long}`;
 
-      const message = `Visit Details:
+      let message = `Visit Details:\n\n📅 Visit Date & Time: ${formattedVisitDates}, ${visitTime}\n`;
 
-📅 Visit Date & Time: ${formattedVisitDates}, ${visitTime}
-👨‍👩‍👧‍👦 Number of Visitors: ${numberOfVisitors}
-👶 Number of Infants: ${numberOfInfants}
-🏠 Property Address: ${location.address}
+      if (numberOfVisitors && numberOfVisitors.trim() !== '') {
+        message += `👨‍👩‍👧‍👦 Number of Visitors: ${numberOfVisitors}\n`;
+      }
+      if (numberOfInfants && numberOfInfants.trim() !== '') {
+        message += `👶 Number of Infants: ${numberOfInfants}\n`;
+      }
 
-🗺️ Google Maps Location: ${googleMapsUrl}
-`;
+      message += `🏠 Property Address: ${location.address}\n\n🗺️ Google Maps Location: ${googleMapsUrl}`;
 
       const response = await axios.post(
         "https://api-youshwrkza-uc.a.run.app/send-email",
@@ -73,8 +73,8 @@ export const sendEmail =
         visitDetails: {
           visitDates: formattedVisitDates,
           visitTime,
-          numberOfVisitors,
-          numberOfInfants,
+          ...(numberOfVisitors && { numberOfVisitors }),
+          ...(numberOfInfants && { numberOfInfants }),
           property,
           location,
         },

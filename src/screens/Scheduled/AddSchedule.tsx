@@ -131,27 +131,36 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     phoneNum: Yup.string().required(t("phoneNum") + " " + t("isRequired")),
     visitDates: Yup.string().required(t("visitDates") + " " + t("isRequired")),
     visitTime: Yup.string().required(t("visitTime") + " " + t("isRequired")),
-    totalAmount: Yup.string().required(
-      t("totalAmount") + " " + t("isRequired")
-    ),
-    advanceAmount: Yup.string().required(
-      t("advanceAmount") + " " + t("isRequired")
-    ),
-    // propertyToVisit: Yup.string().required(
-    //   t("propertyToVisitors") + " " + t("isRequired")
-    // ),
-    // numberOfVisitors: Yup.string().required(
-    //   t("numberOfVisitors") + " " + t("isRequired")
-    // ),
-    // numberOfInfants: Yup.string().required(
-    //   t("numberOfInfants") + " " + t("isRequired")
-    // ),
+    totalAmount: Yup.string()
+      .required(t("totalAmount") + " " + t("isRequired"))
+      .test('is-number', t("mustBeNumber"), value => !isNaN(Number(value))),
+    advanceAmount: Yup.string()
+      .required(t("advanceAmount") + " " + t("isRequired"))
+      .test('is-number', t("mustBeNumber"), value => !isNaN(Number(value)))
+      .test('less-than-total', 'Advance amount cannot be greater than total amount', 
+        function(value) {
+          const totalAmount = parseFloat(this.parent.totalAmount) || 0;
+          const advanceAmount = parseFloat(value) || 0;
+          return advanceAmount <= totalAmount;
+        }),
     agreedPrice: Yup.string().required(
       t("agreedPrice") + " " + t("isRequired")
     ),
   });
 
   const handleCreate = async (formData: any) => {
+    const totalAmount = parseFloat(formData.totalAmount) || 0;
+    const advanceAmount = parseFloat(formData.advanceAmount) || 0;
+
+    if (advanceAmount > totalAmount) {
+      Toast.show({
+        type: "error",
+        text1: "Advance amount cannot be greater than total amount",
+        position: "bottom",
+      });
+      return;
+    }
+
     if (!startDate || !endDate) {
       Toast.show({
         type: "error",
@@ -493,7 +502,20 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     label={t("advanceAmount")}
                     placeholder={t("advanceAmount")}
                     value={values.advanceAmount}
-                    onChangeText={handleChange("advanceAmount")}
+                    onChangeText={(text) => {
+                      const totalAmount = parseFloat(values.totalAmount) || 0;
+                      const newAdvanceAmount = parseFloat(text) || 0;
+                      
+                      if (newAdvanceAmount > totalAmount) {
+                        Toast.show({
+                          type: "error",
+                          text1: "Advance amount cannot be greater than total amount",
+                          position: "bottom",
+                        });
+                        return;
+                      }
+                      handleChange("advanceAmount")(text);
+                    }}
                     onBlur={handleBlur("advanceAmount")}
                     error={touched.advanceAmount && errors.advanceAmount}
                     keyboardType="decimal-pad"
