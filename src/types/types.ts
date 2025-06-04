@@ -368,7 +368,10 @@ export type LanguageTranslation = {
   confirmDelete:string;
   editProperty:string;
   editPhotos:string;
-  mapLink:string
+  mapLink:string;
+  advanceAmount:string;
+  totalAmount:string;
+  balanceAmount:string
 };
 
 export type LanguageData = {

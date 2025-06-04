@@ -131,15 +131,21 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     phoneNum: Yup.string().required(t("phoneNum") + " " + t("isRequired")),
     visitDates: Yup.string().required(t("visitDates") + " " + t("isRequired")),
     visitTime: Yup.string().required(t("visitTime") + " " + t("isRequired")),
-    propertyToVisit: Yup.string().required(
-      t("propertyToVisitors") + " " + t("isRequired")
+    totalAmount: Yup.string().required(
+      t("totalAmount") + " " + t("isRequired")
     ),
-    numberOfVisitors: Yup.string().required(
-      t("numberOfVisitors") + " " + t("isRequired")
+    advanceAmount: Yup.string().required(
+      t("advanceAmount") + " " + t("isRequired")
     ),
-    numberOfInfants: Yup.string().required(
-      t("numberOfInfants") + " " + t("isRequired")
-    ),
+    // propertyToVisit: Yup.string().required(
+    //   t("propertyToVisitors") + " " + t("isRequired")
+    // ),
+    // numberOfVisitors: Yup.string().required(
+    //   t("numberOfVisitors") + " " + t("isRequired")
+    // ),
+    // numberOfInfants: Yup.string().required(
+    //   t("numberOfInfants") + " " + t("isRequired")
+    // ),
     agreedPrice: Yup.string().required(
       t("agreedPrice") + " " + t("isRequired")
     ),
@@ -333,6 +339,8 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
               numberOfVisitors: "",
               numberOfInfants: "",
               agreedPrice: "",
+              advanceAmount: "",
+              totalAmount: "",
             }}
             validationSchema={validationSchema}
             onSubmit={handleCreate}
@@ -470,6 +478,34 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     onChangeText={handleChange("agreedPrice")}
                     onBlur={handleBlur("agreedPrice")}
                     error={touched.agreedPrice && errors.agreedPrice}
+                    keyboardType="decimal-pad"
+                  />
+                  <FormInput
+                    label={t("totalAmount")}
+                    placeholder={t("totalAmount")}
+                    value={values.totalAmount}
+                    onChangeText={handleChange("totalAmount")}
+                    onBlur={handleBlur("totalAmount")}
+                    error={touched.totalAmount && errors.totalAmount}
+                    keyboardType="decimal-pad"
+                  />
+                  <FormInput
+                    label={t("advanceAmount")}
+                    placeholder={t("advanceAmount")}
+                    value={values.advanceAmount}
+                    onChangeText={handleChange("advanceAmount")}
+                    onBlur={handleBlur("advanceAmount")}
+                    error={touched.advanceAmount && errors.advanceAmount}
+                    keyboardType="decimal-pad"
+                  />
+                  <FormInput
+                    label={t("balanceAmount")}
+                    placeholder={t("balanceAmount")}
+                    value={(
+                      (parseFloat(values.totalAmount) || 0) -
+                      (parseFloat(values.advanceAmount) || 0)
+                    ).toString()}
+                    editable={false}
                     keyboardType="decimal-pad"
                   />
                 </View>
@@ -675,7 +711,7 @@ const createStyles = (colors: any) =>
       borderTopWidth: 0,
       borderColor: colors.Primary_01,
       borderBottomLeftRadius: 4,
-      borderBottomRightRadius: 4
+      borderBottomRightRadius: 4,
     },
     label: {
       color: colors.DARK_GREEN,
