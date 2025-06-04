@@ -32,6 +32,11 @@ const AutomatedEmail: React.FC = () => {
 👶 ${t("numberOfInfants")}: ${visit?.numberOfInfants}
 🏠 ${t("propertyAddress")}: ${visit?.location.address}
 
+💰 ${t("financialDetails")}:
+${t("totalAmount")}: ${visit?.agreedPrice}
+${t("advanceAmount")}: ${visit?.advanceAmount || '0'}
+${t("balanceAmount")}: ${visit?.balanceAmount}
+
 🗺️ ${t("mapLink")}: ${googleMapsUrl}
 `;
 
@@ -94,6 +99,20 @@ const AutomatedEmail: React.FC = () => {
         <Text style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("propertyAddress")}: </Text>
           {visit?.location?.address}
+        </Text>
+
+        <Text style={[styles.sectionTitle, { marginTop: 20 }]}>{t("financialDetails")}</Text>
+        <Text style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("totalAmount")}: </Text>
+          {visit?.agreedPrice}
+        </Text>
+        <Text style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("advanceAmount")}: </Text>
+          {visit?.advanceAmount || '0'}
+        </Text>
+        <Text style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("balanceAmount")}: </Text>
+          {visit?.balanceAmount}
         </Text>
       </View>
 

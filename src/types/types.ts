@@ -25,13 +25,7 @@ export type RootStackParamList = {
   AddProperty: undefined;
   Notification: undefined;
   AutomatedEmail: {
-    visitDetails: {
-      visitDates: string;
-      visitTime: string;
-      numberOfVisitors: string;
-      numberOfInfants: string;
-      location: Location;
-    };
+    visitDetails: VisitDetails;
   };
   Map: { location: Location };
   EditProperty: { id: string };
@@ -476,4 +470,16 @@ export interface Property {
 
 export interface RouteParams {
   id: string;
+}
+
+export interface VisitDetails {
+  visitDates: string;
+  visitTime: string;
+  numberOfVisitors?: string;
+  numberOfInfants?: string;
+  property: string;
+  location: Location;
+  agreedPrice: string;
+  advanceAmount: string;
+  balanceAmount: string;
 }

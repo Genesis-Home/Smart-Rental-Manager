@@ -35,12 +35,15 @@ export const sendEmail =
     numberOfVisitors: string,
     numberOfInfants: string,
     property: string,
-    location: Location
+    location: Location,
+    agreedPrice: string,
+    advanceAmount: string
   ): any =>
   async (dispatch: Dispatch) => {
     try {
       const formattedVisitDates = visitDates.replace(" - ", " to ");
       const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.long}`;
+      const balanceAmount = (parseFloat(agreedPrice) - (parseFloat(advanceAmount) || 0)).toFixed(2);
 
       let message = `Visit Details:\n\n📅 Visit Date & Time: ${formattedVisitDates}, ${visitTime}\n`;
 
@@ -51,7 +54,12 @@ export const sendEmail =
         message += `👶 Number of Infants: ${numberOfInfants}\n`;
       }
 
-      message += `🏠 Property Address: ${location.address}\n\n🗺️ Google Maps Location: ${googleMapsUrl}`;
+      message += `🏠 Property Address: ${location.address}\n\n`;
+      message += `💰 Financial Details:\n`;
+      message += `Total Amount: ${agreedPrice}\n`;
+      message += `Advance Amount: ${advanceAmount || '0'}\n`;
+      message += `Balance Amount: ${balanceAmount}\n\n`;
+      message += `🗺️ Google Maps Location: ${googleMapsUrl}`;
 
       const response = await axios.post(
         "https://api-youshwrkza-uc.a.run.app/send-email",
@@ -77,6 +85,9 @@ export const sendEmail =
           ...(numberOfInfants && { numberOfInfants }),
           property,
           location,
+          agreedPrice,
+          advanceAmount,
+          balanceAmount
         },
       });
     } catch (error) {
@@ -510,9 +521,11 @@ export const addSchedule =
           formData.visitDates,
           formData.visitTime,
           formData.numberOfVisitors,
-          formData.numberOfVisitors,
+          formData.numberOfInfants,
           formData.property,
-          formData.location
+          formData.location,
+          formData.agreedPrice,
+          formData.advanceAmount
         )
       );
 
