@@ -8,6 +8,7 @@ import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import { scheduleBookingNotifications } from "../../services/notificationService";
 import axios from "axios";
 import { Location } from "../../types/types";
+import { generateSchedulePDF } from '../../services/pdfService';
 
 export const getCurrentUser =
   (navigation: NavigationProp<any>): any =>
@@ -470,8 +471,9 @@ export const addSchedule =
         propertyToVisit: formData.propertyToVisit,
         numberOfVisitors: formData.numberOfVisitors,
         numberOfInfants: formData.numberOfInfants,
-        location: formData.location,
+        location: formData.location.address,
         agreedPrice: formData.agreedPrice,
+        advanceAmount: formData.advanceAmount,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
@@ -480,16 +482,27 @@ export const addSchedule =
       // Schedule notifications for the booking
       await scheduleBookingNotifications(scheduleData);
 
-      dispatch({ type: "IS_LOADER", payload: false });
-      const customMessage = await getFirebaseErrorMessage(
-        "Schedule added successfully"
-      );
-      Toast.show({
-        type: "success",
-        text1: customMessage,
-        position: "bottom",
-      });
+      // Generate and download PDF
+      try {
+        const pdfPath = await generateSchedulePDF(scheduleData);
+        console.log('PDF downloaded successfully at:', pdfPath);
+        Toast.show({
+          type: "success",
+          text1: "Invoice PDF downloaded successfully",
+          position: "bottom",
+        });
+      } catch (pdfError) {
+        console.error('Error generating PDF:', pdfError);
+        Toast.show({
+          type: "error",
+          text1: "Failed to download invoice PDF",
+          position: "bottom",
+        });
+      }
 
+      dispatch({ type: "IS_LOADER", payload: false });
+
+      // Send email and show schedule creation success after PDF
       dispatch(
         sendEmail(
           navigation,
@@ -502,6 +515,16 @@ export const addSchedule =
           formData.location
         )
       );
+
+      // Show schedule creation success last
+      setTimeout(() => {
+        Toast.show({
+          type: "success",
+          text1: "Schedule added successfully",
+          position: "bottom",
+        });
+      }, 1000);
+
     } catch (error: any) {
       console.error("Add Schedule Error:", error);
       dispatch({ type: "IS_LOADER", payload: false });
