@@ -254,6 +254,8 @@ export const languageData: LanguageData[] = [
       pdfDownloaded: "PDF downloaded successfully",
       pdfDownloadFailed: "Failed to download PDF",
       shareFailed: "Failed to share PDF",
+      financialDetails:'Financial Details',
+      viewPdf:'View PDF'
     },
   },
   {
@@ -515,6 +517,8 @@ export const languageData: LanguageData[] = [
       pdfDownloaded: "Το PDF κατέβηκε επιτυχώς",
       pdfDownloadFailed: "Αποτυχία λήψης PDF",
       shareFailed: "Αποτυχία κοινοποίησης PDF",
+      financialDetails: 'Οικονομικές Λεπτομέρειες',
+      viewPdf: 'Ver PDF'
     },
   },
 ];

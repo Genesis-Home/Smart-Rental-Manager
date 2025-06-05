@@ -95,7 +95,6 @@ ${t("balanceAmount")}: ${visit?.balanceAmount}
     }
 
     try {
-      // Request storage permission for Android
       if (Platform.OS === "android" && Platform.Version < 30) {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -104,7 +103,7 @@ ${t("balanceAmount")}: ${visit?.balanceAmount}
             message: t("storagePermissionMessage"),
             buttonNeutral: t("askMeLater"),
             buttonNegative: t("cancel"),
-            buttonPositive: t("ok")
+            buttonPositive: t("ok"),
           }
         );
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
@@ -117,7 +116,6 @@ ${t("balanceAmount")}: ${visit?.balanceAmount}
         }
       }
 
-      // Check if file exists
       const fileExists = await RNFS.exists(pdfPath);
       if (!fileExists) {
         Toast.show({
@@ -128,13 +126,11 @@ ${t("balanceAmount")}: ${visit?.balanceAmount}
         return;
       }
 
-      // Get file info
       const fileInfo = await RNFS.stat(pdfPath);
       if (fileInfo.size === 0) {
-        throw new Error('PDF file is empty');
+        throw new Error("PDF file is empty");
       }
 
-      // Just show success message - file is already in Downloads folder
       Toast.show({
         type: "success",
         text1: t("pdfDownloaded"),
@@ -162,7 +158,6 @@ ${t("balanceAmount")}: ${visit?.balanceAmount}
     }
 
     try {
-      // Check if file exists
       const fileExists = await RNFS.exists(pdfPath);
       if (!fileExists) {
         Toast.show({
@@ -173,57 +168,56 @@ ${t("balanceAmount")}: ${visit?.balanceAmount}
         return;
       }
 
-      // Get file info
       const fileInfo = await RNFS.stat(pdfPath);
       if (fileInfo.size === 0) {
-        throw new Error('PDF file is empty');
+        throw new Error("PDF file is empty");
       }
 
-      const fileName = `Booking_Invoice_${moment().format("YYYY-MM-DD_HH-mm")}.pdf`;
-      
-      // For Android, we need to use a content URI
-      if (Platform.OS === 'android') {
+      const fileName = `Booking_Invoice_${moment().format(
+        "YYYY-MM-DD_HH-mm"
+      )}.pdf`;
+
+      if (Platform.OS === "android") {
         const shareOptions = {
           title: t("sharePDF"),
           url: `content://${pdfPath}`,
-          type: 'application/pdf',
+          type: "application/pdf",
           filename: fileName,
           saveToFiles: true,
           isNew: true,
-          mimeType: 'application/pdf',
+          mimeType: "application/pdf",
           fileSize: fileInfo.size,
-          subject: 'Booking Invoice',
-          message: 'Please find attached the booking invoice.',
+          subject: "Booking Invoice",
+          message: "Please find attached the booking invoice.",
           failOnCancel: false,
           showAppsToView: true,
           isBase64: false,
-          dialogTitle: 'Share PDF',
+          dialogTitle: "Share PDF",
           forceDialog: true,
-          chooserTitle: 'Share PDF with'
+          chooserTitle: "Share PDF with",
         };
 
         const result = await Share.open(shareOptions);
-        console.log('Share result:', result);
+        console.log("Share result:", result);
       } else {
-        // For iOS, use direct file path
         const shareOptions = {
           title: t("sharePDF"),
           url: pdfPath,
-          type: 'application/pdf',
+          type: "application/pdf",
           filename: fileName,
           saveToFiles: true,
           isNew: true,
-          mimeType: 'application/pdf',
+          mimeType: "application/pdf",
           fileSize: fileInfo.size,
-          subject: 'Booking Invoice',
-          message: 'Please find attached the booking invoice.',
+          subject: "Booking Invoice",
+          message: "Please find attached the booking invoice.",
           failOnCancel: false,
           showAppsToView: true,
-          isBase64: false
+          isBase64: false,
         };
 
         const result = await Share.open(shareOptions);
-        console.log('Share result:', result);
+        console.log("Share result:", result);
       }
     } catch (error) {
       console.error("PDF share error:", error);
@@ -298,22 +292,40 @@ ${t("balanceAmount")}: ${visit?.balanceAmount}
             {t("openInGoogleMaps")}
           </Text>
         </View>
-
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop:30
+          }}
+        >
+          <View style={{ width: "32%" }}>
+            <CTAButton1
+              title={t("viewPdf")}
+              submitHandler={()=>navigation.navigate('ViewPDF')}
+              backgroundColor={Colors.Primary_01}
+              textColor={Colors.white}
+            />
+          </View>
+          <View style={{ width: "32%" }}>
+            <CTAButton1
+              title={t("downloadPDF")}
+              submitHandler={handleDownloadPDF}
+              backgroundColor={Colors.Primary_01}
+              textColor={Colors.white}
+            />
+          </View>
+          <View style={{ width: "32%" }}>
+            <CTAButton1
+              title={t("sharePDF")}
+              submitHandler={handleSharePDF}
+              backgroundColor={Colors.Primary_01}
+              textColor={Colors.white}
+            />
+          </View>
+        </View>
         <View style={styles.buttonGroup}>
-          <CTAButton1
-            title={t("downloadPDF")}
-            submitHandler={handleDownloadPDF}
-            backgroundColor={Colors.Primary_01}
-            textColor={Colors.white}
-            icon={<ShareIcon />}
-          />
-          <CTAButton1
-            title={t("sharePDF")}
-            submitHandler={handleSharePDF}
-            backgroundColor={Colors.Primary_01}
-            textColor={Colors.white}
-            icon={<ShareIcon />}
-          />
           <CTAButton1
             title={t("Whatsapp")}
             submitHandler={handleWhatsappShare}

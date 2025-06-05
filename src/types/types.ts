@@ -14,6 +14,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   EditProfile:undefined;
   ResetPassword: undefined;
+  ViewPDF:undefined;
   MyAds:undefined;
   Tabs: {
     screen?: string;
@@ -214,6 +215,7 @@ export type LanguageTranslation = {
   sendOtp: string;
   changePassword: string;
   enternewpassword: string;
+  financialDetails:string;
   invalidEmail: string;
   emailRequired: string;
   passwordRequired: string;
@@ -252,6 +254,7 @@ export type LanguageTranslation = {
   exportData: string;
   setting: string;
   location: string;
+  viewPdf:string
   title: string;
   schedulePropertyVisit: string;
   days: Record<string, string>;
