@@ -1,123 +1,194 @@
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import RNFS from 'react-native-fs';
-import moment from 'moment';
+import RNHTMLtoPDF from "react-native-html-to-pdf";
+import RNFS from "react-native-fs";
+import moment from "moment";
 
 export const generateSchedulePDF = async (scheduleData: any) => {
   try {
-    // Create HTML content for the PDF
     const htmlContent = `
       <html>
         <head>
           <style>
             body { font-family: Arial; padding: 20px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .title { font-size: 24px; color: #2E7D32; margin-bottom: 10px; }
-            .subtitle { font-size: 18px; color: #666; }
+            .header { margin-bottom: 30px; }
+            .invoice-title { font-size: 24px; color: #24A69E; text-align: center; margin-bottom: 10px; }
+            .invoice-details { font-size: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+            .invoice-details span { font-weight: bold; }
             .section { margin-bottom: 20px; }
-            .label { font-weight: bold; color: #333; }
-            .value { color: #666; }
-            .row { margin-bottom: 10px; }
+            .section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+            .customer-info div { margin-bottom: 8px; }
+            .customer-info .label { font-weight: bold; color: #333; display: inline-block; width: 100px; }
+            .customer-info .value { color: #666; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+            th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+            th { background-color: #f2f2f2; }
+            .table-label { font-weight: bold; color: #333; }
+            .table-value { color: #666; text-align: left; }
+            .total-row td { font-weight: bold; }
             .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
           </style>
         </head>
         <body>
           <div class="header">
-            <div class="title">Booking Invoice</div>
-            <div class="subtitle">Property Visit Schedule</div>
+            <div class="invoice-title">Invoice</div>
+            <div class="invoice-details">
+              <div><span>Invoice ID:</span> ${scheduleData.id || 'N/A'}</div>
+              <div><span>Invoice Date:</span> ${moment().format('MMMM D, YYYY')}</div>
+            </div>
           </div>
           
           <div class="section">
-            <div class="row">
-              <span class="label">Client Name:</span>
-              <span class="value"> ${scheduleData.clientName}</span>
-            </div>
-            <div class="row">
-              <span class="label">Email:</span>
-              <span class="value"> ${scheduleData.email}</span>
-            </div>
-            <div class="row">
-              <span class="label">Phone:</span>
-              <span class="value"> ${scheduleData.phoneNum}</span>
+            <div class="section-title">Customer Information</div>
+            <div class="customer-info">
+              <div><span class="label">Name:</span> <span class="value"> ${scheduleData.clientName}</span></div>
+              <div><span class="label">Email:</span> <span class="value"> ${scheduleData.email}</span></div>
+              <div><span class="label">Phone:</span> <span class="value"> ${scheduleData.phoneNum}</span></div>
             </div>
           </div>
 
           <div class="section">
-            <div class="row">
-              <span class="label">Property:</span>
-              <span class="value"> ${scheduleData.property}</span>
-            </div>
-            <div class="row">
-              <span class="label">Location:</span>
-              <span class="value"> ${scheduleData.location}</span>
-            </div>
-            <div class="row">
-              <span class="label">Visit Dates:</span>
-              <span class="value"> ${scheduleData.visitDates}</span>
-            </div>
-            <div class="row">
-              <span class="label">Visit Time:</span>
-              <span class="value"> ${scheduleData.visitTime}</span>
-            </div>
-            ${scheduleData.propertyToVisit ? `
-            <div class="row">
-              <span class="label">Property to Visit:</span>
-              <span class="value"> ${scheduleData.propertyToVisit}</span>
-            </div>
-            ` : ''}
-            ${scheduleData.numberOfVisitors ? `
-            <div class="row">
-              <span class="label">Number of Visitors:</span>
-              <span class="value"> ${scheduleData.numberOfVisitors}</span>
-            </div>
-            ` : ''}
-            ${scheduleData.numberOfInfants ? `
-            <div class="row">
-              <span class="label">Number of Infants:</span>
-              <span class="value"> ${scheduleData.numberOfInfants}</span>
-            </div>
-            ` : ''}
+            <div class="section-title">Visit Details</div>
+            <table>
+              <tr>
+                <td class="table-label">Property:</td>
+                <td class="table-value"> ${scheduleData.property}</td>
+              </tr>
+              <tr>
+                <td class="table-label">Location:</td>
+                <td class="table-value"> ${
+                scheduleData.location?.address || scheduleData.locationAddress
+              }</td>
+              </tr>
+              <tr>
+                <td class="table-label">Visit Dates:</td>
+                <td class="table-value"> ${scheduleData.visitDates}</td>
+              </tr>
+              <tr>
+                <td class="table-label">Visit Time:</td>
+                <td class="table-value"> ${scheduleData.visitTime}</td>
+              </tr>
+              ${
+              scheduleData.propertyToVisit
+                ? `
+              <tr>
+                <td class="table-label">Property to Visit:</td>
+                <td class="table-value"> ${scheduleData.propertyToVisit}</td>
+              </tr>
+              `
+                : ""
+            }
+              ${
+              scheduleData.numberOfVisitors
+                ? `
+              <tr>
+                <td class="table-label">Number of Visitors:</td>
+                <td class="table-value"> ${scheduleData.numberOfVisitors}</td>
+              </tr>
+              `
+                : ""
+            }
+              ${
+              scheduleData.numberOfInfants
+                ? `
+              <tr>
+                <td class="table-label">Number of Infants:</td>
+                <td class="table-value"> ${scheduleData.numberOfInfants}</td>
+              </tr>
+              `
+                : ""
+            }
+            </table>
           </div>
 
           <div class="section">
-            <div class="row">
-              <span class="label">Agreed Price:</span>
-              <span class="value"> ${scheduleData.agreedPrice}</span>
-            </div>
-            <div class="row">
-              <span class="label">Advance Amount:</span>
-              <span class="value"> ${scheduleData.advanceAmount || '0'}</span>
-            </div>
-            <div class="row">
-              <span class="label">Balance Amount:</span>
-              <span class="value"> ${(parseFloat(scheduleData.agreedPrice) - (parseFloat(scheduleData.advanceAmount) || 0)).toFixed(2)}</span>
-            </div>
+            <div class="section-title">Financial Details</div>
+            <table>
+               <tr>
+                <td class="table-label">Agreed Price:</td>
+                <td class="table-value"> ${scheduleData.agreedPrice}</td>
+              </tr>
+              <tr>
+                <td class="table-label">Advance Amount:</td>
+                <td class="table-value"> ${scheduleData.advanceAmount || "0"}</td>
+              </tr>
+               <tr class="total-row">
+                <td class="table-label">Total Amount:</td>
+                <td class="table-value"> ${(
+                  parseFloat(scheduleData.agreedPrice || "0") +
+                  parseFloat(scheduleData.advanceAmount || "0")
+                ).toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td class="table-label">Balance Amount:</td>
+                <td class="table-value"> ${(
+                parseFloat(scheduleData.agreedPrice || "0") -
+                parseFloat(scheduleData.advanceAmount || "0")
+              ).toFixed(2)}</td>
+              </tr>
+            </table>
           </div>
 
           <div class="footer">
-            <p>Generated on ${moment().format('MMMM D, YYYY h:mm A')}</p>
+            <p>Generated on ${moment().format("MMMM D, YYYY h:mm A")}</p>
             <p>Thank you for choosing our service!</p>
           </div>
         </body>
       </html>
     `;
 
-    // Generate PDF
+    const timestamp = moment().format("YYYY-MM-DD_HH-mm-ss");
+    const fileName = `Booking_Invoice_${timestamp}`;
+
     const options = {
       html: htmlContent,
-      fileName: `Booking_Invoice_${moment().format('YYYY-MM-DD_HH-mm')}`,
-      directory: 'Downloads',
-      base64: false
+      fileName: fileName,
+      directory: "Cache",
+      base64: false,
+      height: 792,
+      width: 612,
+      padding: 10,
     };
 
+    console.log("Generating PDF with options:", options);
     const file = await RNHTMLtoPDF.convert(options);
-    
-    // Move file to Downloads folder
-    const downloadsPath = `${RNFS.DownloadDirectoryPath}/${options.fileName}.pdf`;
-    await RNFS.moveFile(file.filePath, downloadsPath);
+    console.log("PDF generated at:", file.filePath);
+
+    if (!file.filePath) {
+      throw new Error("PDF generation failed - no file path returned");
+    }
+
+    const fileExists = await RNFS.exists(file.filePath);
+    if (!fileExists) {
+      throw new Error("PDF file not found after generation");
+    }
+
+    const fileInfo = await RNFS.stat(file.filePath);
+    if (fileInfo.size === 0) {
+      throw new Error("Generated PDF file is empty");
+    }
+
+    const downloadsPath = `${RNFS.DownloadDirectoryPath}/${fileName}.pdf`;
+    const downloadsDirExists = await RNFS.exists(RNFS.DownloadDirectoryPath);
+    if (!downloadsDirExists) {
+      await RNFS.mkdir(RNFS.DownloadDirectoryPath);
+    }
+
+    await RNFS.copyFile(file.filePath, downloadsPath);
+    console.log("PDF copied to:", downloadsPath);
+
+    const copiedFileExists = await RNFS.exists(downloadsPath);
+    if (!copiedFileExists) {
+      throw new Error("Failed to copy PDF to downloads directory");
+    }
+
+    try {
+      await RNFS.unlink(file.filePath);
+    } catch (cleanupError) {
+      console.warn("Failed to clean up temporary PDF file:", cleanupError);
+    }
 
     return downloadsPath;
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    console.error("Error generating PDF:", error);
     throw error;
   }
-}; 
+};

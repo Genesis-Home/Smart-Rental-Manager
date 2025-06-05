@@ -26,6 +26,7 @@ export type RootStackParamList = {
   Notification: undefined;
   AutomatedEmail: {
     visitDetails: VisitDetails;
+    pdfPath?: string;
   };
   Map: { location: Location };
   EditProperty: { id: string };
@@ -365,7 +366,13 @@ export type LanguageTranslation = {
   mapLink:string;
   advanceAmount:string;
   totalAmount:string;
-  balanceAmount:string
+  balanceAmount:string;
+  downloadPDF: string;
+  sharePDF: string;
+  pdfNotAvailable: string;
+  pdfDownloaded: string;
+  pdfDownloadFailed: string;
+  shareFailed: string;
 };
 
 export type LanguageData = {

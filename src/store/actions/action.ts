@@ -37,7 +37,8 @@ export const sendEmail =
     property: string,
     location: Location,
     agreedPrice: string,
-    advanceAmount: string
+    advanceAmount: string,
+    pdfPath?: string
   ): any =>
   async (dispatch: Dispatch) => {
     try {
@@ -67,6 +68,7 @@ export const sendEmail =
           to: email,
           subject: "Your visit is confirmed",
           message,
+          pdfPath: pdfPath ? `file://${pdfPath}` : undefined
         },
         {
           headers: {
@@ -77,6 +79,7 @@ export const sendEmail =
 
       console.log("Email sent successfully:", response.data);
 
+      // Navigate to AutomatedEmail screen with visit details and pdfPath
       navigation.navigate("AutomatedEmail", {
         visitDetails: {
           visitDates: formattedVisitDates,
@@ -89,9 +92,16 @@ export const sendEmail =
           advanceAmount,
           balanceAmount
         },
+        pdfPath: pdfPath // Pass the pdfPath to the screen
       });
+
     } catch (error) {
       console.error("Error sending email:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to send email",
+        position: "bottom",
+      });
     }
   };
 
@@ -469,8 +479,10 @@ export const addSchedule =
   (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
+
       const scheduleRef = firestore().collection("schedules").doc();
       const scheduleData = {
+        id: scheduleRef.id,
         clientName: formData.clientName,
         email: formData.email,
         phoneNum: formData.phoneNum,
@@ -482,7 +494,8 @@ export const addSchedule =
         propertyToVisit: formData.propertyToVisit,
         numberOfVisitors: formData.numberOfVisitors,
         numberOfInfants: formData.numberOfInfants,
-        location: formData.location.address,
+        location: formData.location,
+        locationAddress: formData.location.address,
         agreedPrice: formData.agreedPrice,
         advanceAmount: formData.advanceAmount,
         createdBy: userId,
@@ -493,50 +506,43 @@ export const addSchedule =
       // Schedule notifications for the booking
       await scheduleBookingNotifications(scheduleData);
 
-      // Generate and download PDF
+      dispatch({ type: "IS_LOADER", payload: false });
+
+      // Generate PDF and send email with download/share options
       try {
         const pdfPath = await generateSchedulePDF(scheduleData);
-        console.log('PDF downloaded successfully at:', pdfPath);
-        Toast.show({
-          type: "success",
-          text1: "Invoice PDF downloaded successfully",
-          position: "bottom",
-        });
-      } catch (pdfError) {
-        console.error('Error generating PDF:', pdfError);
+        console.log('Generated PDF path:', pdfPath);
+        // Send email with PDF attachment and action buttons
+        dispatch(
+          sendEmail(
+            navigation,
+            formData.email,
+            formData.visitDates,
+            formData.visitTime,
+            formData.numberOfVisitors,
+            formData.numberOfInfants,
+            formData.property,
+            formData.location,
+            formData.agreedPrice,
+            formData.advanceAmount,
+            pdfPath
+          )
+        );
+      } catch (error) {
+        console.error('Error generating PDF or sending email:', error);
         Toast.show({
           type: "error",
-          text1: "Failed to download invoice PDF",
+          text1: "Failed to generate PDF or send email",
           position: "bottom",
         });
       }
 
-      dispatch({ type: "IS_LOADER", payload: false });
-
-      // Send email and show schedule creation success after PDF
-      dispatch(
-        sendEmail(
-          navigation,
-          formData.email,
-          formData.visitDates,
-          formData.visitTime,
-          formData.numberOfVisitors,
-          formData.numberOfInfants,
-          formData.property,
-          formData.location,
-          formData.agreedPrice,
-          formData.advanceAmount
-        )
-      );
-
-      // Show schedule creation success last
-      setTimeout(() => {
-        Toast.show({
-          type: "success",
-          text1: "Schedule added successfully",
-          position: "bottom",
-        });
-      }, 1000);
+      // Show schedule creation success
+      Toast.show({
+        type: "success",
+        text1: "Schedule added successfully",
+        position: "bottom",
+      });
 
     } catch (error: any) {
       console.error("Add Schedule Error:", error);
