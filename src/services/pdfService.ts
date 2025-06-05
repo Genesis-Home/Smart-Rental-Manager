@@ -55,7 +55,7 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               <tr>
                 <td class="table-label">Location:</td>
                 <td class="table-value"> ${
-                scheduleData.location?.address || scheduleData.locationAddress
+                scheduleData.location?.address
               }</td>
               </tr>
               <tr>

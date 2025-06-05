@@ -17,7 +17,7 @@ import Header from "../../components/Header";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { Calendar, LocaleConfig } from "react-native-calendars";
-import { Left, Right, Down, DropRight, Location } from "../../assets/icons";
+import { Left, Right, Down, DropRight } from "../../assets/icons";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
 import { AddScheduleProps, Property } from "../../types/types";

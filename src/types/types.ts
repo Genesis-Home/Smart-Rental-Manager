@@ -14,7 +14,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   EditProfile:undefined;
   ResetPassword: undefined;
-  ViewPDF:undefined;
+  ViewPDF:{visit:any};
   MyAds:undefined;
   Tabs: {
     screen?: string;

@@ -30,6 +30,8 @@ export const sendEmail =
   (
     navigation: NavigationProp<any>,
     email: string,
+    clientName:string,
+    phoneNum:string,
     visitDates: string,
     visitTime: string,
     numberOfVisitors: string,
@@ -37,8 +39,10 @@ export const sendEmail =
     property: string,
     location: Location,
     agreedPrice: string,
+    totalAmount:string,
     advanceAmount: string,
-    pdfPath?: string
+    pdfPath?: string,
+    scheduleId?: string,
   ): any =>
   async (dispatch: Dispatch) => {
     try {
@@ -79,7 +83,6 @@ export const sendEmail =
 
       console.log("Email sent successfully:", response.data);
 
-      // Navigate to AutomatedEmail screen with visit details and pdfPath
       navigation.navigate("AutomatedEmail", {
         visitDetails: {
           visitDates: formattedVisitDates,
@@ -90,9 +93,14 @@ export const sendEmail =
           location,
           agreedPrice,
           advanceAmount,
-          balanceAmount
+          balanceAmount,
+          scheduleId,
+          clientName,
+          phoneNum,
+          email,
+          totalAmount,
         },
-        pdfPath: pdfPath // Pass the pdfPath to the screen
+        pdfPath: pdfPath 
       });
 
     } catch (error) {
@@ -479,10 +487,10 @@ export const addSchedule =
   (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
-
       const scheduleRef = firestore().collection("schedules").doc();
+      const scheduleId = scheduleRef.id; 
       const scheduleData = {
-        id: scheduleRef.id,
+        id:scheduleId,
         clientName: formData.clientName,
         email: formData.email,
         phoneNum: formData.phoneNum,
@@ -495,9 +503,9 @@ export const addSchedule =
         numberOfVisitors: formData.numberOfVisitors,
         numberOfInfants: formData.numberOfInfants,
         location: formData.location,
-        locationAddress: formData.location.address,
         agreedPrice: formData.agreedPrice,
         advanceAmount: formData.advanceAmount,
+        totalAmount:formData.totalAmount,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
@@ -511,12 +519,13 @@ export const addSchedule =
       // Generate PDF and send email with download/share options
       try {
         const pdfPath = await generateSchedulePDF(scheduleData);
-        console.log('Generated PDF path:', pdfPath);
         // Send email with PDF attachment and action buttons
         dispatch(
           sendEmail(
             navigation,
             formData.email,
+            formData.clientName,
+            formData.phoneNum,
             formData.visitDates,
             formData.visitTime,
             formData.numberOfVisitors,
@@ -525,7 +534,9 @@ export const addSchedule =
             formData.location,
             formData.agreedPrice,
             formData.advanceAmount,
-            pdfPath
+            formData.totalAmount,
+            pdfPath,
+            scheduleId
           )
         );
       } catch (error) {

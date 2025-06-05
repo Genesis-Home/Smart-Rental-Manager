@@ -40,6 +40,7 @@ const AutomatedEmail: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, "AutomatedEmail">>();
   const visit = route.params?.visitDetails;
   const pdfPath = (route.params as AutomatedEmailParams)?.pdfPath;
+
   const navigation = useNavigation<NavigationProp<RootStackParamList, "Map">>();
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${visit?.location.lat},${visit?.location.long}`;
 
@@ -303,7 +304,7 @@ ${t("balanceAmount")}: ${visit?.balanceAmount}
           <View style={{ width: "32%" }}>
             <CTAButton1
               title={t("viewPdf")}
-              submitHandler={()=>navigation.navigate('ViewPDF')}
+              submitHandler={()=>navigation.navigate('ViewPDF',{visit:visit})}
               backgroundColor={Colors.Primary_01}
               textColor={Colors.white}
             />
