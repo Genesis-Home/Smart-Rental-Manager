@@ -32,6 +32,7 @@ import {
   updatePropertyRevenue,
 } from "../../store/actions/action";
 import moment from "moment";
+import Colors from "../../utilities/constants/colors";
 
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
@@ -402,6 +403,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         </TouchableOpacity>
                       ))}
                     </View>
+                  )}
+                  {touched.property&&errors.property&&(
+                    <Text style={[Typography.f_14_nunito_medium,{color:Colors.Error_Red,marginTop:5}]}>{errors.property}</Text>
                   )}
                   <FormInput
                     label={t("clientName")}
