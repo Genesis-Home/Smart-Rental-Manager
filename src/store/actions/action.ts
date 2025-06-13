@@ -686,8 +686,23 @@ export const deletePropertyById =
   (propertyId: string, userID: string) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
+
+      // First delete all schedules associated with this property
+      const schedulesSnapshot = await firestore()
+        .collection("schedules")
+        .where("propertyId", "==", propertyId)
+        .get();
+
+      // Delete each schedule document
+      const deletePromises = schedulesSnapshot.docs.map((doc: firestore.QueryDocumentSnapshot) => 
+        firestore().collection("schedules").doc(doc.id).delete()
+      );
+      await Promise.all(deletePromises);
+
+      // Then delete the property
       await firestore().collection("properties").doc(propertyId).delete();
 
+      // Update user properties list
       const snapshotuserproperties = await firestore()
         .collection("properties")
         .where("createdBy", "==", userID)
@@ -703,6 +718,7 @@ export const deletePropertyById =
         dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
       }
 
+      // Update all properties list
       const snapshotproperties = await firestore()
         .collection("properties")
         .get();
@@ -717,6 +733,22 @@ export const deletePropertyById =
         dispatch({ type: "SET_PROPERTIES", payload: properties });
       }
 
+      // Refetch all schedules for the user
+      const updatedSchedulesSnapshot = await firestore()
+        .collection("schedules")
+        .where("createdBy", "==", userID)
+        .get();
+
+      if (updatedSchedulesSnapshot.empty) {
+        dispatch({ type: "SET_USER_SCHEDULES", payload: [] });
+      } else {
+        const schedules = updatedSchedulesSnapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_USER_SCHEDULES", payload: schedules });
+      }
+
       dispatch({ type: "IS_LOADER", payload: false });
       const customMessage = await getFirebaseErrorMessage(
         "Property deleted successfully"
@@ -729,7 +761,7 @@ export const deletePropertyById =
     } catch (error) {
       dispatch({ type: "IS_LOADER", payload: false });
       const errorMessage = await getFirebaseErrorMessage(
-        (error as any).code || "Failed to delete property"
+        (error as any).code || "Failed to delete property and its schedules"
       );
       Toast.show({
         type: "error",
