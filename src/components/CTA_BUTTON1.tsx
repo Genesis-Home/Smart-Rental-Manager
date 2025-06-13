@@ -20,6 +20,7 @@ const CTAButton1: React.FC<CTAButton1Props> = ({
   backgroundColor,
   textColor,
   borderColor,
+  btnStyle
 }) => {
   const isLoader = useSelector((state: any) => state.reducer.isLoader);
 
@@ -29,7 +30,7 @@ const CTAButton1: React.FC<CTAButton1Props> = ({
     <TouchableOpacity
       onPress={submitHandler}
       activeOpacity={0.8}
-      style={styles.CRAButton1}
+      style={[styles.CRAButton1,btnStyle]}
     >
       {!isLoader ? (
         <View

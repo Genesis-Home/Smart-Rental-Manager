@@ -4,7 +4,7 @@ import {
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
+  ActivityIndicator,
   Platform,
 } from "react-native";
 import { t } from "i18next";
@@ -22,6 +22,7 @@ import { SignInProps } from "../../types/types";
 import { loginUser } from "../../store/actions/action";
 import { useAppDispatch } from "../../store/hooks";
 import CheckBox from "@react-native-community/checkbox";
+import { useAppSelector } from "../../store/hooks";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
@@ -165,7 +166,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   />
                 </View>
                 <Text
-                onPress={()=>navigation.navigate('Signup')}
+                  onPress={() => navigation.navigate("Signup")}
                   style={[
                     Typography.f_16_nunito_semi_bold,
                     {
@@ -177,7 +178,12 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   ]}
                 >
                   {t("donthaveaccount")}{" "}
-                  <Text style={[{ color: colors.Primary_01 },Typography.f_16_nunito_bold]}>
+                  <Text
+                    style={[
+                      { color: colors.Primary_01 },
+                      Typography.f_16_nunito_bold,
+                    ]}
+                  >
                     {t("signup")}
                   </Text>
                 </Text>

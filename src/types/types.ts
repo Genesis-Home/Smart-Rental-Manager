@@ -99,6 +99,7 @@ export interface CTAButton1Props {
   backgroundColor?: string;
   textColor?: string;
   borderColor?: string;
+  btnStyle?:any
 }
 
 // Screen Props Types

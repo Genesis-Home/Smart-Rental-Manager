@@ -20,7 +20,7 @@ const reducer = (state = initState, action: Action): State => {
     case "IS_LOADER":
       return {
         ...state,
-        isLoader: state.isLoader,
+        isLoader: action.payload,
       };
     case "SET_USER":
       return {

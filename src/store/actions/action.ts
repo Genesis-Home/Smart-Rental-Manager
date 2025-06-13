@@ -118,7 +118,6 @@ export const loginUser =
   async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
-      // User Login
       const userCredential = await auth().signInWithEmailAndPassword(
         credentials.email,
         credentials.password
@@ -132,10 +131,8 @@ export const loginUser =
         throw new Error("User data not found");
       }
 
-      // Always store user data in AsyncStorage for persistence
       await setItem("user", userData);
 
-      // Update Redux state
       dispatch({ type: "SET_USER", payload: userData });
       dispatch({ type: "IS_LOADER", payload: false });
 
@@ -511,15 +508,12 @@ export const addSchedule =
       };
 
       await scheduleRef.set(scheduleData);
-      // Schedule notifications for the booking
       await scheduleBookingNotifications(scheduleData);
 
       dispatch({ type: "IS_LOADER", payload: false });
 
-      // Generate PDF and send email with download/share options
       try {
         const pdfPath = await generateSchedulePDF(scheduleData);
-        // Send email with PDF attachment and action buttons
         dispatch(
           sendEmail(
             navigation,

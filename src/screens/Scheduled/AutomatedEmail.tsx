@@ -399,5 +399,6 @@ const styles = StyleSheet.create({
   buttonGroup: {
     marginTop: 30,
     gap: 15,
+    marginBottom:40
   },
 });

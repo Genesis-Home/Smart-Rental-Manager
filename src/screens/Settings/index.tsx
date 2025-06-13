@@ -19,6 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 import { appLanguages } from "../../utilities/languageData/data";
 import i18n from "i18next";
 import { SettingNavigationProp } from "../../types/types";
+import CTAButton1 from "../../components/CTA_BUTTON1";
 import { logoutUser } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
@@ -246,18 +247,20 @@ const Settings: React.FC = () => {
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>{t("confirmLogout")}</Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={handleLogoutConfirm}
-              >
-                <Text style={styles.modalButtonText}>{t("ok")}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={handleLogoutCancel}
-              >
-                <Text style={styles.modalButtonText}>{t("cancel")}</Text>
-              </TouchableOpacity>
+              <View style={{ width: "30%" }}>
+                <CTAButton1
+                  title={t("ok")}
+                  submitHandler={handleLogoutConfirm}
+                  btnStyle={{ height: 40 }}
+                />
+              </View>
+              <View style={{ width: "30%" }}>
+                <CTAButton1
+                  title={t("cancel")}
+                  submitHandler={handleLogoutCancel}
+                  btnStyle={{ height: 40 }}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -319,7 +322,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     borderColor: colors.Primary_01,
     borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4
+    borderBottomRightRadius: 4,
   },
   languageOption: {
     paddingVertical: 12,
@@ -352,15 +355,5 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: "row",
     gap: 20,
-  },
-  modalButton: {
-    backgroundColor: colors.Primary_01,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  modalButtonText: {
-    ...Typography.f_14_nunito_medium,
-    color: colors.white,
   },
 });
