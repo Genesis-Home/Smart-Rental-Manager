@@ -200,9 +200,8 @@ const Scheduled: React.FC = () => {
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() =>
-                    navigation.navigate("Home", {
-                      screen: "ApartmentDetails",
-                      params: { id: schedule.propertyId },
+                    navigation.navigate("ApartmentDetails", {
+                      id: schedule.propertyId,
                     })
                   }
                   style={styles.propertyRow}

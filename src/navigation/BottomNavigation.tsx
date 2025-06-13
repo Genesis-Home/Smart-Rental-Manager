@@ -70,6 +70,11 @@ function ScheduledRoutes() {
         component={AddSchedule}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="ApartmentDetails"
+        component={ApartmentDetails}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
