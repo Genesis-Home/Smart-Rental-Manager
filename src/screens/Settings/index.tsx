@@ -82,7 +82,7 @@ const Settings: React.FC = () => {
         <View style={styles.profileContainer}>
           <Image
             source={
-              user?.profilePhoto ? { uri: user.profilePhoto } : Images.Profile
+              user?.profilePhoto ? { uri: user.profilePhoto } : Images.ProfilePlaceholder
             }
             resizeMode="cover"
             style={styles.profileImage}

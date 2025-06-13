@@ -115,7 +115,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
                 source={
                   profileImage || user?.profilePhoto
                     ? { uri: profileImage || user.profilePhoto }
-                    : Images.Profile 
+                    : Images.ProfilePlaceholder 
                 }
                 resizeMode="cover"
                 style={{ height: 90, width: 90, borderRadius: 50 }}
