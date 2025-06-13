@@ -262,7 +262,10 @@ export const fetchProperties = () => async (dispatch: any) => {
   try {
     dispatch({ type: "IS_LOADER", payload: true });
 
-    const snapshot = await firestore().collection("properties").get();
+    const snapshot = await firestore()
+      .collection("properties")
+      .orderBy("createdAt", "desc")
+      .get();
 
     if (snapshot.empty) {
       dispatch({ type: "SET_PROPERTIES", payload: [] });
@@ -328,6 +331,7 @@ export const fetchPropertiesByUserID =
       const snapshot = await firestore()
         .collection("properties")
         .where("createdBy", "==", userID)
+        .orderBy("createdAt", "desc")
         .get();
 
       if (snapshot.empty) {
