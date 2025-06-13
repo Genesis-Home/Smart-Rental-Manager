@@ -26,6 +26,7 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
+import Images from "../../assets/images";
 
 const { width } = Dimensions.get("window");
 
@@ -112,24 +113,32 @@ const ApartmentDetails: React.FC = () => {
       >
         <View>
           <View style={styles.carouselWrapper}>
-            <FlatList
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              data={apartmentDetail?.images}
-              renderItem={({ item, index }) => (
-                <Image
-                  key={index}
-                  source={{ uri: item }}
-                  resizeMode="cover"
-                  style={styles.carouselImage}
-                />
-              )}
-              keyExtractor={(index) => index.toString()}
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              ref={scrollRef}
-            />
+            {apartmentDetail?.images.length > 0 ? (
+              <FlatList
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                data={apartmentDetail?.images}
+                renderItem={({ item, index }) => (
+                  <Image
+                    key={index}
+                    source={{ uri: item }}
+                    resizeMode="cover"
+                    style={styles.carouselImage}
+                  />
+                )}
+                keyExtractor={(index) => index.toString()}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                ref={scrollRef}
+              />
+            ) : (
+              <Image
+                source={Images.NoPhoto}
+                resizeMode="cover"
+                style={styles.carouselImage}
+              />
+            )}
             <View style={styles.carouselOverlay}>
               {apartmentDetail?.images.length > 1 && (
                 <>
@@ -365,7 +374,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     color: Colors.black,
-    width:"70%"
+    width: "70%",
   },
   descriptionText: {
     color: Colors.black,

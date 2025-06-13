@@ -153,26 +153,34 @@ const Home: React.FC = () => {
         }
       >
         <View style={styles.carouselWrapper}>
-          <FlatList
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            data={item.images}
-            renderItem={({ item: image, index }) => (
-              <Image
-                key={index}
-                source={{ uri: image }}
-                resizeMode="cover"
-                style={styles.carouselImage}
-              />
-            )}
-            keyExtractor={(_, index) => index.toString()}
-            onScroll={(e) => handleScroll(e, item.id)}
-            scrollEventThrottle={16}
-            ref={(ref) => {
-              scrollRefs.current[item.id] = ref;
-            }}
-          />
+          {item.images && item.images.length > 0 ? (
+            <FlatList
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              data={item.images}
+              renderItem={({ item: image, index }) => (
+                <Image
+                  key={index}
+                  source={{ uri: image }}
+                  resizeMode="cover"
+                  style={styles.carouselImage}
+                />
+              )}
+              keyExtractor={(_, index) => index.toString()}
+              onScroll={(e) => handleScroll(e, item.id)}
+              scrollEventThrottle={16}
+              ref={(ref) => {
+                scrollRefs.current[item.id] = ref;
+              }}
+            />
+          ) : (
+            <Image
+              source={Images.NoPhoto}
+              resizeMode="cover"
+              style={styles.carouselImage}
+            />
+          )}
           <View style={styles.carouselOverlay}>
             {item.images.length > 1 && (
               <View style={styles.carouselControlWrapper}>
