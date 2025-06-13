@@ -62,11 +62,13 @@ const styles = StyleSheet.create({
   },
   titleText: {
     textAlign: "center",
+    color: colors.black,
   },
   subText: {
     textAlign: "center",
     lineHeight: 24,
     paddingTop: 10,
+    color: colors.black,
   },
   buttonWrapper: {
     marginTop: 40,
