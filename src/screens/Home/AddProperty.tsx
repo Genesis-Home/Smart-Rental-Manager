@@ -46,7 +46,9 @@ import {
 } from "../../types/types";
 import Colors from "../../utilities/constants/colors";
 import { Language } from "react-native-google-places-autocomplete";
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from "@react-native-community/geolocation";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const { t } = useTranslation();
@@ -72,7 +74,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
   useEffect(() => {
     const requestLocationPermission = async () => {
-      if (Platform.OS === 'ios') {
+      if (Platform.OS === "ios") {
         Geolocation.requestAuthorization();
         getCurrentLocation();
       } else {
@@ -84,7 +86,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
               message: "Smart Rental Manager needs access to your location",
               buttonNeutral: "Ask Me Later",
               buttonNegative: "Cancel",
-              buttonPositive: "OK"
+              buttonPositive: "OK",
             }
           );
           if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -510,23 +512,88 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                       </TouchableOpacity>
                     ) : null}
                   </View>
-                  <MapView
-                    style={{ height: 200, width: "100%" }}
-                    provider={PROVIDER_GOOGLE}
-                    region={mapRegion}
-                    onPress={(event) => handleMapPress(event, setFieldValue)}
-                  >
-                    {marker && (
-                      <Marker
-                        coordinate={{
-                          latitude: marker.latitude,
-                          longitude: marker.longitude,
-                        }}
-                      >
-                        <MarkerIcon />
-                      </Marker>
-                    )}
-                  </MapView>
+                  <View>
+                    <MapView
+                      style={{ height: 200, width: "100%" }}
+                      provider={PROVIDER_GOOGLE}
+                      region={mapRegion}
+                      onPress={(event) => handleMapPress(event, setFieldValue)}
+                    >
+                      {marker && (
+                        <Marker
+                          coordinate={{
+                            latitude: marker.latitude,
+                            longitude: marker.longitude,
+                          }}
+                        >
+                          <MarkerIcon />
+                        </Marker>
+                      )}
+                    </MapView>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={async () => {
+                        Geolocation.getCurrentPosition(
+                          async (position) => {
+                            const { latitude, longitude } = position.coords;
+                            setMarker({ latitude, longitude });
+                            setMapRegion({
+                              latitude,
+                              longitude,
+                              latitudeDelta: 0.01,
+                              longitudeDelta: 0.01,
+                            });
+
+                            try {
+                              const response = await axios.get(
+                                `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
+                              );
+
+                              if (response.data.status === "OK") {
+                                const formattedAddress =
+                                  response.data.results[0]?.formatted_address ||
+                                  "";
+                                setInputValue(formattedAddress);
+                                if (placesRef.current) {
+                                  placesRef.current.setAddressText(
+                                    formattedAddress
+                                  );
+                                }
+                              }
+                            } catch (error) {
+                              console.error("Error reverse geocoding:", error);
+                            }
+                          },
+                          (error) => console.log(error),
+                          {
+                            enableHighAccuracy: true,
+                            timeout: 20000,
+                            maximumAge: 1000,
+                          }
+                        );
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: "5%",
+                        right: 10,
+                        backgroundColor: Colors.white,
+                        padding: 12,
+                        borderRadius: 30,
+                        elevation: 5,
+                        shadowColor: "#000",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.25,
+                        shadowRadius: 3.84,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <MaterialIcons
+                        name="my-location"
+                        size={24}
+                        color={Colors.Error_Red}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
                 <View style={styles.submitButtonContainer}>
                   <CTAButton1
