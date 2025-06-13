@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,7 @@ import {
   FlatList,
   Image,
   ActivityIndicator,
+  PermissionsAndroid,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -45,6 +46,7 @@ import {
 } from "../../types/types";
 import Colors from "../../utilities/constants/colors";
 import { Language } from "react-native-google-places-autocomplete";
+import Geolocation from '@react-native-community/geolocation';
 
 const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const { t } = useTranslation();
@@ -67,6 +69,52 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   });
+
+  useEffect(() => {
+    const requestLocationPermission = async () => {
+      if (Platform.OS === 'ios') {
+        Geolocation.requestAuthorization();
+        getCurrentLocation();
+      } else {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            {
+              title: "Location Permission",
+              message: "Smart Rental Manager needs access to your location",
+              buttonNeutral: "Ask Me Later",
+              buttonNegative: "Cancel",
+              buttonPositive: "OK"
+            }
+          );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            getCurrentLocation();
+          }
+        } catch (err) {
+          console.warn(err);
+        }
+      }
+    };
+
+    const getCurrentLocation = () => {
+      Geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setMarker({ latitude, longitude });
+          setMapRegion({
+            latitude,
+            longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+        },
+        (error) => console.log(error),
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+      );
+    };
+
+    requestLocationPermission();
+  }, []);
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required(t("title") + " " + t("isRequired")),
