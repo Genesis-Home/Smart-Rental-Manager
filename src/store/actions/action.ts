@@ -229,7 +229,7 @@ export const addProperty =
         const properties = snapshot.docs.map((doc: any) => ({
           ...doc.data(),
           id: doc.id,
-        }));
+        })).sort((a: any, b: any) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
         dispatch({ type: "SET_PROPERTIES", payload: properties });
       }
 
@@ -264,7 +264,6 @@ export const fetchProperties = () => async (dispatch: any) => {
 
     const snapshot = await firestore()
       .collection("properties")
-      .orderBy("createdAt", "desc")
       .get();
 
     if (snapshot.empty) {
@@ -273,7 +272,7 @@ export const fetchProperties = () => async (dispatch: any) => {
       const properties = snapshot.docs.map((doc: any) => ({
         ...doc.data(),
         id: doc.id,
-      }));
+      })).sort((a: any, b: any) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
       dispatch({ type: "SET_PROPERTIES", payload: properties });
     }
     dispatch({ type: "IS_LOADER", payload: false });
@@ -331,7 +330,6 @@ export const fetchPropertiesByUserID =
       const snapshot = await firestore()
         .collection("properties")
         .where("createdBy", "==", userID)
-        .orderBy("createdAt", "desc")
         .get();
 
       if (snapshot.empty) {
@@ -340,7 +338,7 @@ export const fetchPropertiesByUserID =
         const properties = snapshot.docs.map((doc: any) => ({
           ...doc.data(),
           id: doc.id,
-        }));
+        })).sort((a: any, b: any) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
         dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
       }
       dispatch({ type: "IS_LOADER", payload: false });
@@ -784,7 +782,7 @@ export const updateProperty =
         const properties = snapshot.docs.map((doc: any) => ({
           ...doc.data(),
           id: doc.id,
-        }));
+        })).sort((a: any, b: any) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
         dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
       }
 

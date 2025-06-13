@@ -14,7 +14,7 @@ import Colors from "../../utilities/constants/colors";
 import { Search, ShareIcon } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import Images from "../../assets/images";
-import { Prev, Next, Address, Add } from "../../assets/icons";
+import { Prev, Next, Address } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { HomeScreenNavigationProp, Property } from "../../types/types";
@@ -37,6 +37,7 @@ const MyAds: React.FC = () => {
   const userProperties = useAppSelector(
     (state) => state.reducer.userProperties
   );
+
 
   useEffect(() => {
     const initialize = async () => {
@@ -293,17 +294,6 @@ const MyAds: React.FC = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
-      <TouchableOpacity
-        onPress={() => navigation.navigate("AddProperty")}
-        style={{
-          position: "absolute",
-          bottom: 5,
-          right: 0,
-        }}
-        activeOpacity={0.8}
-      >
-        <Add />
-      </TouchableOpacity>
     </View>
   );
 };
