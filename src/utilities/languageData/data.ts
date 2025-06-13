@@ -47,7 +47,7 @@ export const languageData: LanguageData[] = [
       resetEmail: "Reset Email",
       sendEmail: "Send Email",
       addProperty: "Add Property",
-      PhotoUpload: "PhotoUpload",
+      PhotoUpload: "Photo Upload",
       photo: "Photo",
       addTitle: "Add Title",
       addDes: "Add Description",
