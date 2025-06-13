@@ -241,7 +241,8 @@ export const languageData: LanguageData[] = [
       whatsappNotInstall: "Whatsapp is not installed on your system",
       myads: "My Ads",
       Revenue: "Revenue",
-      confirmDelete: "Are you sure you want to delete this apartment?",
+      confirmDelete: "Are you sure you want to delete this apartment?", 
+      confirmDeleteContact: "Are you sure you want to delete this contact?", 
       editProperty: "Edit Property",
       editPhotos: "Edit Photos",
       mapLink: "Map Link",
@@ -265,6 +266,7 @@ export const languageData: LanguageData[] = [
       trackVisits:
         "Παρακολουθήστε όλες τις επισκέψεις σας και εξάγετε δεδομένα όταν χρειάζεστε.",
       loginEmailPrompt: "Εισάγετε το email σας για σύνδεση",
+      confirmDeleteContact: "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτήν την επαφή;",
       registerEmailPrompt: "Εισάγετε το email σας για να ξεκινήσετε",
       pleaseLoginHere: "Παρακαλώ συνδεθείτε εδώ!",
       emailAddress: "Διεύθυνση Email",

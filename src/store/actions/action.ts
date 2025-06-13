@@ -812,3 +812,45 @@ export const updateProperty =
       });
     }
   };
+
+export const deleteContact = (contactId: string, userID: string) => async (dispatch: any) => {
+  try {
+    dispatch({ type: "IS_LOADER", payload: true });
+    await firestore().collection("contacts").doc(contactId).delete();
+
+    const snapshot = await firestore()
+      .collection("contacts")
+      .where("createdBy", "==", userID)
+      .get();
+
+    if (snapshot.empty) {
+      dispatch({ type: "SET_USER_CONTACTS", payload: [] });
+    } else {
+      const contacts = snapshot.docs.map((doc: any) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      dispatch({ type: "SET_USER_CONTACTS", payload: contacts });
+    }
+
+    dispatch({ type: "IS_LOADER", payload: false });
+    const customMessage = await getFirebaseErrorMessage(
+      "Contact deleted successfully"
+    );
+    Toast.show({
+      type: "success",
+      text1: customMessage,
+      position: "bottom",
+    });
+  } catch (error) {
+    dispatch({ type: "IS_LOADER", payload: false });
+    const errorMessage = await getFirebaseErrorMessage(
+      (error as any).code || "Failed to delete contact"
+    );
+    Toast.show({
+      type: "error",
+      text1: errorMessage,
+      position: "bottom",
+    });
+  }
+};

@@ -224,6 +224,7 @@ export type LanguageTranslation = {
   fullnameRequired: string;
   roleRequired: string;
   confirmpasswordRequired: string;
+  confirmDeleteContact:string;
   passwordsDoNotMatch: string;
   agencyNameRequired: string;
   ownerNameRequired: string;

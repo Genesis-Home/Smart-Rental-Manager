@@ -53,6 +53,8 @@ const translations: Translations = {
     "Ad deleted successfully!": "Ad deleted successfully!",
     "Property deleted successfully": "Property deleted successfully",
     "Failed to delete property": "Failed to delete property",
+    "Contact deleted successfully": "Contact deleted successfully",
+    "Failed to delete contact": "Failed to delete contact",
     "": "",
     "Failed to add property. Please try again.":
       "Failed to add property. Please try again.",
@@ -66,38 +68,56 @@ const translations: Translations = {
     "Failed to add contact. Please try again.":
       "Failed to add contact. Please try again.",
     "logout successfully!": "logout successfully!",
-    "Failed to add schedule. Please try again.":"Failed to add schedule. Please try again.",
+    "Failed to add schedule. Please try again.":
+      "Failed to add schedule. Please try again.",
     "Property updated successfully": "Property updated successfully",
-    "Failed to update property. Please try again.": "Failed to update property. Please try again."
+    "Failed to update property. Please try again.":
+      "Failed to update property. Please try again.",
   },
   gr: {
     "auth/invalid-email": "Η διεύθυνση email δεν είναι έγκυρη.",
     "auth/user-disabled": "Ο λογαριασμός χρήστη έχει απενεργοποιηθεί.",
     "auth/user-not-found": "Δεν βρέθηκε χρήστης με αυτό το email.",
+    "Contact deleted successfully": "Η επαφή διαγράφηκε με επιτυχία",
+    "Failed to delete contact": "Αποτυχία διαγραφής της επαφής",
+
     "auth/wrong-password": "Ο κωδικός είναι λανθασμένος.",
     "auth/email-already-in-use": "Η διεύθυνση email χρησιμοποιείται ήδη.",
     "auth/weak-password": "Ο κωδικός είναι πολύ αδύναμος.",
     "auth/operation-not-allowed": "Αυτή η λειτουργία δεν επιτρέπεται.",
-    "auth/network-request-failed": "Σφάλμα δικτύου, παρακαλώ δοκιμάστε ξανά αργότερα.",
+    "auth/network-request-failed":
+      "Σφάλμα δικτύου, παρακαλώ δοκιμάστε ξανά αργότερα.",
     "auth/too-many-requests": "Πάρα πολλές αιτήσεις. Δοκιμάστε ξανά αργότερα.",
-    "auth/invalid-verification-code": "Ο κωδικός επαλήθευσης δεν είναι έγκυρος.",
+    "auth/invalid-verification-code":
+      "Ο κωδικός επαλήθευσης δεν είναι έγκυρος.",
     "auth/session-expired": "Η συνεδρία επαλήθευσης έχει λήξει.",
-    "auth/provider-already-linked": "Αυτός ο πάροχος είναι ήδη συνδεδεμένος με τον λογαριασμό.",
-    "auth/credential-already-in-use": "Αυτά τα διαπιστευτήρια χρησιμοποιούνται ήδη από άλλο χρήστη.",
-    "auth/requires-recent-login": "Αυτή η λειτουργία απαιτεί πρόσφατη πιστοποίηση. Παρακαλώ συνδεθείτε ξανά.",
+    "auth/provider-already-linked":
+      "Αυτός ο πάροχος είναι ήδη συνδεδεμένος με τον λογαριασμό.",
+    "auth/credential-already-in-use":
+      "Αυτά τα διαπιστευτήρια χρησιμοποιούνται ήδη από άλλο χρήστη.",
+    "auth/requires-recent-login":
+      "Αυτή η λειτουργία απαιτεί πρόσφατη πιστοποίηση. Παρακαλώ συνδεθείτε ξανά.",
     "auth/missing-email": "Απαιτείται διεύθυνση email.",
-    "auth/invalid-credential": "Τα διαπιστευτήρια που παρέχονται δεν είναι έγκυρα.",
-    "auth/user-token-expired": "Το διακριτικό χρήστη έχει λήξει. Παρακαλώ συνδεθείτε ξανά.",
+    "auth/invalid-credential":
+      "Τα διαπιστευτήρια που παρέχονται δεν είναι έγκυρα.",
+    "auth/user-token-expired":
+      "Το διακριτικό χρήστη έχει λήξει. Παρακαλώ συνδεθείτε ξανά.",
     "auth/invalid-api-key": "Το κλειδί API που παρέχεται δεν είναι έγκυρο.",
-    "auth/app-not-authorized": "Η εφαρμογή δεν έχει εξουσιοδότηση να χρησιμοποιεί το Firebase Authentication.",
-    "auth/user-mismatch": "Ο χρήστης δεν ταιριάζει με τα παρεχόμενα διαπιστευτήρια.",
-    "auth/account-exists-with-different-credential": "Υπάρχει ήδη λογαριασμός με το ίδιο email αλλά με διαφορετικά διαπιστευτήρια.",
-    "auth/popup-closed-by-user": "Το αναδυόμενο παράθυρο έκλεισε πριν ολοκληρωθεί η σύνδεση.",
-    "auth/internal-error": "Παρουσιάστηκε εσωτερικό σφάλμα. Παρακαλώ δοκιμάστε ξανά αργότερα.",
+    "auth/app-not-authorized":
+      "Η εφαρμογή δεν έχει εξουσιοδότηση να χρησιμοποιεί το Firebase Authentication.",
+    "auth/user-mismatch":
+      "Ο χρήστης δεν ταιριάζει με τα παρεχόμενα διαπιστευτήρια.",
+    "auth/account-exists-with-different-credential":
+      "Υπάρχει ήδη λογαριασμός με το ίδιο email αλλά με διαφορετικά διαπιστευτήρια.",
+    "auth/popup-closed-by-user":
+      "Το αναδυόμενο παράθυρο έκλεισε πριν ολοκληρωθεί η σύνδεση.",
+    "auth/internal-error":
+      "Παρουσιάστηκε εσωτερικό σφάλμα. Παρακαλώ δοκιμάστε ξανά αργότερα.",
     // custom toast
     "Login successful!": "Επιτυχής σύνδεση!",
     "Property updated successfully": "Η ιδιοκτησία ενημερώθηκε με επιτυχία",
-    "Failed to update property. Please try again.": "Αποτυχία ενημέρωσης της ιδιοκτησίας. Παρακαλώ δοκιμάστε ξανά."
+    "Failed to update property. Please try again.":
+      "Αποτυχία ενημέρωσης της ιδιοκτησίας. Παρακαλώ δοκιμάστε ξανά.",
   },
 };
 
