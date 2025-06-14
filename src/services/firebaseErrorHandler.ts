@@ -39,6 +39,7 @@ const translations: Translations = {
       "The popup was closed before completing the sign-in.",
     "auth/internal-error":
       "An internal error occurred. Please try again later.",
+      "User updated successfully!":"User updated successfully!",
     // custom toast
     "Login successful!": "Login successful!",
     "Passwords do not match.": "Passwords do not match.",
@@ -118,6 +119,8 @@ const translations: Translations = {
     "Property updated successfully": "Η ιδιοκτησία ενημερώθηκε με επιτυχία",
     "Failed to update property. Please try again.":
       "Αποτυχία ενημέρωσης της ιδιοκτησίας. Παρακαλώ δοκιμάστε ξανά.",
+            "User updated successfully!":"Ο χρήστης ενημερώθηκε με επιτυχία!",
+
   },
 };
 

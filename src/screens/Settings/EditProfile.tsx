@@ -23,6 +23,7 @@ import { updateUser } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { launchImageLibrary } from "react-native-image-picker";
 import storage from "@react-native-firebase/storage";
+import Toast from "react-native-toast-message";
 
 const validationSchema = Yup.object().shape({
   agencyName: Yup.string().required(t("agencyNameRequired")),
@@ -45,29 +46,43 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
         includeBase64: true,
       },
       async (response) => {
+        if (response.didCancel) {
+          console.log("User cancelled image picker");
+          return;
+        }
+
+        if (response.errorCode) {
+          console.error("Image picker error:", response.errorMessage);
+          Toast.show({
+            type: "error",
+            text1: "Failed to select image. Please try again.",
+            position: "bottom",
+          });
+          return;
+        }
+
         if (response.assets && response.assets[0]?.uri) {
           const imageUri = response.assets[0].uri;
+          setIsUploading(true);
 
-          const fileName = imageUri.substring(imageUri.lastIndexOf("/") + 1);
-          const reference = storage().ref(fileName);
-          const task = reference.putFile(imageUri);
-
-          task.on("state_changed", (taskSnapshot) => {
-            setIsUploading(true);
-          });
-
-          task
-            .then(async () => {
-              const downloadUrl = await reference.getDownloadURL();
-              setProfileImage(downloadUrl);
-              setIsUploading(false);
-            })
-            .catch((error) => {
-              console.error("Image upload error:", error);
-              setProfileImage(null);
+          try {
+            const fileName = `profile_${Date.now()}_${imageUri.substring(imageUri.lastIndexOf("/") + 1)}`;
+            const reference = storage().ref(fileName);
+            await reference.putFile(imageUri);
+            const downloadUrl = await reference.getDownloadURL();
+            setProfileImage(downloadUrl);
+          } catch (error) {
+            console.error("Image upload error:", error);
+            Toast.show({
+              type: "error",
+              text1: "Failed to upload image. Please try again.",
+              position: "bottom",
             });
-        } else {
-          setProfileImage(null);
+            // Keep the existing profile photo if upload fails
+            setProfileImage(user?.profilePhoto || null);
+          } finally {
+            setIsUploading(false);
+          }
         }
       }
     );
@@ -78,7 +93,8 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
       agencyName: values.agencyName,
       ownerName: values.ownerName,
       email: values.email,
-      profilePhoto: profileImage,
+      // Only include profilePhoto if a new image was selected
+      ...(profileImage && { profilePhoto: profileImage })
     };
 
     if (credentials && user?.userId) {
@@ -175,6 +191,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
                   value={values.email}
                   onChangeText={handleChange("email")}
                   onBlur={() => handleBlur("email")}
+                  editable={false}
                   error={
                     touched.email && errors.email
                       ? String(errors.email)

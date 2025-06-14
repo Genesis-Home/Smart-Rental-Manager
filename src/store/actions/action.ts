@@ -458,29 +458,59 @@ export const logoutUser = (navigation: any) => async (dispatch: any) => {
   }
 };
 
-export const updateUser =
-  (credentials: any, userId: any, navigation: any) => async (dispatch: any) => {
-    try {
-      dispatch({ type: "IS_LOADER", payload: true });
-      await firestore().collection("users").doc(userId).update(credentials);
-      const userDoc = await firestore().collection("users").doc(userId).get();
-      const userData = userDoc.data();
-      setItem("user", userData);
-      dispatch({ type: "SET_USER", payload: userData });
-      dispatch({ type: "IS_LOADER", payload: false });
-      setItem("user", userData);
-      const customMessage = await getFirebaseErrorMessage(
-        "User update successfully!"
-      );
-      Toast.show({ type: "success", text1: customMessage, position: "bottom" });
-      navigation.goBack();
-    } catch (error) {
-      console.log(error, "updateUser_error");
-      dispatch({ type: "IS_LOADER", payload: false });
-      const errorMessage = await getFirebaseErrorMessage((error as any).code);
-      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+export const updateUser = (credentials: any, userId: any, navigation: any) => async (dispatch: any) => {
+  try {
+    dispatch({ type: "IS_LOADER", payload: true });
+    
+    // First get the current user data
+    const userRef = firestore().collection("users").doc(userId);
+    const currentUserDoc = await userRef.get();
+    const currentUserData = currentUserDoc.data();
+
+    if (!currentUserData) {
+      throw new Error("User not found");
     }
-  };
+
+    // Remove password fields if they exist
+    const { password, confirmPassword, ...userDataWithoutPassword } = credentials;
+
+    // Create update data that preserves existing fields
+    const updateData = {
+      ...userDataWithoutPassword,
+      // Preserve profile photo if not being updated
+      profilePhoto: credentials.profilePhoto || currentUserData.profilePhoto,
+      // Preserve other existing fields that might not be in the update
+      ...(currentUserData.role && !userDataWithoutPassword.role && { role: currentUserData.role }),
+      ...(currentUserData.expertise && !userDataWithoutPassword.expertise && { expertise: currentUserData.expertise }),
+      // Add any other fields you want to preserve
+    };
+
+    // Update the document
+    await userRef.update(updateData);
+
+    // Get the updated user data
+    const updatedUserDoc = await userRef.get();
+    const updatedUserData = updatedUserDoc.data();
+
+    if (!updatedUserData) {
+      throw new Error("Failed to get updated user data");
+    }
+
+    // Store and dispatch the updated user data
+    await setItem("user", updatedUserData);
+    dispatch({ type: "SET_USER", payload: updatedUserData });
+    dispatch({ type: "IS_LOADER", payload: false });
+
+    const customMessage = await getFirebaseErrorMessage("User updated successfully!");
+    Toast.show({ type: "success", text1: customMessage, position: "bottom" });
+    navigation.goBack();
+  } catch (error) {
+    console.log(error, "updateUser_error");
+    dispatch({ type: "IS_LOADER", payload: false });
+    const errorMessage = await getFirebaseErrorMessage((error as any).code);
+    Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+  }
+};
 
 export const addSchedule =
   (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
