@@ -317,12 +317,13 @@ const styles = StyleSheet.create({
     width: "80%",
     backgroundColor: Colors.white,
     paddingHorizontal: 10,
-    borderRadius: 50,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: Colors.Neutral_01,
     gap: 3,
     flexDirection: "row",
     alignItems: "center",
+    height:45
   },
   searchInputField: {
     color: Colors.DARK_GREEN,
