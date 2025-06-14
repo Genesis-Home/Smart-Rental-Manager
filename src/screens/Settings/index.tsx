@@ -307,14 +307,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1,
     paddingHorizontal: 13,
-    paddingVertical: 15,
+    height:45
   },
   optionText: {
-    ...Typography.f_14_nunito_medium,
+    ...Typography.f_12_nunito_medium,
     color: colors.DARK_GREEN,
   },
   signOutText: {
-    ...Typography.f_14_nunito_medium,
+    ...Typography.f_12_nunito_medium,
     color: colors.Error_Red,
   },
   languageDropdown: {

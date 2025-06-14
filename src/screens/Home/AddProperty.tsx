@@ -98,9 +98,9 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       }
     };
 
-    const getCurrentLocation = () => {
+    const getCurrentLocation = async () => {
       Geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
           setMarker({ latitude, longitude });
           setMapRegion({
@@ -109,6 +109,23 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           });
+
+          try {
+            const response = await axios.get(
+              `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
+            );
+
+            if (response.data.status === "OK") {
+              const formattedAddress =
+                response.data.results[0]?.formatted_address || "";
+              setInputValue(formattedAddress);
+              if (placesRef.current) {
+                placesRef.current.setAddressText(formattedAddress);
+              }
+            }
+          } catch (error) {
+            console.error("Error reverse geocoding:", error);
+          }
         },
         (error) => console.log(error),
         { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
@@ -472,11 +489,12 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           ...Typography.f_12_nunito_medium,
                           color: Colors.black,
                           paddingHorizontal: 14,
+                          paddingLeft: 15,
                           borderWidth: 0.3,
                           borderColor: Colors.DARK_GRAY,
-                          borderRadius: 8,
+                          borderRadius: 5,
                           backgroundColor: Colors.white,
-                          height: 40,
+                          height: 45,
                           marginTop: 0,
                           marginLeft: 0,
                           marginRight: 0,
@@ -485,6 +503,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           backgroundColor: Colors.white,
                           borderTopWidth: 0,
                           borderBottomWidth: 0,
+                          // zIndex: 1,
                         },
                         listView: {
                           backgroundColor: Colors.white,
@@ -492,7 +511,23 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           borderColor: Colors.DARK_GRAY,
                           borderRadius: 8,
                           marginTop: 10,
+                          // position: "absolute",
+                          // top: "100%",
+                          // left: 0,
+                          // right: 0,
+                          // zIndex: 1000,
+                          // elevation: 3,
+                          // shadowColor: "#000",
+                          // shadowOffset: { width: 0, height: 2 },
+                          // shadowOpacity: 0.25,
+                          // shadowRadius: 3.84,
                         },
+                        // row: {
+                        //   backgroundColor: Colors.white,
+                        //   padding: 13,
+                        //   height: "auto",
+                        //   minHeight: 44,
+                        // },
                         description: {
                           ...Typography.f_14_nunito_medium,
                           color: "black",
@@ -536,13 +571,17 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                         Geolocation.getCurrentPosition(
                           async (position) => {
                             const { latitude, longitude } = position.coords;
-                            setMarker({ latitude, longitude });
+
+                            // First update the map region to trigger recentering
                             setMapRegion({
                               latitude,
                               longitude,
                               latitudeDelta: 0.01,
                               longitudeDelta: 0.01,
                             });
+
+                            // Then update the marker
+                            setMarker({ latitude, longitude });
 
                             try {
                               const response = await axios.get(

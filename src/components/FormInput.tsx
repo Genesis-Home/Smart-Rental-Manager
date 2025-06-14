@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 50,
+    height: 45,
     color: colors.DARK_GREEN,
     ...Typography.f_12_nunito_medium,
   },

@@ -67,7 +67,7 @@ const createStyles = (
     CRAButton1: {
       backgroundColor: backgroundColor || colors.Primary_01,
       borderRadius: 5,
-      height: 50,
+      height: 45,
       width: "100%",
       justifyContent: "center",
       alignItems: "center",

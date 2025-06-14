@@ -423,6 +423,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                           backgroundColor: colors.white,
                           borderTopWidth: 0,
                           borderBottomWidth: 0,
+                          zIndex: 1,
                         },
                         listView: {
                           backgroundColor: colors.white,
@@ -430,6 +431,22 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                           borderColor: colors.DARK_GRAY,
                           borderRadius: 8,
                           marginTop: 10,
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          right: 0,
+                          zIndex: 1000,
+                          elevation: 3,
+                          shadowColor: '#000',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 3.84,
+                        },
+                        row: {
+                          backgroundColor: colors.white,
+                          padding: 13,
+                          height: 'auto',
+                          minHeight: 44,
                         },
                         description: {
                           ...Typography.f_14_nunito_medium,
@@ -441,14 +458,6 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                         },
                       }}
                     />
-                    {inputText ? (
-                      <TouchableOpacity
-                        style={styles.clearButton}
-                        onPress={handleClearInput}
-                      >
-                        <Icon name="close" size={20} color={colors.DARK_GRAY} />
-                      </TouchableOpacity>
-                    ) : null}
                   </View>
                   <MapView
                     style={{ height: 200, width: "100%", marginTop: 10 }}

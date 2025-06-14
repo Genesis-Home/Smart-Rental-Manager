@@ -123,7 +123,6 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   <View
                     style={{
                       alignItems: "center",
-                      gap: 5,
                       flexDirection: "row",
                     }}
                   >
@@ -138,7 +137,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                     />
                     <Text
                       style={[
-                        styles.label,
+                      styles.label,
                         Typography.f_14_nunito_medium,
                         { color: colors.Primary_01 },
                       ]}

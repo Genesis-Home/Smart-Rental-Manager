@@ -418,6 +418,7 @@ const styles = StyleSheet.create({
     borderColor: colors.Neutral_01,
     padding: 13,
     borderRadius: 4,
+    height:45
   },
   datePickerText: {
     ...Typography.f_14_nunito_bold,

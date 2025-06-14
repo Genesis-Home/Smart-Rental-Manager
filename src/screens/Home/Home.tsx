@@ -242,8 +242,8 @@ const Home: React.FC = () => {
           >
             {item.description}
           </Text>
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            <Address style={{ top: 3 }} />
+          <View style={{ flexDirection: "row", gap: 5 }}>
+            <Address style={{ top: 2 }} />
             <Text
               style={[
                 Typography.f_14_nunito_medium,
@@ -349,8 +349,9 @@ const styles = StyleSheet.create({
   searchContainer: {
     width: "80%",
     backgroundColor: Colors.white,
-    paddingHorizontal: 10,
-    borderRadius: 50,
+    paddingHorizontal: 13,
+    borderRadius: 5,
+    height:45,
     borderWidth: 1,
     borderColor: Colors.Neutral_01,
     gap: 3,

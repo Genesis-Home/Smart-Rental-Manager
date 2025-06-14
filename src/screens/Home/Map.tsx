@@ -190,29 +190,14 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
               <Search />
             </View>
           )}
-          renderRightButton={() => {
-            if (typeof city === "string" && city.length > 0) {
-              return (
-                <TouchableOpacity
-                  onPress={clearInput}
-                  style={{ alignSelf: "center", paddingRight: 10 }}
-                >
-                  <AntDesign
-                    name={"close"}
-                    color={"red"}
-                    size={RFValue(20, screenResolution.screenHeight)}
-                  />
-                </TouchableOpacity>
-              );
-            }
-            return null;
-          }}
+          renderRightButton={() => null}
           styles={{
             container: {
               backgroundColor: Colors.white,
               borderRadius: 50,
               marginTop: 10,
               paddingVertical: 5,
+              zIndex: 1,
             },
             textInput: {
               backgroundColor: Colors.white,
@@ -226,6 +211,7 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
               borderRadius: 50,
               borderTopWidth: 0,
               borderBottomWidth: 0,
+              zIndex: 1,
             },
             listView: {
               backgroundColor: Colors.white,
@@ -235,6 +221,18 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
               marginTop: 20,
               paddingHorizontal: 20,
               width: "100%",
+              zIndex: 1000,
+              elevation: 3,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+            },
+            row: {
+              backgroundColor: Colors.white,
+              padding: 13,
+              height: 'auto',
+              minHeight: 44,
             },
             description: {
               ...Typography.f_14_nunito_medium,

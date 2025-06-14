@@ -224,9 +224,10 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     backgroundColor: Colors.white,
-    paddingHorizontal: 10,
-    borderRadius: 50,
+    paddingHorizontal: 13,
+    borderRadius: 5,
     borderWidth: 1,
+    height:45,
     borderColor: Colors.Neutral_01,
     gap: 3,
     flexDirection: "row",
