@@ -65,6 +65,12 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     lat: number;
     long: number;
   } | null>(null);
+  const [lastSelectedLocation, setLastSelectedLocation] = useState<{
+    address: string;
+    lat: number;
+    long: number;
+  } | null>(null);
+  const [isInitialLocationSet, setIsInitialLocationSet] = useState(false);
   const [marker, setMarker] = useState<MarkerProps | null>({
     latitude: 30.4419,
     longitude: -84.2985,
@@ -76,6 +82,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   });
+  const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
     const requestLocationPermission = async () => {
@@ -123,15 +130,18 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
             if (response.data.status === "OK") {
               const formattedAddress =
                 response.data.results[0]?.formatted_address || "";
-              setInitialLocation({
+              const location = {
                 address: formattedAddress,
                 lat: latitude,
                 long: longitude,
-              });
+              };
+              setInitialLocation(location);
+              setLastSelectedLocation(location);
               setInputValue(formattedAddress);
               if (placesRef.current) {
                 placesRef.current.setAddressText(formattedAddress);
               }
+              setIsInitialLocationSet(true);
             }
           } catch (error) {
             console.error("Error reverse geocoding:", error);
@@ -314,6 +324,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
         long: longitude,
       };
 
+      setLastSelectedLocation(location);
       updateMapAndMarker(location.lat, location.long);
       setInputValue(formattedAddress);
       setFieldValue("location", location);
@@ -338,6 +349,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       long: details.geometry?.location?.lng || 0,
     };
 
+    setLastSelectedLocation(location);
     setFieldValue("location", location);
     updateMapAndMarker(location.lat, location.long);
     setInputValue(details.formatted_address);
@@ -390,7 +402,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
             onRequestClose={() => setIsVisible(false)}
           />
           <Formik
-            key={initialLocation?.address}
             initialValues={{
               title: "",
               description: "",
@@ -398,6 +409,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
               images: [],
               location: initialLocation || { address: "", lat: 0, long: 0 },
             }}
+            enableReinitialize={true}
             validationSchema={validationSchema}
             onSubmit={async (values, { resetForm }) => {
               try {
@@ -561,6 +573,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                   </View>
                   <View>
                     <MapView
+                      ref={mapRef}
                       style={{ height: 200, width: "100%" }}
                       provider={PROVIDER_GOOGLE}
                       region={mapRegion}
@@ -580,48 +593,71 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={async () => {
-                        Geolocation.getCurrentPosition(
-                          async (position) => {
-                            const { latitude, longitude } = position.coords;
+                        if (!isInitialLocationSet) {
+                          // If initial location is not set, get current location
+                          Geolocation.getCurrentPosition(
+                            async (position) => {
+                              const { latitude, longitude } = position.coords;
+                              mapRef.current?.animateToRegion({
+                                latitude,
+                                longitude,
+                                latitudeDelta: 0.01,
+                                longitudeDelta: 0.01,
+                              }, 1000);
 
-                            // First update the map region to trigger recentering
-                            setMapRegion({
-                              latitude,
-                              longitude,
-                              latitudeDelta: 0.01,
-                              longitudeDelta: 0.01,
-                            });
+                              setMarker({ latitude, longitude });
 
-                            // Then update the marker
-                            setMarker({ latitude, longitude });
+                              try {
+                                const response = await axios.get(
+                                  `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
+                                );
 
-                            try {
-                              const response = await axios.get(
-                                `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
-                              );
-
-                              if (response.data.status === "OK") {
-                                const formattedAddress =
-                                  response.data.results[0]?.formatted_address ||
-                                  "";
-                                setInputValue(formattedAddress);
-                                if (placesRef.current) {
-                                  placesRef.current.setAddressText(
-                                    formattedAddress
-                                  );
+                                if (response.data.status === "OK") {
+                                  const formattedAddress =
+                                    response.data.results[0]?.formatted_address ||
+                                    "";
+                                  const location = {
+                                    address: formattedAddress,
+                                    lat: latitude,
+                                    long: longitude,
+                                  };
+                                  setInitialLocation(location);
+                                  setLastSelectedLocation(location);
+                                  setInputValue(formattedAddress);
+                                  if (placesRef.current) {
+                                    placesRef.current.setAddressText(formattedAddress);
+                                  }
+                                  setIsInitialLocationSet(true);
                                 }
+                              } catch (error) {
+                                console.error("Error reverse geocoding:", error);
                               }
-                            } catch (error) {
-                              console.error("Error reverse geocoding:", error);
+                            },
+                            (error) => console.log(error),
+                            {
+                              enableHighAccuracy: true,
+                              timeout: 20000,
+                              maximumAge: 1000,
                             }
-                          },
-                          (error) => console.log(error),
-                          {
-                            enableHighAccuracy: true,
-                            timeout: 20000,
-                            maximumAge: 1000,
+                          );
+                        } else if (lastSelectedLocation) {
+                          // If initial location is set, recenter to last selected location
+                          mapRef.current?.animateToRegion({
+                            latitude: lastSelectedLocation.lat,
+                            longitude: lastSelectedLocation.long,
+                            latitudeDelta: 0.01,
+                            longitudeDelta: 0.01,
+                          }, 1000);
+
+                          setMarker({
+                            latitude: lastSelectedLocation.lat,
+                            longitude: lastSelectedLocation.long,
+                          });
+                          setInputValue(lastSelectedLocation.address);
+                          if (placesRef.current) {
+                            placesRef.current.setAddressText(lastSelectedLocation.address);
                           }
-                        );
+                        }
                       }}
                       style={{
                         position: "absolute",
