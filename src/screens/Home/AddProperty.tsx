@@ -60,6 +60,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [inputValue, setInputValue] = useState("");
+  const [initialLocation, setInitialLocation] = useState<{
+    address: string;
+    lat: number;
+    long: number;
+  } | null>(null);
   const [marker, setMarker] = useState<MarkerProps | null>({
     latitude: 30.4419,
     longitude: -84.2985,
@@ -118,6 +123,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
             if (response.data.status === "OK") {
               const formattedAddress =
                 response.data.results[0]?.formatted_address || "";
+              setInitialLocation({
+                address: formattedAddress,
+                lat: latitude,
+                long: longitude,
+              });
               setInputValue(formattedAddress);
               if (placesRef.current) {
                 placesRef.current.setAddressText(formattedAddress);
@@ -333,6 +343,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     setInputValue(details.formatted_address);
   };
 
+
   return (
     <View style={[styles.mainContainer, styles.platformMarginTop]}>
       <View style={styles.contentContainer}>
@@ -379,12 +390,13 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
             onRequestClose={() => setIsVisible(false)}
           />
           <Formik
+            key={initialLocation?.address}
             initialValues={{
               title: "",
               description: "",
               otherDetails: "",
               images: [],
-              location: { address: "", lat: 0, long: 0 },
+              location: initialLocation || { address: "", lat: 0, long: 0 },
             }}
             validationSchema={validationSchema}
             onSubmit={async (values, { resetForm }) => {
