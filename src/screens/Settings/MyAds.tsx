@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     width: "80%",
     backgroundColor: Colors.white,
-    paddingHorizontal: 10,
+    paddingHorizontal: 13,
     borderRadius: 5,
     borderWidth: 1,
     borderColor: Colors.Neutral_01,
