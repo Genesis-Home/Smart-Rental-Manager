@@ -426,8 +426,6 @@ const ApartmentDetails: React.FC = () => {
             </View>
           </View>
         </Modal>
-
-        {/* Booking Details Modal */}
         <Modal
           transparent={true}
           visible={showBookingDetailsModal}
@@ -599,7 +597,6 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     width: "90%",
-    alignItems: "center",
   },
   modalTitle: {
     ...Typography.f_16_nunito_bold,
@@ -608,14 +605,15 @@ const styles = StyleSheet.create({
   },
   modalButtons: {
     flexDirection: "row",
-    gap: 20,
+    alignItems:"center",
+    justifyContent:"space-between",
   },
   modalButton: {
     backgroundColor: Colors.Primary_01,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    width: "100%",
+    width: "47%",
     justifyContent: "center",
     alignItems: "center",
   },
