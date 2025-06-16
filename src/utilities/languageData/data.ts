@@ -243,6 +243,7 @@ export const languageData: LanguageData[] = [
       Revenue: "Revenue",
       confirmDelete: "Are you sure you want to delete this apartment?", 
       confirmDeleteContact: "Are you sure you want to delete this contact?", 
+      confirmDeleteBooking: "Are you sure you want to delete this booking?",
       editProperty: "Edit Property",
       editPhotos: "Edit Photos",
       mapLink: "Map Link",

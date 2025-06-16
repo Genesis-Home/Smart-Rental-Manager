@@ -202,6 +202,8 @@ const Scheduled: React.FC = () => {
                   onPress={() =>
                     navigation.navigate("ApartmentDetails", {
                       id: schedule.propertyId,
+                      source: 'schedules',
+                      scheduleId: schedule.id
                     })
                   }
                   style={styles.propertyRow}

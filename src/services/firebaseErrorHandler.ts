@@ -39,8 +39,7 @@ const translations: Translations = {
       "The popup was closed before completing the sign-in.",
     "auth/internal-error":
       "An internal error occurred. Please try again later.",
-      "User updated successfully!":"User updated successfully!",
-    // custom toast
+    "User updated successfully!": "User updated successfully!",
     "Login successful!": "Login successful!",
     "Passwords do not match.": "Passwords do not match.",
     "User registered successfully!": "User registered successfully!",
@@ -56,6 +55,8 @@ const translations: Translations = {
     "Failed to delete property": "Failed to delete property",
     "Contact deleted successfully": "Contact deleted successfully",
     "Failed to delete contact": "Failed to delete contact",
+    "Booking cancelled successfully": "Booking cancelled successfully",
+    "Failed to cancel booking": "Failed to cancel booking",
     "": "",
     "Failed to add property. Please try again.":
       "Failed to add property. Please try again.",
@@ -79,52 +80,73 @@ const translations: Translations = {
     "auth/invalid-email": "Η διεύθυνση email δεν είναι έγκυρη.",
     "auth/user-disabled": "Ο λογαριασμός χρήστη έχει απενεργοποιηθεί.",
     "auth/user-not-found": "Δεν βρέθηκε χρήστης με αυτό το email.",
-    "Contact deleted successfully": "Η επαφή διαγράφηκε με επιτυχία",
-    "Failed to delete contact": "Αποτυχία διαγραφής της επαφής",
-
     "auth/wrong-password": "Ο κωδικός είναι λανθασμένος.",
     "auth/email-already-in-use": "Η διεύθυνση email χρησιμοποιείται ήδη.",
     "auth/weak-password": "Ο κωδικός είναι πολύ αδύναμος.",
     "auth/operation-not-allowed": "Αυτή η λειτουργία δεν επιτρέπεται.",
-    "auth/network-request-failed":
-      "Σφάλμα δικτύου, παρακαλώ δοκιμάστε ξανά αργότερα.",
-    "auth/too-many-requests": "Πάρα πολλές αιτήσεις. Δοκιμάστε ξανά αργότερα.",
+    "auth/network-request-failed": "Σφάλμα δικτύου. Δοκιμάστε ξανά αργότερα.",
+    "auth/too-many-requests": "Πάρα πολλά αιτήματα. Δοκιμάστε ξανά αργότερα.",
     "auth/invalid-verification-code":
       "Ο κωδικός επαλήθευσης δεν είναι έγκυρος.",
     "auth/session-expired": "Η συνεδρία επαλήθευσης έχει λήξει.",
     "auth/provider-already-linked":
-      "Αυτός ο πάροχος είναι ήδη συνδεδεμένος με τον λογαριασμό.",
+      "Ο πάροχος είναι ήδη συνδεδεμένος με τον λογαριασμό.",
     "auth/credential-already-in-use":
-      "Αυτά τα διαπιστευτήρια χρησιμοποιούνται ήδη από άλλο χρήστη.",
+      "Αυτά τα διαπιστευτήρια χρησιμοποιούνται ήδη.",
     "auth/requires-recent-login":
-      "Αυτή η λειτουργία απαιτεί πρόσφατη πιστοποίηση. Παρακαλώ συνδεθείτε ξανά.",
+      "Απαιτείται πρόσφατη σύνδεση. Παρακαλώ συνδεθείτε ξανά.",
     "auth/missing-email": "Απαιτείται διεύθυνση email.",
-    "auth/invalid-credential":
-      "Τα διαπιστευτήρια που παρέχονται δεν είναι έγκυρα.",
+    "auth/invalid-credential": "Τα διαπιστευτήρια δεν είναι έγκυρα.",
     "auth/user-token-expired":
-      "Το διακριτικό χρήστη έχει λήξει. Παρακαλώ συνδεθείτε ξανά.",
-    "auth/invalid-api-key": "Το κλειδί API που παρέχεται δεν είναι έγκυρο.",
+      "Το διακριτικό χρήστη έχει λήξει. Συνδεθείτε ξανά.",
+    "auth/invalid-api-key": "Το κλειδί API δεν είναι έγκυρο.",
     "auth/app-not-authorized":
-      "Η εφαρμογή δεν έχει εξουσιοδότηση να χρησιμοποιεί το Firebase Authentication.",
-    "auth/user-mismatch":
-      "Ο χρήστης δεν ταιριάζει με τα παρεχόμενα διαπιστευτήρια.",
+      "Η εφαρμογή δεν έχει εξουσιοδότηση για χρήση Firebase.",
+    "auth/user-mismatch": "Ο χρήστης δεν αντιστοιχεί στα διαπιστευτήρια.",
     "auth/account-exists-with-different-credential":
-      "Υπάρχει ήδη λογαριασμός με το ίδιο email αλλά με διαφορετικά διαπιστευτήρια.",
+      "Υπάρχει λογαριασμός με το ίδιο email αλλά διαφορετικά διαπιστευτήρια.",
     "auth/popup-closed-by-user":
-      "Το αναδυόμενο παράθυρο έκλεισε πριν ολοκληρωθεί η σύνδεση.",
-    "auth/internal-error":
-      "Παρουσιάστηκε εσωτερικό σφάλμα. Παρακαλώ δοκιμάστε ξανά αργότερα.",
-    // custom toast
+      "Το παράθυρο έκλεισε πριν ολοκληρωθεί η σύνδεση.",
+    "auth/internal-error": "Εσωτερικό σφάλμα. Δοκιμάστε ξανά αργότερα.",
+    "User updated successfully!": "Ο χρήστης ενημερώθηκε με επιτυχία!",
     "Login successful!": "Επιτυχής σύνδεση!",
+    "Passwords do not match.": "Οι κωδικοί δεν ταιριάζουν.",
+    "User registered successfully!": "Ο χρήστης καταχωρήθηκε με επιτυχία!",
+    "Password reset email sent successfully.":
+      "Το email επαναφοράς κωδικού εστάλη με επιτυχία.",
+    "User update successfully!": "Ο χρήστης ενημερώθηκε με επιτυχία!",
+    "Schedule added successfully": "Το πρόγραμμα προστέθηκε με επιτυχία.",
+    jobCreatedSuccess: "Η εργασία δημιουργήθηκε με επιτυχία!",
+    serviceCreatedSuccess: "Η υπηρεσία δημιουργήθηκε με επιτυχία!",
+    "Ad updated successfully!": "Η αγγελία ενημερώθηκε με επιτυχία!",
+    "Ad deleted successfully!": "Η αγγελία διαγράφηκε με επιτυχία!",
+    "Property deleted successfully": "Η ιδιοκτησία διαγράφηκε με επιτυχία",
+    "Failed to delete property": "Αποτυχία διαγραφής της ιδιοκτησίας",
+    "Contact deleted successfully": "Η επαφή διαγράφηκε με επιτυχία",
+    "Failed to delete contact": "Αποτυχία διαγραφής της επαφής",
+    "Booking cancelled successfully": "Η κράτηση ακυρώθηκε με επιτυχία",
+    "Failed to cancel booking": "Αποτυχία ακύρωσης της κράτησης",
+    "": "",
+    "Failed to add property. Please try again.":
+      "Αποτυχία προσθήκης ιδιοκτησίας. Προσπαθήστε ξανά.",
+    "User not authenticated": "Ο χρήστης δεν είναι πιστοποιημένος",
+    "Failed to select images": "Αποτυχία επιλογής εικόνων",
+    "Property added successfully": "Η ιδιοκτησία προστέθηκε με επιτυχία",
+    "Failed to upload images. Please try again.":
+      "Αποτυχία μεταφόρτωσης εικόνων. Προσπαθήστε ξανά.",
+    "Property not found.": "Η ιδιοκτησία δεν βρέθηκε.",
+    "Contact added successfully": "Η επαφή προστέθηκε με επιτυχία",
+    "Failed to add contact. Please try again.":
+      "Αποτυχία προσθήκης επαφής. Προσπαθήστε ξανά.",
+    "logout successfully!": "Αποσυνδεθήκατε με επιτυχία!",
+    "Failed to add schedule. Please try again.":
+      "Αποτυχία προσθήκης προγράμματος. Δοκιμάστε ξανά.",
     "Property updated successfully": "Η ιδιοκτησία ενημερώθηκε με επιτυχία",
     "Failed to update property. Please try again.":
-      "Αποτυχία ενημέρωσης της ιδιοκτησίας. Παρακαλώ δοκιμάστε ξανά.",
-            "User updated successfully!":"Ο χρήστης ενημερώθηκε με επιτυχία!",
-
+      "Αποτυχία ενημέρωσης ιδιοκτησίας. Δοκιμάστε ξανά.",
   },
 };
 
-// Function to get translated error message
 const getFirebaseErrorMessage = async (errorCode: string): Promise<string> => {
   const languageCode: any = await getItem("languagecode", "en");
   const errorMessage: string | undefined =

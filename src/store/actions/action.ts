@@ -9,7 +9,6 @@ import { scheduleBookingNotifications } from "../../services/notificationService
 import axios from "axios";
 import { Location } from "../../types/types";
 import { generateSchedulePDF } from '../../services/pdfService';
-
 export const getCurrentUser =
   (navigation: NavigationProp<any>): any =>
   async (dispatch: Dispatch) => {
@@ -912,5 +911,82 @@ export const deleteContact = (contactId: string, userID: string) => async (dispa
       text1: errorMessage,
       position: "bottom",
     });
+  }
+};
+
+export const deleteScheduleById = (scheduleId: string, userId: string, isFromSchedules: boolean = false) => async (dispatch: any) => {
+  dispatch({ type: "IS_LOADER", payload: true });
+  try {
+    const scheduleRef = firestore().collection("schedules").doc(scheduleId);
+    const scheduleDoc = await scheduleRef.get();
+
+    if (scheduleDoc.exists) {
+      const scheduleData = scheduleDoc.data();
+      const propertyId = scheduleData?.propertyId;
+      const agreedPrice = parseFloat(scheduleData?.agreedPrice || "0");
+
+      // Delete the schedule
+      await scheduleRef.delete();
+
+      // Update property revenue
+      if (propertyId) {
+        const propertyRef = firestore().collection("properties").doc(propertyId);
+        const propertyDoc = await propertyRef.get();
+
+        if (propertyDoc.exists) {
+          const propertyData = propertyDoc.data();
+          const currentRevenue = parseFloat(propertyData?.revenue || "0");
+          const newRevenue = Math.max(0, currentRevenue - agreedPrice); // Ensure revenue doesn't go below 0
+
+          await propertyRef.update({
+            revenue: newRevenue
+          });
+
+          // Update the property in the store
+          const updatedPropertyDoc = await propertyRef.get();
+          const updatedProperty = {
+            ...updatedPropertyDoc.data(),
+            id: updatedPropertyDoc.id,
+          };
+          dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
+        }
+      }
+
+      // Update user's schedules list
+      const userSchedulesSnapshot = await firestore()
+        .collection("schedules")
+        .where("createdBy", "==", userId)
+        .get();
+
+      const updatedSchedules = userSchedulesSnapshot.docs
+        .map((doc:any) => ({ id: doc.id, ...doc.data() }))
+        .filter((schedule:any) => schedule.id !== scheduleId);
+
+      dispatch({
+        type: "SET_USER_SCHEDULES",
+        payload: updatedSchedules,
+      });
+
+      const successMessage = await getFirebaseErrorMessage(
+      "Booking cancelled successfully" 
+      );
+      Toast.show({
+        type: "success",
+        text1: successMessage,
+        position: "bottom",
+      });
+    }
+  } catch (error) {
+    console.error("Error deleting schedule:", error);
+    const errorMessage = await getFirebaseErrorMessage(
+       "Failed to cancel booking" 
+    );
+    Toast.show({
+      type: "error",
+      text1: errorMessage,
+      position: "bottom",
+    });
+  } finally {
+    dispatch({ type: "IS_LOADER", payload: false });
   }
 };

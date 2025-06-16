@@ -44,7 +44,11 @@ export type RootStackParamList = {
   Profile: undefined;
   createContact: undefined;
   AddSchedule: undefined;
-  ApartmentDetails: { id: string };
+  ApartmentDetails: {
+    id: string;
+    source?: string;
+    scheduleId?: string;
+  };
 };
 
 export type MapScreenRouteProp = RouteProp<RootStackParamList, "Map">;

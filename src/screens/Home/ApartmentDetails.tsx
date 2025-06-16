@@ -16,10 +16,11 @@ import { useTranslation } from "react-i18next";
 import Header from "../../components/Header";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
-import { RouteParams, RootStackParamList } from "../../types/types";
+import { RootStackParamList, RouteParams as ImportedRouteParams } from "../../types/types";
 import {
   fetchPropertyById,
   deletePropertyById,
+  deleteScheduleById,
 } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -30,6 +31,17 @@ import FastImage from "react-native-fast-image";
 
 const { width } = Dimensions.get("window");
 
+type ApartmentDetailsRouteParams = {
+  id: string;
+  source?: string;
+  scheduleId?: string;
+};
+
+type ApartmentDetailsScreenRouteProp = RouteProp<
+  { ApartmentDetails: ApartmentDetailsRouteParams },
+  "ApartmentDetails"
+>;
+
 const ApartmentDetails: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [apartmentDetail, setApartmentDetail] = useState<any>(null);
@@ -39,12 +51,13 @@ const ApartmentDetails: React.FC = () => {
   const scrollRef = useRef<FlatList>(null);
   const route =
     useRoute<
-      RouteProp<{ ApartmentDetails: RouteParams }, "ApartmentDetails">
+      RouteProp<{ ApartmentDetails: ApartmentDetailsRouteParams & { source?: string } }, "ApartmentDetails">
     >();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const { id: apartmentID } = route?.params || {};
+  const { id: apartmentID, source } = route?.params || {};
+  const isFromSchedules = source === 'schedules';
 
   const property = useAppSelector((state: any) => state.reducer.property);
   const user = useAppSelector((state: any) => state.reducer.user);
@@ -64,8 +77,27 @@ const ApartmentDetails: React.FC = () => {
   const handleLogoutConfirm = async () => {
     setShowDeleteModal(false);
     if (user?.userId) {
-      await dispatch(deletePropertyById(apartmentID, user.userId));
-      navigation.goBack();
+      if (isFromSchedules) {
+        // Get the schedule ID from the route params
+        const scheduleId = route.params?.scheduleId;
+        if (scheduleId) {
+          await dispatch(deleteScheduleById(scheduleId, user.userId, true));
+          navigation.goBack();
+        } else {
+          const errorMessage = await getFirebaseErrorMessage(
+            "Failed to cancel booking"
+          );
+          Toast.show({
+            type: "error",
+            text1: errorMessage,
+            position: "bottom",
+          });
+        }
+      } else {
+        // Delete the entire property
+        await dispatch(deletePropertyById(apartmentID, user.userId));
+        navigation.goBack();
+      }
     } else {
       const customMessage = await getFirebaseErrorMessage(
         "User not authenticated"
@@ -176,11 +208,22 @@ const ApartmentDetails: React.FC = () => {
               <Text style={[styles.titleText, Typography.f_20_nunito_bold]}>
                 {apartmentDetail?.title}
               </Text>
-              {user?.userId === apartmentDetail?.createdBy && (
+              {isFromSchedules ? (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={{
+                    backgroundColor: Colors.Primary_01,
+                    padding: 8,
+                    borderRadius: 8,
+                  }}
+                  onPress={() => setShowDeleteModal(true)}
+                >
+                  <MaterialIcons name="delete" size={18} color="white" />
+                </TouchableOpacity>
+              ) : !isFromSchedules && user?.userId === apartmentDetail?.createdBy && (
                 <View
                   style={{
                     flexDirection: "row",
-                    // width:"30%"
                   }}
                 >
                   <TouchableOpacity
@@ -293,7 +336,9 @@ const ApartmentDetails: React.FC = () => {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>{t("confirmDelete")}</Text>
+              <Text style={styles.modalTitle}>
+                {isFromSchedules ? t("confirmDeleteBooking") : t("confirmDelete")}
+              </Text>
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={styles.modalButton}
