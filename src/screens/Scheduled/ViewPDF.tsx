@@ -56,20 +56,18 @@ const ViewPDF: React.FC = () => {
       </View>
       <View style={styles.detailRow}>
         <Text style={styles.detailLabel}>Advance Amount:</Text>
-        <Text style={styles.detailValue}>{visit?.advanceAmount}</Text>
+        <Text style={styles.detailValue}>{visit?.advanceAmount || "0"}</Text>
       </View>
       <View style={styles.detailRow}>
         <Text style={styles.detailLabel}>Balance Amount:</Text>
-        <Text style={styles.detailValue}>{visit?.balanceAmount}</Text>
-      </View>
-      <Text style={styles.detailValue}>
-        <Text style={styles.detailLabel}>Total Amount:</Text>
         <Text style={styles.detailValue}>
-          {"      "}
-          {parseFloat(visit?.balanceAmount || "0") +
-            parseFloat(visit?.advanceAmount || "0")}
+          {(parseInt(visit?.agreedPrice || "0") - parseInt(visit?.advanceAmount || "0"))}
         </Text>
-      </Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>Total Amount:</Text>
+        <Text style={styles.detailValue}>{visit?.agreedPrice}</Text>
+      </View>
       <Text style={styles.generatedInfo}>
         Generated on {moment().format("MMMM D, YYYY h:mm A")}
       </Text>

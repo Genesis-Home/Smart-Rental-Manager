@@ -488,8 +488,26 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     label={t("agreedPrice")}
                     placeholder={t("agreedPrice")}
                     value={values.agreedPrice}
-                    onChangeText={handleChange("agreedPrice")}
-                    onBlur={handleBlur("agreedPrice")}
+                    onChangeText={(text) => {
+                      // Remove any non-numeric characters except decimal point
+                      const numericValue = text.replace(/[^0-9.]/g, '');
+                      // Ensure only one decimal point
+                      const parts = numericValue.split('.');
+                      const formattedValue = parts.length > 1 
+                        ? `${parts[0]}.${parts[1].slice(0, 2)}`
+                        : numericValue;
+                      
+                      handleChange("agreedPrice")(formattedValue);
+                      setFieldValue("totalAmount", formattedValue);
+                    }}
+                    onBlur={(e) => {
+                      // Format number without forcing decimals for integers
+                      const value = parseFloat(values.agreedPrice) || 0;
+                      const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2);
+                      setFieldValue("agreedPrice", formattedValue);
+                      setFieldValue("totalAmount", formattedValue);
+                      handleBlur("agreedPrice")(e);
+                    }}
                     error={touched.agreedPrice && errors.agreedPrice}
                     keyboardType="decimal-pad"
                   />
@@ -497,8 +515,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     label={t("totalAmount")}
                     placeholder={t("totalAmount")}
                     value={values.totalAmount}
-                    onChangeText={handleChange("totalAmount")}
-                    onBlur={handleBlur("totalAmount")}
+                    editable={false}
                     error={touched.totalAmount && errors.totalAmount}
                     keyboardType="decimal-pad"
                   />
@@ -507,8 +524,16 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     placeholder={t("advanceAmount")}
                     value={values.advanceAmount}
                     onChangeText={(text) => {
+                      // Remove any non-numeric characters except decimal point
+                      const numericValue = text.replace(/[^0-9.]/g, '');
+                      // Ensure only one decimal point
+                      const parts = numericValue.split('.');
+                      const formattedValue = parts.length > 1 
+                        ? `${parts[0]}.${parts[1].slice(0, 2)}`
+                        : numericValue;
+                      
                       const totalAmount = parseFloat(values.totalAmount) || 0;
-                      const newAdvanceAmount = parseFloat(text) || 0;
+                      const newAdvanceAmount = parseFloat(formattedValue) || 0;
                       
                       if (newAdvanceAmount > totalAmount) {
                         Toast.show({
@@ -518,19 +543,27 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         });
                         return;
                       }
-                      handleChange("advanceAmount")(text);
+                      handleChange("advanceAmount")(formattedValue);
                     }}
-                    onBlur={handleBlur("advanceAmount")}
+                    onBlur={(e) => {
+                      // Format number without forcing decimals for integers
+                      const value = parseFloat(values.advanceAmount) || 0;
+                      const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2);
+                      setFieldValue("advanceAmount", formattedValue);
+                      handleBlur("advanceAmount")(e);
+                    }}
                     error={touched.advanceAmount && errors.advanceAmount}
                     keyboardType="decimal-pad"
                   />
                   <FormInput
                     label={t("balanceAmount")}
                     placeholder={t("balanceAmount")}
-                    value={(
-                      (parseFloat(values.totalAmount) || 0) -
-                      (parseFloat(values.advanceAmount) || 0)
-                    ).toString()}
+                    value={(() => {
+                      const total = parseFloat(values.totalAmount) || 0;
+                      const advance = parseFloat(values.advanceAmount) || 0;
+                      const balance = total - advance;
+                      return Number.isInteger(balance) ? balance.toString() : balance.toFixed(2);
+                    })()}
                     editable={false}
                     keyboardType="decimal-pad"
                   />

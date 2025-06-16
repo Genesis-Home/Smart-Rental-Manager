@@ -29,8 +29,8 @@ export const sendEmail =
   (
     navigation: NavigationProp<any>,
     email: string,
-    clientName:string,
-    phoneNum:string,
+    clientName: string,
+    phoneNum: string,
     visitDates: string,
     visitTime: string,
     numberOfVisitors: string,
@@ -38,7 +38,7 @@ export const sendEmail =
     property: string,
     location: Location,
     agreedPrice: string,
-    totalAmount:string,
+    totalAmount: string,
     advanceAmount: string,
     pdfPath?: string,
     scheduleId?: string,
@@ -47,7 +47,8 @@ export const sendEmail =
     try {
       const formattedVisitDates = visitDates.replace(" - ", " to ");
       const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.long}`;
-      const balanceAmount = (parseFloat(agreedPrice) - (parseFloat(advanceAmount) || 0)).toFixed(2);
+      const balance = parseFloat(totalAmount) - parseFloat(advanceAmount || "0");
+      const balanceAmount = Number.isInteger(balance) ? balance.toString() : balance.toFixed(2);
 
       let message = `Visit Details:\n\n📅 Visit Date & Time: ${formattedVisitDates}, ${visitTime}\n`;
 
@@ -60,7 +61,7 @@ export const sendEmail =
 
       message += `🏠 Property Address: ${location.address}\n\n`;
       message += `💰 Financial Details:\n`;
-      message += `Total Amount: ${agreedPrice}\n`;
+      message += `Total Amount: ${totalAmount}\n`;
       message += `Advance Amount: ${advanceAmount || '0'}\n`;
       message += `Balance Amount: ${balanceAmount}\n\n`;
       message += `🗺️ Google Maps Location: ${googleMapsUrl}`;
@@ -518,7 +519,7 @@ export const addSchedule =
       const scheduleRef = firestore().collection("schedules").doc();
       const scheduleId = scheduleRef.id; 
       const scheduleData = {
-        id:scheduleId,
+        id: scheduleId,
         clientName: formData.clientName,
         email: formData.email,
         phoneNum: formData.phoneNum,
@@ -533,7 +534,7 @@ export const addSchedule =
         location: formData.location,
         agreedPrice: formData.agreedPrice,
         advanceAmount: formData.advanceAmount,
-        totalAmount:formData.totalAmount,
+        totalAmount: formData.totalAmount,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
@@ -558,8 +559,8 @@ export const addSchedule =
             formData.property,
             formData.location,
             formData.agreedPrice,
-            formData.advanceAmount,
             formData.totalAmount,
+            formData.advanceAmount,
             pdfPath,
             scheduleId
           )

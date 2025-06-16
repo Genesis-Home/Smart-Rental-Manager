@@ -112,17 +112,15 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               </tr>
                <tr class="total-row">
                 <td class="table-label">Total Amount:</td>
-                <td class="table-value"> ${(
-                  parseFloat(scheduleData.agreedPrice || "0") +
-                  parseFloat(scheduleData.advanceAmount || "0")
-                ).toFixed(2)}</td>
+                <td class="table-value"> ${
+                  scheduleData.agreedPrice || "0"}</td>
               </tr>
               <tr>
                 <td class="table-label">Balance Amount:</td>
                 <td class="table-value"> ${(
                 parseFloat(scheduleData.agreedPrice || "0") -
                 parseFloat(scheduleData.advanceAmount || "0")
-              ).toFixed(2)}</td>
+              )}</td>
               </tr>
             </table>
           </div>
