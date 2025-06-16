@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
-  Image,
   Dimensions,
   Modal,
 } from "react-native";
@@ -27,6 +26,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
 import Images from "../../assets/images";
+import FastImage from "react-native-fast-image";
 
 const { width } = Dimensions.get("window");
 
@@ -120,10 +120,10 @@ const ApartmentDetails: React.FC = () => {
                 showsHorizontalScrollIndicator={false}
                 data={apartmentDetail?.images}
                 renderItem={({ item, index }) => (
-                  <Image
+                  <FastImage
                     key={index}
                     source={{ uri: item }}
-                    resizeMode="cover"
+                    resizeMode={FastImage.resizeMode.cover}
                     style={styles.carouselImage}
                   />
                 )}
@@ -133,9 +133,9 @@ const ApartmentDetails: React.FC = () => {
                 ref={scrollRef}
               />
             ) : (
-              <Image
+              <FastImage
                 source={Images.NoPhoto}
-                resizeMode="cover"
+                resizeMode={FastImage.resizeMode.cover}
                 style={styles.carouselImage}
               />
             )}

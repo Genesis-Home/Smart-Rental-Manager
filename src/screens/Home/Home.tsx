@@ -3,7 +3,6 @@ import {
   StyleSheet,
   View,
   TextInput,
-  Image,
   FlatList,
   Dimensions,
   TouchableOpacity,
@@ -22,6 +21,7 @@ import { HomeScreenNavigationProp, Property } from "../../types/types";
 import { fetchProperties } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { colors } from "../../utilities/constants";
+import FastImage from "react-native-fast-image";
 
 const { width } = Dimensions.get("window");
 
@@ -160,10 +160,10 @@ const Home: React.FC = () => {
               showsHorizontalScrollIndicator={false}
               data={item.images}
               renderItem={({ item: image, index }) => (
-                <Image
+                <FastImage
                   key={index}
                   source={{ uri: image }}
-                  resizeMode="cover"
+                  resizeMode={FastImage.resizeMode.cover}
                   style={styles.carouselImage}
                 />
               )}
@@ -175,9 +175,9 @@ const Home: React.FC = () => {
               }}
             />
           ) : (
-            <Image
+            <FastImage
               source={Images.NoPhoto}
-              resizeMode="cover"
+              resizeMode={FastImage.resizeMode.cover}
               style={styles.carouselImage}
             />
           )}
@@ -283,13 +283,13 @@ const Home: React.FC = () => {
           />
         </View>
         <View style={styles.profileImageContainer}>
-          <Image
+          <FastImage
             source={
               user?.profilePhoto
                 ? { uri: user.profilePhoto }
                 : Images.ProfilePlaceholder
             }
-            resizeMode="cover"
+            resizeMode={FastImage.resizeMode.cover}
             style={styles.profileImage}
           />
         </View>
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     paddingHorizontal: 13,
     borderRadius: 5,
-    height:45,
+    height: 45,
     borderWidth: 1,
     borderColor: Colors.Neutral_01,
     gap: 3,

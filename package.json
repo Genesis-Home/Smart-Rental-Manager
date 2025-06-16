@@ -34,6 +34,7 @@
     "react-native-calendars": "^1.1311.0",
     "react-native-device-info": "^14.0.4",
     "react-native-dotenv": "^3.4.11",
+    "react-native-fast-image": "^8.6.3",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.25.0",
     "react-native-get-random-values": "^1.11.0",
