@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
   View,
@@ -37,6 +37,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { Marker as MarkerIcon } from "../../assets/icons";
 import axios from "axios";
 import Colors from "../../utilities/constants/colors";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required(t("title") + " " + t("isRequired")),
@@ -49,7 +50,70 @@ const validationSchema = Yup.object().shape({
   }),
 });
 
-const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
+const createStyles = (colors: any) => {
+  return StyleSheet.create({
+    mainContainer: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    containerC1: {
+      paddingHorizontal: 15,
+      paddingTop: 10,
+      flexGrow: 1,
+    },
+    photoUploadSection: {
+      paddingBottom: 10,
+      marginTop: 10,
+      backgroundColor: colors.lightGray,
+      borderRadius: 8,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    photoUploadLabel: {
+      color: colors.black,
+      ...Typography.f_16_nunito_medium,
+    },
+    photoUploadActionRow: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    photoTextLabel: {
+      color: colors.black,
+      marginLeft: 5,
+      ...Typography.f_14_nunito_medium,
+    },
+    imageContainer: {
+      position: "relative",
+      width: 100,
+      height: 100,
+      marginBottom: 10,
+    },
+    image: {
+      width: "100%",
+      height: "100%",
+      borderRadius: 8,
+    },
+    locationContainer: {
+      marginVertical: 15,
+    },
+    locationLabel: {
+      color: Colors.DARK_GREEN,
+      ...Typography.f_16_nunito_medium,
+    },
+    clearButton: {
+      position: "absolute",
+      right: 5,
+      backgroundColor: colors.white,
+      top: 35,
+      zIndex: 2,
+    },
+  });
+};
+
+const EditProperty: React.FC<EditPropertyProps> = ({
+  navigation,
+}): React.ReactElement | null => {
   const dispatch = useAppDispatch();
   const route = useRoute();
   const { id } = route.params as { id: string };
@@ -62,13 +126,20 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
     latitude: number;
     longitude: number;
   } | null>(null);
+  const [mapKey, setMapKey] = useState(0);
   const [mapRegion, setMapRegion] = useState({
     latitude: 30.4419,
     longitude: -84.2985,
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   });
+  const [currentLocation, setCurrentLocation] = useState<{
+    address: string;
+    lat: number;
+    long: number;
+  } | null>(null);
   const placesRef = useRef<any>(null);
+  const mapRef = useRef<MapView>(null);
   const styles = createStyles(colors);
 
   useEffect(() => {
@@ -88,6 +159,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       });
+      setCurrentLocation({ address, lat, long });
       if (placesRef.current) {
         placesRef.current.setAddressText(address);
       }
@@ -176,44 +248,29 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
     );
   };
 
-  const handleMapPress = async (
-    event: any,
-    setFieldValue: (field: string, value: any) => void
-  ) => {
-    const { latitude, longitude } = event.nativeEvent.coordinate;
+  const updateMapLocation = useCallback((lat: number, long: number) => {
+    const newRegion = {
+      latitude: lat,
+      longitude: long,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    };
+    setMapRegion(newRegion);
+    setMarker({ latitude: lat, longitude: long });
+    setMapKey((prev) => prev + 1);
+  }, []);
 
-    try {
-      const response = await axios.get(
-        `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
-      );
-
-      const formattedAddress =
-        response.data.results[0]?.formatted_address || "";
-
-      const location = {
-        address: formattedAddress,
-        lat: latitude,
-        long: longitude,
-      };
-
-      setMarker({ latitude, longitude });
-      setMapRegion({
-        latitude,
-        longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
-      setInputText(formattedAddress);
-      setFieldValue("location", location);
-    } catch (error) {
-      console.error("Error reverse geocoding:", error);
+  const handleRecenter = useCallback(() => {
+    if (currentLocation) {
+      updateMapLocation(currentLocation.lat, currentLocation.long);
     }
-  };
+  }, [currentLocation, updateMapLocation]);
 
   const handleClearInput = () => {
     setInputText("");
     placesRef.current?.setAddressText("");
     setMarker(null);
+    setCurrentLocation(null);
     setMapRegion({
       latitude: 30.4419,
       longitude: -84.2985,
@@ -371,7 +428,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                     >
                       {t("location")}
                     </Text>
-                    <GooglePlacesAutocomplete
+                      <GooglePlacesAutocomplete
                       ref={placesRef}
                       placeholder={t("location")}
                       fetchDetails={true}
@@ -382,24 +439,17 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                       }}
                       minLength={2}
                       onPress={(data, details) => {
-                        if (details) {
+                        if (details?.geometry?.location) {
                           const location = {
                             address: details.formatted_address || "",
-                            lat: details.geometry?.location?.lat || 0,
-                            long: details.geometry?.location?.lng || 0,
+                            lat: details.geometry.location.lat,
+                            long: details.geometry.location.lng,
                           };
-                          setInputText(details.formatted_address);
+
+                          setInputText(details.formatted_address || "");
                           setFieldValue("location", location);
-                          setMarker({
-                            latitude: location.lat,
-                            longitude: location.long,
-                          });
-                          setMapRegion({
-                            latitude: location.lat,
-                            longitude: location.long,
-                            latitudeDelta: 0.0922,
-                            longitudeDelta: 0.0421,
-                          });
+                          setCurrentLocation(location);
+                          updateMapLocation(location.lat, location.long);
                         }
                       }}
                       query={{
@@ -431,13 +481,11 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                           borderColor: colors.DARK_GRAY,
                           borderRadius: 8,
                           marginTop: 10,
-                          position: 'absolute',
-                          top: '100%',
                           left: 0,
                           right: 0,
                           zIndex: 1000,
                           elevation: 3,
-                          shadowColor: '#000',
+                          shadowColor: "#000",
                           shadowOffset: { width: 0, height: 2 },
                           shadowOpacity: 0.25,
                           shadowRadius: 3.84,
@@ -445,7 +493,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                         row: {
                           backgroundColor: colors.white,
                           padding: 13,
-                          height: 'auto',
+                          height: "auto",
                           minHeight: 44,
                         },
                         description: {
@@ -458,24 +506,59 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
                         },
                       }}
                     />
-                  </View>
-                  <MapView
-                    style={{ height: 200, width: "100%", marginTop: 10 }}
-                    provider={PROVIDER_GOOGLE}
-                    region={mapRegion}
-                    onPress={(event) => handleMapPress(event, setFieldValue)}
-                  >
-                    {marker && (
-                      <Marker
-                        coordinate={{
-                          latitude: marker.latitude,
-                          longitude: marker.longitude,
+                    {inputText ? (
+                      <TouchableOpacity
+                        style={styles.clearButton}
+                        onPress={handleClearInput}
+                      >
+                        <Icon name="close" size={18} color={Colors.DARK_GRAY} />
+                      </TouchableOpacity>
+                    ) : null}
+                    <View >
+                      <MapView
+                        key={mapKey}
+                        ref={mapRef}
+                        style={{ height: 200, width: "100%", marginTop: 10 }}
+                        provider={PROVIDER_GOOGLE}
+                        region={mapRegion}
+                      >
+                        {marker && (
+                          <Marker
+                            coordinate={{
+                              latitude: marker.latitude,
+                              longitude: marker.longitude,
+                            }}
+                          >
+                            <MarkerIcon />
+                          </Marker>
+                        )}
+                      </MapView>
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={handleRecenter}
+                        style={{
+                          position: "absolute",
+                          top: 20,
+                          right: 10,
+                          backgroundColor: Colors.white,
+                          padding: 12,
+                          borderRadius: 30,
+                          elevation: 5,
+                          shadowColor: "#000",
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 3.84,
+                          zIndex: 1000,
                         }}
                       >
-                        <MarkerIcon />
-                      </Marker>
-                    )}
-                  </MapView>
+                        <MaterialIcons
+                          name="my-location"
+                          size={24}
+                          color={Colors.Error_Red}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                   <View style={{ marginVertical: 40 }}>
                     <CTAButton1
                       title={t("save")}
@@ -490,66 +573,6 @@ const EditProperty: React.FC<EditPropertyProps> = ({ navigation }) => {
       </View>
     </View>
   );
-};
-
-const createStyles = (colors: any) => {
-  return StyleSheet.create({
-    mainContainer: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    containerC1: {
-      paddingHorizontal: 15,
-      paddingTop: 10,
-      flexGrow: 1,
-    },
-    photoUploadSection: {
-      paddingBottom: 10,
-      marginTop: 10,
-      backgroundColor: colors.lightGray,
-      borderRadius: 8,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    photoUploadLabel: {
-      color: colors.black,
-      ...Typography.f_16_nunito_medium,
-    },
-    photoUploadActionRow: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
-    photoTextLabel: {
-      color: colors.black,
-      marginLeft: 5,
-      ...Typography.f_14_nunito_medium,
-    },
-    imageContainer: {
-      position: "relative",
-      width: 100,
-      height: 100,
-      marginBottom: 10,
-    },
-    image: {
-      width: "100%",
-      height: "100%",
-      borderRadius: 8,
-    },
-    locationContainer: {
-      marginVertical: 15,
-    },
-    locationLabel: {
-      color: Colors.DARK_GREEN,
-      ...Typography.f_16_nunito_medium,
-    },
-    clearButton: {
-      position: "absolute",
-      right: 5,
-      backgroundColor: colors.white,
-      top: 35,
-    },
-  });
 };
 
 export default EditProperty;
