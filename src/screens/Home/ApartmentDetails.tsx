@@ -16,7 +16,10 @@ import { useTranslation } from "react-i18next";
 import Header from "../../components/Header";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
-import { RootStackParamList, RouteParams as ImportedRouteParams } from "../../types/types";
+import {
+  RootStackParamList,
+  RouteParams as ImportedRouteParams,
+} from "../../types/types";
 import {
   fetchPropertyById,
   deletePropertyById,
@@ -29,6 +32,7 @@ import Toast from "react-native-toast-message";
 import Images from "../../assets/images";
 import FastImage from "react-native-fast-image";
 import firestore from "@react-native-firebase/firestore";
+import ImageView from "react-native-image-viewing";
 
 const { width } = Dimensions.get("window");
 
@@ -49,18 +53,23 @@ const ApartmentDetails: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showBookingDetailsModal, setShowBookingDetailsModal] = useState(false);
   const [bookingDetails, setBookingDetails] = useState<any>(null);
+  const [isImageViewVisible, setIsImageViewVisible] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const scrollRef = useRef<FlatList>(null);
   const route =
     useRoute<
-      RouteProp<{ ApartmentDetails: ApartmentDetailsRouteParams & { source?: string } }, "ApartmentDetails">
+      RouteProp<
+        { ApartmentDetails: ApartmentDetailsRouteParams & { source?: string } },
+        "ApartmentDetails"
+      >
     >();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const { id: apartmentID, source } = route?.params || {};
-  const isFromSchedules = source === 'schedules';
+  const isFromSchedules = source === "schedules";
 
   const property = useAppSelector((state: any) => state.reducer.property);
   const user = useAppSelector((state: any) => state.reducer.user);
@@ -76,7 +85,7 @@ const ApartmentDetails: React.FC = () => {
               .collection("schedules")
               .doc(route.params.scheduleId)
               .get();
-            
+
             if (scheduleDoc.exists) {
               setBookingDetails(scheduleDoc.data());
             }
@@ -157,6 +166,11 @@ const ApartmentDetails: React.FC = () => {
     }
   };
 
+  const openImageView = (index: number) => {
+    setSelectedImageIndex(index);
+    setIsImageViewVisible(true);
+  };
+
   return (
     <View style={styles.container}>
       <Header title={t("AdFullView")} />
@@ -173,12 +187,17 @@ const ApartmentDetails: React.FC = () => {
                 showsHorizontalScrollIndicator={false}
                 data={apartmentDetail?.images}
                 renderItem={({ item, index }) => (
-                  <FastImage
-                    key={index}
-                    source={{ uri: item }}
-                    resizeMode={FastImage.resizeMode.cover}
-                    style={styles.carouselImage}
-                  />
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => openImageView(index)}
+                  >
+                    <FastImage
+                      key={index}
+                      source={{ uri: item }}
+                      resizeMode={FastImage.resizeMode.cover}
+                      style={styles.carouselImage}
+                    />
+                  </TouchableOpacity>
                 )}
                 keyExtractor={(index) => index.toString()}
                 onScroll={handleScroll}
@@ -192,6 +211,7 @@ const ApartmentDetails: React.FC = () => {
                 style={styles.carouselImage}
               />
             )}
+
             <View style={styles.carouselOverlay}>
               {apartmentDetail?.images.length > 1 && (
                 <>
@@ -218,6 +238,19 @@ const ApartmentDetails: React.FC = () => {
               )}
             </View>
           </View>
+
+          {/* Add ImageView component for full-screen viewing */}
+          <ImageView
+            images={
+              apartmentDetail?.images.map((url: string) => ({ uri: url })) || []
+            }
+            imageIndex={selectedImageIndex}
+            visible={isImageViewVisible}
+            onRequestClose={() => setIsImageViewVisible(false)}
+            swipeToCloseEnabled={true}
+            doubleTapToZoomEnabled={true}
+          />
+
           <View style={styles.detailsWrapper}>
             <View
               style={{
@@ -241,38 +274,41 @@ const ApartmentDetails: React.FC = () => {
                 >
                   <MaterialIcons name="delete" size={18} color="white" />
                 </TouchableOpacity>
-              ) : !isFromSchedules && user?.userId === apartmentDetail?.createdBy && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <TouchableOpacity
-                    activeOpacity={0.8}
+              ) : (
+                !isFromSchedules &&
+                user?.userId === apartmentDetail?.createdBy && (
+                  <View
                     style={{
-                      marginRight: 10,
-                      backgroundColor: Colors.Primary_01,
-                      padding: 8,
-                      borderRadius: 8,
+                      flexDirection: "row",
                     }}
-                    onPress={() =>
-                      navigation.navigate("EditProperty", { id: apartmentID })
-                    }
                   >
-                    <MaterialIcons name="edit" size={18} color="white" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    style={{
-                      backgroundColor: Colors.Primary_01,
-                      padding: 8,
-                      borderRadius: 8,
-                    }}
-                    onPress={() => setShowDeleteModal(true)}
-                  >
-                    <MaterialIcons name="delete" size={18} color="white" />
-                  </TouchableOpacity>
-                </View>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      style={{
+                        marginRight: 10,
+                        backgroundColor: Colors.Primary_01,
+                        padding: 8,
+                        borderRadius: 8,
+                      }}
+                      onPress={() =>
+                        navigation.navigate("EditProperty", { id: apartmentID })
+                      }
+                    >
+                      <MaterialIcons name="edit" size={18} color="white" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      style={{
+                        backgroundColor: Colors.Primary_01,
+                        padding: 8,
+                        borderRadius: 8,
+                      }}
+                      onPress={() => setShowDeleteModal(true)}
+                    >
+                      <MaterialIcons name="delete" size={18} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                )
               )}
             </View>
             <Text
@@ -354,7 +390,9 @@ const ApartmentDetails: React.FC = () => {
               style={styles.viewBookingButton}
               onPress={() => setShowBookingDetailsModal(true)}
             >
-              <Text style={styles.viewBookingButtonText}>{t("viewBookingDetails")}</Text>
+              <Text style={styles.viewBookingButtonText}>
+                {t("viewBookingDetails")}
+              </Text>
             </TouchableOpacity>
           )}
         </View>
@@ -367,7 +405,9 @@ const ApartmentDetails: React.FC = () => {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
               <Text style={styles.modalTitle}>
-                {isFromSchedules ? t("confirmDeleteBooking") : t("confirmDelete")}
+                {isFromSchedules
+                  ? t("confirmDeleteBooking")
+                  : t("confirmDelete")}
               </Text>
               <View style={styles.modalButtons}>
                 <TouchableOpacity
@@ -395,40 +435,70 @@ const ApartmentDetails: React.FC = () => {
           onRequestClose={() => setShowBookingDetailsModal(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={[styles.modalContainer, { maxHeight: '80%' }]}>
+            <View style={[styles.modalContainer, { maxHeight: "80%" }]}>
               <Text style={styles.modalTitle}>{t("bookingDetails")}</Text>
               <View style={styles.bookingDetailsContainer}>
                 <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>{t("clientName")}:</Text>
-                  <Text style={styles.bookingDetailValue}>{bookingDetails?.clientName}</Text>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("clientName")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.clientName}
+                  </Text>
                 </View>
                 <View style={styles.bookingDetailRow}>
                   <Text style={styles.bookingDetailLabel}>{t("email")}:</Text>
-                  <Text style={styles.bookingDetailValue}>{bookingDetails?.email}</Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.email}
+                  </Text>
                 </View>
                 <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>{t("phoneNumber")}:</Text>
-                  <Text style={styles.bookingDetailValue}>{bookingDetails?.phoneNum}</Text>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("phoneNumber")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.phoneNum}
+                  </Text>
                 </View>
                 <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>{t("visitDates")}:</Text>
-                  <Text style={styles.bookingDetailValue}>{bookingDetails?.visitDates}</Text>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("visitDates")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.visitDates}
+                  </Text>
                 </View>
                 <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>{t("visitTime")}:</Text>
-                  <Text style={styles.bookingDetailValue}>{bookingDetails?.visitTime}</Text>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("visitTime")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.visitTime}
+                  </Text>
                 </View>
                 <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>{t("numberOfVisitors")}:</Text>
-                  <Text style={styles.bookingDetailValue}>{bookingDetails?.numberOfVisitors}</Text>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("numberOfVisitors")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.numberOfVisitors}
+                  </Text>
                 </View>
                 <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>{t("numberOfInfants")}:</Text>
-                  <Text style={styles.bookingDetailValue}>{bookingDetails?.numberOfInfants}</Text>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("numberOfInfants")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.numberOfInfants}
+                  </Text>
                 </View>
                 <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>{t("location")}:</Text>
-                  <Text style={styles.bookingDetailValue}>{bookingDetails?.location?.address}</Text>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("location")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.location?.address}
+                  </Text>
                 </View>
               </View>
               <TouchableOpacity
@@ -545,9 +615,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    width:'100%',
-    justifyContent:'center',
-    alignItems:"center"
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalButtonText: {
     ...Typography.f_14_nunito_medium,
@@ -558,25 +628,25 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginTop: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   viewBookingButtonText: {
     ...Typography.f_14_nunito_bold,
     color: Colors.white,
   },
   bookingDetailsContainer: {
-    width: '100%',
+    width: "100%",
     marginVertical: 15,
   },
   bookingDetailRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 12,
     paddingHorizontal: 10,
   },
   bookingDetailLabel: {
     ...Typography.f_14_nunito_bold,
     color: Colors.DARK_GREEN,
-    width: '40%',
+    width: "40%",
   },
   bookingDetailValue: {
     ...Typography.f_14_nunito_medium,

@@ -35,7 +35,6 @@ import {
 import { EnvConfig } from "../../config/envConfig";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { Marker as MarkerIcon } from "../../assets/icons";
-import axios from "axios";
 import Colors from "../../utilities/constants/colors";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
