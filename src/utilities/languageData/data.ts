@@ -257,7 +257,10 @@ export const languageData: LanguageData[] = [
       pdfDownloadFailed: "Failed to download PDF",
       shareFailed: "Failed to share PDF",
       financialDetails:'Financial Details',
-      viewPdf:'View PDF'
+      viewPdf:'View PDF',
+      viewBookingDetails: "View Booking Details",
+      bookingDetails: "Booking Details",
+      close: "Close",
     },
   },
   {
@@ -521,7 +524,10 @@ export const languageData: LanguageData[] = [
       pdfDownloadFailed: "Αποτυχία λήψης PDF",
       shareFailed: "Αποτυχία κοινοποίησης PDF",
       financialDetails: 'Οικονομικές Λεπτομέρειες',
-      viewPdf: 'Ver PDF'
+      viewPdf: 'Ver PDF',
+      viewBookingDetails: "Προβολή Λεπτομερειών Κράτησης",
+      bookingDetails: "Λεπτομέρειες Κράτησης",
+      close: "Κλείσιμο",
     },
   },
 ];

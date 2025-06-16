@@ -28,7 +28,7 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
       .email(t("invalidEmail"))
       .required(t("emailAddress") + " " + t("isRequired")),
     phoneNum: Yup.string().required(t("phoneNum") + " " + t("isRequired")),
-    notes: Yup.string().required(t("note") + " " + t("isRequired")),
+    // notes: Yup.string().required(t("note") + " " + t("isRequired")),
   });
 
   const handleCreate = async (values: any, resetForm: () => void) => {

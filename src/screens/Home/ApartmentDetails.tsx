@@ -28,6 +28,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
 import Images from "../../assets/images";
 import FastImage from "react-native-fast-image";
+import firestore from "@react-native-firebase/firestore";
 
 const { width } = Dimensions.get("window");
 
@@ -46,6 +47,8 @@ const ApartmentDetails: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [apartmentDetail, setApartmentDetail] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showBookingDetailsModal, setShowBookingDetailsModal] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState<any>(null);
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const scrollRef = useRef<FlatList>(null);
@@ -65,8 +68,26 @@ const ApartmentDetails: React.FC = () => {
   useEffect(() => {
     if (apartmentID) {
       dispatch(fetchPropertyById(apartmentID));
+      // If coming from schedules, fetch the booking details
+      if (isFromSchedules && route.params?.scheduleId) {
+        const fetchBookingDetails = async () => {
+          try {
+            const scheduleDoc = await firestore()
+              .collection("schedules")
+              .doc(route.params.scheduleId)
+              .get();
+            
+            if (scheduleDoc.exists) {
+              setBookingDetails(scheduleDoc.data());
+            }
+          } catch (error) {
+            console.error("Error fetching booking details:", error);
+          }
+        };
+        fetchBookingDetails();
+      }
     }
-  }, [apartmentID, dispatch]);
+  }, [apartmentID, dispatch, isFromSchedules, route.params?.scheduleId]);
 
   useEffect(() => {
     if (property) {
@@ -327,6 +348,15 @@ const ApartmentDetails: React.FC = () => {
           >
             {apartmentDetail?.otherDetails}
           </Text>
+
+          {isFromSchedules && bookingDetails && (
+            <TouchableOpacity
+              style={styles.viewBookingButton}
+              onPress={() => setShowBookingDetailsModal(true)}
+            >
+              <Text style={styles.viewBookingButtonText}>{t("viewBookingDetails")}</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <Modal
           transparent={true}
@@ -353,6 +383,60 @@ const ApartmentDetails: React.FC = () => {
                   <Text style={styles.modalButtonText}>{t("cancel")}</Text>
                 </TouchableOpacity>
               </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Booking Details Modal */}
+        <Modal
+          transparent={true}
+          visible={showBookingDetailsModal}
+          animationType="fade"
+          onRequestClose={() => setShowBookingDetailsModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContainer, { maxHeight: '80%' }]}>
+              <Text style={styles.modalTitle}>{t("bookingDetails")}</Text>
+              <View style={styles.bookingDetailsContainer}>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>{t("clientName")}:</Text>
+                  <Text style={styles.bookingDetailValue}>{bookingDetails?.clientName}</Text>
+                </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>{t("email")}:</Text>
+                  <Text style={styles.bookingDetailValue}>{bookingDetails?.email}</Text>
+                </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>{t("phoneNumber")}:</Text>
+                  <Text style={styles.bookingDetailValue}>{bookingDetails?.phoneNum}</Text>
+                </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>{t("visitDates")}:</Text>
+                  <Text style={styles.bookingDetailValue}>{bookingDetails?.visitDates}</Text>
+                </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>{t("visitTime")}:</Text>
+                  <Text style={styles.bookingDetailValue}>{bookingDetails?.visitTime}</Text>
+                </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>{t("numberOfVisitors")}:</Text>
+                  <Text style={styles.bookingDetailValue}>{bookingDetails?.numberOfVisitors}</Text>
+                </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>{t("numberOfInfants")}:</Text>
+                  <Text style={styles.bookingDetailValue}>{bookingDetails?.numberOfInfants}</Text>
+                </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>{t("location")}:</Text>
+                  <Text style={styles.bookingDetailValue}>{bookingDetails?.location?.address}</Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setShowBookingDetailsModal(false)}
+              >
+                <Text style={styles.modalButtonText}>{t("close")}</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
@@ -444,7 +528,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     padding: 20,
     borderRadius: 10,
-    width: "80%",
+    width: "90%",
     alignItems: "center",
   },
   modalTitle: {
@@ -461,9 +545,42 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+    width:'100%',
+    justifyContent:'center',
+    alignItems:"center"
   },
   modalButtonText: {
     ...Typography.f_14_nunito_medium,
     color: Colors.white,
+  },
+  viewBookingButton: {
+    backgroundColor: Colors.Primary_01,
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  viewBookingButtonText: {
+    ...Typography.f_14_nunito_bold,
+    color: Colors.white,
+  },
+  bookingDetailsContainer: {
+    width: '100%',
+    marginVertical: 15,
+  },
+  bookingDetailRow: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    paddingHorizontal: 10,
+  },
+  bookingDetailLabel: {
+    ...Typography.f_14_nunito_bold,
+    color: Colors.DARK_GREEN,
+    width: '40%',
+  },
+  bookingDetailValue: {
+    ...Typography.f_14_nunito_medium,
+    color: Colors.black,
+    flex: 1,
   },
 });

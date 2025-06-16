@@ -113,6 +113,12 @@ const Profile: React.FC = () => {
           <Text style={styles.contactLabel}>{t("phoneNum")}</Text>
           <Text style={styles.contactValue}>{item.phoneNumber}</Text>
         </View>
+       {item.notes &&(
+         <View style={styles.contactRow}>
+          <Text style={styles.contactLabel}>{t("note")}</Text>
+          <Text style={styles.contactValue}>{item.notes}</Text>
+        </View>
+       )}
       </View>
     </Swipeable>
   );

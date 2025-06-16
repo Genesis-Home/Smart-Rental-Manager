@@ -144,6 +144,7 @@ export interface Contact {
   name: string;
   emailAddress: string;
   phoneNumber: string;
+  notes:string
 }
 
 export interface CreateContactScreenNavigationProp
@@ -382,6 +383,9 @@ export type LanguageTranslation = {
   pdfDownloaded: string;
   pdfDownloadFailed: string;
   shareFailed: string;
+  viewBookingDetails: string;
+  bookingDetails: string;
+  close: string;
 };
 
 export type LanguageData = {
