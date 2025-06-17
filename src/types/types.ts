@@ -260,6 +260,7 @@ export type LanguageTranslation = {
   contact: string;
   exportData: string;
   setting: string;
+  confirmDeleteBooking:string;
   location: string;
   viewPdf:string
   title: string;
@@ -386,6 +387,17 @@ export type LanguageTranslation = {
   viewBookingDetails: string;
   bookingDetails: string;
   close: string;
+  invoice: string;
+  invoiceId: string;
+  invoiceDate: string;
+  customerInformation: string;
+  notes: string;
+  noNotesAdded: string;
+  editNotes: string;
+  generatedOn: string;
+  thankYouMessage: string;
+  notesSavedSuccessfully: string;
+  failedToSaveNotes: string;
 };
 
 export type LanguageData = {

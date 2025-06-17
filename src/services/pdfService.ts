@@ -24,6 +24,15 @@ export const generateSchedulePDF = async (scheduleData: any) => {
             .table-label { font-weight: bold; color: #333; }
             .table-value { color: #666; text-align: left; }
             .total-row td { font-weight: bold; }
+            .notes-content { 
+              padding: 10px; 
+              background-color: #f9f9f9; 
+              border: 1px solid #eee; 
+              border-radius: 5px; 
+              margin-top: 10px;
+              white-space: pre-wrap;
+              line-height: 1.5;
+            }
             .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
           </style>
         </head>
@@ -124,6 +133,17 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               </tr>
             </table>
           </div>
+
+          ${
+            scheduleData.notes
+              ? `
+          <div class="section">
+            <div class="section-title">Notes</div>
+            <div class="notes-content">${scheduleData.notes} </div>
+          </div>
+          `
+              : ""
+          }
 
           <div class="footer">
             <p>Generated on ${moment().format("MMMM D, YYYY h:mm A")}</p>

@@ -179,7 +179,21 @@ const ApartmentDetails: React.FC = () => {
   const handleViewPDF = async () => {
     if (bookingDetails) {
       try {
-        navigation.navigate("ViewPDF", { visit: bookingDetails });
+        const scheduleDoc = await firestore()
+          .collection("schedules")
+          .doc(route.params?.scheduleId)
+          .get();
+
+        let updatedBookingDetails = { ...bookingDetails };
+        if (scheduleDoc.exists) {
+          const data = scheduleDoc.data();
+          updatedBookingDetails = {
+            ...bookingDetails,
+            notes: data?.notes || ""
+          };
+        }
+
+        navigation.navigate("ViewPDF", { visit: updatedBookingDetails });
       } catch (error) {
         console.error("Error viewing PDF:", error);
         Toast.show({
@@ -194,7 +208,22 @@ const ApartmentDetails: React.FC = () => {
   const handleDownloadPDF = async () => {
     if (bookingDetails) {
       try {
-        const pdfPath = await generateSchedulePDF(bookingDetails);
+        // Ensure we have the latest notes from Firestore
+        const scheduleDoc = await firestore()
+          .collection("schedules")
+          .doc(route.params?.scheduleId)
+          .get();
+
+        let updatedBookingDetails = { ...bookingDetails };
+        if (scheduleDoc.exists) {
+          const data = scheduleDoc.data();
+          updatedBookingDetails = {
+            ...bookingDetails,
+            notes: data?.notes || ""
+          };
+        }
+
+        const pdfPath = await generateSchedulePDF(updatedBookingDetails);
         Toast.show({
           type: "success",
           text1: t("pdfDownloaded"),
