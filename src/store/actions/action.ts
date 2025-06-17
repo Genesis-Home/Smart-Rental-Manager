@@ -41,7 +41,8 @@ export const sendEmail =
     totalAmount: string,
     advanceAmount: string,
     pdfPath?: string,
-    scheduleId?: string
+    scheduleId?: string,
+    silent: boolean = false
   ): any =>
   async (dispatch: Dispatch) => {
     try {
@@ -86,32 +87,38 @@ export const sendEmail =
 
       console.log("Email sent successfully:", response.data);
 
-      navigation.navigate("AutomatedEmail", {
-        visitDetails: {
-          visitDates: formattedVisitDates,
-          visitTime,
-          ...(numberOfVisitors && { numberOfVisitors }),
-          ...(numberOfInfants && { numberOfInfants }),
-          property,
-          location,
-          agreedPrice,
-          advanceAmount,
-          balanceAmount,
-          scheduleId,
-          clientName,
-          phoneNum,
-          email,
-          totalAmount,
-        },
-        pdfPath: pdfPath,
-      });
+      // Only navigate if not in silent mode (when called from background)
+      if (!silent) {
+        navigation.navigate("AutomatedEmail", {
+          visitDetails: {
+            visitDates: formattedVisitDates,
+            visitTime,
+            ...(numberOfVisitors && { numberOfVisitors }),
+            ...(numberOfInfants && { numberOfInfants }),
+            property,
+            location,
+            agreedPrice,
+            advanceAmount,
+            balanceAmount,
+            scheduleId,
+            clientName,
+            phoneNum,
+            email,
+            totalAmount,
+          },
+          pdfPath: pdfPath,
+        });
+      }
+
     } catch (error) {
       console.error("Error sending email:", error);
-      Toast.show({
-        type: "error",
-        text1: "Failed to send email",
-        position: "bottom",
-      });
+      if (!silent) {
+        Toast.show({
+          type: "error",
+          text1: "Failed to send email",
+          position: "bottom",
+        });
+      }
     }
   };
 
@@ -540,8 +547,9 @@ export const addSchedule =
   (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
+      
       const scheduleRef = firestore().collection("schedules").doc();
-      const scheduleId = scheduleRef.id;
+      const scheduleId = scheduleRef.id; 
       const scheduleData = {
         id: scheduleId,
         clientName: formData.clientName,
@@ -563,47 +571,87 @@ export const addSchedule =
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
 
+      // Create schedule first
       await scheduleRef.set(scheduleData);
-      await scheduleBookingNotifications(scheduleData);
 
+      // Turn off loader and navigate immediately
       dispatch({ type: "IS_LOADER", payload: false });
+      
+      // Navigate immediately after schedule creation
+      navigation.navigate("AutomatedEmail", {
+        visitDetails: {
+          visitDates: formData.visitDates.replace(" - ", " to "),
+          visitTime: formData.visitTime,
+          ...(formData.numberOfVisitors && { numberOfVisitors: formData.numberOfVisitors }),
+          ...(formData.numberOfInfants && { numberOfInfants: formData.numberOfInfants }),
+          property: formData.property,
+          location: formData.location,
+          agreedPrice: formData.agreedPrice,
+          advanceAmount: formData.advanceAmount,
+          balanceAmount: (parseFloat(formData.totalAmount) - parseFloat(formData.advanceAmount || "0")).toFixed(2),
+          scheduleId,
+          clientName: formData.clientName,
+          phoneNum: formData.phoneNum,
+          email: formData.email,
+          totalAmount: formData.totalAmount,
+        },
+        pdfPath: null, // Will be updated when PDF is ready
+        isGeneratingPDF: true // Flag to show PDF is being generated
+      });
 
-      try {
-        const pdfPath = await generateSchedulePDF(scheduleData);
-        dispatch(
-          sendEmail(
-            navigation,
-            formData.email,
-            formData.clientName,
-            formData.phoneNum,
-            formData.visitDates,
-            formData.visitTime,
-            formData.numberOfVisitors,
-            formData.numberOfInfants,
-            formData.property,
-            formData.location,
-            formData.agreedPrice,
-            formData.totalAmount,
-            formData.advanceAmount,
-            pdfPath,
-            scheduleId
-          )
-        );
-      } catch (error) {
-        console.error("Error generating PDF or sending email:", error);
-        Toast.show({
-          type: "error",
-          text1: "Failed to generate PDF or send email",
-          position: "bottom",
-        });
-      }
-
-      // Show schedule creation success
+      // Show success toast immediately after navigation
       Toast.show({
         type: "success",
         text1: "Schedule added successfully",
         position: "bottom",
       });
+
+      // Handle notifications, PDF generation and email sending in background
+      setTimeout(async () => {
+        try {
+          // Send notifications in background
+          await scheduleBookingNotifications(scheduleData);
+          
+          // Generate PDF
+          const pdfPath = await generateSchedulePDF(scheduleData);
+          
+          // Update the PDF path in the current screen
+          navigation.setParams({ 
+            pdfPath: pdfPath,
+            isGeneratingPDF: false 
+          });
+          
+          // Send email
+          await dispatch(
+            sendEmail(
+              navigation,
+              formData.email,
+              formData.clientName,
+              formData.phoneNum,
+              formData.visitDates,
+              formData.visitTime,
+              formData.numberOfVisitors,
+              formData.numberOfInfants,
+              formData.property,
+              formData.location,
+              formData.agreedPrice,
+              formData.totalAmount,
+              formData.advanceAmount,
+              pdfPath,
+              scheduleId,
+              true // silent mode - no error toasts
+            )
+          );
+        } catch (error) {
+          console.error("Background operations error:", error);
+          // Update the flag to show PDF generation failed
+          navigation.setParams({ 
+            pdfPath: null,
+            isGeneratingPDF: false 
+          });
+        }
+      }, 100); // Very small delay to ensure navigation completes
+
     } catch (error: any) {
       console.error("Add Schedule Error:", error);
       dispatch({ type: "IS_LOADER", payload: false });
