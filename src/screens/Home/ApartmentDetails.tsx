@@ -33,6 +33,9 @@ import Images from "../../assets/images";
 import FastImage from "react-native-fast-image";
 import firestore from "@react-native-firebase/firestore";
 import ImageView from "react-native-image-viewing";
+import { generateSchedulePDF } from "../../services/pdfService";
+import RNFS from "react-native-fs";
+import CTAButton1 from "../../components/CTA_BUTTON1";
 
 const { width } = Dimensions.get("window");
 
@@ -77,7 +80,6 @@ const ApartmentDetails: React.FC = () => {
   useEffect(() => {
     if (apartmentID) {
       dispatch(fetchPropertyById(apartmentID));
-      // If coming from schedules, fetch the booking details
       if (isFromSchedules && route.params?.scheduleId) {
         const fetchBookingDetails = async () => {
           try {
@@ -87,7 +89,12 @@ const ApartmentDetails: React.FC = () => {
               .get();
 
             if (scheduleDoc.exists) {
-              setBookingDetails(scheduleDoc.data());
+              const scheduleData = scheduleDoc.data();
+              setBookingDetails({
+                ...scheduleData,
+                scheduleId: route.params.scheduleId,
+                id: route.params.scheduleId
+              });
             }
           } catch (error) {
             console.error("Error fetching booking details:", error);
@@ -108,7 +115,6 @@ const ApartmentDetails: React.FC = () => {
     setShowDeleteModal(false);
     if (user?.userId) {
       if (isFromSchedules) {
-        // Get the schedule ID from the route params
         const scheduleId = route.params?.scheduleId;
         if (scheduleId) {
           await dispatch(deleteScheduleById(scheduleId, user.userId, true));
@@ -124,7 +130,6 @@ const ApartmentDetails: React.FC = () => {
           });
         }
       } else {
-        // Delete the entire property
         await dispatch(deletePropertyById(apartmentID, user.userId));
         navigation.goBack();
       }
@@ -170,6 +175,42 @@ const ApartmentDetails: React.FC = () => {
     setSelectedImageIndex(index);
     setIsImageViewVisible(true);
   };
+
+  const handleViewPDF = async () => {
+    if (bookingDetails) {
+      try {
+        navigation.navigate("ViewPDF", { visit: bookingDetails });
+      } catch (error) {
+        console.error("Error viewing PDF:", error);
+        Toast.show({
+          type: "error",
+          text1: t("pdfNotAvailable"),
+          position: "bottom",
+        });
+      }
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (bookingDetails) {
+      try {
+        const pdfPath = await generateSchedulePDF(bookingDetails);
+        Toast.show({
+          type: "success",
+          text1: t("pdfDownloaded"),
+          position: "bottom",
+        });
+      } catch (error) {
+        console.error("Error downloading PDF:", error);
+        Toast.show({
+          type: "error",
+          text1: t("pdfDownloadFailed"),
+          position: "bottom",
+        });
+      }
+    }
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -239,7 +280,6 @@ const ApartmentDetails: React.FC = () => {
             </View>
           </View>
 
-          {/* Add ImageView component for full-screen viewing */}
           <ImageView
             images={
               apartmentDetail?.images.map((url: string) => ({ uri: url })) || []
@@ -474,22 +514,26 @@ const ApartmentDetails: React.FC = () => {
                     {bookingDetails?.visitTime}
                   </Text>
                 </View>
+                {bookingDetails?.numberOfVisitors&&(
                 <View style={styles.bookingDetailRow}>
                   <Text style={styles.bookingDetailLabel}>
                     {t("numberOfVisitors")}:
                   </Text>
                   <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.numberOfVisitors}
+                    {bookingDetails.numberOfVisitors}
                   </Text>
                 </View>
+                )}
+                {bookingDetails?.numberOfInfants&&(
                 <View style={styles.bookingDetailRow}>
                   <Text style={styles.bookingDetailLabel}>
                     {t("numberOfInfants")}:
                   </Text>
                   <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.numberOfInfants}
+                    {bookingDetails.numberOfInfants}
                   </Text>
                 </View>
+                )}
                 <View style={styles.bookingDetailRow}>
                   <Text style={styles.bookingDetailLabel}>
                     {t("location")}:
@@ -498,13 +542,57 @@ const ApartmentDetails: React.FC = () => {
                     {bookingDetails?.location?.address}
                   </Text>
                 </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("agreedPrice")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.agreedPrice || "0"}
+                  </Text>
+                </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("advanceAmount")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {bookingDetails?.advanceAmount || "0"}
+                  </Text>
+                </View>
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("balanceAmount")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {(parseInt(bookingDetails?.agreedPrice || "0") - parseInt(bookingDetails?.advanceAmount || "0"))}
+                  </Text>
+                </View>
               </View>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={() => setShowBookingDetailsModal(false)}
-              >
-                <Text style={styles.modalButtonText}>{t("close")}</Text>
-              </TouchableOpacity>
+              <View style={styles.modalButtons}>
+                <View style={{ width: "32%" }}>
+                  <CTAButton1
+                    title={t("viewPdf")}
+                    submitHandler={handleViewPDF}
+                    backgroundColor={Colors.Primary_01}
+                    textColor={Colors.white}
+                  />
+                </View>
+                <View style={{ width: "32%" }}>
+                  <CTAButton1
+                    title={t("downloadPDF")}
+                    submitHandler={handleDownloadPDF}
+                    backgroundColor={Colors.Primary_01}
+                    textColor={Colors.white}
+                  />
+                </View>
+                <View style={{ width: "32%" }}>
+                  <CTAButton1
+                    title={t("close")}
+                    submitHandler={() => setShowBookingDetailsModal(false)}
+                    backgroundColor={Colors.Primary_01}
+                    textColor={Colors.white}
+                  />
+                </View>
+              </View>
             </View>
           </View>
         </Modal>
@@ -613,7 +701,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    width: "47%",
+    width: "32%",
     justifyContent: "center",
     alignItems: "center",
   },

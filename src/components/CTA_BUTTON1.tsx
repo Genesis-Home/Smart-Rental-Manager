@@ -43,7 +43,7 @@ const CTAButton1: React.FC<CTAButton1Props> = ({
         >
           {icon && icon}
           <Text
-            style={[styles.CRAButton1_Text, Typography.f_14_nunito_semi_bold]}
+            style={[styles.CRAButton1_Text, Typography.f_12_nunito_medium]}
           >
             {title}
           </Text>
