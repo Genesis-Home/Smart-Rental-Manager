@@ -8,7 +8,7 @@ import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import { scheduleBookingNotifications } from "../../services/notificationService";
 import axios from "axios";
 import { Location } from "../../types/types";
-import { generateSchedulePDF } from '../../services/pdfService';
+import { generateSchedulePDF } from "../../services/pdfService";
 export const getCurrentUser =
   (navigation: NavigationProp<any>): any =>
   async (dispatch: Dispatch) => {
@@ -41,28 +41,31 @@ export const sendEmail =
     totalAmount: string,
     advanceAmount: string,
     pdfPath?: string,
-    scheduleId?: string,
+    scheduleId?: string
   ): any =>
   async (dispatch: Dispatch) => {
     try {
       const formattedVisitDates = visitDates.replace(" - ", " to ");
       const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.long}`;
-      const balance = parseFloat(totalAmount) - parseFloat(advanceAmount || "0");
-      const balanceAmount = Number.isInteger(balance) ? balance.toString() : balance.toFixed(2);
+      const balance =
+        parseFloat(totalAmount) - parseFloat(advanceAmount || "0");
+      const balanceAmount = Number.isInteger(balance)
+        ? balance.toString()
+        : balance.toFixed(2);
 
       let message = `Visit Details:\n\n📅 Visit Date & Time: ${formattedVisitDates}, ${visitTime}\n`;
 
-      if (numberOfVisitors && numberOfVisitors.trim() !== '') {
+      if (numberOfVisitors && numberOfVisitors.trim() !== "") {
         message += `👨‍👩‍👧‍👦 Number of Visitors: ${numberOfVisitors}\n`;
       }
-      if (numberOfInfants && numberOfInfants.trim() !== '') {
+      if (numberOfInfants && numberOfInfants.trim() !== "") {
         message += `👶 Number of Infants: ${numberOfInfants}\n`;
       }
 
       message += `🏠 Property Address: ${location.address}\n\n`;
       message += `💰 Financial Details:\n`;
       message += `Total Amount: ${totalAmount}\n`;
-      message += `Advance Amount: ${advanceAmount || '0'}\n`;
+      message += `Advance Amount: ${advanceAmount || "0"}\n`;
       message += `Balance Amount: ${balanceAmount}\n\n`;
       message += `🗺️ Google Maps Location: ${googleMapsUrl}`;
 
@@ -72,7 +75,7 @@ export const sendEmail =
           to: email,
           subject: "Your visit is confirmed",
           message,
-          pdfPath: pdfPath ? `file://${pdfPath}` : undefined
+          pdfPath: pdfPath ? `file://${pdfPath}` : undefined,
         },
         {
           headers: {
@@ -100,9 +103,8 @@ export const sendEmail =
           email,
           totalAmount,
         },
-        pdfPath: pdfPath 
+        pdfPath: pdfPath,
       });
-
     } catch (error) {
       console.error("Error sending email:", error);
       Toast.show({
@@ -131,7 +133,8 @@ export const loginUser =
         throw new Error("User data not found");
       }
 
-      await setItem("user", userData);
+      isSelectedRemember && setItem("user", userData);
+      !isSelectedRemember && deleteItem("user");
 
       dispatch({ type: "SET_USER", payload: userData });
       dispatch({ type: "IS_LOADER", payload: false });
@@ -226,10 +229,15 @@ export const addProperty =
       if (snapshot.empty) {
         dispatch({ type: "SET_PROPERTIES", payload: [] });
       } else {
-        const properties = snapshot.docs.map((doc: any) => ({
-          ...doc.data(),
-          id: doc.id,
-        })).sort((a: any, b: any) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+        const properties = snapshot.docs
+          .map((doc: any) => ({
+            ...doc.data(),
+            id: doc.id,
+          }))
+          .sort(
+            (a: any, b: any) =>
+              b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime()
+          );
         dispatch({ type: "SET_PROPERTIES", payload: properties });
       }
 
@@ -262,17 +270,20 @@ export const fetchProperties = () => async (dispatch: any) => {
   try {
     dispatch({ type: "IS_LOADER", payload: true });
 
-    const snapshot = await firestore()
-      .collection("properties")
-      .get();
+    const snapshot = await firestore().collection("properties").get();
 
     if (snapshot.empty) {
       dispatch({ type: "SET_PROPERTIES", payload: [] });
     } else {
-      const properties = snapshot.docs.map((doc: any) => ({
-        ...doc.data(),
-        id: doc.id,
-      })).sort((a: any, b: any) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+      const properties = snapshot.docs
+        .map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }))
+        .sort(
+          (a: any, b: any) =>
+            b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime()
+        );
       dispatch({ type: "SET_PROPERTIES", payload: properties });
     }
     dispatch({ type: "IS_LOADER", payload: false });
@@ -335,10 +346,15 @@ export const fetchPropertiesByUserID =
       if (snapshot.empty) {
         dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
       } else {
-        const properties = snapshot.docs.map((doc: any) => ({
-          ...doc.data(),
-          id: doc.id,
-        })).sort((a: any, b: any) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+        const properties = snapshot.docs
+          .map((doc: any) => ({
+            ...doc.data(),
+            id: doc.id,
+          }))
+          .sort(
+            (a: any, b: any) =>
+              b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime()
+          );
         dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
       }
       dispatch({ type: "IS_LOADER", payload: false });
@@ -458,66 +474,74 @@ export const logoutUser = (navigation: any) => async (dispatch: any) => {
   }
 };
 
-export const updateUser = (credentials: any, userId: any, navigation: any) => async (dispatch: any) => {
-  try {
-    dispatch({ type: "IS_LOADER", payload: true });
-    
-    // First get the current user data
-    const userRef = firestore().collection("users").doc(userId);
-    const currentUserDoc = await userRef.get();
-    const currentUserData = currentUserDoc.data();
+export const updateUser =
+  (credentials: any, userId: any, navigation: any) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
 
-    if (!currentUserData) {
-      throw new Error("User not found");
+      // First get the current user data
+      const userRef = firestore().collection("users").doc(userId);
+      const currentUserDoc = await userRef.get();
+      const currentUserData = currentUserDoc.data();
+
+      if (!currentUserData) {
+        throw new Error("User not found");
+      }
+
+      // Remove password fields if they exist
+      const { password, confirmPassword, ...userDataWithoutPassword } =
+        credentials;
+
+      // Create update data that preserves existing fields
+      const updateData = {
+        ...userDataWithoutPassword,
+        // Preserve profile photo if not being updated
+        profilePhoto: credentials.profilePhoto || currentUserData.profilePhoto,
+        // Preserve other existing fields that might not be in the update
+        ...(currentUserData.role &&
+          !userDataWithoutPassword.role && { role: currentUserData.role }),
+        ...(currentUserData.expertise &&
+          !userDataWithoutPassword.expertise && {
+            expertise: currentUserData.expertise,
+          }),
+        // Add any other fields you want to preserve
+      };
+
+      // Update the document
+      await userRef.update(updateData);
+
+      // Get the updated user data
+      const updatedUserDoc = await userRef.get();
+      const updatedUserData = updatedUserDoc.data();
+
+      if (!updatedUserData) {
+        throw new Error("Failed to get updated user data");
+      }
+
+      // Store and dispatch the updated user data
+      await setItem("user", updatedUserData);
+      dispatch({ type: "SET_USER", payload: updatedUserData });
+      dispatch({ type: "IS_LOADER", payload: false });
+
+      const customMessage = await getFirebaseErrorMessage(
+        "User updated successfully!"
+      );
+      Toast.show({ type: "success", text1: customMessage, position: "bottom" });
+      navigation.goBack();
+    } catch (error) {
+      console.log(error, "updateUser_error");
+      dispatch({ type: "IS_LOADER", payload: false });
+      const errorMessage = await getFirebaseErrorMessage((error as any).code);
+      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
     }
-
-    // Remove password fields if they exist
-    const { password, confirmPassword, ...userDataWithoutPassword } = credentials;
-
-    // Create update data that preserves existing fields
-    const updateData = {
-      ...userDataWithoutPassword,
-      // Preserve profile photo if not being updated
-      profilePhoto: credentials.profilePhoto || currentUserData.profilePhoto,
-      // Preserve other existing fields that might not be in the update
-      ...(currentUserData.role && !userDataWithoutPassword.role && { role: currentUserData.role }),
-      ...(currentUserData.expertise && !userDataWithoutPassword.expertise && { expertise: currentUserData.expertise }),
-      // Add any other fields you want to preserve
-    };
-
-    // Update the document
-    await userRef.update(updateData);
-
-    // Get the updated user data
-    const updatedUserDoc = await userRef.get();
-    const updatedUserData = updatedUserDoc.data();
-
-    if (!updatedUserData) {
-      throw new Error("Failed to get updated user data");
-    }
-
-    // Store and dispatch the updated user data
-    await setItem("user", updatedUserData);
-    dispatch({ type: "SET_USER", payload: updatedUserData });
-    dispatch({ type: "IS_LOADER", payload: false });
-
-    const customMessage = await getFirebaseErrorMessage("User updated successfully!");
-    Toast.show({ type: "success", text1: customMessage, position: "bottom" });
-    navigation.goBack();
-  } catch (error) {
-    console.log(error, "updateUser_error");
-    dispatch({ type: "IS_LOADER", payload: false });
-    const errorMessage = await getFirebaseErrorMessage((error as any).code);
-    Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
-  }
-};
+  };
 
 export const addSchedule =
   (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
       const scheduleRef = firestore().collection("schedules").doc();
-      const scheduleId = scheduleRef.id; 
+      const scheduleId = scheduleRef.id;
       const scheduleData = {
         id: scheduleId,
         clientName: formData.clientName,
@@ -566,7 +590,7 @@ export const addSchedule =
           )
         );
       } catch (error) {
-        console.error('Error generating PDF or sending email:', error);
+        console.error("Error generating PDF or sending email:", error);
         Toast.show({
           type: "error",
           text1: "Failed to generate PDF or send email",
@@ -580,7 +604,6 @@ export const addSchedule =
         text1: "Schedule added successfully",
         position: "bottom",
       });
-
     } catch (error: any) {
       console.error("Add Schedule Error:", error);
       dispatch({ type: "IS_LOADER", payload: false });
@@ -724,8 +747,9 @@ export const deletePropertyById =
         .get();
 
       // Delete each schedule document
-      const deletePromises = schedulesSnapshot.docs.map((doc: firestore.QueryDocumentSnapshot) => 
-        firestore().collection("schedules").doc(doc.id).delete()
+      const deletePromises = schedulesSnapshot.docs.map(
+        (doc: firestore.QueryDocumentSnapshot) =>
+          firestore().collection("schedules").doc(doc.id).delete()
       );
       await Promise.all(deletePromises);
 
@@ -841,10 +865,15 @@ export const updateProperty =
       if (snapshot.empty) {
         dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
       } else {
-        const properties = snapshot.docs.map((doc: any) => ({
-          ...doc.data(),
-          id: doc.id,
-        })).sort((a: any, b: any) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+        const properties = snapshot.docs
+          .map((doc: any) => ({
+            ...doc.data(),
+            id: doc.id,
+          }))
+          .sort(
+            (a: any, b: any) =>
+              b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime()
+          );
         dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
       }
 
@@ -873,121 +902,126 @@ export const updateProperty =
     }
   };
 
-export const deleteContact = (contactId: string, userID: string) => async (dispatch: any) => {
-  try {
-    dispatch({ type: "IS_LOADER", payload: true });
-    await firestore().collection("contacts").doc(contactId).delete();
+export const deleteContact =
+  (contactId: string, userID: string) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "IS_LOADER", payload: true });
+      await firestore().collection("contacts").doc(contactId).delete();
 
-    const snapshot = await firestore()
-      .collection("contacts")
-      .where("createdBy", "==", userID)
-      .get();
-
-    if (snapshot.empty) {
-      dispatch({ type: "SET_USER_CONTACTS", payload: [] });
-    } else {
-      const contacts = snapshot.docs.map((doc: any) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      dispatch({ type: "SET_USER_CONTACTS", payload: contacts });
-    }
-
-    dispatch({ type: "IS_LOADER", payload: false });
-    const customMessage = await getFirebaseErrorMessage(
-      "Contact deleted successfully"
-    );
-    Toast.show({
-      type: "success",
-      text1: customMessage,
-      position: "bottom",
-    });
-  } catch (error) {
-    dispatch({ type: "IS_LOADER", payload: false });
-    const errorMessage = await getFirebaseErrorMessage(
-      (error as any).code || "Failed to delete contact"
-    );
-    Toast.show({
-      type: "error",
-      text1: errorMessage,
-      position: "bottom",
-    });
-  }
-};
-
-export const deleteScheduleById = (scheduleId: string, userId: string, isFromSchedules: boolean = false) => async (dispatch: any) => {
-  dispatch({ type: "IS_LOADER", payload: true });
-  try {
-    const scheduleRef = firestore().collection("schedules").doc(scheduleId);
-    const scheduleDoc = await scheduleRef.get();
-
-    if (scheduleDoc.exists) {
-      const scheduleData = scheduleDoc.data();
-      const propertyId = scheduleData?.propertyId;
-      const agreedPrice = parseFloat(scheduleData?.agreedPrice || "0");
-
-      // Delete the schedule
-      await scheduleRef.delete();
-
-      // Update property revenue
-      if (propertyId) {
-        const propertyRef = firestore().collection("properties").doc(propertyId);
-        const propertyDoc = await propertyRef.get();
-
-        if (propertyDoc.exists) {
-          const propertyData = propertyDoc.data();
-          const currentRevenue = parseFloat(propertyData?.revenue || "0");
-          const newRevenue = Math.max(0, currentRevenue - agreedPrice); // Ensure revenue doesn't go below 0
-
-          await propertyRef.update({
-            revenue: newRevenue
-          });
-
-          // Update the property in the store
-          const updatedPropertyDoc = await propertyRef.get();
-          const updatedProperty = {
-            ...updatedPropertyDoc.data(),
-            id: updatedPropertyDoc.id,
-          };
-          dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
-        }
-      }
-
-      // Update user's schedules list
-      const userSchedulesSnapshot = await firestore()
-        .collection("schedules")
-        .where("createdBy", "==", userId)
+      const snapshot = await firestore()
+        .collection("contacts")
+        .where("createdBy", "==", userID)
         .get();
 
-      const updatedSchedules = userSchedulesSnapshot.docs
-        .map((doc:any) => ({ id: doc.id, ...doc.data() }))
-        .filter((schedule:any) => schedule.id !== scheduleId);
+      if (snapshot.empty) {
+        dispatch({ type: "SET_USER_CONTACTS", payload: [] });
+      } else {
+        const contacts = snapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch({ type: "SET_USER_CONTACTS", payload: contacts });
+      }
 
-      dispatch({
-        type: "SET_USER_SCHEDULES",
-        payload: updatedSchedules,
-      });
-
-      const successMessage = await getFirebaseErrorMessage(
-      "Booking cancelled successfully" 
+      dispatch({ type: "IS_LOADER", payload: false });
+      const customMessage = await getFirebaseErrorMessage(
+        "Contact deleted successfully"
       );
       Toast.show({
         type: "success",
-        text1: successMessage,
+        text1: customMessage,
+        position: "bottom",
+      });
+    } catch (error) {
+      dispatch({ type: "IS_LOADER", payload: false });
+      const errorMessage = await getFirebaseErrorMessage(
+        (error as any).code || "Failed to delete contact"
+      );
+      Toast.show({
+        type: "error",
+        text1: errorMessage,
         position: "bottom",
       });
     }
-  } catch (error) {
-    console.error("Error deleting schedule:", error);
-    const errorMessage = await getFirebaseErrorMessage(
-       "Failed to cancel booking" 
-    );
-    Toast.show({
-      type: "error",
-      text1: errorMessage,
-      position: "bottom",
-    });
-  } finally {
-    dispatch({ type: "IS_LOADER", payload: false });
-  }
-};
+  };
+
+export const deleteScheduleById =
+  (scheduleId: string, userId: string, isFromSchedules: boolean = false) =>
+  async (dispatch: any) => {
+    dispatch({ type: "IS_LOADER", payload: true });
+    try {
+      const scheduleRef = firestore().collection("schedules").doc(scheduleId);
+      const scheduleDoc = await scheduleRef.get();
+
+      if (scheduleDoc.exists) {
+        const scheduleData = scheduleDoc.data();
+        const propertyId = scheduleData?.propertyId;
+        const agreedPrice = parseFloat(scheduleData?.agreedPrice || "0");
+
+        // Delete the schedule
+        await scheduleRef.delete();
+
+        // Update property revenue
+        if (propertyId) {
+          const propertyRef = firestore()
+            .collection("properties")
+            .doc(propertyId);
+          const propertyDoc = await propertyRef.get();
+
+          if (propertyDoc.exists) {
+            const propertyData = propertyDoc.data();
+            const currentRevenue = parseFloat(propertyData?.revenue || "0");
+            const newRevenue = Math.max(0, currentRevenue - agreedPrice); // Ensure revenue doesn't go below 0
+
+            await propertyRef.update({
+              revenue: newRevenue,
+            });
+
+            // Update the property in the store
+            const updatedPropertyDoc = await propertyRef.get();
+            const updatedProperty = {
+              ...updatedPropertyDoc.data(),
+              id: updatedPropertyDoc.id,
+            };
+            dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
+          }
+        }
+
+        // Update user's schedules list
+        const userSchedulesSnapshot = await firestore()
+          .collection("schedules")
+          .where("createdBy", "==", userId)
+          .get();
+
+        const updatedSchedules = userSchedulesSnapshot.docs
+          .map((doc: any) => ({ id: doc.id, ...doc.data() }))
+          .filter((schedule: any) => schedule.id !== scheduleId);
+
+        dispatch({
+          type: "SET_USER_SCHEDULES",
+          payload: updatedSchedules,
+        });
+
+        const successMessage = await getFirebaseErrorMessage(
+          "Booking cancelled successfully"
+        );
+        Toast.show({
+          type: "success",
+          text1: successMessage,
+          position: "bottom",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting schedule:", error);
+      const errorMessage = await getFirebaseErrorMessage(
+        "Failed to cancel booking"
+      );
+      Toast.show({
+        type: "error",
+        text1: errorMessage,
+        position: "bottom",
+      });
+    } finally {
+      dispatch({ type: "IS_LOADER", payload: false });
+    }
+  };
