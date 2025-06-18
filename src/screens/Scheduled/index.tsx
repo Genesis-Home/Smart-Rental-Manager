@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -37,6 +37,28 @@ const Scheduled: React.FC = () => {
   const [isLocaleReady, setIsLocaleReady] = useState(false);
   const user = useAppSelector((state: any) => state.reducer.user);
   const userSchedules = useAppSelector((state: any) => state.reducer.schedules);
+
+  // Group schedules by property
+  const groupedSchedules = useMemo(() => {
+    const grouped: { [propertyId: string]: any[] } = {};
+    
+    userSchedules.forEach((schedule: any) => {
+      if (!grouped[schedule.propertyId]) {
+        grouped[schedule.propertyId] = [];
+      }
+      grouped[schedule.propertyId].push(schedule);
+    });
+
+    return Object.entries(grouped).map(([propertyId, schedules]) => ({
+      propertyId,
+      propertyName: schedules[0]?.property || 'Unknown Property',
+      schedules: schedules.sort((a: any, b: any) => {
+        const dateA = moment(a.visitDates?.split(' - ')[0], 'MMM D, YYYY');
+        const dateB = moment(b.visitDates?.split(' - ')[0], 'MMM D, YYYY');
+        return dateA.isBefore(dateB) ? -1 : 1;
+      })
+    }));
+  }, [userSchedules]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -124,6 +146,111 @@ const Scheduled: React.FC = () => {
     setCurrentDate(nextMonth);
   };
 
+  const renderPropertyRow = ({ item }: { item: { propertyId: string; propertyName: string; schedules: any[] } }) => {
+    const randomColors = [
+      "#FF8A65",
+      "#4DB6AC", 
+      "#9575CD",
+      "#FFD54F",
+      "#81C784",
+      "#FFB74D",
+      "#F06292",
+      "#64B5F6"
+    ];
+
+    const handleSlotClick = (slotIndex: number) => {
+      const slotDate = addDays(
+        startOfWeek(currentDate, { weekStartsOn: 5 }),
+        slotIndex
+      );
+      
+      // Find which schedule is booked for this slot
+      let clickedSchedule: any = null;
+      item.schedules.forEach((schedule: any) => {
+        if (schedule.visitDates) {
+          const [startStr, endStr] = schedule.visitDates.split(" - ");
+          const startDate = moment(startStr, "MMM D, YYYY").startOf("day");
+          const endDate = moment(endStr, "MMM D, YYYY").endOf("day");
+          const slotMoment = moment(slotDate);
+          
+          if (
+            slotMoment.isSameOrAfter(startDate) &&
+            slotMoment.isSameOrBefore(endDate)
+          ) {
+            clickedSchedule = schedule;
+          }
+        }
+      });
+
+      // Navigate to apartment details with schedule data if slot is booked
+      if (clickedSchedule) {
+        navigation.navigate("ApartmentDetails", {
+          id: item.propertyId,
+          source: 'schedules',
+          scheduleId: clickedSchedule.id
+        });
+      }
+    };
+
+    return (
+      <View style={styles.propertyRow}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() =>
+            navigation.navigate("ApartmentDetails", {
+              id: item.propertyId,
+              source: 'schedules'
+            })
+          }
+        >
+          <Text style={styles.propertyText}>{item.propertyName}</Text>
+        </TouchableOpacity>
+        <View style={styles.slotsContainer}>
+          {[...Array(8)].map((_, i) => {
+            const slotDate = addDays(
+              startOfWeek(currentDate, { weekStartsOn: 5 }),
+              i
+            );
+            
+            // Check if this slot is booked by any schedule for this property
+            let isBooked = false;
+            let bookingColor = colors.Neutral_01;
+            
+            item.schedules.forEach((schedule: any, scheduleIndex: number) => {
+              if (schedule.visitDates) {
+                const [startStr, endStr] = schedule.visitDates.split(" - ");
+                const startDate = moment(startStr, "MMM D, YYYY").startOf("day");
+                const endDate = moment(endStr, "MMM D, YYYY").endOf("day");
+                const slotMoment = moment(slotDate);
+                
+                if (
+                  slotMoment.isSameOrAfter(startDate) &&
+                  slotMoment.isSameOrBefore(endDate)
+                ) {
+                  isBooked = true;
+                  // Use different color for each schedule
+                  bookingColor = randomColors[scheduleIndex % randomColors.length];
+                }
+              }
+            });
+
+            return (
+              <TouchableOpacity
+                key={i}
+                activeOpacity={0.8}
+                onPress={() => handleSlotClick(i)}
+                style={[
+                  styles.slot, 
+                  { backgroundColor: isBooked ? bookingColor : colors.Neutral_01 }
+                ]}
+              />
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Header title={t("schedulePropertyVisit")} />
@@ -186,7 +313,7 @@ const Scheduled: React.FC = () => {
           })}
         </View>
         <View style={{ marginBottom: 40 }}>
-          {userSchedules.length === 0 ? (
+          {groupedSchedules.length === 0 ? (
             <View style={styles.noSchedulesFound}>
               <Text style={styles.noSchedulesText}>
                 {t("noSchedulesFound")}
@@ -194,70 +321,10 @@ const Scheduled: React.FC = () => {
             </View>
           ) : (
             <FlatList
-              data={userSchedules}
-              keyExtractor={(_, index) => index.toString()}
-              renderItem={({ item: schedule }) => (
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() =>
-                    navigation.navigate("ApartmentDetails", {
-                      id: schedule.propertyId,
-                      source: 'schedules',
-                      scheduleId: schedule.id
-                    })
-                  }
-                  style={styles.propertyRow}
-                >
-                  <Text style={styles.propertyText}>{schedule.property}</Text>
-                  <View style={styles.slotsContainer}>
-                    {[...Array(8)].map((_, i) => {
-                      const slotDate = addDays(
-                        startOfWeek(currentDate, { weekStartsOn: 5 }),
-                        i
-                      );
-                      let isBooked = false;
-                      if (schedule.visitDates) {
-                        const [startStr, endStr] =
-                          schedule.visitDates.split(" - ");
-                        const startDate = moment(
-                          startStr,
-                          "MMM D, YYYY"
-                        ).startOf("day");
-                        const endDate = moment(endStr, "MMM D, YYYY").endOf(
-                          "day"
-                        );
-
-                        const slotMoment = moment(slotDate);
-                        if (
-                          slotMoment.isSameOrAfter(startDate) &&
-                          slotMoment.isSameOrBefore(endDate)
-                        ) {
-                          isBooked = true;
-                        }
-                      }
-
-                      const randomColors = [
-                        "#FF8A65",
-                        "#4DB6AC",
-                        "#9575CD",
-                        "#FFD54F",
-                      ];
-                      const backgroundColor = isBooked
-                        ? randomColors[
-                            Math.floor(Math.random() * randomColors.length)
-                          ]
-                        : colors.Neutral_01;
-
-                      return (
-                        <View
-                          key={i}
-                          style={[styles.slot, { backgroundColor }]}
-                        />
-                      );
-                    })}
-                  </View>
-                </TouchableOpacity>
-              )}
+              data={groupedSchedules}
+              keyExtractor={(item) => item.propertyId}
+              renderItem={renderPropertyRow}
+              scrollEnabled={false}
             />
           )}
         </View>
