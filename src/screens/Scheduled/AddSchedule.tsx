@@ -55,6 +55,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
+  const [checkOutTimeVisible, setCheckOutTimeVisible] = useState(false);
   const [conflictModalVisible, setConflictModalVisible] = useState(false);
   const [conflictingDates, setConflictingDates] = useState<
     { dates: string; clientName: string }[]
@@ -186,7 +187,8 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       otherwise: (schema) => schema.notRequired(),
     }),
     visitDates: Yup.string().required(t("visitDates") + " " + t("isRequired")),
-    visitTime: Yup.string().required(t("visitTime") + " " + t("isRequired")),
+    checkInTime: Yup.string().required(t("checkInTime") + " " + t("isRequired")),
+    checkOutTime: Yup.string().required(t("checkOutTime") + " " + t("isRequired")),
     advanceAmount: Yup.string()
       .required(t("advanceAmount") + " " + t("isRequired"))
       .test("is-number", t("mustBeNumber"), (value) => !isNaN(Number(value)))
@@ -431,7 +433,8 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
               email: "",
               phoneNum: "",
               visitDates: "",
-              visitTime: "",
+              checkInTime: "",
+              checkOutTime: "",
               numberOfVisitors: "",
               numberOfInfants: "",
               agreedPrice: "",
@@ -660,11 +663,23 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     onPress={() => setVisible(true)}
                   >
                     <FormInput
-                      label={t("visitTime")}
-                      placeholder={t("visitTime")}
-                      value={values.visitTime}
+                      label={t("checkInTime")}
+                      placeholder={t("checkInTime")}
+                      value={values.checkInTime}
                       editable={false}
-                      error={touched.visitTime && errors.visitTime}
+                      error={touched.checkInTime && errors.checkInTime}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setCheckOutTimeVisible(true)}
+                  >
+                    <FormInput
+                      label={t("checkOutTime")}
+                      placeholder={t("checkOutTime")}
+                      value={values.checkOutTime}
+                      editable={false}
+                      error={touched.checkOutTime && errors.checkOutTime}
                     />
                   </TouchableOpacity>
                   <FormInput
@@ -835,11 +850,31 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       const formattedTime = `${formattedHours}:${minutes
                         .toString()
                         .padStart(2, "0")} ${ampm}`;
-                      setFieldValue("visitTime", formattedTime);
+                      setFieldValue("checkInTime", formattedTime);
                       setVisible(false);
                     }}
                     locale={i18n.language}
-                    label={t("visitTime")}
+                    label={t("checkInTime")}
+                    cancelLabel={t("cancel")}
+                    confirmLabel={t("ok")}
+                    defaultInputType="keyboard"
+                  />
+                )}
+                {checkOutTimeVisible && (
+                  <TimePickerModal
+                    visible={checkOutTimeVisible}
+                    onDismiss={() => setCheckOutTimeVisible(false)}
+                    onConfirm={({ hours, minutes }) => {
+                      const ampm = hours >= 12 ? "PM" : "AM";
+                      const formattedHours = hours % 12 || 12;
+                      const formattedTime = `${formattedHours}:${minutes
+                        .toString()
+                        .padStart(2, "0")} ${ampm}`;
+                      setFieldValue("checkOutTime", formattedTime);
+                      setCheckOutTimeVisible(false);
+                    }}
+                    locale={i18n.language}
+                    label={t("checkOutTime")}
                     cancelLabel={t("cancel")}
                     confirmLabel={t("ok")}
                     defaultInputType="keyboard"

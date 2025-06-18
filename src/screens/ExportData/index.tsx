@@ -116,9 +116,9 @@ const ExportData: React.FC = () => {
       }
 
       let csv =
-        "Client Name,Email,Phone,Visit Dates,Visit Time,Visitors,Infants,Property\n";
+        "Client Name,Email,Phone,Visit Dates,Check In Time,Check Out Time,Visitors,Infants,Property\n";
       schedules.forEach((item: any) => {
-        csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.visitTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.property}"\n`;
+        csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.checkInTime}","${item.checkOutTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.property}"\n`;
       });
 
       const fileName =
@@ -313,8 +313,12 @@ const ExportData: React.FC = () => {
                     <Text style={styles.detailValue}>{item.visitDates}</Text>
                   </View>
                   <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>{t("visitTime")}</Text>
-                    <Text style={styles.detailValue}>{item.visitTime}</Text>
+                    <Text style={styles.detailLabel}>{t("checkInTime")}</Text>
+                    <Text style={styles.detailValue}>{item.checkInTime}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>{t("checkOutTime")}</Text>
+                    <Text style={styles.detailValue}>{item.checkOutTime}</Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>

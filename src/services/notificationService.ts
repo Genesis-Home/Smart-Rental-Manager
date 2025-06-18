@@ -63,7 +63,8 @@ export async function scheduleBookingNotifications(bookingData: any) {
 
     if (
       !bookingData.visitDates ||
-      !bookingData.visitTime ||
+      !bookingData.checkInTime ||
+      !bookingData.checkOutTime ||
       !bookingData.property
     ) {
       console.error("Missing required booking information");
@@ -74,14 +75,20 @@ export async function scheduleBookingNotifications(bookingData: any) {
     const checkInDate = moment(startStr, "MMM D, YYYY");
     const checkOutDate = moment(endStr, "MMM D, YYYY");
 
-    const [timeStr, period] = bookingData.visitTime.split(" ");
-    const [hours, minutes] = timeStr.split(":");
-    let visitHour = parseInt(hours);
-    if (period === "PM" && visitHour !== 12) visitHour += 12;
-    if (period === "AM" && visitHour === 12) visitHour = 0;
+    const [checkInTimeStr, checkInPeriod] = bookingData.checkInTime.split(" ");
+    const [checkInHours, checkInMinutes] = checkInTimeStr.split(":");
+    let checkInHour = parseInt(checkInHours);
+    if (checkInPeriod === "PM" && checkInHour !== 12) checkInHour += 12;
+    if (checkInPeriod === "AM" && checkInHour === 12) checkInHour = 0;
 
-    checkInDate.hours(visitHour).minutes(parseInt(minutes)).seconds(0);
-    checkOutDate.hours(visitHour).minutes(parseInt(minutes)).seconds(0);
+    const [checkOutTimeStr, checkOutPeriod] = bookingData.checkOutTime.split(" ");
+    const [checkOutHours, checkOutMinutes] = checkOutTimeStr.split(":");
+    let checkOutHour = parseInt(checkOutHours);
+    if (checkOutPeriod === "PM" && checkOutHour !== 12) checkOutHour += 12;
+    if (checkOutPeriod === "AM" && checkOutHour === 12) checkOutHour = 0;
+
+    checkInDate.hours(checkInHour).minutes(parseInt(checkInMinutes)).seconds(0);
+    checkOutDate.hours(checkOutHour).minutes(parseInt(checkOutMinutes)).seconds(0);
 
     try {
       const fcmToken = await messaging().getToken();
@@ -102,7 +109,7 @@ export async function scheduleBookingNotifications(bookingData: any) {
       try {
         const notificationData = {
           title: "Upcoming Check-in",
-          body: `Your booking for ${bookingData.property} starts tomorrow at ${bookingData.visitTime}!`,
+          body: `Your booking for ${bookingData.property} starts tomorrow at ${bookingData.checkInTime}!`,
           scheduledTime: checkInNotificationDate.toDate(),
           type: "check-in",
           bookingId: bookingData.id || null,
@@ -132,7 +139,7 @@ export async function scheduleBookingNotifications(bookingData: any) {
       try {
         const notificationData = {
           title: "Check-in Reminder",
-          body: `Your check-in is in 1 hour at ${bookingData.visitTime}!`,
+          body: `Your check-in is in 1 hour at ${bookingData.checkInTime}!`,
           scheduledTime: checkInOneHourBefore.toDate(),
           type: "check-in-1hr",
           bookingId: bookingData.id || null,
@@ -162,7 +169,7 @@ export async function scheduleBookingNotifications(bookingData: any) {
       try {
         const notificationData = {
           title: "Upcoming Check-out",
-          body: `Your booking for ${bookingData.property} ends tomorrow at ${bookingData.visitTime}!`,
+          body: `Your booking for ${bookingData.property} ends tomorrow at ${bookingData.checkOutTime}!`,
           scheduledTime: checkOutNotificationDate.toDate(),
           type: "check-out",
           bookingId: bookingData.id || null,
@@ -192,7 +199,7 @@ export async function scheduleBookingNotifications(bookingData: any) {
       try {
         const notificationData = {
           title: "Check-out Reminder",
-          body: `Your check-out is in 1 hour at ${bookingData.visitTime}!`,
+          body: `Your check-out is in 1 hour at ${bookingData.checkOutTime}!`,
           scheduledTime: checkOutOneHourBefore.toDate(),
           type: "check-out-1hr",
           bookingId: bookingData.id || null,

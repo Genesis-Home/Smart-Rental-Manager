@@ -635,13 +635,23 @@ const Scheduled: React.FC = () => {
                   {selectedSchedule?.visitDates}
                 </Text>
               </View>
-              {selectedSchedule?.visitTime && (
+              {selectedSchedule?.checkInTime && (
                 <View style={styles.bookingDetailRow}>
                   <Text style={styles.bookingDetailLabel}>
-                    {t("visitTime")}:
+                    {t("checkInTime")}:
                   </Text>
                   <Text style={styles.bookingDetailValue}>
-                    {selectedSchedule?.visitTime}
+                    {selectedSchedule?.checkInTime}
+                  </Text>
+                </View>
+              )}
+              {selectedSchedule?.checkOutTime && (
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("checkOutTime")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {selectedSchedule?.checkOutTime}
                   </Text>
                 </View>
               )}

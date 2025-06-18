@@ -72,8 +72,12 @@ export const generateSchedulePDF = async (scheduleData: any) => {
                 <td class="table-value"> ${scheduleData.visitDates}</td>
               </tr>
               <tr>
-                <td class="table-label">Visit Time:</td>
-                <td class="table-value"> ${scheduleData.visitTime}</td>
+                <td class="table-label">Check In Time:</td>
+                <td class="table-value"> ${scheduleData.checkInTime}</td>
+              </tr>
+              <tr>
+                <td class="table-label">Check Out Time:</td>
+                <td class="table-value"> ${scheduleData.checkOutTime}</td>
               </tr>
               ${
               scheduleData.numberOfVisitors

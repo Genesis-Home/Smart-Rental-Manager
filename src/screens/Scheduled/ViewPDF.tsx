@@ -122,8 +122,12 @@ const ViewPDF: React.FC = () => {
         <Text style={styles.detailValue}> {visit?.visitDates}</Text>
       </View>
       <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("visitTime")}:</Text>
-        <Text style={styles.detailValue}>{visit?.visitTime}</Text>
+        <Text style={styles.detailLabel}>{t("checkInTime")}:</Text>
+        <Text style={styles.detailValue}>{visit?.checkInTime}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("checkOutTime")}:</Text>
+        <Text style={styles.detailValue}>{visit?.checkOutTime}</Text>
       </View>
       <Text style={styles.sectionTitle}>{t("financialDetails")}</Text>
       <View style={styles.detailRow}>

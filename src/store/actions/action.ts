@@ -32,7 +32,8 @@ export const sendEmail =
     clientName: string,
     phoneNum: string,
     visitDates: string,
-    visitTime: string,
+    checkInTime: string,
+    checkOutTime: string,
     numberOfVisitors: string,
     numberOfInfants: string,
     property: string,
@@ -53,7 +54,7 @@ export const sendEmail =
         ? balance.toString()
         : balance.toFixed(2);
 
-      let message = `Visit Details:\n\n📅 Visit Date & Time: ${formattedVisitDates}, ${visitTime}\n`;
+      let message = `Visit Details:\n\n📅 Visit Date & Time: ${formattedVisitDates}, ${checkInTime} - ${checkOutTime}\n`;
 
       if (numberOfVisitors && numberOfVisitors.trim() !== "") {
         message += `👨‍👩‍👧‍👦 Number of Visitors: ${numberOfVisitors}\n`;
@@ -90,7 +91,8 @@ export const sendEmail =
         navigation.navigate("AutomatedEmail", {
           visitDetails: {
             visitDates: formattedVisitDates,
-            visitTime,
+            checkInTime,
+            checkOutTime,
             ...(numberOfVisitors && { numberOfVisitors }),
             ...(numberOfInfants && { numberOfInfants }),
             property,
@@ -542,7 +544,8 @@ export const addSchedule =
         email: formData.email,
         phoneNum: formData.phoneNum,
         visitDates: formData.visitDates,
-        visitTime: formData.visitTime,
+        checkInTime: formData.checkInTime,
+        checkOutTime: formData.checkOutTime,
         property: formData.property,
         propertyId: formData.propertyId,
         revenue: formData.revenue,
@@ -576,7 +579,8 @@ export const addSchedule =
             formData.clientName,
             formData.phoneNum,
             formData.visitDates,
-            formData.visitTime,
+            formData.checkInTime,
+            formData.checkOutTime,
             formData.numberOfVisitors,
             formData.numberOfInfants,
             formData.property,
@@ -597,7 +601,8 @@ export const addSchedule =
       navigation.navigate("AutomatedEmail", {
         visitDetails: {
           visitDates: formData.visitDates.replace(" - ", " to "),
-          visitTime: formData.visitTime,
+          checkInTime: formData.checkInTime,
+          checkOutTime: formData.checkOutTime,
           ...(formData.numberOfVisitors && {
             numberOfVisitors: formData.numberOfVisitors,
           }),

@@ -354,7 +354,8 @@ export type LanguageTranslation = {
   cancel: string;
   selectProperty: string;
   property: string;
-  visitTime: string;
+  checkInTime: string;
+  checkOutTime: string;
   infants: string;
   adults: string;
   noSchedulesInRange: string;
@@ -521,7 +522,8 @@ export interface RouteParams {
 
 export interface VisitDetails {
   visitDates: string;
-  visitTime: string;
+  checkInTime: string;
+  checkOutTime: string;
   numberOfVisitors?: string;
   numberOfInfants?: string;
   property: string;
