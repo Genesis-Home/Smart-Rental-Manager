@@ -280,7 +280,7 @@ export type LanguageTranslation = {
   numberOfInfants: string;
   AutomatedEmail: string;
   visitConfirmed: string;
-  visitData: string;
+  visitData: string; // Visit Date
   propertyAddress: string;
   visitDetail: string;
   openInGoogleMaps: string;

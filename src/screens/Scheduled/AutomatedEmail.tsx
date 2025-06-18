@@ -46,7 +46,9 @@ const AutomatedEmail: React.FC = () => {
 
   const visitMessage = `${t("visitDetails")}:
 
-📅 ${t("visitData")}: ${visit?.visitDates}, ${visit?.checkInTime} - ${visit?.checkOutTime}
+📅 ${t("visitData")}: ${visit?.visitDates}
+⏰ ${t("checkInTime")}: ${visit?.checkInTime}
+⏰ ${t("checkOutTime")}: ${visit?.checkOutTime}
 👨‍👩‍👧‍👦 ${t("numberOfVisitors")}: ${visit?.numberOfVisitors}
 👶 ${t("numberOfInfants")}: ${visit?.numberOfInfants}
 🏠 ${t("propertyAddress")}: ${visit?.location.address}
@@ -222,7 +224,15 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
 
           <Text style={styles.detailRow}>
             <Text style={styles.detailLabel}>{t("visitData")}: </Text>
-            {visit?.visitDates},{visit?.checkInTime} - {visit?.checkOutTime}
+            {visit?.visitDates}
+          </Text>
+          <Text style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t("checkInTime")}: </Text>
+            {visit?.checkInTime}
+          </Text>
+          <Text style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t("checkOutTime")}: </Text>
+            {visit?.checkOutTime}
           </Text>
 
           {visit?.numberOfVisitors && (

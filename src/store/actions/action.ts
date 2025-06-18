@@ -54,7 +54,7 @@ export const sendEmail =
         ? balance.toString()
         : balance.toFixed(2);
 
-      let message = `Visit Details:\n\n📅 Visit Date & Time: ${formattedVisitDates}, ${checkInTime} - ${checkOutTime}\n`;
+      let message = `Visit Details:\n\n📅 Visit Date: ${formattedVisitDates}\n⏰ Check In Time: ${checkInTime}\n⏰ Check Out Time: ${checkOutTime}\n`;
 
       if (numberOfVisitors && numberOfVisitors.trim() !== "") {
         message += `👨‍👩‍👧‍👦 Number of Visitors: ${numberOfVisitors}\n`;
