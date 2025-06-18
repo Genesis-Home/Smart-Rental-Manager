@@ -9,3 +9,13 @@ export {
 } from "./constants";
 
 export { languageData } from "./languageData/data";
+
+export {
+  downloadImageForSharing,
+  downloadMultipleImagesForSharing,
+  cleanupSharedImages,
+  isValidImageUrl,
+  createFallbackShareMessage,
+  testFileAccess,
+  getFileInfo,
+} from "./imageDownloader";

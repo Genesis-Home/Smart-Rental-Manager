@@ -8,7 +8,8 @@ import {
   Dimensions,
   TouchableOpacity,
   Text,
-  Share,
+  ActivityIndicator,
+  Platform,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { Search, ShareIcon } from "../../assets/icons";
@@ -24,6 +25,8 @@ import { colors } from "../../utilities/constants";
 import { fetchPropertiesByUserID } from "../../store/actions/action";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import Toast from "react-native-toast-message";
+import { downloadMultipleImagesForSharing, cleanupSharedImages, createFallbackShareMessage, testFileAccess, getFileInfo } from "../../utilities/imageDownloader";
+import Share from "react-native-share";
 
 const { width } = Dimensions.get("window");
 
@@ -68,6 +71,8 @@ const MyAds: React.FC = () => {
   );
   const scrollRefs = useRef<{ [key: string]: FlatList<any> | null }>({});
 
+  const [isSharing, setIsSharing] = useState(false);
+
   useEffect(() => {
     setFilteredProperties(userProperties);
   }, [userProperties]);
@@ -86,20 +91,119 @@ const MyAds: React.FC = () => {
 
   const handleShare = async (item: Property) => {
     try {
-      const imageUrls = item.images?.map((image) => image);
+      setIsSharing(true);
+      
+      const title = item.title || "No Title";
+      const description = item.description || "No Description";
+      const address = item.location?.address || "No location available";
+      const lat = item.location?.lat;
+      const lng = item.location?.long;
 
-      const message = `Title: ${item.title}\nDescription: ${
-        item.description
-      }\nLocation: ${
-        item.location?.address ?? "No location"
-      }\nImages:\n${imageUrls.map((url) => `${url}\n\n`).join("")}`;
+      const mapsUrl =
+        lat && lng
+          ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+          : address !== "No location available"
+          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+              address
+            )}`
+          : "";
 
-      await Share.share({
-        message,
-        title: item.title,
-      });
+      let downloadedImagePaths: string[] = [];
+
+      // If there are images, download them and include in share
+      if (item.images && item.images.length > 0) {
+        try {
+          console.log('Starting image download for property:', title);
+          downloadedImagePaths = await downloadMultipleImagesForSharing(item.images);
+          
+          if (downloadedImagePaths.length > 0) {
+            console.log('Successfully downloaded images:', downloadedImagePaths);
+            
+            // Test file access before sharing
+            const firstImagePath = downloadedImagePaths[0];
+            const fileAccessible = await testFileAccess(firstImagePath);
+            
+            if (!fileAccessible) {
+              console.error('File is not accessible:', firstImagePath);
+              throw new Error('Downloaded file is not accessible');
+            }
+            
+            const fileInfo = await getFileInfo(firstImagePath);
+            console.log('File info for sharing:', fileInfo);
+            
+            // Create share options with actual images
+            const shareOptions = {
+              title: title,
+              message: `🏢 *${title}*\n\n📝 *Description:*\n${description}\n\n📍 *Location:*\n${address}\n${
+                mapsUrl ? `${mapsUrl}` : ""
+              }`,
+              url: Platform.OS === "android" ? `file://${firstImagePath}` : firstImagePath,
+              type: "image/jpeg",
+              filename: `property_${title.replace(/\s+/g, '_')}.jpg`,
+              saveToFiles: true,
+              isNew: true,
+              mimeType: "image/jpeg",
+              subject: title,
+              failOnCancel: false,
+              showAppsToView: true,
+              isBase64: false,
+              dialogTitle: "Share Property",
+              forceDialog: true,
+              chooserTitle: "Share Property with",
+            };
+
+            console.log('Sharing with options:', shareOptions);
+            await Share.open(shareOptions);
+            console.log('Share completed successfully');
+          } else {
+            console.log('No images downloaded, falling back to URL sharing');
+            // Fallback to sharing URLs if image download fails
+            const fallbackMessage = createFallbackShareMessage(title, description, address, item.images, mapsUrl);
+            await Share.open({
+              title: title,
+              message: fallbackMessage,
+              failOnCancel: false,
+            });
+          }
+        } catch (downloadError) {
+          console.error("Error downloading images for sharing:", downloadError);
+          // Fallback to sharing without images if download fails
+          const fallbackMessage = createFallbackShareMessage(title, description, address, item.images, mapsUrl);
+          await Share.open({
+            title: title,
+            message: fallbackMessage,
+            failOnCancel: false,
+          });
+        }
+      } else {
+        console.log('No images to share');
+        // No images to share
+        await Share.open({
+          title: title,
+          message: `🏢 *${title}*\n\n📝 *Description:*\n${description}\n\n📍 *Location:*\n${address}\n${
+            mapsUrl ? `${mapsUrl}` : ""
+          }`,
+          failOnCancel: false,
+        });
+      }
+      
+      // Clean up downloaded images after sharing
+      if (downloadedImagePaths.length > 0) {
+        try {
+          await cleanupSharedImages(downloadedImagePaths);
+        } catch (cleanupError) {
+          console.error("Error cleaning up shared images:", cleanupError);
+        }
+      }
     } catch (error) {
       console.error("Error sharing property:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to share property",
+        position: "bottom",
+      });
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -210,6 +314,7 @@ const MyAds: React.FC = () => {
             <TouchableOpacity
               onPress={() => handleShare(item)}
               activeOpacity={0.8}
+              disabled={isSharing}
               style={{
                 position: "absolute",
                 bottom: 10,
@@ -222,7 +327,11 @@ const MyAds: React.FC = () => {
                 borderRadius: 50,
               }}
             >
-              <ShareIcon height={20} width={20} />
+              {isSharing ? (
+                <ActivityIndicator size="small" color={Colors.white} />
+              ) : (
+                <ShareIcon height={20} width={20} />
+              )}
             </TouchableOpacity>
           </View>
         </View>
