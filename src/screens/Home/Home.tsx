@@ -48,7 +48,7 @@ const Home: React.FC = () => {
   );
   const scrollRefs = useRef<{ [key: string]: FlatList<any> | null }>({});
 
-  const [isSharing, setIsSharing] = useState(false);
+  const [isSharing, setIsSharing] = useState<string | null>(null);
 
   useEffect(() => {
     setFilteredProperties(properties);
@@ -87,7 +87,7 @@ const Home: React.FC = () => {
   };
   const handleShare = async (item: Property) => {
     try {
-      setIsSharing(true);
+      setIsSharing(item.id);
       
       const title = item.title || "No Title";
       const description = item.description || "No Description";
@@ -97,11 +97,9 @@ const Home: React.FC = () => {
 
       const mapsUrl =
         lat && lng
-          ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+          ? `https://www.google.com/maps?q=${lat},${lng}`
           : address !== "No location available"
-          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-              address
-            )}`
+          ? `https://www.google.com/maps/search/${encodeURIComponent(address)}`
           : "";
 
       let downloadedImagePaths: string[] = [];
@@ -130,7 +128,7 @@ const Home: React.FC = () => {
             // Create share options with actual images
             const shareOptions = {
               title: title,
-              message: `🏢 *${title}*\n\n📝 *Description:*\n${description}\n\n📍 *Location:*\n${address}\n${
+              message: `🏢 ${title}\n\n📝 Description : ${description}\n\n📍 Location : ${address}\n${
                 mapsUrl ? `${mapsUrl}` : ""
               }`,
               url: Platform.OS === "android" ? `file://${firstImagePath}` : firstImagePath,
@@ -199,7 +197,7 @@ const Home: React.FC = () => {
         position: "bottom",
       });
     } finally {
-      setIsSharing(false);
+      setIsSharing(null);
     }
   };
 
@@ -307,7 +305,7 @@ const Home: React.FC = () => {
             <TouchableOpacity
               onPress={() => handleShare(item)}
               activeOpacity={0.8}
-              disabled={isSharing}
+              disabled={isSharing === item.id}
               style={{
                 position: "absolute",
                 bottom: 10,
@@ -320,7 +318,7 @@ const Home: React.FC = () => {
                 borderRadius: 50,
               }}
             >
-              {isSharing ? (
+              {isSharing === item.id ? (
                 <ActivityIndicator size="small" color={Colors.white} />
               ) : (
                 <ShareIcon height={20} width={20} />

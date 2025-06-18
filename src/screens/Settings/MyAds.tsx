@@ -71,7 +71,7 @@ const MyAds: React.FC = () => {
   );
   const scrollRefs = useRef<{ [key: string]: FlatList<any> | null }>({});
 
-  const [isSharing, setIsSharing] = useState(false);
+  const [isSharing, setIsSharing] = useState<string | null>(null);
 
   useEffect(() => {
     setFilteredProperties(userProperties);
@@ -91,7 +91,7 @@ const MyAds: React.FC = () => {
 
   const handleShare = async (item: Property) => {
     try {
-      setIsSharing(true);
+      setIsSharing(item.id);
       
       const title = item.title || "No Title";
       const description = item.description || "No Description";
@@ -101,11 +101,9 @@ const MyAds: React.FC = () => {
 
       const mapsUrl =
         lat && lng
-          ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+          ? `https://www.google.com/maps?q=${lat},${lng}`
           : address !== "No location available"
-          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-              address
-            )}`
+          ? `https://www.google.com/maps/search/${encodeURIComponent(address)}`
           : "";
 
       let downloadedImagePaths: string[] = [];
@@ -203,7 +201,7 @@ const MyAds: React.FC = () => {
         position: "bottom",
       });
     } finally {
-      setIsSharing(false);
+      setIsSharing(null);
     }
   };
 
@@ -314,20 +312,20 @@ const MyAds: React.FC = () => {
             <TouchableOpacity
               onPress={() => handleShare(item)}
               activeOpacity={0.8}
-              disabled={isSharing}
+              disabled={isSharing === item.id}
               style={{
                 position: "absolute",
                 bottom: 10,
                 right: 10,
                 height: 35,
                 width: 35,
-                backgroundColor: colors.Primary_01,
+                backgroundColor: Colors.Primary_01,
                 justifyContent: "center",
                 alignItems: "center",
                 borderRadius: 50,
               }}
             >
-              {isSharing ? (
+              {isSharing === item.id ? (
                 <ActivityIndicator size="small" color={Colors.white} />
               ) : (
                 <ShareIcon height={20} width={20} />
