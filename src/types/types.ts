@@ -239,6 +239,11 @@ export type LanguageTranslation = {
   addProperty: string;
   PhotoUpload: string;
   photo: string;
+  coverPhoto: string;
+  selectCoverPhoto: string;
+  galleryImages: string;
+  addGalleryImages: string;
+  selectGalleryImages: string;
   addTitle: string;
   addDes: string;
   detail: string;

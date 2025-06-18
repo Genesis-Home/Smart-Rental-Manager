@@ -37,6 +37,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { Marker as MarkerIcon } from "../../assets/icons";
 import Colors from "../../utilities/constants/colors";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import ImageView from "react-native-image-viewing";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required(t("title") + " " + t("isRequired")),
@@ -93,6 +94,32 @@ const createStyles = (colors: any) => {
       height: "100%",
       borderRadius: 8,
     },
+    coverPhotoSection: {
+      marginTop: 15,
+    },
+    coverPhotoContainer: {
+      position: "relative",
+      width: "100%",
+      height: 200,
+      borderRadius: 8,
+      overflow: "hidden",
+    },
+    coverPhoto: {
+      width: "100%",
+      height: "100%",
+      borderRadius: 8,
+    },
+    gallerySection: {
+      marginTop: 15,
+    },
+    removeButton: {
+      position: "absolute",
+      right: 10,
+      top: 10,
+      // backgroundColor: "rgba(0,0,0,0.5)",
+      borderRadius: 15,
+      padding: 5,
+    },
     locationContainer: {
       marginVertical: 15,
     },
@@ -121,6 +148,12 @@ const EditProperty: React.FC<EditPropertyProps> = ({
   const [inputText, setInputText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
+  const [isCoverPhotoUploading, setIsCoverPhotoUploading] = useState(false);
+  const [isGalleryUploading, setIsGalleryUploading] = useState(false);
+  const [visible, setIsVisible] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [viewingCoverPhoto, setViewingCoverPhoto] = useState(false);
   const [marker, setMarker] = useState<{
     latitude: number;
     longitude: number;
@@ -163,12 +196,54 @@ const EditProperty: React.FC<EditPropertyProps> = ({
         placesRef.current.setAddressText(address);
       }
       if (property.images && property.images.length > 0) {
-        setGalleryImages(property.images);
+        // First image is cover photo, rest are gallery images
+        setCoverPhoto(property.images[0]);
+        setGalleryImages(property.images.slice(1));
       }
     }
   }, [property]);
 
-  const handleImagePick = () => {
+  const handleCoverPhotoPick = () => {
+    launchImageLibrary(
+      {
+        mediaType: "photo",
+        quality: 0.5,
+        includeBase64: true,
+        selectionLimit: 1,
+      },
+      async (response) => {
+        if (response.assets && response.assets.length > 0) {
+          setIsCoverPhotoUploading(true);
+          const asset = response.assets[0];
+          if (asset.uri) {
+            try {
+              const fileName = asset.uri.substring(
+                asset.uri.lastIndexOf("/") + 1
+              );
+              const reference = storage().ref(fileName);
+              await reference.putFile(asset.uri);
+              const url = await reference.getDownloadURL();
+              setCoverPhoto(url);
+            } catch (error) {
+              console.error("Cover photo upload error:", error);
+              const errorMessage = await getFirebaseErrorMessage(
+                "Failed to upload cover photo. Please try again."
+              );
+              Toast.show({
+                type: "error",
+                text1: errorMessage,
+                position: "bottom",
+              });
+            } finally {
+              setIsCoverPhotoUploading(false);
+            }
+          }
+        }
+      }
+    );
+  };
+
+  const handleGalleryImagesPick = () => {
     launchImageLibrary(
       {
         mediaType: "photo",
@@ -178,7 +253,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
       },
       async (response) => {
         if (response.assets && response.assets.length > 0) {
-          setIsUploading(true);
+          setIsGalleryUploading(true);
           const uploadPromises = response.assets.map(async (asset) => {
             if (asset.uri) {
               const fileName = asset.uri.substring(
@@ -196,9 +271,9 @@ const EditProperty: React.FC<EditPropertyProps> = ({
             const validUrls = urls.filter((url): url is string => url !== null);
             setGalleryImages((prev) => [...prev, ...validUrls]);
           } catch (error) {
-            console.error("Image upload error:", error);
+            console.error("Gallery images upload error:", error);
             const errorMessage = await getFirebaseErrorMessage(
-              "Failed to upload images. Please try again."
+              "Failed to upload gallery images. Please try again."
             );
             Toast.show({
               type: "error",
@@ -206,7 +281,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
               position: "bottom",
             });
           } finally {
-            setIsUploading(false);
+            setIsGalleryUploading(false);
           }
         }
       }
@@ -215,6 +290,16 @@ const EditProperty: React.FC<EditPropertyProps> = ({
 
   const handleRemoveImage = (index: number) => {
     setGalleryImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveCoverPhoto = () => {
+    setCoverPhoto(null);
+  };
+
+  const openImageView = (index: number, isCoverPhoto: boolean = false) => {
+    setSelectedIndex(index);
+    setIsVisible(true);
+    setViewingCoverPhoto(isCoverPhoto);
   };
 
   const renderImages = () => {
@@ -227,6 +312,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
           <TouchableOpacity
             key={index}
             activeOpacity={0.8}
+            onPress={() => openImageView(index, false)}
             style={styles.imageContainer}
           >
             <Image
@@ -295,7 +381,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
         >
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={handleImagePick}
+            onPress={handleCoverPhotoPick}
             style={styles.photoUploadSection}
           >
             <Text
@@ -311,19 +397,110 @@ const EditProperty: React.FC<EditPropertyProps> = ({
               <Text
                 style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
               >
-                {t("editPhotos")}
+                {t("coverPhoto")}
               </Text>
             </View>
           </TouchableOpacity>
-          {isUploading ? (
+
+         
+
+          {/* Cover Photo Section */}
+          {isCoverPhotoUploading ? (
             <ActivityIndicator
               size="large"
               color={colors.Primary_01}
               style={{ marginTop: 20 }}
             />
           ) : (
-            renderImages()
+            coverPhoto && (
+              <View style={styles.coverPhotoSection}>
+                <Text
+                  style={[
+                    Typography.f_16_nunito_medium,
+                    { color: colors.black, marginBottom: 10 },
+                  ]}
+                >
+                  {t("coverPhoto")}
+                </Text>
+                {coverPhoto && (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => openImageView(0, true)}
+                    style={styles.coverPhotoContainer}
+                  >
+                    <Image
+                      style={styles.coverPhoto}
+                      source={{ uri: coverPhoto }}
+                      resizeMode="cover"
+                    />
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      style={styles.removeButton}
+                      onPress={handleRemoveCoverPhoto}
+                    >
+                      <Cross />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )
           )}
+
+           <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={handleGalleryImagesPick}
+            style={[styles.photoUploadSection,{marginTop:15}]}
+          >
+            <Text
+              style={[
+                styles.photoUploadLabel,
+                Typography.f_14_nunito_extra_bold,
+              ]}
+            >
+              {t("PhotoUpload")}
+            </Text>
+            <View style={styles.photoUploadActionRow}>
+              <Edit />
+              <Text
+                style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+              >
+                {t("galleryImages")}
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Gallery Images Section */}
+          {isGalleryUploading ? (
+            <ActivityIndicator
+              size="large"
+              color={colors.Primary_01}
+              style={{ marginTop: 20 }}
+            />
+          ) : (
+            galleryImages.length > 0 && (
+              <View style={styles.gallerySection}>
+                <Text
+                  style={[
+                    Typography.f_16_nunito_medium,
+                    { color: colors.black, marginBottom: 10 },
+                  ]}
+                >
+                  {t("galleryImages")}
+                </Text>
+                {renderImages()}
+              </View>
+            )
+          )}
+          <ImageView
+            images={
+              viewingCoverPhoto && coverPhoto 
+                ? [{ uri: coverPhoto }] 
+                : galleryImages.map((url) => ({ uri: url }))
+            }
+            imageIndex={selectedIndex}
+            visible={visible}
+            onRequestClose={() => setIsVisible(false)}
+          />
           {property && (
             <Formik
               initialValues={{
@@ -336,9 +513,12 @@ const EditProperty: React.FC<EditPropertyProps> = ({
               validationSchema={validationSchema}
               onSubmit={async (values) => {
                 try {
+                  // Combine cover photo and gallery images with cover photo at index 0
+                  const allImages = coverPhoto ? [coverPhoto, ...galleryImages] : galleryImages;
+                  
                   const formData = {
                     ...values,
-                    images: galleryImages,
+                    images: allImages,
                   };
 
                   if (user?.userId) {

@@ -57,6 +57,9 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const styles = createStyles(colors);
   const [isUploading, setIsUploading] = useState(false);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const [isCoverPhotoUploading, setIsCoverPhotoUploading] = useState(false);
+  const [isGalleryUploading, setIsGalleryUploading] = useState(false);
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -84,6 +87,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     longitudeDelta: 0.01,
   });
   const mapRef = useRef<MapView>(null);
+  const [viewingCoverPhoto, setViewingCoverPhoto] = useState(false);
 
   useEffect(() => {
     const requestLocationPermission = async () => {
@@ -168,7 +172,69 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     }),
   });
 
-  const handleImagePick = async () => {
+  const handleCoverPhotoPick = async () => {
+    launchImageLibrary(
+      {
+        mediaType: "photo",
+        selectionLimit: 1,
+        includeBase64: false,
+        quality: 0.8,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      },
+      async (response: ImagePickerResponse) => {
+        if (response.didCancel) {
+          console.log("User cancelled cover photo picker");
+          return;
+        }
+        if (response.errorCode) {
+          console.error("Cover photo picker error:", response.errorMessage);
+          const errorMessage = await getFirebaseErrorMessage(
+            "Failed to select cover photo"
+          );
+          Toast.show({
+            type: "error",
+            text1: errorMessage,
+            position: "bottom",
+          });
+          return;
+        }
+        if (response.assets?.length) {
+          console.log("Selected cover photo:", response.assets[0]);
+          setIsCoverPhotoUploading(true);
+          const img = response.assets[0];
+          const fileName = img.fileName || `cover_photo_${Date.now()}.jpg`;
+          const uri = img.uri;
+
+          if (!uri) {
+            console.error("No URI found for cover photo:", img);
+            setIsCoverPhotoUploading(false);
+            return;
+          }
+
+          const reference = storage().ref(fileName);
+          const task = reference.putFile(uri);
+
+          try {
+            await task;
+            const downloadUrl = await reference.getDownloadURL();
+            setCoverPhoto(downloadUrl);
+            setIsCoverPhotoUploading(false);
+          } catch (uploadError) {
+            console.error("Cover photo upload error:", uploadError);
+            Toast.show({
+              type: "error",
+              text1: "Cover photo upload failed",
+              position: "bottom",
+            });
+            setIsCoverPhotoUploading(false);
+          }
+        }
+      }
+    );
+  };
+
+  const handleGalleryImagesPick = async () => {
     launchImageLibrary(
       {
         mediaType: "photo",
@@ -180,13 +246,13 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       },
       async (response: ImagePickerResponse) => {
         if (response.didCancel) {
-          console.log("User cancelled image picker");
+          console.log("User cancelled gallery images picker");
           return;
         }
         if (response.errorCode) {
-          console.error("Image picker error:", response.errorMessage);
+          console.error("Gallery images picker error:", response.errorMessage);
           const errorMessage = await getFirebaseErrorMessage(
-            "Failed to select images"
+            "Failed to select gallery images"
           );
           Toast.show({
             type: "error",
@@ -196,11 +262,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
           return;
         }
         if (response.assets?.length) {
-          console.log("Selected images:", response.assets);
-          setIsUploading(true);
+          console.log("Selected gallery images:", response.assets);
+          setIsGalleryUploading(true);
           const uploadedImages = await Promise.all(
             response.assets.map(async (img) => {
-              const fileName = img.fileName || `image_${Date.now()}.jpg`;
+              const fileName = img.fileName || `gallery_image_${Date.now()}.jpg`;
               const uri = img.uri;
 
               if (!uri) {
@@ -229,60 +295,102 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
           const validImages = uploadedImages.filter((image) => image !== null);
           setGalleryImages((prev) => [...prev, ...validImages]);
-          setIsUploading(false);
+          setIsGalleryUploading(false);
         }
       }
     );
   };
 
-  const handleRemoveImage = (indexToRemove: number) => {
+  const handleRemoveCoverPhoto = () => {
+    setCoverPhoto(null);
+  };
+
+  const handleRemoveGalleryImage = (indexToRemove: number) => {
     setGalleryImages((prevImages) =>
       prevImages.filter((_, index) => index !== indexToRemove)
     );
   };
 
-  const openImageView = (index: number) => {
+  const openImageView = (index: number, isCoverPhoto: boolean = false) => {
     setSelectedIndex(index);
     setIsVisible(true);
+    setViewingCoverPhoto(isCoverPhoto);
   };
 
   const renderImages = () => {
-    const maxVisibleImages = 6;
-    const visibleImages = galleryImages.slice(0, maxVisibleImages);
-    const remainingCount = galleryImages.length - maxVisibleImages;
-
     return (
-      <FlatList
-        data={visibleImages}
-        numColumns={3}
-        columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity
-            key={index}
-            activeOpacity={0.8}
-            onPress={() => openImageView(index)}
-            style={styles.imageContainer}
-          >
-            <Image
-              style={styles.image}
-              source={{ uri: item }}
-              resizeMode="cover"
-            />
+      <View>
+        {/* Cover Photo Section */}
+        {coverPhoto && (
+          <View style={styles.coverPhotoSection}>
+            <Text
+              style={[
+                Typography.f_16_nunito_medium,
+                { color: colors.black, marginBottom: 10 },
+              ]}
+            >
+              {t("coverPhoto")}
+            </Text>
             <TouchableOpacity
               activeOpacity={0.8}
-              style={{ position: "absolute", right: 0, padding: 10 }}
-              onPress={() => handleRemoveImage(index)}
+              onPress={() => openImageView(0, true)}
+              style={styles.coverPhotoContainer}
             >
-              <Cross />
+              <Image
+                style={styles.coverPhoto}
+                source={{ uri: coverPhoto }}
+                resizeMode="cover"
+              />
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleRemoveCoverPhoto}
+              >
+                <Cross />
+              </TouchableOpacity>
             </TouchableOpacity>
-            {index === maxVisibleImages - 1 && remainingCount > 0 && (
-              <View style={styles.overlay}>
-                <Text style={styles.overlayText}>{`+${remainingCount}`}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          </View>
         )}
-      />
+
+        {/* Gallery Images Section */}
+        {galleryImages.length > 0 && (
+          <View style={styles.gallerySection}>
+            <Text
+              style={[
+                Typography.f_16_nunito_medium,
+                { color: colors.black, marginBottom: 10 },
+              ]}
+            >
+              {t("galleryImages")}
+            </Text>
+            <FlatList
+              data={galleryImages}
+              numColumns={3}
+              columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity
+                  key={index}
+                  activeOpacity={0.8}
+                  onPress={() => openImageView(index, false)}
+                  style={styles.imageContainer}
+                >
+                  <Image
+                    style={styles.image}
+                    source={{ uri: item }}
+                    resizeMode="cover"
+                  />
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={{ position: "absolute", right: 0, padding: 10 }}
+                    onPress={() => handleRemoveGalleryImage(index)}
+                  >
+                    <Cross />
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        )}
+      </View>
     );
   };
 
@@ -378,7 +486,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
           >
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={handleImagePick}
+              onPress={handleCoverPhotoPick}
               style={styles.photoUploadSection}
             >
               <Text
@@ -394,21 +502,127 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                 <Text
                   style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
                 >
-                  {t("photo")}
+                  {t("coverPhoto")}
                 </Text>
               </View>
             </TouchableOpacity>
-            {isUploading ? (
+            
+            {/* Cover Photo Section */}
+            {isCoverPhotoUploading ? (
               <ActivityIndicator
                 size="large"
                 color={colors.Primary_01}
                 style={{ marginTop: 20 }}
               />
             ) : (
-              renderImages()
+              coverPhoto && (
+                <View style={styles.coverPhotoSection}>
+                  <Text
+                    style={[
+                      Typography.f_16_nunito_medium,
+                      { color: colors.black, marginBottom: 10 },
+                    ]}
+                  >
+                    {t("coverPhoto")}
+                  </Text>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => openImageView(0, true)}
+                    style={styles.coverPhotoContainer}
+                  >
+                    <Image
+                      style={styles.coverPhoto}
+                      source={{ uri: coverPhoto }}
+                      resizeMode="cover"
+                    />
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      style={styles.removeButton}
+                      onPress={handleRemoveCoverPhoto}
+                    >
+                      <Cross />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
+              )
+            )}
+            
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleGalleryImagesPick}
+              style={styles.photoUploadSection}
+            >
+              <Text
+                style={[
+                  styles.photoUploadLabel,
+                  Typography.f_14_nunito_extra_bold,
+                ]}
+              >
+                {t("PhotoUpload")}
+              </Text>
+              <View style={styles.photoUploadActionRow}>
+                <AddPhoto />
+                <Text
+                  style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                >
+                  {t("galleryImages")}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            
+            {/* Gallery Images Section */}
+            {isGalleryUploading ? (
+              <ActivityIndicator
+                size="large"
+                color={colors.Primary_01}
+                style={{ marginTop: 20 }}
+              />
+            ) : (
+              galleryImages.length > 0 && (
+                <View style={styles.gallerySection}>
+                  <Text
+                    style={[
+                      Typography.f_16_nunito_medium,
+                      { color: colors.black, marginBottom: 10 },
+                    ]}
+                  >
+                    {t("galleryImages")}
+                  </Text>
+                  <FlatList
+                    data={galleryImages}
+                    numColumns={3}
+                    columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
+                    renderItem={({ item, index }) => (
+                      <TouchableOpacity
+                        key={index}
+                        activeOpacity={0.8}
+                        onPress={() => openImageView(index, false)}
+                        style={styles.imageContainer}
+                      >
+                        <Image
+                          style={styles.image}
+                          source={{ uri: item }}
+                          resizeMode="cover"
+                        />
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          style={{ position: "absolute", right: 0, padding: 10 }}
+                          onPress={() => handleRemoveGalleryImage(index)}
+                        >
+                          <Cross />
+                        </TouchableOpacity>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+              )
             )}
             <ImageView
-              images={galleryImages.map((url) => ({ uri: url }))}
+              images={
+                viewingCoverPhoto && coverPhoto 
+                  ? [{ uri: coverPhoto }] 
+                  : galleryImages.map((url) => ({ uri: url }))
+              }
               imageIndex={selectedIndex}
               visible={visible}
               onRequestClose={() => setIsVisible(false)}
@@ -425,14 +639,18 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
               validationSchema={validationSchema}
               onSubmit={async (values, { resetForm }) => {
                 try {
+                  // Combine cover photo and gallery images with cover photo at index 0
+                  const allImages = coverPhoto ? [coverPhoto, ...galleryImages] : galleryImages;
+                  
                   const formData = {
                     ...values,
-                    images: galleryImages,
+                    images: allImages,
                   };
 
                   if (user?.userId) {
                     dispatch(addProperty(formData, user.userId, navigation));
                     resetForm();
+                    setCoverPhoto(null);
                     setGalleryImages([]);
                   } else {
                     const errorMessage = await getFirebaseErrorMessage(
@@ -745,22 +963,54 @@ const createStyles = (colors: any) =>
     scrollContainer: {
       paddingBottom: 50,
     },
-    photoUploadSection: {
+    coverPhotoSection: {
+      // marginVertical: 20,
+    },
+    coverPhotoContainer: {
+      position: "relative",
+    },
+    coverPhoto: {
+      width: "100%",
+      height: 200,
+      borderRadius: 8,
+    },
+    removeButton: {
+      position: "absolute",
+      right: 10,
+      top: 10,
+      // backgroundColor: "rgba(0,0,0,0.5)",
+      borderRadius: 15,
+      padding: 5,
+    },
+    coverPhotoPlaceholder: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: Colors.DARK_GRAY,
+      borderStyle: "dashed",
+      borderRadius: 8,
+      padding: 10,
+    },
+    placeholderText: {
+      color: Colors.DARK_GRAY,
+    },
+    gallerySection: {
+      // marginVertical: 20,
+    },
+    galleryHeader: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      marginVertical: 20,
+      marginBottom: 10,
     },
-    photoUploadLabel: {
-      color: colors.DARK_GREEN,
-    },
-    photoUploadActionRow: {
+    addGalleryButton: {
       flexDirection: "row",
       alignItems: "center",
       gap: 10,
     },
-    photoTextLabel: {
-      color: colors.DARK_GREEN,
+    addGalleryText: {
+      color: Colors.DARK_GREEN,
     },
     imageContainer: {
       width: 100,
@@ -796,6 +1046,34 @@ const createStyles = (colors: any) =>
       right: 10,
       backgroundColor: Colors.white,
       top: 10,
+    },
+    galleryPlaceholder: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: Colors.DARK_GRAY,
+      borderStyle: "dashed",
+      borderRadius: 8,
+      padding: 20,
+      marginTop: 10,
+    },
+    photoUploadSection: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginVertical: 20,
+    },
+    photoUploadLabel: {
+      color: colors.DARK_GREEN,
+    },
+    photoUploadActionRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+    },
+    photoTextLabel: {
+      color: colors.DARK_GREEN,
     },
   });
 
