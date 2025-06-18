@@ -141,10 +141,6 @@ const ViewPDF: React.FC = () => {
             parseInt(visit?.advanceAmount || "0")}
         </Text>
       </View>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("totalAmount")}:</Text>
-        <Text style={styles.detailValue}>{visit?.agreedPrice}</Text>
-      </View>
       {isEditing ? (
         <View style={[styles.notesContainer, { paddingBottom: 25 }]}>
           <Text style={styles.notesLabel}>{t("notes")}</Text>

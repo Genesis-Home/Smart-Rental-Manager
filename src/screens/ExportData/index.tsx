@@ -118,7 +118,7 @@ const ExportData: React.FC = () => {
       let csv =
         "Client Name,Email,Phone,Visit Dates,Visit Time,Visitors,Infants,Property\n";
       schedules.forEach((item: any) => {
-        csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.visitTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.propertyToVisit}"\n`;
+        csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.visitTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.property}"\n`;
       });
 
       const fileName =
@@ -329,12 +329,6 @@ const ExportData: React.FC = () => {
                     <Text style={styles.detailValue}>
                       {item.numberOfInfants} {t("infants")}
                     </Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>
-                      {t("propertyToVisitors")}
-                    </Text>
-                    <Text style={styles.detailValue}>{item.location.address}</Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>

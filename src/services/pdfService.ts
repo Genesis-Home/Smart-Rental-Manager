@@ -76,16 +76,6 @@ export const generateSchedulePDF = async (scheduleData: any) => {
                 <td class="table-value"> ${scheduleData.visitTime}</td>
               </tr>
               ${
-              scheduleData.propertyToVisit
-                ? `
-              <tr>
-                <td class="table-label">Property to Visit:</td>
-                <td class="table-value"> ${scheduleData.propertyToVisit}</td>
-              </tr>
-              `
-                : ""
-            }
-              ${
               scheduleData.numberOfVisitors
                 ? `
               <tr>
@@ -118,11 +108,6 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               <tr>
                 <td class="table-label">Advance Amount:</td>
                 <td class="table-value"> ${scheduleData.advanceAmount || "0"}</td>
-              </tr>
-               <tr class="total-row">
-                <td class="table-label">Total Amount:</td>
-                <td class="table-value"> ${
-                  scheduleData.agreedPrice || "0"}</td>
               </tr>
               <tr>
                 <td class="table-label">Balance Amount:</td>

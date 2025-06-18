@@ -52,7 +52,7 @@ const AutomatedEmail: React.FC = () => {
 🏠 ${t("propertyAddress")}: ${visit?.location.address}
 
 💰 ${t("financialDetails")}:
-${t("totalAmount")}: ${visit?.agreedPrice}
+${t("agreedPrice")}: ${visit?.agreedPrice}
 ${t("advanceAmount")}: ${visit?.advanceAmount || "0"}
 ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(visit?.advanceAmount || "0")).toFixed(2)}
 
@@ -248,7 +248,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             {t("financialDetails")}
           </Text>
           <Text style={styles.detailRow}>
-            <Text style={styles.detailLabel}>{t("totalAmount")}: </Text>
+            <Text style={styles.detailLabel}>{t("agreedPrice")}: </Text>
             {visit?.agreedPrice}
           </Text>
           <Text style={styles.detailRow}>

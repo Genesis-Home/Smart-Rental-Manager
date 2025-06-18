@@ -269,7 +269,6 @@ export type LanguageTranslation = {
   createSchedule: string;
   clientName: string;
   visitDates: string;
-  propertyToVisitors: string;
   numberOfVisitors: string;
   numberOfInfants: string;
   AutomatedEmail: string;
@@ -376,7 +375,6 @@ export type LanguageTranslation = {
   editPhotos:string;
   mapLink:string;
   advanceAmount:string;
-  totalAmount:string;
   balanceAmount:string;
   downloadPDF: string;
   sharePDF: string;

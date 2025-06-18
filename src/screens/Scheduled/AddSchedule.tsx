@@ -187,9 +187,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     }),
     visitDates: Yup.string().required(t("visitDates") + " " + t("isRequired")),
     visitTime: Yup.string().required(t("visitTime") + " " + t("isRequired")),
-    totalAmount: Yup.string()
-      .required(t("totalAmount") + " " + t("isRequired"))
-      .test("is-number", t("mustBeNumber"), (value) => !isNaN(Number(value))),
     advanceAmount: Yup.string()
       .required(t("advanceAmount") + " " + t("isRequired"))
       .test("is-number", t("mustBeNumber"), (value) => !isNaN(Number(value)))
@@ -197,9 +194,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         "less-than-total",
         "Advance amount cannot be greater than total amount",
         function (value) {
-          const totalAmount = parseFloat(this.parent.totalAmount) || 0;
+          const agreedPrice = parseFloat(this.parent.agreedPrice) || 0;
           const advanceAmount = parseFloat(value) || 0;
-          return advanceAmount <= totalAmount;
+          return advanceAmount <= agreedPrice;
         }
       ),
     agreedPrice: Yup.string().required(
@@ -208,13 +205,13 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   });
 
   const handleCreate = async (formData: any) => {
-    const totalAmount = parseFloat(formData.totalAmount) || 0;
+    const agreedPrice = parseFloat(formData.agreedPrice) || 0;
     const advanceAmount = parseFloat(formData.advanceAmount) || 0;
 
-    if (advanceAmount > totalAmount) {
+    if (advanceAmount > agreedPrice) {
       Toast.show({
         type: "error",
-        text1: "Advance amount cannot be greater than total amount",
+        text1: "Advance amount cannot be greater than agreed price",
         position: "bottom",
       });
       return;
@@ -435,12 +432,10 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
               phoneNum: "",
               visitDates: "",
               visitTime: "",
-              propertyToVisit: "",
               numberOfVisitors: "",
               numberOfInfants: "",
               agreedPrice: "",
               advanceAmount: "",
-              totalAmount: "",
             }}
             validationSchema={validationSchema}
             context={{ useExistingContact }}
@@ -673,14 +668,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     />
                   </TouchableOpacity>
                   <FormInput
-                    label={t("propertyToVisitors")}
-                    placeholder={t("propertyToVisitors")}
-                    value={values.propertyToVisit}
-                    onChangeText={handleChange("propertyToVisit")}
-                    onBlur={handleBlur("propertyToVisit")}
-                    error={touched.propertyToVisit && errors.propertyToVisit}
-                  />
-                  <FormInput
                     label={t("numberOfVisitors")}
                     placeholder={t("numberOfVisitors")}
                     value={values.numberOfVisitors}
@@ -713,7 +700,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                           : numericValue;
 
                       handleChange("agreedPrice")(formattedValue);
-                      setFieldValue("totalAmount", formattedValue);
                     }}
                     onBlur={(e) => {
                       // Format number without forcing decimals for integers
@@ -722,18 +708,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         ? value.toString()
                         : value.toFixed(2);
                       setFieldValue("agreedPrice", formattedValue);
-                      setFieldValue("totalAmount", formattedValue);
                       handleBlur("agreedPrice")(e);
                     }}
                     error={touched.agreedPrice && errors.agreedPrice}
-                    keyboardType="decimal-pad"
-                  />
-                  <FormInput
-                    label={t("totalAmount")}
-                    placeholder={t("totalAmount")}
-                    value={values.totalAmount}
-                    editable={false}
-                    error={touched.totalAmount && errors.totalAmount}
                     keyboardType="decimal-pad"
                   />
                   <FormInput
@@ -750,14 +727,14 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                           ? `${parts[0]}.${parts[1].slice(0, 2)}`
                           : numericValue;
 
-                      const totalAmount = parseFloat(values.totalAmount) || 0;
+                      const agreedPrice = parseFloat(values.agreedPrice) || 0;
                       const newAdvanceAmount = parseFloat(formattedValue) || 0;
 
-                      if (newAdvanceAmount > totalAmount) {
+                      if (newAdvanceAmount > agreedPrice) {
                         Toast.show({
                           type: "error",
                           text1:
-                            "Advance amount cannot be greater than total amount",
+                            "Advance amount cannot be greater than agreed price",
                           position: "bottom",
                         });
                         return;
@@ -779,9 +756,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     label={t("balanceAmount")}
                     placeholder={t("balanceAmount")}
                     value={(() => {
-                      const total = parseFloat(values.totalAmount) || 0;
+                      const agreedPrice = parseFloat(values.agreedPrice) || 0;
                       const advance = parseFloat(values.advanceAmount) || 0;
-                      const balance = total - advance;
+                      const balance = agreedPrice - advance;
                       return Number.isInteger(balance)
                         ? balance.toString()
                         : balance.toFixed(2);

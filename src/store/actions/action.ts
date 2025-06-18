@@ -38,7 +38,6 @@ export const sendEmail =
     property: string,
     location: Location,
     agreedPrice: string,
-    totalAmount: string,
     advanceAmount: string,
     pdfPath?: string,
     scheduleId?: string,
@@ -49,7 +48,7 @@ export const sendEmail =
       const formattedVisitDates = visitDates.replace(" - ", " to ");
       const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.long}`;
       const balance =
-        parseFloat(totalAmount) - parseFloat(advanceAmount || "0");
+        parseFloat(agreedPrice) - parseFloat(advanceAmount || "0");
       const balanceAmount = Number.isInteger(balance)
         ? balance.toString()
         : balance.toFixed(2);
@@ -65,7 +64,7 @@ export const sendEmail =
 
       message += `🏠 Property Address: ${location.address}\n\n`;
       message += `💰 Financial Details:\n`;
-      message += `Total Amount: ${totalAmount}\n`;
+      message += `Total Amount: ${agreedPrice}\n`;
       message += `Advance Amount: ${advanceAmount || "0"}\n`;
       message += `Balance Amount: ${balanceAmount}\n\n`;
       message += `🗺️ Google Maps Location: ${googleMapsUrl}`;
@@ -103,7 +102,6 @@ export const sendEmail =
             clientName,
             phoneNum,
             email,
-            totalAmount,
           },
           pdfPath: pdfPath,
         });
@@ -548,13 +546,11 @@ export const addSchedule =
         property: formData.property,
         propertyId: formData.propertyId,
         revenue: formData.revenue,
-        propertyToVisit: formData.propertyToVisit,
         numberOfVisitors: formData.numberOfVisitors,
         numberOfInfants: formData.numberOfInfants,
         location: formData.location,
         agreedPrice: formData.agreedPrice,
         advanceAmount: formData.advanceAmount,
-        totalAmount: formData.totalAmount,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
@@ -586,7 +582,6 @@ export const addSchedule =
             formData.property,
             formData.location,
             formData.agreedPrice,
-            formData.totalAmount,
             formData.advanceAmount,
             pdfPath || undefined,
             scheduleId,
@@ -614,14 +609,13 @@ export const addSchedule =
           agreedPrice: formData.agreedPrice,
           advanceAmount: formData.advanceAmount,
           balanceAmount: (
-            parseFloat(formData.totalAmount) -
+            parseFloat(formData.agreedPrice) -
             parseFloat(formData.advanceAmount || "0")
           ).toFixed(2),
           scheduleId,
           clientName: formData.clientName,
           phoneNum: formData.phoneNum,
           email: formData.email,
-          totalAmount: formData.totalAmount,
         },
         pdfPath: pdfPath,
       });
