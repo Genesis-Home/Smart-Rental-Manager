@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   StyleSheet,
   View,
@@ -22,17 +22,17 @@ import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
 import { AddScheduleProps, Property } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { addSchedule } from "../../store/actions/action";
+import { addSchedule, fetchContactsByUserID, fetchSchedulesByPropertyIdAndUserId } from "../../store/actions/action";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import Toast from "react-native-toast-message";
 import { fetchPropertiesByUserID } from "../../store/actions/action";
 import { TimePickerModal } from "react-native-paper-dates";
 import {
-  fetchSchedulesByPropertyIdAndUserId,
   updatePropertyRevenue,
 } from "../../store/actions/action";
 import moment from "moment";
 import Colors from "../../utilities/constants/colors";
+import { useFocusEffect } from "@react-navigation/native";
 
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
@@ -45,6 +45,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const userProperties = useAppSelector(
     (state: any) => state.reducer.userProperties
   );
+  const userContacts = useAppSelector((state: any) => state.reducer.contacts);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [displayedMonth, setDisplayedMonth] = useState(new Date());
   const [isLocaleReady, setIsLocaleReady] = useState(false);
@@ -58,14 +59,27 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const [conflictingDates, setConflictingDates] = useState<
     { dates: string; clientName: string }[]
   >([]);
+  const [useExistingContact, setUseExistingContact] = useState(false);
+  const [showContactDropdown, setShowContactDropdown] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<any>(null);
 
-  useEffect(() => {
-    if (selectedProperty?.id) {
-      dispatch(
-        fetchSchedulesByPropertyIdAndUserId(selectedProperty.id, user?.userId)
-      );
-    }
-  }, [selectedProperty]);
+  // useEffect(() => {
+  //   if (selectedProperty?.id) {
+  //     dispatch(
+  //       fetchSchedulesByPropertyIdAndUserId(selectedProperty.id, user?.userId)
+  //     );
+  //   }
+  // }, [selectedProperty]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedProperty?.id) {
+        dispatch(
+          fetchSchedulesByPropertyIdAndUserId(selectedProperty.id, user?.userId)
+        );
+      }
+    }, [selectedProperty, user?.userId, dispatch])
+  );
 
   const handleShowDropdown = () => {
     setShowPropertyDropdown(!showPropertyDropdown);
@@ -79,6 +93,32 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     setFieldValue("propertyId", property.id);
     setFieldValue("property", property.title);
     setShowPropertyDropdown(false);
+  };
+
+  const handleContactSelection = (
+    contact: any,
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    setSelectedContact(contact);
+    setFieldValue("clientName", contact.name);
+    setFieldValue("email", contact.emailAddress);
+    setFieldValue("phoneNum", contact.phoneNumber);
+    setShowContactDropdown(false);
+  };
+
+  const handleContactTypeChange = (
+    useExisting: boolean,
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    setUseExistingContact(useExisting);
+    if (useExisting) {
+      setFieldValue("clientName", "");
+      setFieldValue("email", "");
+      setFieldValue("phoneNum", "");
+      setSelectedContact(null);
+    } else {
+      setSelectedContact(null);
+    }
   };
 
   useEffect(() => {
@@ -107,6 +147,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     const initialize = async () => {
       if (user?.userId) {
         dispatch(fetchPropertiesByUserID(user.userId));
+        dispatch(fetchContactsByUserID(user.userId));
       } else {
         const customMessage = await getFirebaseErrorMessage(
           "User not authenticated"
@@ -125,25 +166,42 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
 
   const validationSchema = Yup.object().shape({
     property: Yup.string().required(t("property") + " " + t("isRequired")),
-    clientName: Yup.string().required(t("clientName") + " " + t("isRequired")),
-    email: Yup.string()
-      .email(t("invalidEmail"))
-      .required(t("Email") + " " + t("isRequired")),
-    phoneNum: Yup.string().required(t("phoneNum") + " " + t("isRequired")),
+    clientName: Yup.string().when("$useExistingContact", {
+      is: false,
+      then: (schema) =>
+        schema.required(t("clientName") + " " + t("isRequired")),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    email: Yup.string().when("$useExistingContact", {
+      is: false,
+      then: (schema) =>
+        schema
+          .email(t("invalidEmail"))
+          .required(t("Email") + " " + t("isRequired")),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    phoneNum: Yup.string().when("$useExistingContact", {
+      is: false,
+      then: (schema) => schema.required(t("phoneNum") + " " + t("isRequired")),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     visitDates: Yup.string().required(t("visitDates") + " " + t("isRequired")),
     visitTime: Yup.string().required(t("visitTime") + " " + t("isRequired")),
     totalAmount: Yup.string()
       .required(t("totalAmount") + " " + t("isRequired"))
-      .test('is-number', t("mustBeNumber"), value => !isNaN(Number(value))),
+      .test("is-number", t("mustBeNumber"), (value) => !isNaN(Number(value))),
     advanceAmount: Yup.string()
       .required(t("advanceAmount") + " " + t("isRequired"))
-      .test('is-number', t("mustBeNumber"), value => !isNaN(Number(value)))
-      .test('less-than-total', 'Advance amount cannot be greater than total amount', 
-        function(value) {
+      .test("is-number", t("mustBeNumber"), (value) => !isNaN(Number(value)))
+      .test(
+        "less-than-total",
+        "Advance amount cannot be greater than total amount",
+        function (value) {
           const totalAmount = parseFloat(this.parent.totalAmount) || 0;
           const advanceAmount = parseFloat(value) || 0;
           return advanceAmount <= totalAmount;
-        }),
+        }
+      ),
     agreedPrice: Yup.string().required(
       t("agreedPrice") + " " + t("isRequired")
     ),
@@ -166,6 +224,38 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       Toast.show({
         type: "error",
         text1: t("selectVisitDates"),
+        position: "bottom",
+      });
+      return;
+    }
+
+    if (!selectedProperty?.id) {
+      Toast.show({
+        type: "error",
+        text1: t("pleaseSelectProperty"),
+        position: "bottom",
+      });
+      return;
+    }
+
+    let finalFormData = { ...formData };
+    if (useExistingContact && selectedContact) {
+      finalFormData.clientName = selectedContact.name;
+      finalFormData.email = selectedContact.emailAddress;
+      finalFormData.phoneNum = selectedContact.phoneNumber;
+    } else if (useExistingContact && !selectedContact) {
+      Toast.show({
+        type: "error",
+        text1: t("pleaseSelectContact"),
+        position: "bottom",
+      });
+      return;
+    }
+
+    if (!finalFormData.clientName || !finalFormData.email || !finalFormData.phoneNum) {
+      Toast.show({
+        type: "error",
+        text1: t("pleaseFillAllRequiredFields"),
         position: "bottom",
       });
       return;
@@ -198,14 +288,15 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
           return;
         }
 
-        const hasOverlap = !(
-          rangeEnd.isBefore(selectedStart) || rangeStart.isAfter(selectedEnd)
-        );
-
-        if (hasOverlap) {
+        if (
+          (selectedStart.isSameOrBefore(rangeEnd) &&
+            selectedEnd.isSameOrAfter(rangeStart)) ||
+          (rangeStart.isSameOrBefore(selectedEnd) &&
+            rangeEnd.isSameOrAfter(selectedStart))
+        ) {
           conflicts.push({
             dates: schedule.visitDates,
-            clientName: schedule.clientName || "Unknown",
+            clientName: schedule.clientName,
           });
         }
       });
@@ -216,22 +307,17 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         return;
       }
 
-      dispatch(
-        fetchSchedulesByPropertyIdAndUserId(selectedProperty.id, user?.userId)
-      );
+      const scheduleData = {
+        ...finalFormData,
+        propertyId: selectedProperty.id,
+        location: selectedProperty.location,
+        visitDates: `${formatDate(startDate)} - ${formatDate(endDate)}`,
+        userId: user?.userId,
+        createdAt: new Date(),
+        revenue: parseFloat(finalFormData.agreedPrice || "0"),
+      };
 
-      const totalRevenue = userPropertySchedules.reduce(
-        (acc: number, schedule: any) =>
-          acc + parseFloat(schedule.agreedPrice || "0"),
-        0
-      );
-
-      const newRevenue = totalRevenue + parseFloat(formData.agreedPrice || "0");
-
-      formData.revenue = newRevenue;
-
-      dispatch(addSchedule(formData, user?.userId, navigation));
-      dispatch(updatePropertyRevenue(selectedProperty.id, newRevenue));
+      dispatch(addSchedule(scheduleData, user?.userId, navigation));
     }
   };
 
@@ -320,6 +406,10 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     setDisplayedMonth(newMonth);
   };
 
+  const formatDate = (dateStr: string) => {
+    return moment(dateStr, "YYYY-MM-DD").format("MMM D, YYYY");
+  };
+
   const formatMonth = (date: Date) => {
     const monthNames = t("calendarData.monthNames", {
       returnObjects: true,
@@ -353,6 +443,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
               totalAmount: "",
             }}
             validationSchema={validationSchema}
+            context={{ useExistingContact }}
             onSubmit={handleCreate}
           >
             {({
@@ -404,36 +495,159 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       ))}
                     </View>
                   )}
-                  {touched.property&&errors.property&&(
-                    <Text style={[Typography.f_14_nunito_medium,{color:Colors.Error_Red,marginTop:5}]}>{errors.property}</Text>
+                  {touched.property && errors.property && (
+                    <Text
+                      style={[
+                        Typography.f_14_nunito_medium,
+                        { color: Colors.Error_Red, marginTop: 5 },
+                      ]}
+                    >
+                      {errors.property}
+                    </Text>
                   )}
-                  <FormInput
-                    label={t("clientName")}
-                    placeholder={t("clientName")}
-                    value={values.clientName}
-                    onChangeText={handleChange("clientName")}
-                    onBlur={handleBlur("clientName")}
-                    error={touched.clientName && errors.clientName}
-                  />
-                  <FormInput
-                    label={t("Email")}
-                    placeholder={t("Email")}
-                    value={values.email}
-                    onChangeText={handleChange("email")}
-                    onBlur={handleBlur("email")}
-                    error={touched.email && errors.email}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
-                  <FormInput
-                    label={t("phoneNum")}
-                    placeholder={t("phoneNum")}
-                    value={values.phoneNum}
-                    onChangeText={handleChange("phoneNum")}
-                    onBlur={handleBlur("phoneNum")}
-                    error={touched.phoneNum && errors.phoneNum}
-                    keyboardType="phone-pad"
-                  />
+
+                  <View style={styles.contactTypeSection}>
+                    <Text style={styles.label}>{t("contactType")}</Text>
+                    <View style={styles.radioGroup}>
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() =>
+                          handleContactTypeChange(false, setFieldValue)
+                        }
+                      >
+                        <View
+                          style={[
+                            styles.radioButton,
+                            !useExistingContact && styles.radioButtonSelected,
+                          ]}
+                        >
+                          {!useExistingContact && (
+                            <View style={styles.radioButtonInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>{t("newContact")}</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() =>
+                          handleContactTypeChange(true, setFieldValue)
+                        }
+                      >
+                        <View
+                          style={[
+                            styles.radioButton,
+                            useExistingContact && styles.radioButtonSelected,
+                          ]}
+                        >
+                          {useExistingContact && (
+                            <View style={styles.radioButtonInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>
+                          {t("existingContact")}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  {useExistingContact ? (
+                    <View>
+                      <Text style={styles.label}>{t("selectContact")}</Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          setShowContactDropdown(!showContactDropdown)
+                        }
+                        activeOpacity={0.8}
+                        style={[
+                          styles.optionButton,
+                          {
+                            borderColor: showContactDropdown
+                              ? colors.Primary_01
+                              : colors.black,
+                            borderBottomLeftRadius: showContactDropdown ? 0 : 4,
+                            borderBottomRightRadius: showContactDropdown
+                              ? 0
+                              : 4,
+                          },
+                        ]}
+                      >
+                        <Text style={styles.optionText}>
+                          {selectedContact?.name || t("selectContact")}
+                        </Text>
+                        {showContactDropdown ? <Down /> : <DropRight />}
+                      </TouchableOpacity>
+                      {showContactDropdown && (
+                        <View style={styles.contactDropdown}>
+                          {userContacts.map((contact: any) => (
+                            <TouchableOpacity
+                              key={contact.id}
+                              style={styles.contactOption}
+                              onPress={() =>
+                                handleContactSelection(contact, setFieldValue)
+                              }
+                            >
+                              <Text style={styles.contactText}>
+                                {contact.name} - {contact.emailAddress}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      )}
+
+                      {selectedContact && (
+                        <View style={styles.selectedContactDetails}>
+                          <Text style={styles.detailRow}>
+                            <Text style={styles.detailLabel}>
+                              {t("Email")}:{" "}
+                            </Text>
+                            <Text style={styles.detailValue}>
+                              {selectedContact.emailAddress}
+                            </Text>
+                          </Text>
+                          <Text style={styles.detailRow}>
+                            <Text style={styles.detailLabel}>
+                              {t("phoneNum")}:{" "}
+                            </Text>
+                            <Text style={styles.detailValue}>
+                              {" "}
+                              {selectedContact.phoneNumber}
+                            </Text>
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  ) : (
+                    <>
+                      <FormInput
+                        label={t("clientName")}
+                        placeholder={t("clientName")}
+                        value={values.clientName}
+                        onChangeText={handleChange("clientName")}
+                        onBlur={handleBlur("clientName")}
+                        error={touched.clientName && errors.clientName}
+                      />
+                      <FormInput
+                        label={t("Email")}
+                        placeholder={t("Email")}
+                        value={values.email}
+                        onChangeText={handleChange("email")}
+                        onBlur={handleBlur("email")}
+                        error={touched.email && errors.email}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                      />
+                      <FormInput
+                        label={t("phoneNum")}
+                        placeholder={t("phoneNum")}
+                        value={values.phoneNum}
+                        onChangeText={handleChange("phoneNum")}
+                        onBlur={handleBlur("phoneNum")}
+                        error={touched.phoneNum && errors.phoneNum}
+                        keyboardType="phone-pad"
+                      />
+                    </>
+                  )}
                   <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={() => setCalendarVisible(true)}
@@ -490,20 +704,23 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     value={values.agreedPrice}
                     onChangeText={(text) => {
                       // Remove any non-numeric characters except decimal point
-                      const numericValue = text.replace(/[^0-9.]/g, '');
+                      const numericValue = text.replace(/[^0-9.]/g, "");
                       // Ensure only one decimal point
-                      const parts = numericValue.split('.');
-                      const formattedValue = parts.length > 1 
-                        ? `${parts[0]}.${parts[1].slice(0, 2)}`
-                        : numericValue;
-                      
+                      const parts = numericValue.split(".");
+                      const formattedValue =
+                        parts.length > 1
+                          ? `${parts[0]}.${parts[1].slice(0, 2)}`
+                          : numericValue;
+
                       handleChange("agreedPrice")(formattedValue);
                       setFieldValue("totalAmount", formattedValue);
                     }}
                     onBlur={(e) => {
                       // Format number without forcing decimals for integers
                       const value = parseFloat(values.agreedPrice) || 0;
-                      const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2);
+                      const formattedValue = Number.isInteger(value)
+                        ? value.toString()
+                        : value.toFixed(2);
                       setFieldValue("agreedPrice", formattedValue);
                       setFieldValue("totalAmount", formattedValue);
                       handleBlur("agreedPrice")(e);
@@ -525,20 +742,22 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                     value={values.advanceAmount}
                     onChangeText={(text) => {
                       // Remove any non-numeric characters except decimal point
-                      const numericValue = text.replace(/[^0-9.]/g, '');
+                      const numericValue = text.replace(/[^0-9.]/g, "");
                       // Ensure only one decimal point
-                      const parts = numericValue.split('.');
-                      const formattedValue = parts.length > 1 
-                        ? `${parts[0]}.${parts[1].slice(0, 2)}`
-                        : numericValue;
-                      
+                      const parts = numericValue.split(".");
+                      const formattedValue =
+                        parts.length > 1
+                          ? `${parts[0]}.${parts[1].slice(0, 2)}`
+                          : numericValue;
+
                       const totalAmount = parseFloat(values.totalAmount) || 0;
                       const newAdvanceAmount = parseFloat(formattedValue) || 0;
-                      
+
                       if (newAdvanceAmount > totalAmount) {
                         Toast.show({
                           type: "error",
-                          text1: "Advance amount cannot be greater than total amount",
+                          text1:
+                            "Advance amount cannot be greater than total amount",
                           position: "bottom",
                         });
                         return;
@@ -546,9 +765,10 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       handleChange("advanceAmount")(formattedValue);
                     }}
                     onBlur={(e) => {
-                      // Format number without forcing decimals for integers
                       const value = parseFloat(values.advanceAmount) || 0;
-                      const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2);
+                      const formattedValue = Number.isInteger(value)
+                        ? value.toString()
+                        : value.toFixed(2);
                       setFieldValue("advanceAmount", formattedValue);
                       handleBlur("advanceAmount")(e);
                     }}
@@ -562,7 +782,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       const total = parseFloat(values.totalAmount) || 0;
                       const advance = parseFloat(values.advanceAmount) || 0;
                       const balance = total - advance;
-                      return Number.isInteger(balance) ? balance.toString() : balance.toFixed(2);
+                      return Number.isInteger(balance)
+                        ? balance.toString()
+                        : balance.toFixed(2);
                     })()}
                     editable={false}
                     keyboardType="decimal-pad"
@@ -822,6 +1044,78 @@ const createStyles = (colors: any) =>
     closeButtonText: {
       ...Typography.f_16_nunito_bold,
       color: colors.white,
+    },
+    contactTypeSection: {
+      marginVertical: 15,
+    },
+    radioGroup: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    radioOption: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginRight: 20,
+    },
+    radioButton: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: colors.Primary_01,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 8,
+    },
+    radioButtonSelected: {
+      backgroundColor: colors.Primary_01,
+    },
+    radioButtonInner: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.white,
+    },
+    radioLabel: {
+      ...Typography.f_14_nunito_medium,
+      color: colors.DARK_GREEN,
+    },
+    contactDropdown: {
+      borderWidth: 1,
+      borderTopWidth: 0,
+      borderColor: colors.Primary_01,
+      borderBottomLeftRadius: 4,
+      borderBottomRightRadius: 4,
+      maxHeight: 200,
+    },
+    contactOption: {
+      paddingVertical: 12,
+      paddingHorizontal: 13,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.Neutral_01,
+    },
+    contactText: {
+      ...Typography.f_14_nunito_medium,
+      color: colors.DARK_GREEN,
+    },
+    selectedContactDetails: {
+      marginTop: 10,
+      paddingVertical: 10,
+      backgroundColor: colors.white,
+      borderRadius: 4,
+    },
+    detailRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 5,
+    },
+    detailLabel: {
+      ...Typography.f_14_nunito_bold,
+      color: colors.DARK_GREEN,
+    },
+    detailValue: {
+      ...Typography.f_14_nunito_bold,
+      color: colors.Primary_01,
     },
   });
 

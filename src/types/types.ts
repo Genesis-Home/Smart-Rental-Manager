@@ -515,3 +515,12 @@ export interface VisitDetails {
   advanceAmount: string;
   balanceAmount: string;
 }
+
+export type ContactTranslationKeys =
+  | 'contactType'
+  | 'newContact'
+  | 'existingContact'
+  | 'selectContact'
+  | 'pleaseSelectContact'
+  | 'pleaseSelectProperty'
+  | 'pleaseFillAllRequiredFields';

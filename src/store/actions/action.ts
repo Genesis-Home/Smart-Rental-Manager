@@ -87,7 +87,6 @@ export const sendEmail =
 
       console.log("Email sent successfully:", response.data);
 
-      // Only navigate if not in silent mode (when called from background)
       if (!silent) {
         navigation.navigate("AutomatedEmail", {
           visitDetails: {
@@ -109,7 +108,6 @@ export const sendEmail =
           pdfPath: pdfPath,
         });
       }
-
     } catch (error) {
       console.error("Error sending email:", error);
       if (!silent) {
@@ -230,7 +228,6 @@ export const addProperty =
 
       await propertyRef.set(propertyData);
 
-      // Fetch updated properties list after creating new property
       const snapshot = await firestore().collection("properties").get();
 
       if (snapshot.empty) {
@@ -486,7 +483,6 @@ export const updateUser =
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
-      // First get the current user data
       const userRef = firestore().collection("users").doc(userId);
       const currentUserDoc = await userRef.get();
       const currentUserData = currentUserDoc.data();
@@ -495,29 +491,22 @@ export const updateUser =
         throw new Error("User not found");
       }
 
-      // Remove password fields if they exist
       const { password, confirmPassword, ...userDataWithoutPassword } =
         credentials;
 
-      // Create update data that preserves existing fields
       const updateData = {
         ...userDataWithoutPassword,
-        // Preserve profile photo if not being updated
         profilePhoto: credentials.profilePhoto || currentUserData.profilePhoto,
-        // Preserve other existing fields that might not be in the update
         ...(currentUserData.role &&
           !userDataWithoutPassword.role && { role: currentUserData.role }),
         ...(currentUserData.expertise &&
           !userDataWithoutPassword.expertise && {
             expertise: currentUserData.expertise,
           }),
-        // Add any other fields you want to preserve
       };
 
-      // Update the document
       await userRef.update(updateData);
 
-      // Get the updated user data
       const updatedUserDoc = await userRef.get();
       const updatedUserData = updatedUserDoc.data();
 
@@ -525,7 +514,6 @@ export const updateUser =
         throw new Error("Failed to get updated user data");
       }
 
-      // Store and dispatch the updated user data
       await setItem("user", updatedUserData);
       dispatch({ type: "SET_USER", payload: updatedUserData });
       dispatch({ type: "IS_LOADER", payload: false });
@@ -547,9 +535,9 @@ export const addSchedule =
   (formData: any, userId: string, navigation: any) => async (dispatch: any) => {
     try {
       dispatch({ type: "IS_LOADER", payload: true });
-      
+
       const scheduleRef = firestore().collection("schedules").doc();
-      const scheduleId = scheduleRef.id; 
+      const scheduleId = scheduleRef.id;
       const scheduleData = {
         id: scheduleId,
         clientName: formData.clientName,
@@ -571,57 +559,57 @@ export const addSchedule =
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
 
-      // Create schedule first
       await scheduleRef.set(scheduleData);
 
-      // Turn off loader and navigate immediately
       dispatch({ type: "IS_LOADER", payload: false });
-      
-      // Navigate immediately after schedule creation
+
+      // Generate PDF immediately
+      let pdfPath = null;
+      try {
+        pdfPath = await generateSchedulePDF(scheduleData);
+      } catch (error) {
+        console.error("PDF generation error:", error);
+        // Continue without PDF if generation fails
+      }
+
       navigation.navigate("AutomatedEmail", {
         visitDetails: {
           visitDates: formData.visitDates.replace(" - ", " to "),
           visitTime: formData.visitTime,
-          ...(formData.numberOfVisitors && { numberOfVisitors: formData.numberOfVisitors }),
-          ...(formData.numberOfInfants && { numberOfInfants: formData.numberOfInfants }),
+          ...(formData.numberOfVisitors && {
+            numberOfVisitors: formData.numberOfVisitors,
+          }),
+          ...(formData.numberOfInfants && {
+            numberOfInfants: formData.numberOfInfants,
+          }),
           property: formData.property,
           location: formData.location,
           agreedPrice: formData.agreedPrice,
           advanceAmount: formData.advanceAmount,
-          balanceAmount: (parseFloat(formData.totalAmount) - parseFloat(formData.advanceAmount || "0")).toFixed(2),
+          balanceAmount: (
+            parseFloat(formData.totalAmount) -
+            parseFloat(formData.advanceAmount || "0")
+          ).toFixed(2),
           scheduleId,
           clientName: formData.clientName,
           phoneNum: formData.phoneNum,
           email: formData.email,
           totalAmount: formData.totalAmount,
         },
-        pdfPath: null, // Will be updated when PDF is ready
-        isGeneratingPDF: true // Flag to show PDF is being generated
+        pdfPath: pdfPath,
+        isGeneratingPDF: false,
       });
 
-      // Show success toast immediately after navigation
       Toast.show({
         type: "success",
         text1: "Schedule added successfully",
         position: "bottom",
       });
 
-      // Handle notifications, PDF generation and email sending in background
       setTimeout(async () => {
         try {
-          // Send notifications in background
           await scheduleBookingNotifications(scheduleData);
-          
-          // Generate PDF
-          const pdfPath = await generateSchedulePDF(scheduleData);
-          
-          // Update the PDF path in the current screen
-          navigation.setParams({ 
-            pdfPath: pdfPath,
-            isGeneratingPDF: false 
-          });
-          
-          // Send email
+
           await dispatch(
             sendEmail(
               navigation,
@@ -637,21 +625,15 @@ export const addSchedule =
               formData.agreedPrice,
               formData.totalAmount,
               formData.advanceAmount,
-              pdfPath,
+              pdfPath || undefined,
               scheduleId,
-              true // silent mode - no error toasts
+              true
             )
           );
         } catch (error) {
           console.error("Background operations error:", error);
-          // Update the flag to show PDF generation failed
-          navigation.setParams({ 
-            pdfPath: null,
-            isGeneratingPDF: false 
-          });
         }
-      }, 100); // Very small delay to ensure navigation completes
-
+      }, 100);
     } catch (error: any) {
       console.error("Add Schedule Error:", error);
       dispatch({ type: "IS_LOADER", payload: false });
@@ -788,23 +770,19 @@ export const deletePropertyById =
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
-      // First delete all schedules associated with this property
       const schedulesSnapshot = await firestore()
         .collection("schedules")
         .where("propertyId", "==", propertyId)
         .get();
 
-      // Delete each schedule document
       const deletePromises = schedulesSnapshot.docs.map(
         (doc: firestore.QueryDocumentSnapshot) =>
           firestore().collection("schedules").doc(doc.id).delete()
       );
       await Promise.all(deletePromises);
 
-      // Then delete the property
       await firestore().collection("properties").doc(propertyId).delete();
 
-      // Update user properties list
       const snapshotuserproperties = await firestore()
         .collection("properties")
         .where("createdBy", "==", userID)
@@ -820,7 +798,6 @@ export const deletePropertyById =
         dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
       }
 
-      // Update all properties list
       const snapshotproperties = await firestore()
         .collection("properties")
         .get();
@@ -835,7 +812,6 @@ export const deletePropertyById =
         dispatch({ type: "SET_PROPERTIES", payload: properties });
       }
 
-      // Refetch all schedules for the user
       const updatedSchedulesSnapshot = await firestore()
         .collection("schedules")
         .where("createdBy", "==", userID)
@@ -893,7 +869,6 @@ export const updateProperty =
         .doc(propertyId)
         .update(propertyData);
 
-      // Fetch updated property
       const propertyDoc = await firestore()
         .collection("properties")
         .doc(propertyId)
@@ -904,7 +879,6 @@ export const updateProperty =
       };
       dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
 
-      // Update user properties list
       const snapshot = await firestore()
         .collection("properties")
         .where("createdBy", "==", formData.createdBy)
@@ -1006,10 +980,8 @@ export const deleteScheduleById =
         const propertyId = scheduleData?.propertyId;
         const agreedPrice = parseFloat(scheduleData?.agreedPrice || "0");
 
-        // Delete the schedule
         await scheduleRef.delete();
 
-        // Update property revenue
         if (propertyId) {
           const propertyRef = firestore()
             .collection("properties")
@@ -1019,13 +991,12 @@ export const deleteScheduleById =
           if (propertyDoc.exists) {
             const propertyData = propertyDoc.data();
             const currentRevenue = parseFloat(propertyData?.revenue || "0");
-            const newRevenue = Math.max(0, currentRevenue - agreedPrice); // Ensure revenue doesn't go below 0
+            const newRevenue = Math.max(0, currentRevenue - agreedPrice);
 
             await propertyRef.update({
               revenue: newRevenue,
             });
 
-            // Update the property in the store
             const updatedPropertyDoc = await propertyRef.get();
             const updatedProperty = {
               ...updatedPropertyDoc.data(),
@@ -1035,7 +1006,6 @@ export const deleteScheduleById =
           }
         }
 
-        // Update user's schedules list
         const userSchedulesSnapshot = await firestore()
           .collection("schedules")
           .where("createdBy", "==", userId)
