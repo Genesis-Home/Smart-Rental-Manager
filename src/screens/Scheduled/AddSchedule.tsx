@@ -192,7 +192,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       .test("is-number", t("mustBeNumber"), (value) => !isNaN(Number(value)))
       .test(
         "less-than-total",
-        "Advance amount cannot be greater than total amount",
+        "Down payment cannot be greater than agreed price",
         function (value) {
           const agreedPrice = parseFloat(this.parent.agreedPrice) || 0;
           const advanceAmount = parseFloat(value) || 0;
@@ -211,7 +211,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     if (advanceAmount > agreedPrice) {
       Toast.show({
         type: "error",
-        text1: "Advance amount cannot be greater than agreed price",
+        text1: "Down payment cannot be greater than agreed price",
         position: "bottom",
       });
       return;
@@ -734,7 +734,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         Toast.show({
                           type: "error",
                           text1:
-                            "Advance amount cannot be greater than agreed price",
+                            "Down payment cannot be greater than agreed price",
                           position: "bottom",
                         });
                         return;

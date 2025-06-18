@@ -106,7 +106,7 @@ export const generateSchedulePDF = async (scheduleData: any) => {
                 <td class="table-value"> ${scheduleData.agreedPrice}</td>
               </tr>
               <tr>
-                <td class="table-label">Advance Amount:</td>
+                <td class="table-label">Down Payment:</td>
                 <td class="table-value"> ${scheduleData.advanceAmount || "0"}</td>
               </tr>
               <tr>

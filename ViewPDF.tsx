@@ -69,7 +69,7 @@ const ViewPDF: React.FC<ViewPDFProps> = ({ invoiceData }) => {
         <Text style={styles.detailValue}>{invoiceData.agreedPrice}</Text>
       </View>
       <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>Advance Amount:</Text>
+        <Text style={styles.detailLabel}>Down Payment:</Text>
         <Text style={styles.detailValue}>{invoiceData.advanceAmount}</Text>
       </View>
       <View style={styles.detailRow}>
