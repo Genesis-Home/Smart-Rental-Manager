@@ -19,13 +19,20 @@ import { Prev, Next, Address, Add } from "../../assets/icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { HomeScreenNavigationProp, Property } from "../../types/types";
-import { fetchProperties } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { colors } from "../../utilities/constants";
 import FastImage from "react-native-fast-image";
-import { downloadMultipleImagesForSharing, cleanupSharedImages, createFallbackShareMessage, testFileAccess, getFileInfo } from "../../utilities/imageDownloader";
+import {
+  downloadMultipleImagesForSharing,
+  cleanupSharedImages,
+  createFallbackShareMessage,
+  testFileAccess,
+  getFileInfo,
+} from "../../utilities/imageDownloader";
 import Toast from "react-native-toast-message";
 import Share from "react-native-share";
+import { fetchPropertiesByUserID } from "../../store/actions/action";
+import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 
 const { width } = Dimensions.get("window");
 
@@ -51,11 +58,22 @@ const Home: React.FC = () => {
   const [isSharing, setIsSharing] = useState<string | null>(null);
 
   useEffect(() => {
-    setFilteredProperties(properties);
-  }, [properties]);
-
-  useEffect(() => {
-    dispatch(fetchProperties());
+    const initialize = async () => {
+      if (user?.userId) {
+        dispatch(fetchPropertiesByUserID(user.userId));
+      } else {
+        const customMessage = await getFirebaseErrorMessage(
+          "User not authenticated"
+        );
+        Toast.show({
+          type: "error",
+          text1: customMessage,
+          position: "bottom",
+        });
+        navigation.navigate("Signin");
+      }
+    };
+    
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
       () => {
@@ -68,11 +86,20 @@ const Home: React.FC = () => {
         setKeyboardVisible(false);
       }
     );
+    
+    // Call initialize function
+    initialize();
+    
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
-  }, [dispatch]);
+  }, [dispatch, user?.userId]);
+
+  // Update filteredProperties when properties change
+  useEffect(() => {
+    setFilteredProperties(properties);
+  }, [properties]);
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -88,7 +115,7 @@ const Home: React.FC = () => {
   const handleShare = async (item: Property) => {
     try {
       setIsSharing(item.id);
-      
+
       const title = item.title || "No Title";
       const description = item.description || "No Description";
       const address = item.location?.address || "No location available";
@@ -107,33 +134,41 @@ const Home: React.FC = () => {
       // If there are images, download them and include in share
       if (item.images && item.images.length > 0) {
         try {
-          console.log('Starting image download for property:', title);
-          downloadedImagePaths = await downloadMultipleImagesForSharing(item.images);
-          
+          console.log("Starting image download for property:", title);
+          downloadedImagePaths = await downloadMultipleImagesForSharing(
+            item.images
+          );
+
           if (downloadedImagePaths.length > 0) {
-            console.log('Successfully downloaded images:', downloadedImagePaths);
-            
+            console.log(
+              "Successfully downloaded images:",
+              downloadedImagePaths
+            );
+
             // Test file access before sharing
             const firstImagePath = downloadedImagePaths[0];
             const fileAccessible = await testFileAccess(firstImagePath);
-            
+
             if (!fileAccessible) {
-              console.error('File is not accessible:', firstImagePath);
-              throw new Error('Downloaded file is not accessible');
+              console.error("File is not accessible:", firstImagePath);
+              throw new Error("Downloaded file is not accessible");
             }
-            
+
             const fileInfo = await getFileInfo(firstImagePath);
-            console.log('File info for sharing:', fileInfo);
-            
+            console.log("File info for sharing:", fileInfo);
+
             // Create share options with actual images
             const shareOptions = {
               title: title,
               message: `🏢 ${title}\n\n📝 Description : ${description}\n\n📍 Location : ${address}\n${
                 mapsUrl ? `${mapsUrl}` : ""
               }`,
-              url: Platform.OS === "android" ? `file://${firstImagePath}` : firstImagePath,
+              url:
+                Platform.OS === "android"
+                  ? `file://${firstImagePath}`
+                  : firstImagePath,
               type: "image/jpeg",
-              filename: `property_${title.replace(/\s+/g, '_')}.jpg`,
+              filename: `property_${title.replace(/\s+/g, "_")}.jpg`,
               saveToFiles: true,
               isNew: true,
               mimeType: "image/jpeg",
@@ -146,13 +181,19 @@ const Home: React.FC = () => {
               chooserTitle: "Share Property with",
             };
 
-            console.log('Sharing with options:', shareOptions);
+            console.log("Sharing with options:", shareOptions);
             await Share.open(shareOptions);
-            console.log('Share completed successfully');
+            console.log("Share completed successfully");
           } else {
-            console.log('No images downloaded, falling back to URL sharing');
+            console.log("No images downloaded, falling back to URL sharing");
             // Fallback to sharing URLs if image download fails
-            const fallbackMessage = createFallbackShareMessage(title, description, address, item.images, mapsUrl);
+            const fallbackMessage = createFallbackShareMessage(
+              title,
+              description,
+              address,
+              item.images,
+              mapsUrl
+            );
             await Share.open({
               title: title,
               message: fallbackMessage,
@@ -162,7 +203,13 @@ const Home: React.FC = () => {
         } catch (downloadError) {
           console.error("Error downloading images for sharing:", downloadError);
           // Fallback to sharing without images if download fails
-          const fallbackMessage = createFallbackShareMessage(title, description, address, item.images, mapsUrl);
+          const fallbackMessage = createFallbackShareMessage(
+            title,
+            description,
+            address,
+            item.images,
+            mapsUrl
+          );
           await Share.open({
             title: title,
             message: fallbackMessage,
@@ -170,7 +217,7 @@ const Home: React.FC = () => {
           });
         }
       } else {
-        console.log('No images to share');
+        console.log("No images to share");
         // No images to share
         await Share.open({
           title: title,
@@ -180,7 +227,7 @@ const Home: React.FC = () => {
           failOnCancel: false,
         });
       }
-      
+
       // Clean up downloaded images after sharing
       if (downloadedImagePaths.length > 0) {
         try {
