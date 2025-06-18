@@ -37,7 +37,7 @@ const Home: React.FC = () => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
-  const properties = useAppSelector((state) => state.reducer.properties);
+  const properties = useAppSelector((state) => state.reducer.userProperties);
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredProperties, setFilteredProperties] =

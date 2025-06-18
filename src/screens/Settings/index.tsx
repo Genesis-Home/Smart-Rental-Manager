@@ -113,7 +113,7 @@ const Settings: React.FC = () => {
             <Text style={styles.optionText}>{t("editProfile")}</Text>
             <DropRight />
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             activeOpacity={0.8}
             style={[
               styles.optionButton,
@@ -128,7 +128,7 @@ const Settings: React.FC = () => {
           >
             <Text style={styles.optionText}>{t("myads")}</Text>
             <DropRight />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             activeOpacity={0.8}
             style={[
