@@ -561,8 +561,6 @@ export const addSchedule =
 
       await scheduleRef.set(scheduleData);
 
-      dispatch({ type: "IS_LOADER", payload: false });
-
       // Generate PDF immediately
       let pdfPath = null;
       try {
@@ -571,6 +569,35 @@ export const addSchedule =
         console.error("PDF generation error:", error);
         // Continue without PDF if generation fails
       }
+
+      // Send email immediately
+      try {
+        await scheduleBookingNotifications(scheduleData);
+        await dispatch(
+          sendEmail(
+            navigation,
+            formData.email,
+            formData.clientName,
+            formData.phoneNum,
+            formData.visitDates,
+            formData.visitTime,
+            formData.numberOfVisitors,
+            formData.numberOfInfants,
+            formData.property,
+            formData.location,
+            formData.agreedPrice,
+            formData.totalAmount,
+            formData.advanceAmount,
+            pdfPath || undefined,
+            scheduleId,
+            true
+          )
+        );
+      } catch (error) {
+        console.error("Email sending error:", error);
+      }
+
+      dispatch({ type: "IS_LOADER", payload: false });
 
       navigation.navigate("AutomatedEmail", {
         visitDetails: {
@@ -597,7 +624,6 @@ export const addSchedule =
           totalAmount: formData.totalAmount,
         },
         pdfPath: pdfPath,
-        isGeneratingPDF: false,
       });
 
       Toast.show({
@@ -605,35 +631,6 @@ export const addSchedule =
         text1: "Schedule added successfully",
         position: "bottom",
       });
-
-      setTimeout(async () => {
-        try {
-          await scheduleBookingNotifications(scheduleData);
-
-          await dispatch(
-            sendEmail(
-              navigation,
-              formData.email,
-              formData.clientName,
-              formData.phoneNum,
-              formData.visitDates,
-              formData.visitTime,
-              formData.numberOfVisitors,
-              formData.numberOfInfants,
-              formData.property,
-              formData.location,
-              formData.agreedPrice,
-              formData.totalAmount,
-              formData.advanceAmount,
-              pdfPath || undefined,
-              scheduleId,
-              true
-            )
-          );
-        } catch (error) {
-          console.error("Background operations error:", error);
-        }
-      }, 100);
     } catch (error: any) {
       console.error("Add Schedule Error:", error);
       dispatch({ type: "IS_LOADER", payload: false });

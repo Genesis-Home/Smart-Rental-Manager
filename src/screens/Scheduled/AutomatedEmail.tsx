@@ -100,17 +100,17 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
           {
-            title: t("storagePermissionTitle"),
-            message: t("storagePermissionMessage"),
-            buttonNeutral: t("askMeLater"),
-            buttonNegative: t("cancel"),
-            buttonPositive: t("ok"),
+            title: "Storage Permission",
+            message: "This app needs access to storage to save PDF files",
+            buttonNeutral: "Ask me later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK",
           }
         );
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           Toast.show({
             type: "error",
-            text1: t("permissionDenied"),
+            text1: "Permission denied",
             position: "bottom",
           });
           return;
@@ -178,48 +178,27 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
         "YYYY-MM-DD_HH-mm"
       )}.pdf`;
 
-      if (Platform.OS === "android") {
-        const shareOptions = {
-          title: t("sharePDF"),
-          url: `content://${pdfPath}`,
-          type: "application/pdf",
-          filename: fileName,
-          saveToFiles: true,
-          isNew: true,
-          mimeType: "application/pdf",
-          fileSize: fileInfo.size,
-          subject: "Booking Invoice",
-          message: "Please find attached the booking invoice.",
-          failOnCancel: false,
-          showAppsToView: true,
-          isBase64: false,
-          dialogTitle: "Share PDF",
-          forceDialog: true,
-          chooserTitle: "Share PDF with",
-        };
+      const shareOptions = {
+        title: t("sharePDF"),
+        url: Platform.OS === "android" ? `file://${pdfPath}` : pdfPath,
+        type: "application/pdf",
+        filename: fileName,
+        saveToFiles: true,
+        isNew: true,
+        mimeType: "application/pdf",
+        fileSize: fileInfo.size,
+        subject: "Booking Invoice",
+        message: "Please find attached the booking invoice.",
+        failOnCancel: false,
+        showAppsToView: true,
+        isBase64: false,
+        dialogTitle: "Share PDF",
+        forceDialog: true,
+        chooserTitle: "Share PDF with",
+      };
 
-        const result = await Share.open(shareOptions);
-        console.log("Share result:", result);
-      } else {
-        const shareOptions = {
-          title: t("sharePDF"),
-          url: pdfPath,
-          type: "application/pdf",
-          filename: fileName,
-          saveToFiles: true,
-          isNew: true,
-          mimeType: "application/pdf",
-          fileSize: fileInfo.size,
-          subject: "Booking Invoice",
-          message: "Please find attached the booking invoice.",
-          failOnCancel: false,
-          showAppsToView: true,
-          isBase64: false,
-        };
-
-        const result = await Share.open(shareOptions);
-        console.log("Share result:", result);
-      }
+      const result = await Share.open(shareOptions);
+      console.log("Share result:", result);
     } catch (error) {
       console.error("PDF share error:", error);
       Toast.show({

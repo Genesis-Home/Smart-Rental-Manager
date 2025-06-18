@@ -398,6 +398,16 @@ export type LanguageTranslation = {
   thankYouMessage: string;
   notesSavedSuccessfully: string;
   failedToSaveNotes: string;
+  contactType: string;
+  newContact: string;
+  existingContact: string;
+  selectContact: string;
+  pleaseSelectContact: string;
+  pleaseSelectProperty: string;
+  pleaseFillAllRequiredFields: string;
+  storagePermissionTitle: string;
+  storagePermissionMessage: string;
+  askMeLater: string;
 };
 
 export type LanguageData = {

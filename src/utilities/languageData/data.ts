@@ -279,6 +279,9 @@ export const languageData: LanguageData[] = [
       pleaseSelectContact: "Please select a contact",
       pleaseSelectProperty: "Please select a property",
       pleaseFillAllRequiredFields: "Please fill all required fields",
+      storagePermissionTitle: "Storage Permission",
+      storagePermissionMessage: "This app needs access to storage to save PDF files",
+      askMeLater: "Ask me later",
     },
   },
   {
@@ -489,7 +492,7 @@ export const languageData: LanguageData[] = [
       adults: "Ενήλικες",
       noSchedulesInRange: "Δεν βρέθηκαν προγραμματισμοί στο επιλεγμένο εύρος ημερομηνιών.",
       fileSaved: "Το αρχείο CSV αποθηκεύτηκε επιτυχώς!",
-      permissionDenied: "Απορρίφθηκε η άδεια για εγγραφή αρχείων.",
+      permissionDenied: "Απορρίφθηκε η άδεια",
       exportFailed: "Αποτυχία εξαγωγής αρχείου CSV.",
       noSchedulesFound: "Δεν βρέθηκαν προγραμματισμοί",
       agreedPrice: "Συμφωνημένη Τιμή",
@@ -544,6 +547,9 @@ export const languageData: LanguageData[] = [
       pleaseSelectContact: "Please select a contact",
       pleaseSelectProperty: "Please select a property",
       pleaseFillAllRequiredFields: "Please fill all required fields",
+      storagePermissionTitle: "Άδεια Αποθήκευσης",
+      storagePermissionMessage: "Αυτή η εφαρμογή χρειάζεται πρόσβαση στην αποθήκευση για να αποθηκεύσει αρχεία PDF",
+      askMeLater: "Ρώτησέ με αργότερα",
     },
   },
 ];
