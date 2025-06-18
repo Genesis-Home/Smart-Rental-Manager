@@ -64,7 +64,7 @@ export const sendEmail =
 
       message += `🏠 Property Address: ${location.address}\n\n`;
       message += `💰 Financial Details:\n`;
-      message += `Total Amount: ${agreedPrice}\n`;
+      message += `Agreed Price: ${agreedPrice}\n`;
       message += `Down Payment: ${advanceAmount || "0"}\n`;
       message += `Balance Amount: ${balanceAmount}\n\n`;
       message += `🗺️ Google Maps Location: ${googleMapsUrl}`;

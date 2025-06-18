@@ -16,14 +16,10 @@ import { useTranslation } from "react-i18next";
 import Header from "../../components/Header";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
-import {
-  RootStackParamList,
-  RouteParams as ImportedRouteParams,
-} from "../../types/types";
+import { RootStackParamList } from "../../types/types";
 import {
   fetchPropertyById,
   deletePropertyById,
-  deleteScheduleById,
 } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -31,31 +27,18 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
 import Images from "../../assets/images";
 import FastImage from "react-native-fast-image";
-import firestore from "@react-native-firebase/firestore";
 import ImageView from "react-native-image-viewing";
-import { generateSchedulePDF } from "../../services/pdfService";
-import RNFS from "react-native-fs";
-import CTAButton1 from "../../components/CTA_BUTTON1";
 
 const { width } = Dimensions.get("window");
 
 type ApartmentDetailsRouteParams = {
   id: string;
-  source?: string;
-  scheduleId?: string;
 };
-
-type ApartmentDetailsScreenRouteProp = RouteProp<
-  { ApartmentDetails: ApartmentDetailsRouteParams },
-  "ApartmentDetails"
->;
 
 const ApartmentDetails: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [apartmentDetail, setApartmentDetail] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showBookingDetailsModal, setShowBookingDetailsModal] = useState(false);
-  const [bookingDetails, setBookingDetails] = useState<any>(null);
   const [isImageViewVisible, setIsImageViewVisible] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { t } = useTranslation();
@@ -64,15 +47,14 @@ const ApartmentDetails: React.FC = () => {
   const route =
     useRoute<
       RouteProp<
-        { ApartmentDetails: ApartmentDetailsRouteParams & { source?: string } },
+        { ApartmentDetails: ApartmentDetailsRouteParams },
         "ApartmentDetails"
       >
     >();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const { id: apartmentID, source } = route?.params || {};
-  const isFromSchedules = source === "schedules";
+  const { id: apartmentID } = route?.params || {};
 
   const property = useAppSelector((state: any) => state.reducer.property);
   const user = useAppSelector((state: any) => state.reducer.user);
@@ -80,30 +62,8 @@ const ApartmentDetails: React.FC = () => {
   useEffect(() => {
     if (apartmentID) {
       dispatch(fetchPropertyById(apartmentID));
-      if (isFromSchedules && route.params?.scheduleId) {
-        const fetchBookingDetails = async () => {
-          try {
-            const scheduleDoc = await firestore()
-              .collection("schedules")
-              .doc(route.params.scheduleId)
-              .get();
-
-            if (scheduleDoc.exists) {
-              const scheduleData = scheduleDoc.data();
-              setBookingDetails({
-                ...scheduleData,
-                scheduleId: route.params.scheduleId,
-                id: route.params.scheduleId
-              });
-            }
-          } catch (error) {
-            console.error("Error fetching booking details:", error);
-          }
-        };
-        fetchBookingDetails();
-      }
     }
-  }, [apartmentID, dispatch, isFromSchedules, route.params?.scheduleId]);
+  }, [apartmentID, dispatch]);
 
   useEffect(() => {
     if (property) {
@@ -114,25 +74,8 @@ const ApartmentDetails: React.FC = () => {
   const handleLogoutConfirm = async () => {
     setShowDeleteModal(false);
     if (user?.userId) {
-      if (isFromSchedules) {
-        const scheduleId = route.params?.scheduleId;
-        if (scheduleId) {
-          await dispatch(deleteScheduleById(scheduleId, user.userId, true));
-          navigation.goBack();
-        } else {
-          const errorMessage = await getFirebaseErrorMessage(
-            "Failed to cancel booking"
-          );
-          Toast.show({
-            type: "error",
-            text1: errorMessage,
-            position: "bottom",
-          });
-        }
-      } else {
-        await dispatch(deletePropertyById(apartmentID, user.userId));
-        navigation.goBack();
-      }
+      await dispatch(deletePropertyById(apartmentID, user.userId));
+      navigation.goBack();
     } else {
       const customMessage = await getFirebaseErrorMessage(
         "User not authenticated"
@@ -175,71 +118,6 @@ const ApartmentDetails: React.FC = () => {
     setSelectedImageIndex(index);
     setIsImageViewVisible(true);
   };
-
-  const handleViewPDF = async () => {
-    if (bookingDetails) {
-      try {
-        const scheduleDoc = await firestore()
-          .collection("schedules")
-          .doc(route.params?.scheduleId)
-          .get();
-
-        let updatedBookingDetails = { ...bookingDetails };
-        if (scheduleDoc.exists) {
-          const data = scheduleDoc.data();
-          updatedBookingDetails = {
-            ...bookingDetails,
-            notes: data?.notes || ""
-          };
-        }
-
-        navigation.navigate("ViewPDF", { visit: updatedBookingDetails });
-      } catch (error) {
-        console.error("Error viewing PDF:", error);
-        Toast.show({
-          type: "error",
-          text1: t("pdfNotAvailable"),
-          position: "bottom",
-        });
-      }
-    }
-  };
-
-  const handleDownloadPDF = async () => {
-    if (bookingDetails) {
-      try {
-        // Ensure we have the latest notes from Firestore
-        const scheduleDoc = await firestore()
-          .collection("schedules")
-          .doc(route.params?.scheduleId)
-          .get();
-
-        let updatedBookingDetails = { ...bookingDetails };
-        if (scheduleDoc.exists) {
-          const data = scheduleDoc.data();
-          updatedBookingDetails = {
-            ...bookingDetails,
-            notes: data?.notes || ""
-          };
-        }
-
-        const pdfPath = await generateSchedulePDF(updatedBookingDetails);
-        Toast.show({
-          type: "success",
-          text1: t("pdfDownloaded"),
-          position: "bottom",
-        });
-      } catch (error) {
-        console.error("Error downloading PDF:", error);
-        Toast.show({
-          type: "error",
-          text1: t("pdfDownloadFailed"),
-          position: "bottom",
-        });
-      }
-    }
-  };
-  
 
   return (
     <View style={styles.container}>
@@ -331,53 +209,38 @@ const ApartmentDetails: React.FC = () => {
               <Text style={[styles.titleText, Typography.f_20_nunito_bold]}>
                 {apartmentDetail?.title}
               </Text>
-              {isFromSchedules ? (
-                <TouchableOpacity
-                  activeOpacity={0.8}
+              {user?.userId === apartmentDetail?.createdBy && (
+                <View
                   style={{
-                    backgroundColor: Colors.Primary_01,
-                    padding: 8,
-                    borderRadius: 8,
+                    flexDirection: "row",
                   }}
-                  onPress={() => setShowDeleteModal(true)}
                 >
-                  <MaterialIcons name="delete" size={18} color="white" />
-                </TouchableOpacity>
-              ) : (
-                !isFromSchedules &&
-                user?.userId === apartmentDetail?.createdBy && (
-                  <View
+                  <TouchableOpacity
+                    activeOpacity={0.8}
                     style={{
-                      flexDirection: "row",
+                      marginRight: 10,
+                      backgroundColor: Colors.Primary_01,
+                      padding: 8,
+                      borderRadius: 8,
                     }}
+                    onPress={() =>
+                      navigation.navigate("EditProperty", { id: apartmentID })
+                    }
                   >
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      style={{
-                        marginRight: 10,
-                        backgroundColor: Colors.Primary_01,
-                        padding: 8,
-                        borderRadius: 8,
-                      }}
-                      onPress={() =>
-                        navigation.navigate("EditProperty", { id: apartmentID })
-                      }
-                    >
-                      <MaterialIcons name="edit" size={18} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      style={{
-                        backgroundColor: Colors.Primary_01,
-                        padding: 8,
-                        borderRadius: 8,
-                      }}
-                      onPress={() => setShowDeleteModal(true)}
-                    >
-                      <MaterialIcons name="delete" size={18} color="white" />
-                    </TouchableOpacity>
-                  </View>
-                )
+                    <MaterialIcons name="edit" size={18} color="white" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={{
+                      backgroundColor: Colors.Primary_01,
+                      padding: 8,
+                      borderRadius: 8,
+                    }}
+                    onPress={() => setShowDeleteModal(true)}
+                  >
+                    <MaterialIcons name="delete" size={18} color="white" />
+                  </TouchableOpacity>
+                </View>
               )}
             </View>
             <Text
@@ -453,17 +316,6 @@ const ApartmentDetails: React.FC = () => {
           >
             {apartmentDetail?.otherDetails}
           </Text>
-
-          {isFromSchedules && bookingDetails && (
-            <TouchableOpacity
-              style={styles.viewBookingButton}
-              onPress={() => setShowBookingDetailsModal(true)}
-            >
-              <Text style={styles.viewBookingButtonText}>
-                {t("viewBookingDetails")}
-              </Text>
-            </TouchableOpacity>
-          )}
         </View>
         <Modal
           transparent={true}
@@ -473,11 +325,7 @@ const ApartmentDetails: React.FC = () => {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>
-                {isFromSchedules
-                  ? t("confirmDeleteBooking")
-                  : t("confirmDelete")}
-              </Text>
+              <Text style={styles.modalTitle}>{t("confirmDelete")}</Text>
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={styles.modalButton}
@@ -491,136 +339,6 @@ const ApartmentDetails: React.FC = () => {
                 >
                   <Text style={styles.modalButtonText}>{t("cancel")}</Text>
                 </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-        <Modal
-          transparent={true}
-          visible={showBookingDetailsModal}
-          animationType="fade"
-          onRequestClose={() => setShowBookingDetailsModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContainer, { maxHeight: "80%" }]}>
-              <Text style={styles.modalTitle}>{t("bookingDetails")}</Text>
-              <View style={styles.bookingDetailsContainer}>
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("clientName")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.clientName}
-                  </Text>
-                </View>
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>{t("email")}:</Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.email}
-                  </Text>
-                </View>
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("phoneNumber")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.phoneNum}
-                  </Text>
-                </View>
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("visitDates")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.visitDates}
-                  </Text>
-                </View>
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("visitTime")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.visitTime}
-                  </Text>
-                </View>
-                {bookingDetails?.numberOfVisitors&&(
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("numberOfVisitors")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails.numberOfVisitors}
-                  </Text>
-                </View>
-                )}
-                {bookingDetails?.numberOfInfants&&(
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("numberOfInfants")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails.numberOfInfants}
-                  </Text>
-                </View>
-                )}
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("location")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.location?.address}
-                  </Text>
-                </View>
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("agreedPrice")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.agreedPrice || "0"}
-                  </Text>
-                </View>
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("advanceAmount")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {bookingDetails?.advanceAmount || "0"}
-                  </Text>
-                </View>
-                <View style={styles.bookingDetailRow}>
-                  <Text style={styles.bookingDetailLabel}>
-                    {t("balanceAmount")}:
-                  </Text>
-                  <Text style={styles.bookingDetailValue}>
-                    {(parseInt(bookingDetails?.agreedPrice || "0") - parseInt(bookingDetails?.advanceAmount || "0"))}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.modalButtons}>
-                <View style={{ width: "32%" }}>
-                  <CTAButton1
-                    title={t("viewPdf")}
-                    submitHandler={handleViewPDF}
-                    backgroundColor={Colors.Primary_01}
-                    textColor={Colors.white}
-                  />
-                </View>
-                <View style={{ width: "32%" }}>
-                  <CTAButton1
-                    title={t("downloadPDF")}
-                    submitHandler={handleDownloadPDF}
-                    backgroundColor={Colors.Primary_01}
-                    textColor={Colors.white}
-                  />
-                </View>
-                <View style={{ width: "32%" }}>
-                  <CTAButton1
-                    title={t("close")}
-                    submitHandler={() => setShowBookingDetailsModal(false)}
-                    backgroundColor={Colors.Primary_01}
-                    textColor={Colors.white}
-                  />
-                </View>
               </View>
             </View>
           </View>
@@ -722,50 +440,20 @@ const styles = StyleSheet.create({
   },
   modalButtons: {
     flexDirection: "row",
-    alignItems:"center",
-    justifyContent:"space-between",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   modalButton: {
     backgroundColor: Colors.Primary_01,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    width: "32%",
+    width: "47%",
     justifyContent: "center",
     alignItems: "center",
   },
   modalButtonText: {
     ...Typography.f_14_nunito_medium,
     color: Colors.white,
-  },
-  viewBookingButton: {
-    backgroundColor: Colors.Primary_01,
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 20,
-    alignItems: "center",
-  },
-  viewBookingButtonText: {
-    ...Typography.f_14_nunito_bold,
-    color: Colors.white,
-  },
-  bookingDetailsContainer: {
-    width: "100%",
-    marginVertical: 15,
-  },
-  bookingDetailRow: {
-    flexDirection: "row",
-    marginBottom: 12,
-    paddingHorizontal: 10,
-  },
-  bookingDetailLabel: {
-    ...Typography.f_14_nunito_bold,
-    color: Colors.DARK_GREEN,
-    width: "40%",
-  },
-  bookingDetailValue: {
-    ...Typography.f_14_nunito_medium,
-    color: Colors.black,
-    flex: 1,
   },
 });

@@ -20,9 +20,11 @@ const CTAButton1: React.FC<CTAButton1Props> = ({
   backgroundColor,
   textColor,
   borderColor,
-  btnStyle
+  btnStyle,
+  isLoading
 }) => {
   const isLoader = useSelector((state: any) => state.reducer.isLoader);
+  const showLoader = isLoading !== undefined ? isLoading : isLoader;
 
   const styles = createStyles(colors, backgroundColor, textColor, borderColor);
 
@@ -31,8 +33,9 @@ const CTAButton1: React.FC<CTAButton1Props> = ({
       onPress={submitHandler}
       activeOpacity={0.8}
       style={[styles.CRAButton1,btnStyle]}
+      disabled={showLoader}
     >
-      {!isLoader ? (
+      {!showLoader ? (
         <View
           style={{
             flexDirection: "row",

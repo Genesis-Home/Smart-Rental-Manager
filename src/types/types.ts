@@ -103,7 +103,8 @@ export interface CTAButton1Props {
   backgroundColor?: string;
   textColor?: string;
   borderColor?: string;
-  btnStyle?:any
+  btnStyle?:any;
+  isLoading?: boolean;
 }
 
 // Screen Props Types
@@ -260,6 +261,7 @@ export type LanguageTranslation = {
   createContact: string;
   create: string;
   note: string;
+  delete:string;
   home: string;
   scheduled: string;
   contact: string;

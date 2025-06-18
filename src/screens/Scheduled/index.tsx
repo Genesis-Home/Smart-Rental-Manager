@@ -8,6 +8,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import Header from "../../components/Header";
 import { useTranslation } from "react-i18next";
@@ -21,10 +22,60 @@ import { Calendar, LocaleConfig } from "react-native-calendars";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { ScheduledScreenNavigationProp, Day } from "../../types/types";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
-import { fetchSchedulesByUserID } from "../../store/actions/action";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import Toast from "react-native-toast-message";
 import moment from "moment";
+import { generateSchedulePDF } from "../../services/pdfService";
+import firestore from "@react-native-firebase/firestore";
+
+// Custom Button Component
+interface CustomButtonProps {
+  title: string;
+  onPress: () => void;
+  backgroundColor?: string;
+  textColor?: string;
+  isLoading?: boolean;
+  disabled?: boolean;
+  style?: any;
+}
+
+const CustomButton: React.FC<CustomButtonProps> = ({
+  title,
+  onPress,
+  backgroundColor = colors.Primary_01,
+  textColor = colors.white,
+  isLoading = false,
+  disabled = false,
+  style
+}) => {
+  return (
+    <TouchableOpacity
+      style={[
+        {
+          backgroundColor,
+          paddingVertical: 10,
+          borderRadius: 5,
+          alignItems: "center",
+          justifyContent: "center",
+          height:45
+          // opacity: (isLoading || disabled) ? 0.5 : 1,
+        },
+        style
+      ]}
+      onPress={onPress}
+      disabled={isLoading || disabled}
+      activeOpacity={0.8}
+    >
+      {isLoading ? (
+        <ActivityIndicator color={textColor} size="small" />
+      ) : (
+        <Text style={{ color: textColor, fontSize: 10, fontWeight: "500",textAlign:"center" }}>
+          {title}
+        </Text>
+      )}
+    </TouchableOpacity>
+  );
+};
 
 const Scheduled: React.FC = () => {
   const navigation = useNavigation<ScheduledScreenNavigationProp>();
@@ -35,6 +86,10 @@ const Scheduled: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isLocaleReady, setIsLocaleReady] = useState(false);
+  const [showBookingDetailsModal, setShowBookingDetailsModal] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const user = useAppSelector((state: any) => state.reducer.user);
   const userSchedules = useAppSelector((state: any) => state.reducer.schedules);
 
@@ -63,7 +118,26 @@ const Scheduled: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (user?.userId) {
-        dispatch(fetchSchedulesByUserID(user.userId));
+        try {
+          const snapshot = await firestore()
+            .collection("schedules")
+            .where("createdBy", "==", user.userId)
+            .get();
+
+          if (snapshot.empty) {
+            dispatch({ type: "SET_USER_SCHEDULES", payload: [] });
+          } else {
+            const schedules = snapshot.docs.map((doc: any) => ({
+              ...doc.data(),
+              id: doc.id,
+            }));
+            dispatch({ type: "SET_USER_SCHEDULES", payload: schedules });
+          }
+        } catch (error) {
+          console.log(error, "fetchschedule_error");
+          const errorMessage = await getFirebaseErrorMessage((error as any).code);
+          Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+        }
       } else {
         const customMessage = await getFirebaseErrorMessage(
           "User not authenticated"
@@ -146,6 +220,178 @@ const Scheduled: React.FC = () => {
     setCurrentDate(nextMonth);
   };
 
+  const handleSlotClick = (slotIndex: number, item: { propertyId: string; propertyName: string; schedules: any[] }) => {
+    const slotDate = addDays(
+      startOfWeek(currentDate, { weekStartsOn: 5 }),
+      slotIndex
+    );
+    
+    // Find which schedule is booked for this slot
+    let clickedSchedule: any = null;
+    item.schedules.forEach((schedule: any) => {
+      if (schedule.visitDates) {
+        const [startStr, endStr] = schedule.visitDates.split(" - ");
+        const startDate = moment(startStr, "MMM D, YYYY").startOf("day");
+        const endDate = moment(endStr, "MMM D, YYYY").endOf("day");
+        const slotMoment = moment(slotDate);
+        
+        if (
+          slotMoment.isSameOrAfter(startDate) &&
+          slotMoment.isSameOrBefore(endDate)
+        ) {
+          clickedSchedule = schedule;
+        }
+      }
+    });
+
+    // Show booking details modal if slot is booked
+    if (clickedSchedule) {
+      setSelectedSchedule(clickedSchedule);
+      setShowBookingDetailsModal(true);
+    }
+  };
+
+  const handleDeleteSchedule = async () => {
+    if (selectedSchedule && user?.userId) {
+      setIsDeleting(true);
+      try {
+        // Custom delete function without global loader
+        const scheduleRef = firestore().collection("schedules").doc(selectedSchedule.id);
+        const scheduleDoc = await scheduleRef.get();
+
+        if (scheduleDoc.exists) {
+          const scheduleData = scheduleDoc.data();
+          const propertyId = scheduleData?.propertyId;
+          const agreedPrice = parseFloat(scheduleData?.agreedPrice || "0");
+
+          await scheduleRef.delete();
+
+          if (propertyId) {
+            const propertyRef = firestore()
+              .collection("properties")
+              .doc(propertyId);
+            const propertyDoc = await propertyRef.get();
+
+            if (propertyDoc.exists) {
+              const propertyData = propertyDoc.data();
+              const currentRevenue = parseFloat(propertyData?.revenue || "0");
+              const newRevenue = Math.max(0, currentRevenue - agreedPrice);
+
+              await propertyRef.update({
+                revenue: newRevenue,
+              });
+            }
+          }
+
+          // Custom fetch schedules without global loader
+          const userSchedulesSnapshot = await firestore()
+            .collection("schedules")
+            .where("createdBy", "==", user.userId)
+            .get();
+
+          if (userSchedulesSnapshot.empty) {
+            dispatch({ type: "SET_USER_SCHEDULES", payload: [] });
+          } else {
+            const schedules = userSchedulesSnapshot.docs.map((doc: any) => ({
+              ...doc.data(),
+              id: doc.id,
+            }));
+            dispatch({ type: "SET_USER_SCHEDULES", payload: schedules });
+          }
+          
+          setShowDeleteModal(false);
+          setShowBookingDetailsModal(false);
+          setSelectedSchedule(null);
+          
+          const successMessage = await getFirebaseErrorMessage(
+            "Booking cancelled successfully"
+          );
+          Toast.show({
+            type: "success",
+            text1: successMessage,
+            position: "bottom",
+          });
+        }
+      } catch (error) {
+        console.error("Error deleting schedule:", error);
+        const errorMessage = await getFirebaseErrorMessage(
+          "Failed to cancel booking"
+        );
+        Toast.show({
+          type: "error",
+          text1: errorMessage,
+          position: "bottom",
+        });
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
+
+  const handleViewPDF = async () => {
+    if (selectedSchedule) {
+      try {
+        const scheduleDoc = await firestore()
+          .collection("schedules")
+          .doc(selectedSchedule.id)
+          .get();
+
+        let updatedBookingDetails = { ...selectedSchedule };
+        if (scheduleDoc.exists) {
+          const data = scheduleDoc.data();
+          updatedBookingDetails = {
+            ...selectedSchedule,
+            notes: data?.notes || ""
+          };
+        }
+
+        navigation.navigate("ViewPDF", { visit: updatedBookingDetails });
+      } catch (error) {
+        console.error("Error viewing PDF:", error);
+        Toast.show({
+          type: "error",
+          text1: t("pdfNotAvailable"),
+          position: "bottom",
+        });
+      }
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (selectedSchedule) {
+      try {
+        // Ensure we have the latest notes from Firestore
+        const scheduleDoc = await firestore()
+          .collection("schedules")
+          .doc(selectedSchedule.id)
+          .get();
+
+        let updatedBookingDetails = { ...selectedSchedule };
+        if (scheduleDoc.exists) {
+          const data = scheduleDoc.data();
+          updatedBookingDetails = {
+            ...selectedSchedule,
+            notes: data?.notes || ""
+          };
+        }
+
+        const pdfPath = await generateSchedulePDF(updatedBookingDetails);
+        Toast.show({
+          type: "success",
+          text1: t("pdfDownloaded"),
+          position: "bottom",
+        });
+      } catch (error) {
+        console.error("Error downloading PDF:", error);
+        Toast.show({
+          type: "error",
+          text1: t("pdfDownloadFailed"),
+          position: "bottom",
+        });
+      }
+    }
+  };
+
   const renderPropertyRow = ({ item }: { item: { propertyId: string; propertyName: string; schedules: any[] } }) => {
     const randomColors = [
       "#FF8A65",
@@ -157,40 +403,6 @@ const Scheduled: React.FC = () => {
       "#F06292",
       "#64B5F6"
     ];
-
-    const handleSlotClick = (slotIndex: number) => {
-      const slotDate = addDays(
-        startOfWeek(currentDate, { weekStartsOn: 5 }),
-        slotIndex
-      );
-      
-      // Find which schedule is booked for this slot
-      let clickedSchedule: any = null;
-      item.schedules.forEach((schedule: any) => {
-        if (schedule.visitDates) {
-          const [startStr, endStr] = schedule.visitDates.split(" - ");
-          const startDate = moment(startStr, "MMM D, YYYY").startOf("day");
-          const endDate = moment(endStr, "MMM D, YYYY").endOf("day");
-          const slotMoment = moment(slotDate);
-          
-          if (
-            slotMoment.isSameOrAfter(startDate) &&
-            slotMoment.isSameOrBefore(endDate)
-          ) {
-            clickedSchedule = schedule;
-          }
-        }
-      });
-
-      // Navigate to apartment details with schedule data if slot is booked
-      if (clickedSchedule) {
-        navigation.navigate("ApartmentDetails", {
-          id: item.propertyId,
-          source: 'schedules',
-          scheduleId: clickedSchedule.id
-        });
-      }
-    };
 
     return (
       <View style={styles.propertyRow}>
@@ -238,7 +450,7 @@ const Scheduled: React.FC = () => {
               <TouchableOpacity
                 key={i}
                 activeOpacity={0.8}
-                onPress={() => handleSlotClick(i)}
+                onPress={() => handleSlotClick(i, item)}
                 style={[
                   styles.slot, 
                   { backgroundColor: isBooked ? bookingColor : colors.Neutral_01 }
@@ -381,6 +593,190 @@ const Scheduled: React.FC = () => {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+
+      {/* Booking Details Modal */}
+      <Modal
+        visible={showBookingDetailsModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowBookingDetailsModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContainer, { maxHeight: "80%" }]}>
+            <Text style={styles.modalTitle}>{t("bookingDetails")}</Text>
+            <ScrollView style={styles.bookingDetailsContainer} showsVerticalScrollIndicator={false}>
+              <View style={styles.bookingDetailRow}>
+                <Text style={styles.bookingDetailLabel}>
+                  {t("clientName")}:
+                </Text>
+                <Text style={styles.bookingDetailValue}>
+                  {selectedSchedule?.clientName}
+                </Text>
+              </View>
+              <View style={styles.bookingDetailRow}>
+                <Text style={styles.bookingDetailLabel}>{t("email")}:</Text>
+                <Text style={styles.bookingDetailValue}>
+                  {selectedSchedule?.email}
+                </Text>
+              </View>
+              <View style={styles.bookingDetailRow}>
+                <Text style={styles.bookingDetailLabel}>
+                  {t("phoneNumber")}:
+                </Text>
+                <Text style={styles.bookingDetailValue}>
+                  {selectedSchedule?.phoneNum}
+                </Text>
+              </View>
+              <View style={styles.bookingDetailRow}>
+                <Text style={styles.bookingDetailLabel}>
+                  {t("visitDates")}:
+                </Text>
+                <Text style={styles.bookingDetailValue}>
+                  {selectedSchedule?.visitDates}
+                </Text>
+              </View>
+              {selectedSchedule?.visitTime && (
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("visitTime")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {selectedSchedule?.visitTime}
+                  </Text>
+                </View>
+              )}
+              {selectedSchedule?.numberOfVisitors && (
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("numberOfVisitors")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {selectedSchedule.numberOfVisitors}
+                  </Text>
+                </View>
+              )}
+              {selectedSchedule?.numberOfInfants && (
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("numberOfInfants")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {selectedSchedule.numberOfInfants}
+                  </Text>
+                </View>
+              )}
+              <View style={styles.bookingDetailRow}>
+                <Text style={styles.bookingDetailLabel}>
+                  {t("location")}:
+                </Text>
+                <Text style={styles.bookingDetailValue}>
+                  {selectedSchedule?.location?.address}
+                </Text>
+              </View>
+              <View style={styles.bookingDetailRow}>
+                <Text style={styles.bookingDetailLabel}>
+                  {t("agreedPrice")}:
+                </Text>
+                <Text style={styles.bookingDetailValue}>
+                  {selectedSchedule?.agreedPrice || "0"}
+                </Text>
+              </View>
+              {selectedSchedule?.advanceAmount && (
+                <View style={styles.bookingDetailRow}>
+                  <Text style={styles.bookingDetailLabel}>
+                    {t("advanceAmount")}:
+                  </Text>
+                  <Text style={styles.bookingDetailValue}>
+                    {selectedSchedule?.advanceAmount || "0"}
+                  </Text>
+                </View>
+              )}
+              <View style={styles.bookingDetailRow}>
+                <Text style={styles.bookingDetailLabel}>
+                  {t("balanceAmount")}:
+                </Text>
+                <Text style={styles.bookingDetailValue}>
+                  {(parseInt(selectedSchedule?.agreedPrice || "0") - parseInt(selectedSchedule?.advanceAmount || "0"))}
+                </Text>
+              </View>
+            </ScrollView>
+            <View style={styles.modalButtons}>
+              <View style={{ width: "24%" }}>
+                <CustomButton
+                  title={t("viewPdf")}
+                  onPress={handleViewPDF}
+                  backgroundColor={colors.Primary_01}
+                  textColor={colors.white}
+                  disabled={isDeleting}
+                />
+              </View>
+              <View style={{ width: "24%" }}>
+                <CustomButton
+                  title={t("downloadPDF")}
+                  onPress={handleDownloadPDF}
+                  backgroundColor={colors.Primary_01}
+                  textColor={colors.white}
+                  disabled={isDeleting}
+                />
+              </View>
+              <View style={{ width: "24%" }}>
+                <CustomButton
+                  title={t("delete")}
+                  onPress={() => setShowDeleteModal(true)}
+                  backgroundColor={colors.Primary_01}
+                  textColor={colors.white}
+                  disabled={isDeleting}
+                />
+              </View>
+              <View style={{ width: "24%" }}>
+                <CustomButton
+                  title={t("close")}
+                  onPress={() => setShowBookingDetailsModal(false)}
+                  backgroundColor={colors.Primary_01}
+                  textColor={colors.white}
+                  disabled={isDeleting}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        transparent={true}
+        visible={showDeleteModal}
+        animationType="fade"
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>
+              {t("confirmDeleteBooking")}
+            </Text>
+            <View style={styles.modalButtons}>
+              <View style={{ width: "48%" }}>
+                <CustomButton
+                  title={isDeleting ? t("deleting") : t("ok")}
+                  onPress={handleDeleteSchedule}
+                  backgroundColor={colors.Primary_01}
+                  textColor={colors.white}
+                  isLoading={isDeleting}
+                />
+              </View>
+              <View style={{ width: "48%" }}>
+                <CustomButton
+                  title={t("cancel")}
+                  onPress={() => setShowDeleteModal(false)}
+                  backgroundColor={colors.Primary_01}
+                  textColor={colors.white}
+                  disabled={isDeleting}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -458,6 +854,24 @@ const styles = StyleSheet.create({
     padding: 15,
     width: "90%",
   },
+  modalContainer: {
+    backgroundColor: colors.white,
+    borderRadius: 10,
+    padding: 20,
+    width: "90%",
+    maxHeight: "80%",
+  },
+  modalTitle: {
+    ...Typography.f_16_nunito_bold,
+    color: colors.black,
+    textAlign: "center",
+    marginBottom: 15,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
   calendarHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -479,6 +893,25 @@ const styles = StyleSheet.create({
   noSchedulesText: {
     ...Typography.f_14_nunito_extra_bold,
     color: colors.Primary_01,
+  },
+  bookingDetailsContainer: {
+    width: "100%",
+    marginVertical: 15,
+  },
+  bookingDetailRow: {
+    flexDirection: "row",
+    marginBottom: 12,
+    paddingHorizontal: 10,
+  },
+  bookingDetailLabel: {
+    ...Typography.f_14_nunito_bold,
+    color: colors.DARK_GREEN,
+    width: "40%",
+  },
+  bookingDetailValue: {
+    ...Typography.f_14_nunito_medium,
+    color: colors.black,
+    flex: 1,
   },
 });
 

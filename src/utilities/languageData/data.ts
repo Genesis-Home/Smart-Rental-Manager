@@ -285,6 +285,7 @@ export const languageData: LanguageData[] = [
       storagePermissionTitle: "Storage Permission",
       storagePermissionMessage: "This app needs access to storage to save PDF files",
       askMeLater: "Ask me later",
+      delete:"Delete"
     },
   },
   {
@@ -520,6 +521,7 @@ export const languageData: LanguageData[] = [
       confirmDelete: "Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτό το διαμέρισμα;",
       editProperty: "Επεξεργασία Ακινήτου",
       editPhotos: "Επεξεργασία Φωτογραφιών",
+      delete: "Διαγραφή",
       mapLink: "Σύνδεσμος Χάρτη",
       advanceAmount: "Down Payment",
       balanceAmount: "Υπόλοιπο Ποσό",
