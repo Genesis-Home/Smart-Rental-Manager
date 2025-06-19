@@ -414,6 +414,8 @@ export type LanguageTranslation = {
   storagePermissionTitle: string;
   storagePermissionMessage: string;
   askMeLater: string;
+  maxTwoBookingsAllowed: string;
+  timeConflictMessage: string;
 };
 
 export type LanguageData = {

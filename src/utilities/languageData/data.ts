@@ -286,7 +286,8 @@ export const languageData: LanguageData[] = [
       storagePermissionTitle: "Storage Permission",
       storagePermissionMessage: "This app needs access to storage to save PDF files",
       askMeLater: "Ask me later",
-      delete:"Delete"
+      maxTwoBookingsAllowed: "A maximum of 2 bookings are allowed for the same date.",
+      timeConflictMessage: "Check-in or check-out time is already booked for this date. Please select a different time.",
     },
   },
   {
@@ -560,6 +561,8 @@ export const languageData: LanguageData[] = [
       storagePermissionTitle: "Άδεια Αποθήκευσης",
       storagePermissionMessage: "Αυτή η εφαρμογή χρειάζεται πρόσβαση στην αποθήκευση για να αποθηκεύσει αρχεία PDF",
       askMeLater: "Ρώτησέ με αργότερα",
+      maxTwoBookingsAllowed: "Επιτρέπονται το πολύ 2 κρατήσεις για την ίδια ημερομηνία.",
+      timeConflictMessage: "Η ώρα check-in ή check-out έχει ήδη κρατηθεί για αυτήν την ημερομηνία. Παρακαλώ επιλέξτε διαφορετική ώρα.",
     },
   },
 ];

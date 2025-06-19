@@ -269,40 +269,49 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       const selectedEnd = moment(endDate, "YYYY-MM-DD").endOf("day");
 
       const conflicts: { dates: string; clientName: string }[] = [];
-
+      let bookingCount = 0;
+      let timeConflict = false;
+      let timeConflictInfo = null;
       existingSchedules.forEach((schedule: any) => {
         if (!schedule.visitDates || typeof schedule.visitDates !== "string")
           return;
-
         const [rangeStartStr, rangeEndStr] = schedule.visitDates.split(" - ");
         if (!rangeStartStr || !rangeEndStr) return;
-
-        const rangeStart = moment(rangeStartStr.trim(), "MMM D, YYYY").startOf(
-          "day"
-        );
+        const rangeStart = moment(rangeStartStr.trim(), "MMM D, YYYY").startOf("day");
         const rangeEnd = moment(rangeEndStr.trim(), "MMM D, YYYY").endOf("day");
-
         if (!rangeStart.isValid() || !rangeEnd.isValid()) {
           console.error("Failed to parse dates:", rangeStartStr, rangeEndStr);
           return;
         }
-
         if (
-          (selectedStart.isSameOrBefore(rangeEnd) &&
-            selectedEnd.isSameOrAfter(rangeStart)) ||
-          (rangeStart.isSameOrBefore(selectedEnd) &&
-            rangeEnd.isSameOrAfter(selectedStart))
+          (selectedStart.isSameOrBefore(rangeEnd) && selectedEnd.isSameOrAfter(rangeStart)) ||
+          (rangeStart.isSameOrBefore(selectedEnd) && rangeEnd.isSameOrAfter(selectedStart))
         ) {
+          bookingCount++;
           conflicts.push({
             dates: schedule.visitDates,
             clientName: schedule.clientName,
           });
+          if (
+            (schedule.checkInTime && schedule.checkInTime === finalFormData.checkInTime) ||
+            (schedule.checkOutTime && schedule.checkOutTime === finalFormData.checkOutTime)
+          ) {
+            timeConflict = true;
+            timeConflictInfo = schedule;
+          }
         }
       });
-
-      if (conflicts.length > 0) {
+      if (bookingCount >= 2) {
         setConflictingDates(conflicts);
         setConflictModalVisible(true);
+        return;
+      }
+      if (timeConflict) {
+        Toast.show({
+          type: "error",
+          text1: t("timeConflictMessage"),
+          position: "bottom",
+        });
         return;
       }
 
@@ -909,6 +918,10 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                           </View>
                         ))}
                       </ScrollView>
+
+                      <Text style={[Typography.f_14_nunito_medium,{ color: colors.Primary_01, marginTop: 10 }]}>
+                        {t('maxTwoBookingsAllowed')}
+                      </Text>
 
                       <TouchableOpacity
                         style={styles.closeButton}

@@ -423,40 +423,58 @@ const Scheduled: React.FC = () => {
               startOfWeek(currentDate, { weekStartsOn: 5 }),
               i
             );
-            
-            // Check if this slot is booked by any schedule for this property
-            let isBooked = false;
-            let bookingColor = colors.Neutral_01;
-            
-            item.schedules.forEach((schedule: any, scheduleIndex: number) => {
+            // Find all bookings for this slot
+            const bookingsForDay = item.schedules.filter((schedule: any) => {
               if (schedule.visitDates) {
                 const [startStr, endStr] = schedule.visitDates.split(" - ");
                 const startDate = moment(startStr, "MMM D, YYYY").startOf("day");
                 const endDate = moment(endStr, "MMM D, YYYY").endOf("day");
                 const slotMoment = moment(slotDate);
-                
-                if (
+                return (
                   slotMoment.isSameOrAfter(startDate) &&
                   slotMoment.isSameOrBefore(endDate)
-                ) {
-                  isBooked = true;
-                  // Use different color for each schedule
-                  bookingColor = randomColors[scheduleIndex % randomColors.length];
-                }
+                );
               }
+              return false;
             });
-
-            return (
-              <TouchableOpacity
-                key={i}
-                activeOpacity={0.8}
-                onPress={() => handleSlotClick(i, item)}
-                style={[
-                  styles.slot, 
-                  { backgroundColor: isBooked ? bookingColor : colors.Neutral_01 }
-                ]}
-              />
-            );
+            if (bookingsForDay.length === 2) {
+              // Two bookings: split slot in half
+              return (
+                <View key={i} style={[styles.slot, { flexDirection: 'row', padding: 0 }]}> 
+                  <TouchableOpacity
+                    style={{ flex: 1, backgroundColor: randomColors[item.schedules.indexOf(bookingsForDay[0]) % randomColors.length], borderTopLeftRadius: 4, borderBottomLeftRadius: 4 }}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setSelectedSchedule(bookingsForDay[0]);
+                      setShowBookingDetailsModal(true);
+                    }}
+                  />
+                  <TouchableOpacity
+                    style={{ flex: 1, backgroundColor: randomColors[item.schedules.indexOf(bookingsForDay[1]) % randomColors.length], borderTopRightRadius: 4, borderBottomRightRadius: 4 }}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setSelectedSchedule(bookingsForDay[1]);
+                      setShowBookingDetailsModal(true);
+                    }}
+                  />
+                </View>
+              );
+            } else {
+              // 0 or 1 or >2 bookings: keep old logic
+              let isBooked = bookingsForDay.length > 0;
+              let bookingColor = isBooked ? randomColors[item.schedules.indexOf(bookingsForDay[0]) % randomColors.length] : colors.Neutral_01;
+              return (
+                <TouchableOpacity
+                  key={i}
+                  activeOpacity={0.8}
+                  onPress={() => handleSlotClick(i, item)}
+                  style={[
+                    styles.slot,
+                    { backgroundColor: bookingColor }
+                  ]}
+                />
+              );
+            }
           })}
         </View>
       </View>
