@@ -109,6 +109,7 @@ export const languageData: LanguageData[] = [
       googleMapsLocation: "Google Maps location",
       viewOnMap: "View on Map",
       showAllSchedules: "Show all users' schedules",
+      showAllContacts: "Show all users' contacts",
       calendarData: {
         monthNames: [
           "January",
@@ -399,6 +400,7 @@ export const languageData: LanguageData[] = [
       googleMapsLocation: "Τοποθεσία Google Maps",
       viewOnMap: "Προβολή στο Χάρτη",
       showAllSchedules: "Δείξε όλα τα σχέδια χρήστη",
+      showAllContacts: "Εμφάνιση επαφών όλων των χρηστών",
       calendarData: {
         monthNames: [
           "Ιανουάριος",

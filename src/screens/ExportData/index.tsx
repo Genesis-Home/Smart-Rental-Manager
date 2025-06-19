@@ -126,10 +126,8 @@ const ExportData: React.FC = () => {
         csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.checkInTime}","${item.checkOutTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.property}"\n`;
       });
 
-      const fileName =
-        startDate && endDate
-          ? `Export_${startDate}_to_${endDate}.csv`
-          : `All_Schedules_Export.csv`;
+            const fileName = showAllSchedules ? `All_Schedules_Export.csv` : `Schedules_Export.csv`;
+
       const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
 
       await RNFS.writeFile(path, csv, "utf8");

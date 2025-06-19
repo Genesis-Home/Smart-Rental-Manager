@@ -9,6 +9,8 @@ import {
   TextInput,
   Keyboard,
   Modal,
+  PermissionsAndroid,
+  Platform,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { useNavigation } from "@react-navigation/native";
@@ -20,11 +22,14 @@ import { Contact, CreateContactScreenNavigationProp } from "../../types/types";
 import {
   fetchContactsByUserID,
   deleteContact,
+  fetchAllContacts,
 } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { Swipeable } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CTAButton1 from "../../components/CTA_BUTTON1";
+import RNFS from "react-native-fs";
+import Toast from "react-native-toast-message";
 
 const Profile: React.FC = () => {
   const navigation = useNavigation<CreateContactScreenNavigationProp>();
@@ -36,9 +41,16 @@ const Profile: React.FC = () => {
   const { t } = useTranslation();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [contactToDelete, setContactToDelete] = useState<string | null>(null);
+  const [showAllContacts, setShowAllContacts] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchContactsByUserID(user?.userId));
+    if (user?.userId) {
+      if (user?.email === "admin@gmail.com" && showAllContacts) {
+        dispatch(fetchAllContacts());
+      } else {
+        dispatch(fetchContactsByUserID(user?.userId));
+      }
+    }
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
       () => {
@@ -55,7 +67,7 @@ const Profile: React.FC = () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
-  }, [dispatch]);
+  }, [dispatch, user?.userId, user?.email, showAllContacts]);
 
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(search.toLowerCase())
@@ -123,6 +135,39 @@ const Profile: React.FC = () => {
     </Swipeable>
   );
 
+  const exportContactsToCSV = async () => {
+    if (!contacts || contacts.length === 0) {
+      Toast.show({ type: "info", text1: t("noContactsFound") });
+      return;
+    }
+    try {
+      if (Platform.OS === "android" && Platform.Version < 30) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          Toast.show({ type: "error", text1: t("permissionDenied") });
+          return;
+        }
+      }
+      let csv = "Name,Email,Phone,Notes\n";
+      contacts.forEach((item: any) => {
+        csv += `"${item.name}","${item.emailAddress}","${item.phoneNumber}","${item.notes || ''}"\n`;
+      });
+      const fileName = showAllContacts ? `All_Contacts_Export.csv` : `Contacts_Export.csv`;
+      const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+      await RNFS.writeFile(path, csv, "utf8");
+      Toast.show({
+        type: "success",
+        text1: t("fileSaved"),
+        text2: `Downloads/${fileName}`,
+      });
+    } catch (error) {
+      console.error("CSV export error", error);
+      Toast.show({ type: "error", text1: t("exportFailed") });
+    }
+  };
+
   return (
     <View style={styles.profileContainer}>
       <Header title={t("contact")} />
@@ -136,6 +181,44 @@ const Profile: React.FC = () => {
           onChangeText={setSearch}
         />
       </View>
+      <View style={{ marginBottom: 10,marginTop:30 }}>
+        <CTAButton1 title={t("export") || "Export"}
+          submitHandler={exportContactsToCSV}
+          isLoading={false}
+        />
+      </View>
+      {user?.email === "admin@gmail.com" && (
+        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10, marginBottom: 10 }}>
+          <TouchableOpacity
+            onPress={() => setShowAllContacts((prev) => !prev)}
+            style={{ marginRight: 8 }}
+            activeOpacity={0.7}
+          >
+            <View
+              style={{
+                width: 20,
+                height: 20,
+                borderWidth: 1,
+                borderColor: Colors.Primary_01,
+                backgroundColor: showAllContacts ? Colors.Primary_01 : '#fff',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {showAllContacts && (
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>
+                  ✓
+                </Text>
+              )}
+            </View>
+          </TouchableOpacity>
+          <View style={{ justifyContent: 'center', minHeight: 20 }}>
+            <Text style={[Typography.f_14_nunito_bold,{ color: Colors.Primary_01 }]}>
+              {t('showAllContacts')}
+            </Text>
+          </View>
+        </View>
+      )}
       {filteredContacts.length === 0 ? (
         <View style={styles.noContactsFound}>
           <Text style={styles.noContactsText}>{t("noContactsFound")}</Text>

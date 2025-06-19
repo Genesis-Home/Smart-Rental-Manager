@@ -1065,3 +1065,29 @@ export const fetchAllSchedules = () => async (dispatch: any) => {
     Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
   }
 };
+
+export const fetchAllContacts = () => async (dispatch: any) => {
+  try {
+    dispatch({ type: "IS_LOADER", payload: true });
+
+    const snapshot = await firestore()
+      .collection("contacts")
+      .get();
+
+    if (snapshot.empty) {
+      dispatch({ type: "SET_USER_CONTACTS", payload: [] });
+    } else {
+      const contacts = snapshot.docs.map((doc: any) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      dispatch({ type: "SET_USER_CONTACTS", payload: contacts });
+    }
+    dispatch({ type: "IS_LOADER", payload: false });
+  } catch (error) {
+    console.log(error, "fetchAllContacts_error");
+    dispatch({ type: "IS_LOADER", payload: false });
+    const errorMessage = await getFirebaseErrorMessage((error as any).code);
+    Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+  }
+};

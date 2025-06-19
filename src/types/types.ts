@@ -295,6 +295,7 @@ export type LanguageTranslation = {
   googleMapsLocation: string;
   viewOnMap: string;
   showAllSchedules: string;
+  showAllContacts: string;
   calendarData: CalendarData;
   selectDateRange: string;
   editProfile: string;
