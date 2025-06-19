@@ -23,7 +23,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { ExportScreenNavigationProp } from "../../types/types";
-import { fetchSchedulesByUserID } from "../../store/actions/action";
+import { fetchSchedulesByUserID, fetchAllSchedules } from "../../store/actions/action";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
@@ -42,11 +42,16 @@ const ExportData: React.FC = () => {
   const [endDate, setEndDate] = useState<string | null>(null);
   const user = useAppSelector((state: any) => state.reducer.user);
   const userSchedules = useAppSelector((state: any) => state.reducer.schedules);
+  const [showAllSchedules, setShowAllSchedules] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       if (user?.userId) {
-        dispatch(fetchSchedulesByUserID(user.userId));
+        if (user?.email === "admin@gmail.com" && showAllSchedules) {
+          dispatch(fetchAllSchedules());
+        } else {
+          dispatch(fetchSchedulesByUserID(user.userId));
+        }
       } else {
         const customMessage = await getFirebaseErrorMessage(
           "User not authenticated"
@@ -61,7 +66,7 @@ const ExportData: React.FC = () => {
     };
 
     fetchData();
-  }, [dispatch, user?.userId]);
+  }, [dispatch, user?.userId, user?.email, showAllSchedules]);
 
   const filterSchedulesByDateRange = () => {
     if (!startDate || !endDate) return userSchedules;
@@ -271,8 +276,41 @@ const ExportData: React.FC = () => {
           />
         </View>
         <View style={styles.exportBtnWrapper}>
-          <CTAButton1 title={t("export")} submitHandler={exportToCSV} />
+          <CTAButton1 title={t("export")}
+            submitHandler={exportToCSV}
+            isLoading={false}
+          />
         </View>
+        {user?.email === "admin@gmail.com" && (
+          <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10, marginBottom: 10 }}>
+            <TouchableOpacity
+              onPress={() => setShowAllSchedules((prev) => !prev)}
+              style={{ marginRight: 8 }}
+              activeOpacity={0.7}
+            >
+              <View
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderWidth: 1,
+                  borderColor: colors.Primary_01,
+                  backgroundColor: showAllSchedules ? colors.Primary_01 : '#fff',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                {showAllSchedules && (
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>✓</Text>
+                )}
+              </View>
+            </TouchableOpacity>
+            <View style={{ justifyContent: 'center', minHeight: 20 }}>
+              <Text style={[Typography.f_14_nunito_bold,{ color: colors.Primary_01 }]}>
+                {t('showAllSchedules') || "Show all users' schedules"}
+              </Text>
+            </View>
+          </View>
+        )}
         {filteredSchedules.length === 0 ? (
           <View style={styles.noSchedulesFound}>
             <Text style={styles.noSchedulesText}>{t("noSchedulesFound")}</Text>
@@ -437,9 +475,10 @@ const styles = StyleSheet.create({
   },
   exportBtnWrapper: {
     marginTop: 25,
+    marginBottom:15
   },
   visitCard: {
-    marginTop: 25,
+    marginTop: 15,
     borderWidth: 1,
     borderColor: colors.Neutral_01,
     padding: 15,

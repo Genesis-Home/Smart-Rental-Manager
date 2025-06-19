@@ -294,6 +294,7 @@ export type LanguageTranslation = {
   Infant: string;
   googleMapsLocation: string;
   viewOnMap: string;
+  showAllSchedules: string;
   calendarData: CalendarData;
   selectDateRange: string;
   editProfile: string;

@@ -1039,3 +1039,29 @@ export const deleteScheduleById =
       dispatch({ type: "IS_LOADER", payload: false });
     }
   };
+
+export const fetchAllSchedules = () => async (dispatch: any) => {
+  try {
+    dispatch({ type: "IS_LOADER", payload: true });
+
+    const snapshot = await firestore()
+      .collection("schedules")
+      .get();
+
+    if (snapshot.empty) {
+      dispatch({ type: "SET_USER_SCHEDULES", payload: [] });
+    } else {
+      const schedules = snapshot.docs.map((doc: any) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      dispatch({ type: "SET_USER_SCHEDULES", payload: schedules });
+    }
+    dispatch({ type: "IS_LOADER", payload: false });
+  } catch (error) {
+    console.log(error, "fetchAllSchedules_error");
+    dispatch({ type: "IS_LOADER", payload: false });
+    const errorMessage = await getFirebaseErrorMessage((error as any).code);
+    Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+  }
+};

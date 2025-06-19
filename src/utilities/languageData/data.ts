@@ -108,6 +108,7 @@ export const languageData: LanguageData[] = [
       Infant: "Infant",
       googleMapsLocation: "Google Maps location",
       viewOnMap: "View on Map",
+      showAllSchedules: "Show all users' schedules",
       calendarData: {
         monthNames: [
           "January",
@@ -397,6 +398,7 @@ export const languageData: LanguageData[] = [
       Infant: "Βρέφος",
       googleMapsLocation: "Τοποθεσία Google Maps",
       viewOnMap: "Προβολή στο Χάρτη",
+      showAllSchedules: "Δείξε όλα τα σχέδια χρήστη",
       calendarData: {
         monthNames: [
           "Ιανουάριος",
