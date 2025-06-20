@@ -1091,3 +1091,11 @@ export const fetchAllContacts = () => async (dispatch: any) => {
     Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
   }
 };
+
+
+export const isLocationSet =
+  (isLocationAvailable?: boolean, loc?: object): any =>
+  async (dispatch: Dispatch) => {
+    dispatch({type: 'IS_LOCATION', payload: isLocationAvailable});
+    dispatch({type: 'SAVED_COORDS', payload: loc});
+  };

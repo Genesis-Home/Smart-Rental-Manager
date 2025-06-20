@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { AppState, AppStateStatus } from 'react-native';
+
 import {
   StyleSheet,
   Text,
@@ -32,7 +34,7 @@ import FormInput from "../../components/FormInput";
 import { AddPhoto, Cross, Marker as MarkerIcon } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import { colors, DEFAULT_LANGUAGE } from "../../utilities/constants";
-import { addProperty } from "../../store/actions/action";
+import { addProperty, isLocationSet } from "../../store/actions/action";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import axios from "axios";
@@ -49,6 +51,7 @@ import { Language } from "react-native-google-places-autocomplete";
 import Geolocation from "@react-native-community/geolocation";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { checkLocationPermission } from "../../services/locationServiceCheck";
 
 const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const { t } = useTranslation();
@@ -64,6 +67,9 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [inputValue, setInputValue] = useState("");
+  const isLocation = useSelector((state: any) => state.reducer.isLocation);
+  const [isLocationErr, setisLocationErr] = useState(false);
+
   const [initialLocation, setInitialLocation] = useState<{
     address: string;
     lat: number;
@@ -90,76 +96,96 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const [viewingCoverPhoto, setViewingCoverPhoto] = useState(false);
 
   useEffect(() => {
-    const requestLocationPermission = async () => {
-      if (Platform.OS === "ios") {
-        Geolocation.requestAuthorization();
-        getCurrentLocation();
-      } else {
+    setisLocationErr(isLocation);
+  }, [isLocation]);
+  useEffect(() => {
+    gpsenable()
+  }, []);
+
+  const appState = useRef(AppState.currentState);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', async (nextAppState: AppStateStatus) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        // 🔁 App wapas foreground me aaya
+        console.log('App returned to foreground, checking location...');
         try {
-          const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            {
-              title: "Location Permission",
-              message: "Smart Rental Manager needs access to your location",
-              buttonNeutral: "Ask Me Later",
-              buttonNegative: "Cancel",
-              buttonPositive: "OK",
-            }
-          );
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            getCurrentLocation();
-          }
-        } catch (err) {
-          console.warn(err);
+          await checkLocationPermission();
+        } catch (error) {
+          console.log('Location fetch failed:', error);
         }
       }
+
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
     };
-
-    const getCurrentLocation = async () => {
-      setIsLocationLoading(true);
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setMarker({ latitude, longitude });
-          setMapRegion({
-            latitude,
-            longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          });
-
-          try {
-            const response = await axios.get(
-              `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
-            );
-
-            if (response.data.status === "OK") {
-              setIsLocationLoading(false);
-              const formattedAddress =
-                response.data.results[0]?.formatted_address || "";
-              const location = {
-                address: formattedAddress,
-                lat: latitude,
-                long: longitude,
-              };
-              setInitialLocation(location);
-              setLastSelectedLocation(location);
-              setInputValue(formattedAddress);
-              if (placesRef.current) {
-                placesRef.current.setAddressText(formattedAddress);
-              }
-              setIsInitialLocationSet(true);
-            }
-          } catch (error) {
-            console.error("Error reverse geocoding:", error);
-          }
-        },
-        (error) => console.log(error),
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-      );
-    };
-    requestLocationPermission();
   }, []);
+
+
+
+
+  const gpsenable = async () => {
+    try {
+      const position: any = await checkLocationPermission();
+      const { latitude, longitude } = position.coords;
+      const loc = [latitude, longitude];
+      console.log(loc, "Location");
+
+      dispatch(isLocationSet(true, loc));
+
+
+      setMarker({ latitude, longitude });
+      setMapRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+      setInitialLocation(loc as any);
+      setLastSelectedLocation(loc as any);
+
+
+
+
+ const response = await axios.get(
+        `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
+      );
+
+
+
+
+      console.log(response.data, "response.data");
+
+      if (response.data.status === "OK") {
+        setIsLocationLoading(false);
+        const formattedAddress = response.data.results[0]?.formatted_address || "";
+        const location = {
+          address: formattedAddress,
+          lat: latitude,
+          long: longitude,
+        };
+
+        console.log(location, "location");
+        setInitialLocation(location);
+        setLastSelectedLocation(location);
+        setInputValue(formattedAddress);
+        if (placesRef.current) {
+          placesRef.current.setAddressText(formattedAddress);
+        }
+        setIsInitialLocationSet(true);
+      }
+    } catch (error) {
+      console.error("Error in GPS enabling or reverse geocoding:", error);
+      setIsLocationLoading(false);
+      dispatch(isLocationSet(false, []));
+    }
+  };
+
+
+  console.log(initialLocation, "Initial Location")
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required(t("title") + " " + t("isRequired")),
@@ -425,6 +451,10 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
         `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
       );
 
+
+
+
+
       const formattedAddress =
         response.data.results[0]?.formatted_address || "";
 
@@ -440,6 +470,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       setFieldValue("location", location);
     } catch (error) {
       console.error("Error reverse geocoding:", error);
+
     }
   };
 
@@ -466,484 +497,503 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.mainContainer, styles.platformMarginTop]}>
-      {isLocationLoading ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <ActivityIndicator size="large" color={Colors.Primary_01} />
-        </View>
-      ) : (
-        <View style={styles.contentContainer}>
-          <Header title={t("addProperty")} />
-          <ScrollView
-            contentContainerStyle={styles.scrollContainer}
-            showsVerticalScrollIndicator={false}
+    <>
+
+      <View style={[styles.mainContainer, styles.platformMarginTop]}>
+
+        {isLocationLoading ? (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={handleCoverPhotoPick}
-              style={styles.photoUploadSection}
-            >
-              <Text
-                style={[
-                  styles.photoUploadLabel,
-                  Typography.f_14_nunito_extra_bold,
-                ]}
-              >
-                {t("PhotoUpload")}
-              </Text>
-              <View style={styles.photoUploadActionRow}>
-                <AddPhoto />
-                <Text
-                  style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
-                >
-                  {t("coverPhoto")}
-                </Text>
-              </View>
-            </TouchableOpacity>
-            
-            {/* Cover Photo Section */}
-            {isCoverPhotoUploading ? (
-              <ActivityIndicator
-                size="large"
-                color={colors.Primary_01}
-                style={{ marginTop: 20 }}
-              />
-            ) : (
-              coverPhoto && (
-                <View style={styles.coverPhotoSection}>
-                  <Text
-                    style={[
-                      Typography.f_16_nunito_medium,
-                      { color: colors.black, marginBottom: 10 },
-                    ]}
-                  >
-                    {t("coverPhoto")}
-                  </Text>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => openImageView(0, true)}
-                    style={styles.coverPhotoContainer}
-                  >
-                    <Image
-                      style={styles.coverPhoto}
-                      source={{ uri: coverPhoto }}
-                      resizeMode="cover"
-                    />
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      style={styles.removeButton}
-                      onPress={handleRemoveCoverPhoto}
-                    >
-                      <Cross />
-                    </TouchableOpacity>
-                  </TouchableOpacity>
-                </View>
-              )
-            )}
-            
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={handleGalleryImagesPick}
-              style={styles.photoUploadSection}
-            >
-              <Text
-                style={[
-                  styles.photoUploadLabel,
-                  Typography.f_14_nunito_extra_bold,
-                ]}
-              >
-                {t("PhotoUpload")}
-              </Text>
-              <View style={styles.photoUploadActionRow}>
-                <AddPhoto />
-                <Text
-                  style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
-                >
-                  {t("galleryImages")}
-                </Text>
-              </View>
-            </TouchableOpacity>
-            
-            {/* Gallery Images Section */}
-            {isGalleryUploading ? (
-              <ActivityIndicator
-                size="large"
-                color={colors.Primary_01}
-                style={{ marginTop: 20 }}
-              />
-            ) : (
-              galleryImages.length > 0 && (
-                <View style={styles.gallerySection}>
-                  <Text
-                    style={[
-                      Typography.f_16_nunito_medium,
-                      { color: colors.black, marginBottom: 10 },
-                    ]}
-                  >
-                    {t("galleryImages")}
-                  </Text>
-                  <FlatList
-                    data={galleryImages}
-                    numColumns={3}
-                    columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
-                    renderItem={({ item, index }) => (
-                      <TouchableOpacity
-                        key={index}
-                        activeOpacity={0.8}
-                        onPress={() => openImageView(index, false)}
-                        style={styles.imageContainer}
-                      >
-                        <Image
-                          style={styles.image}
-                          source={{ uri: item }}
-                          resizeMode="cover"
-                        />
-                        <TouchableOpacity
-                          activeOpacity={0.8}
-                          style={{ position: "absolute", right: 0, padding: 10 }}
-                          onPress={() => handleRemoveGalleryImage(index)}
-                        >
-                          <Cross />
-                        </TouchableOpacity>
-                      </TouchableOpacity>
-                    )}
-                  />
-                </View>
-              )
-            )}
-            <ImageView
-              images={
-                viewingCoverPhoto && coverPhoto 
-                  ? [{ uri: coverPhoto }] 
-                  : galleryImages.map((url) => ({ uri: url }))
-              }
-              imageIndex={selectedIndex}
-              visible={visible}
-              onRequestClose={() => setIsVisible(false)}
-            />
-            <Formik
-              initialValues={{
-                title: "",
-                description: "",
-                otherDetails: "",
-                images: [],
-                location: initialLocation || { address: "", lat: 0, long: 0 },
-              }}
-              enableReinitialize={true}
-              validationSchema={validationSchema}
-              onSubmit={async (values, { resetForm }) => {
-                try {
-                  // Combine cover photo and gallery images with cover photo at index 0
-                  const allImages = coverPhoto ? [coverPhoto, ...galleryImages] : galleryImages;
-                  
-                  const formData = {
-                    ...values,
-                    images: allImages,
-                  };
+            <ActivityIndicator size="large" color={Colors.Primary_01} />
+          </View>
+        ) : (
+          <>
+          
+            {
+              (
+                <>
+                  <View style={styles.contentContainer}>
 
-                  if (user?.userId) {
-                    dispatch(addProperty(formData, user.userId, navigation));
-                    resetForm();
-                    setCoverPhoto(null);
-                    setGalleryImages([]);
-                  } else {
-                    const errorMessage = await getFirebaseErrorMessage(
-                      "User not authenticated"
-                    );
-                    Toast.show({
-                      type: "error",
-                      text1: errorMessage,
-                    });
-                    navigation.navigate("Signin");
-                  }
-                } catch (error) {
-                  console.error("Form submission error:", error);
-                  const errorMessage = await getFirebaseErrorMessage(
-                    "Failed to upload images. Please try again."
-                  );
-                  Toast.show({
-                    type: "error",
-                    text1: errorMessage,
-                    position: "bottom",
-                  });
-                }
-              }}
-            >
-              {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                setFieldValue,
-                values,
-                errors,
-                touched,
-              }) => (
-                <View>
-                  <FormInput
-                    label={t("addTitle")}
-                    placeholder={`${t("addTitle")}...`}
-                    value={values.title}
-                    onChangeText={handleChange("title")}
-                    onBlur={handleBlur("title")}
-                    error={touched.title && errors.title}
-                  />
-                  <FormInput
-                    label={t("addDes")}
-                    placeholder={`${t("addDes")}...`}
-                    value={values.description}
-                    onChangeText={handleChange("description")}
-                    onBlur={handleBlur("description")}
-                    error={touched.description && errors.description}
-                    multiline
-                  />
-                  <FormInput
-                    label={t("otherDet")}
-                    placeholder={t("otherDet")}
-                    value={values.otherDetails}
-                    onChangeText={handleChange("otherDetails")}
-                    onBlur={handleBlur("otherDetails")}
-                    error={touched.otherDetails && errors.otherDetails}
-                    multiline
-                  />
-                  <View style={{ gap: 8, marginTop: 10 }}>
-                    <Text
-                      style={[
-                        Typography.f_16_nunito_medium,
-                        { color: colors.black, paddingLeft: 3 },
-                      ]}
+                    <Header title={t("addProperty")} />
+
+
+                    <ScrollView
+                      contentContainerStyle={styles.scrollContainer}
+                      showsVerticalScrollIndicator={false}
                     >
-                      {t("location")}
-                    </Text>
-                    <View style={styles.autocompleteContainer}>
-                      <GooglePlacesAutocomplete
-                        ref={placesRef}
-                        placeholder={t("location")}
-                        query={{
-                          key: EnvConfig.googleMaps.apiKey,
-                          language: DEFAULT_LANGUAGE as Language,
-                        }}
-                        fetchDetails={true}
-                        minLength={2}
-                        onPress={(data, details) =>
-                          onPlaceSelected(data, details, setFieldValue)
-                        }
-                        enablePoweredByContainer={false}
-                        textInputProps={{
-                          value: inputValue,
-                          onChangeText: setInputValue,
-                        }}
-                        styles={{
-                          textInput: {
-                            ...Typography.f_12_nunito_medium,
-                            color: Colors.black,
-                            paddingHorizontal: 14,
-                            paddingLeft: 15,
-                            borderWidth: 0.3,
-                            borderColor: Colors.DARK_GRAY,
-                            borderRadius: 5,
-                            backgroundColor: Colors.white,
-                            height: 45,
-                            marginTop: 0,
-                            marginLeft: 0,
-                            marginRight: 0,
-                          },
-                          textInputContainer: {
-                            backgroundColor: Colors.white,
-                            borderTopWidth: 0,
-                            borderBottomWidth: 0,
-                            // zIndex: 1,
-                          },
-                          listView: {
-                            backgroundColor: Colors.white,
-                            borderWidth: 0.3,
-                            borderColor: Colors.DARK_GRAY,
-                            borderRadius: 8,
-                            marginTop: 10,
-                            // position: "absolute",
-                            // top: "100%",
-                            // left: 0,
-                            // right: 0,
-                            // zIndex: 1000,
-                            // elevation: 3,
-                            // shadowColor: "#000",
-                            // shadowOffset: { width: 0, height: 2 },
-                            // shadowOpacity: 0.25,
-                            // shadowRadius: 3.84,
-                          },
-                          // row: {
-                          //   backgroundColor: Colors.white,
-                          //   padding: 13,
-                          //   height: "auto",
-                          //   minHeight: 44,
-                          // },
-                          description: {
-                            ...Typography.f_14_nunito_medium,
-                            color: "black",
-                          },
-                          separator: {
-                            height: 0.5,
-                            backgroundColor: Colors.DARK_GRAY,
-                          },
-                        }}
-                      />
-                      {inputValue ? (
-                        <TouchableOpacity
-                          style={styles.clearButton}
-                          onPress={clearInput}
-                        >
-                          <Icon
-                            name="close"
-                            size={20}
-                            color={Colors.DARK_GRAY}
-                          />
-                        </TouchableOpacity>
-                      ) : null}
-                    </View>
-                    <View>
-                      <MapView
-                        ref={mapRef}
-                        style={{ height: 200, width: "100%" }}
-                        provider={PROVIDER_GOOGLE}
-                        region={mapRegion}
-                        onPress={(event) =>
-                          handleMapPress(event, setFieldValue)
-                        }
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={handleCoverPhotoPick}
+                        style={styles.photoUploadSection}
                       >
-                        {marker && (
-                          <Marker
-                            coordinate={{
-                              latitude: marker.latitude,
-                              longitude: marker.longitude,
-                            }}
+                        <Text
+                          style={[
+                            styles.photoUploadLabel,
+                            Typography.f_14_nunito_extra_bold,
+                          ]}
+                        >
+                          {t("PhotoUpload")}
+                        </Text>
+                        <View style={styles.photoUploadActionRow}>
+                          <AddPhoto />
+                          <Text
+                            style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
                           >
-                            <MarkerIcon />
-                          </Marker>
-                        )}
-                      </MapView>
+                            {t("coverPhoto")}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+
+                      {/* Cover Photo Section */}
+                      {isCoverPhotoUploading ? (
+                        <ActivityIndicator
+                          size="large"
+                          color={colors.Primary_01}
+                          style={{ marginTop: 20 }}
+                        />
+                      ) : (
+                        coverPhoto && (
+                          <View style={styles.coverPhotoSection}>
+                            <Text
+                              style={[
+                                Typography.f_16_nunito_medium,
+                                { color: colors.black, marginBottom: 10 },
+                              ]}
+                            >
+                              {t("coverPhoto")}
+                            </Text>
+                            <TouchableOpacity
+                              activeOpacity={0.8}
+                              onPress={() => openImageView(0, true)}
+                              style={styles.coverPhotoContainer}
+                            >
+                              <Image
+                                style={styles.coverPhoto}
+                                source={{ uri: coverPhoto }}
+                                resizeMode="cover"
+                              />
+                              <TouchableOpacity
+                                activeOpacity={0.8}
+                                style={styles.removeButton}
+                                onPress={handleRemoveCoverPhoto}
+                              >
+                                <Cross />
+                              </TouchableOpacity>
+                            </TouchableOpacity>
+                          </View>
+                        )
+                      )}
+
                       <TouchableOpacity
                         activeOpacity={0.8}
-                        onPress={async () => {
-                          if (!isInitialLocationSet) {
-                            // If initial location is not set, get current location
-                            Geolocation.getCurrentPosition(
-                              async (position) => {
-                                const { latitude, longitude } = position.coords;
-                                mapRef.current?.animateToRegion(
-                                  {
-                                    latitude,
-                                    longitude,
-                                    latitudeDelta: 0.01,
-                                    longitudeDelta: 0.01,
-                                  },
-                                  1000
-                                );
+                        onPress={handleGalleryImagesPick}
+                        style={styles.photoUploadSection}
+                      >
+                        <Text
+                          style={[
+                            styles.photoUploadLabel,
+                            Typography.f_14_nunito_extra_bold,
+                          ]}
+                        >
+                          {t("PhotoUpload")}
+                        </Text>
+                        <View style={styles.photoUploadActionRow}>
+                          <AddPhoto />
+                          <Text
+                            style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                          >
+                            {t("galleryImages")}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
 
-                                setMarker({ latitude, longitude });
+                      {/* Gallery Images Section */}
+                      {isGalleryUploading ? (
+                        <ActivityIndicator
+                          size="large"
+                          color={colors.Primary_01}
+                          style={{ marginTop: 20 }}
+                        />
+                      ) : (
+                        galleryImages.length > 0 && (
+                          <View style={styles.gallerySection}>
+                            <Text
+                              style={[
+                                Typography.f_16_nunito_medium,
+                                { color: colors.black, marginBottom: 10 },
+                              ]}
+                            >
+                              {t("galleryImages")}
+                            </Text>
+                            <FlatList
+                              data={galleryImages}
+                              numColumns={3}
+                              columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
+                              renderItem={({ item, index }) => (
+                                <TouchableOpacity
+                                  key={index}
+                                  activeOpacity={0.8}
+                                  onPress={() => openImageView(index, false)}
+                                  style={styles.imageContainer}
+                                >
+                                  <Image
+                                    style={styles.image}
+                                    source={{ uri: item }}
+                                    resizeMode="cover"
+                                  />
+                                  <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    style={{ position: "absolute", right: 0, padding: 10 }}
+                                    onPress={() => handleRemoveGalleryImage(index)}
+                                  >
+                                    <Cross />
+                                  </TouchableOpacity>
+                                </TouchableOpacity>
+                              )}
+                            />
+                          </View>
+                        )
+                      )}
+                      <ImageView
+                        images={
+                          viewingCoverPhoto && coverPhoto
+                            ? [{ uri: coverPhoto }]
+                            : galleryImages.map((url) => ({ uri: url }))
+                        }
+                        imageIndex={selectedIndex}
+                        visible={visible}
+                        onRequestClose={() => setIsVisible(false)}
+                      />
+                      <Formik
+                        initialValues={{
+                          title: "",
+                          description: "",
+                          otherDetails: "",
+                          images: [],
+                          location: initialLocation || { address: "", lat: 0, long: 0 },
+                        }}
+                        enableReinitialize={true}
+                        validationSchema={validationSchema}
+                        onSubmit={async (values, { resetForm }) => {
+                          try {
+                            // Combine cover photo and gallery images with cover photo at index 0
+                            const allImages = coverPhoto ? [coverPhoto, ...galleryImages] : galleryImages;
 
-                                try {
-                                  const response = await axios.get(
-                                    `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
-                                  );
+                            const formData = {
+                              ...values,
+                              images: allImages,
+                            };
 
-                                  if (response.data.status === "OK") {
-                                    const formattedAddress =
-                                      response.data.results[0]
-                                        ?.formatted_address || "";
-                                    const location = {
-                                      address: formattedAddress,
-                                      lat: latitude,
-                                      long: longitude,
-                                    };
-                                    setInitialLocation(location);
-                                    setLastSelectedLocation(location);
-                                    setInputValue(formattedAddress);
-                                    if (placesRef.current) {
-                                      placesRef.current.setAddressText(
-                                        formattedAddress
-                                      );
-                                    }
-                                    setIsInitialLocationSet(true);
-                                  }
-                                } catch (error) {
-                                  console.error(
-                                    "Error reverse geocoding:",
-                                    error
-                                  );
-                                }
-                              },
-                              (error) => console.log(error),
-                              {
-                                enableHighAccuracy: true,
-                                timeout: 20000,
-                                maximumAge: 1000,
-                              }
-                            );
-                          } else if (lastSelectedLocation) {
-                            // If initial location is set, recenter to last selected location
-                            mapRef.current?.animateToRegion(
-                              {
-                                latitude: lastSelectedLocation.lat,
-                                longitude: lastSelectedLocation.long,
-                                latitudeDelta: 0.01,
-                                longitudeDelta: 0.01,
-                              },
-                              1000
-                            );
-
-                            setMarker({
-                              latitude: lastSelectedLocation.lat,
-                              longitude: lastSelectedLocation.long,
-                            });
-                            setInputValue(lastSelectedLocation.address);
-                            if (placesRef.current) {
-                              placesRef.current.setAddressText(
-                                lastSelectedLocation.address
+                            if (user?.userId) {
+                              dispatch(addProperty(formData, user.userId, navigation));
+                              resetForm();
+                              setCoverPhoto(null);
+                              setGalleryImages([]);
+                            } else {
+                              const errorMessage = await getFirebaseErrorMessage(
+                                "User not authenticated"
                               );
+                              Toast.show({
+                                type: "error",
+                                text1: errorMessage,
+                              });
+                              navigation.navigate("Signin");
                             }
+                          } catch (error) {
+                            console.error("Form submission error:", error);
+                            const errorMessage = await getFirebaseErrorMessage(
+                              "Failed to upload images. Please try again."
+                            );
+                            Toast.show({
+                              type: "error",
+                              text1: errorMessage,
+                              position: "bottom",
+                            });
                           }
                         }}
-                        style={{
-                          position: "absolute",
-                          top: "5%",
-                          right: 10,
-                          backgroundColor: Colors.white,
-                          padding: 12,
-                          borderRadius: 30,
-                          elevation: 5,
-                          shadowColor: "#000",
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: 0.25,
-                          shadowRadius: 3.84,
-                          zIndex: 1000,
-                        }}
                       >
-                        <MaterialIcons
-                          name="my-location"
-                          size={24}
-                          color={Colors.Error_Red}
-                        />
-                      </TouchableOpacity>
-                    </View>
+                        {({
+                          handleChange,
+                          handleBlur,
+                          handleSubmit,
+                          setFieldValue,
+                          values,
+                          errors,
+                          touched,
+                        }) => (
+                          <View>
+                            <FormInput
+                              label={t("addTitle")}
+                              placeholder={`${t("addTitle")}...`}
+                              value={values.title}
+                              onChangeText={handleChange("title")}
+                              onBlur={handleBlur("title")}
+                              error={touched.title && errors.title}
+                            />
+                            <FormInput
+                              label={t("addDes")}
+                              placeholder={`${t("addDes")}...`}
+                              value={values.description}
+                              onChangeText={handleChange("description")}
+                              onBlur={handleBlur("description")}
+                              error={touched.description && errors.description}
+                              multiline
+                            />
+                            <FormInput
+                              label={t("otherDet")}
+                              placeholder={t("otherDet")}
+                              value={values.otherDetails}
+                              onChangeText={handleChange("otherDetails")}
+                              onBlur={handleBlur("otherDetails")}
+                              error={touched.otherDetails && errors.otherDetails}
+                              multiline
+                            />
+                            <View style={{ gap: 8, marginTop: 10 }}>
+                              <Text
+                                style={[
+                                  Typography.f_16_nunito_medium,
+                                  { color: colors.black, paddingLeft: 3 },
+                                ]}
+                              >
+                                {t("location")}
+                              </Text>
+                              <View style={styles.autocompleteContainer}>
+                                <GooglePlacesAutocomplete
+                                  ref={placesRef}
+                                  placeholder={t("location")}
+                                  query={{
+                                    key:`${EnvConfig.googleMaps.apiKey}`,
+                                    language: DEFAULT_LANGUAGE as Language,
+                                  }}
+                                  fetchDetails={true}
+                                  minLength={2}
+                                  onPress={(data, details) =>
+                                    onPlaceSelected(data, details, setFieldValue)
+                                  }
+                                  enablePoweredByContainer={false}
+                                  textInputProps={{
+                                    value: inputValue,
+                                    onChangeText: setInputValue,
+                                  }}
+                                  styles={{
+                                    textInput: {
+                                      ...Typography.f_12_nunito_medium,
+                                      color: Colors.black,
+                                      paddingHorizontal: 14,
+                                      paddingLeft: 15,
+                                      borderWidth: 0.3,
+                                      borderColor: Colors.DARK_GRAY,
+                                      borderRadius: 5,
+                                      backgroundColor: Colors.white,
+                                      height: 45,
+                                      marginTop: 0,
+                                      marginLeft: 0,
+                                      marginRight: 0,
+                                    },
+                                    textInputContainer: {
+                                      backgroundColor: Colors.white,
+                                      borderTopWidth: 0,
+                                      borderBottomWidth: 0,
+                                      // zIndex: 1,
+                                    },
+                                    listView: {
+                                      backgroundColor: Colors.white,
+                                      borderWidth: 0.3,
+                                      borderColor: Colors.DARK_GRAY,
+                                      borderRadius: 8,
+                                      marginTop: 10,
+                                      // position: "absolute",
+                                      // top: "100%",
+                                      // left: 0,
+                                      // right: 0,
+                                      // zIndex: 1000,
+                                      // elevation: 3,
+                                      // shadowColor: "#000",
+                                      // shadowOffset: { width: 0, height: 2 },
+                                      // shadowOpacity: 0.25,
+                                      // shadowRadius: 3.84,
+                                    },
+                                    // row: {
+                                    //   backgroundColor: Colors.white,
+                                    //   padding: 13,
+                                    //   height: "auto",
+                                    //   minHeight: 44,
+                                    // },
+                                    description: {
+                                      ...Typography.f_14_nunito_medium,
+                                      color: "black",
+                                    },
+                                    separator: {
+                                      height: 0.5,
+                                      backgroundColor: Colors.DARK_GRAY,
+                                    },
+                                  }}
+                                />
+                                {inputValue ? (
+                                  <TouchableOpacity
+                                    style={styles.clearButton}
+                                    onPress={clearInput}
+                                  >
+                                    <Icon
+                                      name="close"
+                                      size={20}
+                                      color={Colors.DARK_GRAY}
+                                    />
+                                  </TouchableOpacity>
+                                ) : null}
+                              </View>
+                              <View>
+                                <MapView
+                                  ref={mapRef}
+                                  style={{ height: 200, width: "100%" }}
+                                  provider={PROVIDER_GOOGLE}
+                                  region={mapRegion}
+                                  onPress={(event) =>
+                                    handleMapPress(event, setFieldValue)
+                                  }
+                                >
+                                  {marker && (
+                                    <Marker
+                                      coordinate={{
+                                        latitude: marker.latitude,
+                                        longitude: marker.longitude,
+                                      }}
+                                    >
+                                      <MarkerIcon />
+                                    </Marker>
+                                  )}
+                                </MapView>
+                                <TouchableOpacity
+                                  activeOpacity={0.8}
+                                  onPress={async () => {
+                                    if (!isInitialLocationSet) {
+                                      // If initial location is not set, get current location
+                                      Geolocation.getCurrentPosition(
+                                        async (position) => {
+                                          const { latitude, longitude } = position.coords;
+                                          mapRef.current?.animateToRegion(
+                                            {
+                                              latitude,
+                                              longitude,
+                                              latitudeDelta: 0.01,
+                                              longitudeDelta: 0.01,
+                                            },
+                                            1000
+                                          );
+
+                                          setMarker({ latitude, longitude });
+
+                                          try {
+                                            const response = await axios.get(
+                                              `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
+                                            );
+
+                                            if (response.data.status === "OK") {
+                                              const formattedAddress =
+                                                response.data.results[0]
+                                                  ?.formatted_address || "";
+                                              const location = {
+                                                address: formattedAddress,
+                                                lat: latitude,
+                                                long: longitude,
+                                              };
+                                              setInitialLocation(location);
+                                              setLastSelectedLocation(location);
+                                              setInputValue(formattedAddress);
+                                              if (placesRef.current) {
+                                                placesRef.current.setAddressText(
+                                                  formattedAddress
+                                                );
+                                              }
+                                              setIsInitialLocationSet(true);
+                                            }
+                                          } catch (error) {
+                                            console.error(
+                                              "Error reverse geocoding:",
+                                              error
+                                            );
+                                          }
+                                        },
+                                        (error) => console.log(error),
+                                        {
+                                          enableHighAccuracy: true,
+                                          timeout: 20000,
+                                          maximumAge: 1000,
+                                        }
+                                      );
+                                    } else if (lastSelectedLocation) {
+                                      // If initial location is set, recenter to last selected location
+                                      mapRef.current?.animateToRegion(
+                                        {
+                                          latitude: lastSelectedLocation.lat,
+                                          longitude: lastSelectedLocation.long,
+                                          latitudeDelta: 0.01,
+                                          longitudeDelta: 0.01,
+                                        },
+                                        1000
+                                      );
+
+                                      setMarker({
+                                        latitude: lastSelectedLocation.lat,
+                                        longitude: lastSelectedLocation.long,
+                                      });
+                                      setInputValue(lastSelectedLocation.address);
+                                      if (placesRef.current) {
+                                        placesRef.current.setAddressText(
+                                          lastSelectedLocation.address
+                                        );
+                                      }
+                                    }
+                                  }}
+                                  style={{
+                                    position: "absolute",
+                                    top: "5%",
+                                    right: 10,
+                                    backgroundColor: Colors.white,
+                                    padding: 12,
+                                    borderRadius: 30,
+                                    elevation: 5,
+                                    shadowColor: "#000",
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.25,
+                                    shadowRadius: 3.84,
+                                    zIndex: 1000,
+                                  }}
+                                >
+                                  <MaterialIcons
+                                    name="my-location"
+                                    size={24}
+                                    color={Colors.Error_Red}
+                                  />
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                            <View style={styles.submitButtonContainer}>
+                              <CTAButton1
+                                title={t("submit")}
+                                submitHandler={handleSubmit}
+                              />
+                            </View>
+                          </View>
+                        )}
+                      </Formik>
+                    </ScrollView>
                   </View>
-                  <View style={styles.submitButtonContainer}>
-                    <CTAButton1
-                      title={t("submit")}
-                      submitHandler={handleSubmit}
-                    />
-                  </View>
-                </View>
-              )}
-            </Formik>
-          </ScrollView>
-        </View>
-      )}
-    </View>
+                </>
+              )
+            }
+          </>
+
+
+
+        )}
+      </View>
+    </>
   );
 };
 
@@ -1074,6 +1124,14 @@ const createStyles = (colors: any) =>
     },
     photoTextLabel: {
       color: colors.DARK_GREEN,
+    },
+    locationError: {
+      flex: 1,
+      width: '50%',
+      marginHorizontal: '25%',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: "100%"
     },
   });
 
