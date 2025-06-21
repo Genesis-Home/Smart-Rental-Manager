@@ -49,7 +49,6 @@ import {
 import Colors from "../../utilities/constants/colors";
 import { Language } from "react-native-google-places-autocomplete";
 import Geolocation from "@react-native-community/geolocation";
-import AntDesign from "react-native-vector-icons/AntDesign";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { checkLocationPermission } from "../../services/locationServiceCheck";
 
@@ -107,8 +106,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   useEffect(() => {
     const subscription = AppState.addEventListener('change', async (nextAppState: AppStateStatus) => {
       if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-        // 🔁 App wapas foreground me aaya
-        console.log('App returned to foreground, checking location...');
         try {
           await checkLocationPermission();
         } catch (error) {
@@ -150,7 +147,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
 
 
- const response = await axios.get(
+      const response = await axios.get(
         `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
       );
 
@@ -185,7 +182,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   };
 
 
-  console.log(initialLocation, "Initial Location")
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required(t("title") + " " + t("isRequired")),
@@ -513,7 +509,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
           </View>
         ) : (
           <>
-          
+
             {
               (
                 <>
@@ -767,7 +763,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                   ref={placesRef}
                                   placeholder={t("location")}
                                   query={{
-                                    key:`${EnvConfig.googleMaps.apiKey}`,
+                                    key: `${EnvConfig.googleMaps.apiKey}`,
                                     language: DEFAULT_LANGUAGE as Language,
                                   }}
                                   fetchDetails={true}

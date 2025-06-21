@@ -1,4 +1,4 @@
-import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_URL } from "@env";
+import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_URL} from "@env";
 
 export const EnvConfig = {
   googleMaps: {
