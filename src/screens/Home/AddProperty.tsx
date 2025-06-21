@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AppState, AppStateStatus } from 'react-native';
+import { CommonActions } from "@react-navigation/native";
+
 
 import {
   StyleSheet,
@@ -56,6 +58,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const user = useSelector((state: any) => state.reducer.user);
+  const currentLocation = useSelector((state: any) => state.reducer.savedCords);
   const styles = createStyles(colors);
   const [isUploading, setIsUploading] = useState(false);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
@@ -68,6 +71,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const [inputValue, setInputValue] = useState("");
   const isLocation = useSelector((state: any) => state.reducer.isLocation);
   const [isLocationErr, setisLocationErr] = useState(false);
+  
 
   const [initialLocation, setInitialLocation] = useState<{
     address: string;
@@ -99,7 +103,9 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   }, [isLocation]);
   useEffect(() => {
     gpsenable()
+
   }, []);
+  console.log(currentLocation , 'current location')
 
   const appState = useRef(AppState.currentState);
 
@@ -107,7 +113,10 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     const subscription = AppState.addEventListener('change', async (nextAppState: AppStateStatus) => {
       if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
         try {
-          await checkLocationPermission();
+          // await checkLocationPermission();
+           navigation.dispatch(
+                  CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
+                );
         } catch (error) {
           console.log('Location fetch failed:', error);
         }
@@ -150,8 +159,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       const response = await axios.get(
         `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
       );
-
-
 
 
       console.log(response.data, "response.data");
@@ -518,6 +525,9 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                     <Header title={t("addProperty")} />
 
 
+                    
+
+
                     <ScrollView
                       contentContainerStyle={styles.scrollContainer}
                       showsVerticalScrollIndicator={false}
@@ -749,7 +759,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                               error={touched.otherDetails && errors.otherDetails}
                               multiline
                             />
-                            <View style={{ gap: 8, marginTop: 10 }}>
+                            <View style={{ gap: 8, marginTop: 10  }}>
                               <Text
                                 style={[
                                   Typography.f_16_nunito_medium,
@@ -866,86 +876,132 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                 </MapView>
                                 <TouchableOpacity
                                   activeOpacity={0.8}
-                                  onPress={async () => {
-                                    if (!isInitialLocationSet) {
-                                      // If initial location is not set, get current location
-                                      Geolocation.getCurrentPosition(
-                                        async (position) => {
-                                          const { latitude, longitude } = position.coords;
-                                          mapRef.current?.animateToRegion(
-                                            {
-                                              latitude,
-                                              longitude,
-                                              latitudeDelta: 0.01,
-                                              longitudeDelta: 0.01,
-                                            },
-                                            1000
-                                          );
+                                  // onPress={async () => {
+                                  //   if (!isInitialLocationSet) {
+                                  //     // If initial location is not set, get current location
+                                  //     Geolocation.getCurrentPosition(
+                                  //       async (position) => {
+                                  //         const { latitude, longitude } = position.coords;
+                                  //         mapRef.current?.animateToRegion(
+                                  //           {
+                                  //             latitude,
+                                  //             longitude,
+                                  //             latitudeDelta: 0.01,
+                                  //             longitudeDelta: 0.01,
+                                  //           },
+                                  //           1000
+                                  //         );
 
-                                          setMarker({ latitude, longitude });
+                                  //         setMarker({ latitude, longitude });
 
-                                          try {
-                                            const response = await axios.get(
-                                              `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
-                                            );
+                                  //         try {
+                                  //           const response = await axios.get(
+                                  //             `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
+                                  //           );
 
-                                            if (response.data.status === "OK") {
-                                              const formattedAddress =
-                                                response.data.results[0]
-                                                  ?.formatted_address || "";
-                                              const location = {
-                                                address: formattedAddress,
-                                                lat: latitude,
-                                                long: longitude,
-                                              };
-                                              setInitialLocation(location);
-                                              setLastSelectedLocation(location);
-                                              setInputValue(formattedAddress);
-                                              if (placesRef.current) {
-                                                placesRef.current.setAddressText(
-                                                  formattedAddress
-                                                );
-                                              }
-                                              setIsInitialLocationSet(true);
-                                            }
-                                          } catch (error) {
-                                            console.error(
-                                              "Error reverse geocoding:",
-                                              error
-                                            );
-                                          }
-                                        },
-                                        (error) => console.log(error),
-                                        {
-                                          enableHighAccuracy: true,
-                                          timeout: 20000,
-                                          maximumAge: 1000,
-                                        }
-                                      );
-                                    } else if (lastSelectedLocation) {
-                                      // If initial location is set, recenter to last selected location
-                                      mapRef.current?.animateToRegion(
-                                        {
-                                          latitude: lastSelectedLocation.lat,
-                                          longitude: lastSelectedLocation.long,
-                                          latitudeDelta: 0.01,
-                                          longitudeDelta: 0.01,
-                                        },
-                                        1000
-                                      );
+                                  //           if (response.data.status === "OK") {
+                                  //             const formattedAddress =
+                                  //               response.data.results[0]
+                                  //                 ?.formatted_address || "";
+                                  //             const location = {
+                                  //               address: formattedAddress,
+                                  //               lat: latitude,
+                                  //               long: longitude,
+                                  //             };
+                                  //             setInitialLocation(location);
+                                  //             setLastSelectedLocation(location);
+                                  //             setInputValue(formattedAddress);
+                                  //             if (placesRef.current) {
+                                  //               placesRef.current.setAddressText(
+                                  //                 formattedAddress
+                                  //               );
+                                  //             }
+                                  //             setIsInitialLocationSet(true);
+                                  //           }
+                                  //         } catch (error) {
+                                  //           console.error(
+                                  //             "Error reverse geocoding:",
+                                  //             error
+                                  //           );
+                                  //         }
+                                  //       },
+                                  //       (error) => console.log(error),
+                                  //       {
+                                  //         enableHighAccuracy: true,
+                                  //         timeout: 20000,
+                                  //         maximumAge: 1000,
+                                  //       }
+                                  //     );
+                                  //   } else if (lastSelectedLocation) {
+                                  //     // If initial location is set, recenter to last selected location
+                                  //     mapRef.current?.animateToRegion(
+                                  //       {
+                                  //         latitude: lastSelectedLocation.lat,
+                                  //         longitude: lastSelectedLocation.long,
+                                  //         latitudeDelta: 0.01,
+                                  //         longitudeDelta: 0.01,
+                                  //       },
+                                  //       1000
+                                  //     );
 
-                                      setMarker({
-                                        latitude: lastSelectedLocation.lat,
-                                        longitude: lastSelectedLocation.long,
-                                      });
-                                      setInputValue(lastSelectedLocation.address);
-                                      if (placesRef.current) {
-                                        placesRef.current.setAddressText(
-                                          lastSelectedLocation.address
-                                        );
-                                      }
-                                    }
-                                  }}
+                                  //     setMarker({
+                                  //       latitude: lastSelectedLocation.lat,
+                                  //       longitude: lastSelectedLocation.long,
+                                  //     });
+                                  //     setInputValue(lastSelectedLocation.address);
+                                  //     if (placesRef.current) {
+                                  //       placesRef.current.setAddressText(
+                                  //         lastSelectedLocation.address
+                                  //       );
+                                  //     }
+                                  //   }
+                                  // }}
+
+                               
+onPress={async () => {
+  // Move map to fixed coordinate
+  mapRef.current?.animateToRegion(
+    {
+      latitude: currentLocation[0],
+      longitude: currentLocation[1],
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    },
+    1000
+  );
+
+  // Set marker at fixed coordinate
+  setMarker({
+    latitude: currentLocation[0],
+    longitude: currentLocation[1],
+  });
+
+  // Reverse geocoding for address (optional)
+  try {
+    const response = await axios.get(
+      `${EnvConfig.googleMaps.geocodeUrl}?latlng=${currentLocation[0]},${currentLocation[1]}&key=${EnvConfig.googleMaps.apiKey}`
+    );
+
+    if (response.data.status === "OK") {
+      const formattedAddress = response.data.results[0]?.formatted_address || "";
+      const location = {
+        address: formattedAddress,
+        lat: currentLocation[0],
+        long:currentLocation[1],
+      };
+
+      setInitialLocation(location);
+      setLastSelectedLocation(location);
+      setInputValue(formattedAddress);
+
+      if (placesRef.current) {
+        placesRef.current.setAddressText(formattedAddress);
+      }
+    }
+  } catch (error) {
+    console.error("Error reverse geocoding:", error);
+  }
+}}
                                   style={{
                                     position: "absolute",
                                     top: "5%",

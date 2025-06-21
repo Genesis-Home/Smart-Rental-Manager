@@ -7,11 +7,14 @@ import {
   openSettings,
 } from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
+import { useState } from 'react';
 
 type GeolocationResponse = any;
 type GeolocationError = any;
 
 export const checkLocationPermission = async (): Promise<GeolocationResponse> => {
+
+
   return new Promise(async (resolve, reject) => {
     try {
       let fine, coarse;
@@ -21,9 +24,10 @@ export const checkLocationPermission = async (): Promise<GeolocationResponse> =>
         coarse = await request(PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION);
 
         if (fine !== RESULTS.GRANTED && coarse !== RESULTS.GRANTED) {
+          
           Alert.alert(
             'Location Permission Required',
-            'Please enable location permission in app settings.',
+            'Please enable location permission in app settings to post property Add.',
             [
               {
                 text: 'Open Settings',
@@ -38,6 +42,7 @@ export const checkLocationPermission = async (): Promise<GeolocationResponse> =>
             ],
             { cancelable: true }
           );
+
 
           return reject(new Error('Permission not granted'));
         }
@@ -68,12 +73,11 @@ export const checkLocationPermission = async (): Promise<GeolocationResponse> =>
       reject(error);
     }
   });
+
+
+  
+
+  
 };
-
-
-
-
-
-
 
 
