@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import screenResolution from "../../utilities/constants/screenResolution";
 import MapView, { PROVIDER_GOOGLE, Marker, Region } from "react-native-maps";
 import { Marker as MarkerIcon, Search } from "../../assets/icons";
-import { View, TouchableOpacity } from "react-native";
+import { View } from "react-native";
 import Header from "../../components/Header";
 import {
   GooglePlacesAutocomplete,
@@ -14,11 +14,8 @@ import { Typography } from "../../utilities/constants/constant.style";
 import { DEFAULT_LANGUAGE } from "../../utilities";
 import { GooglePlaceData, GooglePlaceDetail } from "../../types/types";
 import axios from "axios";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import { RFValue } from "react-native-responsive-fontsize";
 import { MapScreenRouteProp } from "../../types/types";
 import { EnvConfig } from "../../config/envConfig";
-import Geolocation from "@react-native-community/geolocation";
 
 const Map = ({ route }: { route: MapScreenRouteProp }) => {
   const regionTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -108,37 +105,7 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
     }, 500);
   }, []);
 
-  const handleRecenter = async () => {
-    Geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setMapRegion({
-          latitude,
-          longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        });
-
-        try {
-          const response = await axios.get(
-            `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
-          );
-
-          if (response.data.status === "OK") {
-            const formattedAddress = response.data.results[0]?.formatted_address || "";
-            setCity(formattedAddress);
-            if (placesRef.current) {
-              placesRef.current.setAddressText(formattedAddress);
-            }
-          }
-        } catch (error) {
-          console.error("Error reverse geocoding:", error);
-        }
-      },
-      (error) => console.log(error),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-    );
-  };
+  
 
   return (
     <>
@@ -150,8 +117,8 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
         }}
         region={mapRegion}
         onRegionChange={handleRegionChange}
-        showsUserLocation={true}
-        showsMyLocationButton={true}
+        showsUserLocation={false}
+        showsMyLocationButton={false}
       >
         <Marker
           coordinate={{
