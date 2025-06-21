@@ -27,16 +27,18 @@ import Toast from "react-native-toast-message";
 import moment from "moment";
 import { generateSchedulePDF } from "../../services/pdfService";
 import firestore from "@react-native-firebase/firestore";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // Custom Button Component
 interface CustomButtonProps {
-  title: string;
+  title?: string;
   onPress: () => void;
   backgroundColor?: string;
   textColor?: string;
   isLoading?: boolean;
   disabled?: boolean;
   style?: any;
+  icon?: React.ReactNode;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -46,7 +48,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   textColor = colors.white,
   isLoading = false,
   disabled = false,
-  style
+  style,
+  icon,
 }) => {
   return (
     <TouchableOpacity
@@ -57,10 +60,9 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           borderRadius: 5,
           alignItems: "center",
           justifyContent: "center",
-          height:45
-          // opacity: (isLoading || disabled) ? 0.5 : 1,
+          height: 45,
         },
-        style
+        style,
       ]}
       onPress={onPress}
       disabled={isLoading || disabled}
@@ -69,9 +71,14 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       {isLoading ? (
         <ActivityIndicator color={textColor} size="small" />
       ) : (
-        <Text style={{ color: textColor, fontSize: 10, fontWeight: "500",textAlign:"center" }}>
-          {title}
-        </Text>
+        <>
+          {icon}
+          {title && (
+            <Text style={{ color: textColor, fontSize: 14, fontWeight: "500", textAlign: "center", marginTop: 2 }}>
+              {title}
+            </Text>
+          )}
+        </>
       )}
     </TouchableOpacity>
   );
@@ -731,37 +738,37 @@ const Scheduled: React.FC = () => {
             <View style={styles.modalButtons}>
               <View style={{ width: "24%" }}>
                 <CustomButton
-                  title={t("viewPdf")}
+                  icon={<MaterialCommunityIcons name="file-eye-outline" size={24} color={colors.Primary_01} />}
                   onPress={handleViewPDF}
-                  backgroundColor={colors.Primary_01}
-                  textColor={colors.white}
+                  backgroundColor={colors.white}
+                  textColor={colors.Primary_01}
                   disabled={isDeleting}
                 />
               </View>
               <View style={{ width: "24%" }}>
                 <CustomButton
-                  title={t("downloadPDF")}
+                  icon={<MaterialCommunityIcons name="download-box-outline" size={24} color={colors.Primary_01} />}
                   onPress={handleDownloadPDF}
-                  backgroundColor={colors.Primary_01}
-                  textColor={colors.white}
+                  backgroundColor={colors.white}
+                  textColor={colors.Primary_01}
                   disabled={isDeleting}
                 />
               </View>
               <View style={{ width: "24%" }}>
                 <CustomButton
-                  title={t("delete")}
+                  icon={<MaterialCommunityIcons name="delete-outline" size={24} color={colors.Primary_01} />}
                   onPress={() => setShowDeleteModal(true)}
-                  backgroundColor={colors.Primary_01}
-                  textColor={colors.white}
+                  backgroundColor={colors.white}
+                  textColor={colors.Primary_01}
                   disabled={isDeleting}
                 />
               </View>
               <View style={{ width: "24%" }}>
                 <CustomButton
-                  title={t("close")}
+                  icon={<MaterialCommunityIcons name="close-circle-outline" size={24} color={colors.Primary_01} />}
                   onPress={() => setShowBookingDetailsModal(false)}
-                  backgroundColor={colors.Primary_01}
-                  textColor={colors.white}
+                  backgroundColor={colors.white}
+                  textColor={colors.Primary_01}
                   disabled={isDeleting}
                 />
               </View>

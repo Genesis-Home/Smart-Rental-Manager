@@ -29,6 +29,8 @@ import RNFS from "react-native-fs";
 import Share from "react-native-share";
 import moment from "moment";
 import { ScrollView } from "react-native";
+import { BackHandler } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 type AutomatedEmailParams = {
   visitDetails: VisitDetails;
@@ -210,6 +212,17 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
       });
     }
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        navigation.navigate("Tabs", { screen: "Scheduled" });
+        return true;
+      };
+      const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => subscription.remove();
+    }, [navigation])
+  );
 
   return (
     <View style={styles.screenWrapper}>
