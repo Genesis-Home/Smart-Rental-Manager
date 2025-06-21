@@ -10,13 +10,14 @@ import {
   Keyboard,
   ActivityIndicator,
   Platform,
+  BackHandler,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { AppIcon, Notification, Search, ShareIcon } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
 import Images from "../../assets/images";
 import { Prev, Next, Address, Add } from "../../assets/icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { HomeScreenNavigationProp, Property } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -400,6 +401,17 @@ const Home: React.FC = () => {
       </TouchableOpacity>
     );
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        BackHandler.exitApp();
+        return true;
+      };
+      const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => subscription.remove();
+    }, [])
+  );
 
   return (
     <View style={styles.mainContainer}>
