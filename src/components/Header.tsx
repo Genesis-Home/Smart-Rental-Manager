@@ -11,7 +11,7 @@ const Header: React.FC<HeaderProps> = ({ title, isAutomatedEmail = false }) => {
 
   const handleBackPress = () => {
     if (isAutomatedEmail) {
-      navigation.navigate("Tabs", { screen: "Home" });
+      navigation.navigate("Tabs", { screen: "Scheduled" });
     } else {
       navigation.goBack();
     }

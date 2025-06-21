@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, BackHandler } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { Logo1 } from "../../assets/icons";
 import { Typography } from "../../utilities/constants/constant.style";
@@ -8,10 +8,22 @@ import { colors } from "../../utilities/constants";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { Splash1ScreenNavigationProp } from "../../types/types";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Splash1: React.FC = () => {
   const navigation = useNavigation<Splash1ScreenNavigationProp>();
   const { t } = useTranslation();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        BackHandler.exitApp();
+        return true;
+      };
+      const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => subscription.remove();
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
