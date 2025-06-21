@@ -119,6 +119,9 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
         onRegionChange={handleRegionChange}
         showsUserLocation={false}
         showsMyLocationButton={false}
+      
+
+
       >
         <Marker
           coordinate={{
