@@ -109,7 +109,10 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
 
   return (
     <>
-      <MapView
+      {
+        mapRegion && (
+          <>
+          <MapView
         provider={PROVIDER_GOOGLE}
         style={{
           height: screenResolution.screenHeight,
@@ -132,6 +135,9 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
           <MarkerIcon />
         </Marker>
       </MapView>
+          </>
+        )
+      }
       <View style={{ position: "absolute", width: "90%", alignSelf: "center" }}>
         <Header title={t("location")} />
         <GooglePlacesAutocomplete
