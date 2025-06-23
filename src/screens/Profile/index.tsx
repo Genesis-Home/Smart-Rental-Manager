@@ -30,6 +30,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import RNFS from "react-native-fs";
 import Toast from "react-native-toast-message";
+import SAF from 'react-native-saf-x';
 
 const Profile: React.FC = () => {
   const navigation = useNavigation<CreateContactScreenNavigationProp>();
@@ -155,13 +156,31 @@ const Profile: React.FC = () => {
         csv += `"${item.name}","${item.emailAddress}","${item.phoneNumber}","${item.notes || ''}"\n`;
       });
       const fileName = showAllContacts ? `All_Contacts_Export.csv` : `Contacts_Export.csv`;
-      const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
-      await RNFS.writeFile(path, csv, "utf8");
-      Toast.show({
-        type: "success",
-        text1: t("fileSaved"),
-        text2: `Downloads/${fileName}`,
-      });
+      if (Platform.OS === "android" && Platform.Version >= 30) {
+        // Android 11+ (SDK 30+): Use SAF to show Save As dialog and write CSV
+        const fileDetail = await SAF.createDocument(csv, {
+          mimeType: 'text/csv',
+          initialName: fileName,
+          encoding: 'utf8'
+        });
+        if (!fileDetail || !fileDetail.uri) {
+          Toast.show({ type: "error", text1: t("exportFailed") });
+          return;
+        }
+        Toast.show({
+          type: "success",
+          text1: t("fileSaved"),
+          text2: t("fileSavedToDownloads"),
+        });
+      } else {
+        const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+        await RNFS.writeFile(path, csv, "utf8");
+        Toast.show({
+          type: "success",
+          text1: t("fileSaved"),
+          text2: `Downloads/${fileName}`,
+        });
+      }
     } catch (error) {
       console.error("CSV export error", error);
       Toast.show({ type: "error", text1: t("exportFailed") });

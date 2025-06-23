@@ -416,6 +416,7 @@ export type LanguageTranslation = {
   storagePermissionTitle: string;
   storagePermissionMessage: string;
   askMeLater: string;
+  fileSavedToDownloads: string;
   maxTwoBookingsAllowed: string;
   timeConflictMessage: string;
 };

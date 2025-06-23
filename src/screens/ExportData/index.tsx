@@ -29,6 +29,7 @@ import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import RNFS from "react-native-fs";
 import moment from "moment";
+import SAF from 'react-native-saf-x';
 
 const ExportData: React.FC = () => {
   const { t } = useTranslation();
@@ -126,17 +127,33 @@ const ExportData: React.FC = () => {
         csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.checkInTime}","${item.checkOutTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.property}"\n`;
       });
 
-            const fileName = showAllSchedules ? `All_Schedules_Export.csv` : `Schedules_Export.csv`;
+      const fileName = showAllSchedules ? `All_Schedules_Export.csv` : `Schedules_Export.csv`;
 
-      const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
-
-      await RNFS.writeFile(path, csv, "utf8");
-
-      Toast.show({
-        type: "success",
-        text1: t("fileSaved"),
-        text2: `Downloads/${fileName}`,
-      });
+      if (Platform.OS === "android" && Platform.Version >= 30) {
+        // Android 11+ (SDK 30+): Use SAF to show Save As dialog and write CSV
+        const fileDetail = await SAF.createDocument(csv, {
+          mimeType: 'text/csv',
+          initialName: fileName,
+          encoding: 'utf8'
+        });
+        if (!fileDetail || !fileDetail.uri) {
+          Toast.show({ type: "error", text1: t("exportFailed") });
+          return;
+        }
+        Toast.show({
+          type: "success",
+          text1: t("fileSaved"),
+          text2: t("fileSavedToDownloads"),
+        });
+      } else {
+        const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+        await RNFS.writeFile(path, csv, "utf8");
+        Toast.show({
+          type: "success",
+          text1: t("fileSaved"),
+          text2: `Downloads/${fileName}`,
+        });
+      }
     } catch (error) {
       console.error("CSV export error", error);
       Toast.show({ type: "error", text1: t("exportFailed") });

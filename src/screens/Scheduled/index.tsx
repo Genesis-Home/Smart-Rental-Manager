@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   FlatList,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import Header from "../../components/Header";
 import { useTranslation } from "react-i18next";
@@ -28,6 +29,9 @@ import moment from "moment";
 import { generateSchedulePDF } from "../../services/pdfService";
 import firestore from "@react-native-firebase/firestore";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Share from "react-native-share";
+import SAF from 'react-native-saf-x';
+import RNFS from 'react-native-fs';
 
 // Custom Button Component
 interface CustomButtonProps {
@@ -383,11 +387,53 @@ const Scheduled: React.FC = () => {
         }
 
         const pdfPath = await generateSchedulePDF(updatedBookingDetails);
-        Toast.show({
-          type: "success",
-          text1: t("pdfDownloaded"),
-          position: "bottom",
-        });
+        if (Platform.OS === "android") {
+          if (Platform.Version < 30) {
+            Toast.show({
+              type: "success",
+              text1: t("pdfDownloaded"),
+              text2: t("fileSavedToDownloads"),
+              position: "bottom",
+            });
+          } else {
+            // Android 11+ (SDK 30+): Use SAF to show Save As dialog and write PDF
+            const fileName = pdfPath.split("/").pop() || 'Booking_Invoice.pdf';
+            const pdfBase64 = await RNFS.readFile(pdfPath, 'base64');
+            const fileDetail = await SAF.createDocument(pdfBase64, {
+              mimeType: 'application/pdf',
+              initialName: fileName,
+              encoding: 'base64'
+            });
+            if (!fileDetail || !fileDetail.uri) {
+              Toast.show({
+                type: "error",
+                text1: t("pdfDownloadFailed"),
+                position: "bottom",
+              });
+              return;
+            }
+            Toast.show({
+              type: "success",
+              text1: t("pdfDownloaded"),
+              text2: t("fileSavedToDownloads"),
+              position: "bottom",
+            });
+          }
+        } else if (Platform.OS === "ios") {
+          await Share.open({
+            title: t("sharePDF"),
+            url: pdfPath,
+            type: "application/pdf",
+            filename: pdfPath.split("/").pop(),
+            saveToFiles: true,
+          });
+          Toast.show({
+            type: "success",
+            text1: t("pdfDownloaded"),
+            text2: t("useShareToSave"),
+            position: "bottom",
+          });
+        }
       } catch (error) {
         console.error("Error downloading PDF:", error);
         Toast.show({
