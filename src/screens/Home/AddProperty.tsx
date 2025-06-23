@@ -808,16 +808,17 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                       // zIndex: 1,
                                     },
                                     listView: {
-                                      backgroundColor: Colors.white,
+                                      backgroundColor: 'red',
                                       borderWidth: 0.3,
                                       borderColor: Colors.DARK_GRAY,
                                       borderRadius: 8,
                                       marginTop: 10,
-                                      // position: "absolute",
+                                      // position: "relative",
                                       // top: "100%",
                                       // left: 0,
                                       // right: 0,
-                                      // zIndex: 1000,
+                                      zIndex: 1000,
+                                      elevation:5,
                                       // elevation: 3,
                                       // shadowColor: "#000",
                                       // shadowOffset: { width: 0, height: 2 },
@@ -1142,6 +1143,7 @@ const createStyles = (colors: any) =>
     autocompleteContainer: {
       position: "relative",
       zIndex: 1000,
+      flex:1,
     },
     clearButton: {
       position: "absolute",
