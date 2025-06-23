@@ -53,6 +53,7 @@ import { Language } from "react-native-google-places-autocomplete";
 import Geolocation from "@react-native-community/geolocation";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { checkLocationPermission } from "../../services/locationServiceCheck";
+import LocationPickerModal from "../../components/LocationPicker";
 
 const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const { t } = useTranslation();
@@ -68,18 +69,19 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [inputValue, setInputValue] = useState("");
   const isLocation = useSelector((state: any) => state.reducer.isLocation);
   const [isLocationErr, setisLocationErr] = useState(false);
-  
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+
+
 
   const [initialLocation, setInitialLocation] = useState<{
-    address: string;
     lat: number;
     long: number;
   } | null>(null);
   const [lastSelectedLocation, setLastSelectedLocation] = useState<{
-    address: string;
     lat: number;
     long: number;
   } | null>(null);
@@ -105,7 +107,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     gpsenable()
 
   }, []);
-  console.log(currentLocation , 'current location')
+  console.log(currentLocation, 'current location')
 
   const appState = useRef(AppState.currentState);
 
@@ -114,9 +116,9 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
         try {
           // await checkLocationPermission();
-           navigation.dispatch(
-                  CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
-                );
+          navigation.dispatch(
+            CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
+          );
         } catch (error) {
           console.log('Location fetch failed:', error);
         }
@@ -160,9 +162,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
         `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
       );
 
-
-      console.log(response.data, "response.data");
-
       if (response.data.status === "OK") {
         setIsLocationLoading(false);
         const formattedAddress = response.data.results[0]?.formatted_address || "";
@@ -172,13 +171,10 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
           long: longitude,
         };
 
-        console.log(location, "location");
+
         setInitialLocation(location);
         setLastSelectedLocation(location);
-        setInputValue(formattedAddress);
-        if (placesRef.current) {
-          placesRef.current.setAddressText(formattedAddress);
-        }
+
         setIsInitialLocationSet(true);
       }
     } catch (error) {
@@ -346,6 +342,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     setViewingCoverPhoto(isCoverPhoto);
   };
 
+
   const renderImages = () => {
     return (
       <View>
@@ -423,11 +420,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     );
   };
 
-  const clearInput = () => {
-    setInputValue("");
-    placesRef.current?.setAddressText("");
-    setMarker(null);
-  };
 
   const updateMapAndMarker = (lat: any, long: any) => {
     setMapRegion({
@@ -447,16 +439,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     setFieldValue: (field: string, value: any) => void
   ) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
-    clearInput();
 
     try {
       const response = await axios.get(
         `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
       );
-
-
-
-
 
       const formattedAddress =
         response.data.results[0]?.formatted_address || "";
@@ -466,21 +453,16 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
         lat: latitude,
         long: longitude,
       };
-
       setLastSelectedLocation(location);
       updateMapAndMarker(location.lat, location.long);
-      setInputValue(formattedAddress);
       setFieldValue("location", location);
     } catch (error) {
       console.error("Error reverse geocoding:", error);
-
     }
   };
 
   const onPlaceSelected = (
-    data: GooglePlaceData,
     details: GooglePlaceDetail | null,
-    setFieldValue: (field: string, value: any) => void
   ) => {
     if (!details) {
       console.error("Place details are undefined");
@@ -488,15 +470,12 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     }
 
     const location = {
-      address: details.formatted_address || "",
       lat: details.geometry?.location?.lat || 0,
       long: details.geometry?.location?.lng || 0,
     };
 
     setLastSelectedLocation(location);
-    setFieldValue("location", location);
     updateMapAndMarker(location.lat, location.long);
-    setInputValue(details.formatted_address);
   };
 
   return (
@@ -525,7 +504,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                     <Header title={t("addProperty")} />
 
 
-                    
+
 
 
                     <ScrollView
@@ -759,110 +738,33 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                               error={touched.otherDetails && errors.otherDetails}
                               multiline
                             />
-                            <View style={{ gap: 8, marginTop: 10  }}>
-                              <Text
-                                style={[
-                                  Typography.f_16_nunito_medium,
-                                  { color: colors.black, paddingLeft: 3 },
-                                ]}
-                              >
-                                {t("location")}
-                              </Text>
-                              <View style={styles.autocompleteContainer}>
-                                <GooglePlacesAutocomplete
-                                  ref={placesRef}
-                                  placeholder={t("location")}
-                                  query={{
-                                    key: `${EnvConfig.googleMaps.apiKey}`,
-                                    language: DEFAULT_LANGUAGE as Language,
-                                  }}
-                                  fetchDetails={true}
-                                  minLength={2}
-                                  onPress={(data, details) =>
-                                    onPlaceSelected(data, details, setFieldValue)
-                                  }
-                                  enablePoweredByContainer={false}
-                                  textInputProps={{
-                                    value: inputValue,
-                                    onChangeText: setInputValue,
-                                  }}
-                                  styles={{
-                                    textInput: {
-                                      ...Typography.f_12_nunito_medium,
-                                      color: Colors.black,
-                                      paddingHorizontal: 14,
-                                      paddingLeft: 15,
-                                      borderWidth: 0.3,
-                                      borderColor: Colors.DARK_GRAY,
-                                      borderRadius: 5,
-                                      backgroundColor: Colors.white,
-                                      height: 45,
-                                      marginTop: 0,
-                                      marginLeft: 0,
-                                      marginRight: 0,
-                                    },
-                                    textInputContainer: {
-                                      backgroundColor: Colors.white,
-                                      borderTopWidth: 0,
-                                      borderBottomWidth: 0,
-                                      // zIndex: 1,
-                                    },
-                                    listView: {
-                                      backgroundColor: 'red',
-                                      borderWidth: 0.3,
-                                      borderColor: Colors.DARK_GRAY,
-                                      borderRadius: 8,
-                                      marginTop: 10,
-                                      // position: "relative",
-                                      // top: "100%",
-                                      // left: 0,
-                                      // right: 0,
-                                      zIndex: 1000,
-                                      elevation:5,
-                                      // elevation: 3,
-                                      // shadowColor: "#000",
-                                      // shadowOffset: { width: 0, height: 2 },
-                                      // shadowOpacity: 0.25,
-                                      // shadowRadius: 3.84,
-                                    },
-                                    // row: {
-                                    //   backgroundColor: Colors.white,
-                                    //   padding: 13,
-                                    //   height: "auto",
-                                    //   minHeight: 44,
-                                    // },
-                                    description: {
-                                      ...Typography.f_14_nunito_medium,
-                                      color: "black",
-                                    },
-                                    separator: {
-                                      height: 0.5,
-                                      backgroundColor: Colors.DARK_GRAY,
-                                    },
-                                  }}
-                                />
-                                {inputValue ? (
-                                  <TouchableOpacity
-                                    style={styles.clearButton}
-                                    onPress={clearInput}
-                                  >
-                                    <Icon
-                                      name="close"
-                                      size={20}
-                                      color={Colors.DARK_GRAY}
-                                    />
-                                  </TouchableOpacity>
-                                ) : null}
+                            <View style={{ gap: 8, marginTop: 10 }}>
+                              {/* Header row with Location text and plus icon */}
+                              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                                <Text
+                                  style={[
+                                    Typography.f_16_nunito_medium,
+                                    { color: colors.black, paddingLeft: 3 },
+                                  ]}
+                                >
+                                  {t("location")}
+                                </Text>
+
+                                {/* Plus Icon Button */}
+                                <TouchableOpacity onPress={() => setModalVisible(true)}>
+                                  <Text style={{ fontSize: 24, color: 'red' }}>＋</Text>
+                                
+                                </TouchableOpacity>
                               </View>
+
+                              {/* Map View */}
                               <View>
                                 <MapView
                                   ref={mapRef}
                                   style={{ height: 200, width: "100%" }}
                                   provider={PROVIDER_GOOGLE}
                                   region={mapRegion}
-                                  onPress={(event) =>
-                                    handleMapPress(event, setFieldValue)
-                                  }
+                                  onPress={(event) => handleMapPress(event, setFieldValue)}
                                 >
                                   {marker && (
                                     <Marker
@@ -875,157 +777,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                     </Marker>
                                   )}
                                 </MapView>
-                                <TouchableOpacity
-                                  activeOpacity={0.8}
-                                  // onPress={async () => {
-                                  //   if (!isInitialLocationSet) {
-                                  //     // If initial location is not set, get current location
-                                  //     Geolocation.getCurrentPosition(
-                                  //       async (position) => {
-                                  //         const { latitude, longitude } = position.coords;
-                                  //         mapRef.current?.animateToRegion(
-                                  //           {
-                                  //             latitude,
-                                  //             longitude,
-                                  //             latitudeDelta: 0.01,
-                                  //             longitudeDelta: 0.01,
-                                  //           },
-                                  //           1000
-                                  //         );
 
-                                  //         setMarker({ latitude, longitude });
 
-                                  //         try {
-                                  //           const response = await axios.get(
-                                  //             `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
-                                  //           );
-
-                                  //           if (response.data.status === "OK") {
-                                  //             const formattedAddress =
-                                  //               response.data.results[0]
-                                  //                 ?.formatted_address || "";
-                                  //             const location = {
-                                  //               address: formattedAddress,
-                                  //               lat: latitude,
-                                  //               long: longitude,
-                                  //             };
-                                  //             setInitialLocation(location);
-                                  //             setLastSelectedLocation(location);
-                                  //             setInputValue(formattedAddress);
-                                  //             if (placesRef.current) {
-                                  //               placesRef.current.setAddressText(
-                                  //                 formattedAddress
-                                  //               );
-                                  //             }
-                                  //             setIsInitialLocationSet(true);
-                                  //           }
-                                  //         } catch (error) {
-                                  //           console.error(
-                                  //             "Error reverse geocoding:",
-                                  //             error
-                                  //           );
-                                  //         }
-                                  //       },
-                                  //       (error) => console.log(error),
-                                  //       {
-                                  //         enableHighAccuracy: true,
-                                  //         timeout: 20000,
-                                  //         maximumAge: 1000,
-                                  //       }
-                                  //     );
-                                  //   } else if (lastSelectedLocation) {
-                                  //     // If initial location is set, recenter to last selected location
-                                  //     mapRef.current?.animateToRegion(
-                                  //       {
-                                  //         latitude: lastSelectedLocation.lat,
-                                  //         longitude: lastSelectedLocation.long,
-                                  //         latitudeDelta: 0.01,
-                                  //         longitudeDelta: 0.01,
-                                  //       },
-                                  //       1000
-                                  //     );
-
-                                  //     setMarker({
-                                  //       latitude: lastSelectedLocation.lat,
-                                  //       longitude: lastSelectedLocation.long,
-                                  //     });
-                                  //     setInputValue(lastSelectedLocation.address);
-                                  //     if (placesRef.current) {
-                                  //       placesRef.current.setAddressText(
-                                  //         lastSelectedLocation.address
-                                  //       );
-                                  //     }
-                                  //   }
-                                  // }}
-
-                               
-onPress={async () => {
-  // Move map to fixed coordinate
-  mapRef.current?.animateToRegion(
-    {
-      latitude: currentLocation[0],
-      longitude: currentLocation[1],
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    },
-    1000
-  );
-
-  // Set marker at fixed coordinate
-  setMarker({
-    latitude: currentLocation[0],
-    longitude: currentLocation[1],
-  });
-
-  // Reverse geocoding for address (optional)
-  try {
-    const response = await axios.get(
-      `${EnvConfig.googleMaps.geocodeUrl}?latlng=${currentLocation[0]},${currentLocation[1]}&key=${EnvConfig.googleMaps.apiKey}`
-    );
-
-    if (response.data.status === "OK") {
-      const formattedAddress = response.data.results[0]?.formatted_address || "";
-      const location = {
-        address: formattedAddress,
-        lat: currentLocation[0],
-        long:currentLocation[1],
-      };
-
-      setInitialLocation(location);
-      setLastSelectedLocation(location);
-      setInputValue(formattedAddress);
-
-      if (placesRef.current) {
-        placesRef.current.setAddressText(formattedAddress);
-      }
-    }
-  } catch (error) {
-    console.error("Error reverse geocoding:", error);
-  }
-}}
-                                  style={{
-                                    position: "absolute",
-                                    top: "5%",
-                                    right: 10,
-                                    backgroundColor: Colors.white,
-                                    padding: 12,
-                                    borderRadius: 30,
-                                    elevation: 5,
-                                    shadowColor: "#000",
-                                    shadowOffset: { width: 0, height: 2 },
-                                    shadowOpacity: 0.25,
-                                    shadowRadius: 3.84,
-                                    zIndex: 1000,
-                                  }}
-                                >
-                                  <MaterialIcons
-                                    name="my-location"
-                                    size={24}
-                                    color={Colors.Error_Red}
-                                  />
-                                </TouchableOpacity>
                               </View>
                             </View>
+
                             <View style={styles.submitButtonContainer}>
                               <CTAButton1
                                 title={t("submit")}
@@ -1036,6 +792,25 @@ onPress={async () => {
                         )}
                       </Formik>
                     </ScrollView>
+
+                    <LocationPickerModal
+                      visible={modalVisible}
+                      onClose={() => setModalVisible(false)}
+                      onLocationSelected={(loc: any) => {
+                        const location = [loc.lat, loc.lng]
+
+
+                        setSelectedLocation(location as any);
+                        setInitialLocation(location as any)
+                        setLastSelectedLocation(location as any)
+                        updateMapAndMarker(loc.lat, loc.lng)
+                        setModalVisible(false)
+
+                      }}
+                      apiKey={EnvConfig.googleMaps.apiKey}
+                      userLocation={{ latitude: currentLocation[0], longitude: currentLocation[1] }}
+                      lastLocation={lastSelectedLocation}
+                    />
                   </View>
                 </>
               )
@@ -1143,7 +918,7 @@ const createStyles = (colors: any) =>
     autocompleteContainer: {
       position: "relative",
       zIndex: 1000,
-      flex:1,
+      flex: 1,
     },
     clearButton: {
       position: "absolute",

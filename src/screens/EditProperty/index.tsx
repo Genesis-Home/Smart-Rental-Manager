@@ -38,6 +38,7 @@ import { Marker as MarkerIcon } from "../../assets/icons";
 import Colors from "../../utilities/constants/colors";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import ImageView from "react-native-image-viewing";
+import LocationPickerModal from "../../components/LocationPicker";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required(t("title") + " " + t("isRequired")),
@@ -154,6 +155,8 @@ const EditProperty: React.FC<EditPropertyProps> = ({
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [viewingCoverPhoto, setViewingCoverPhoto] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+  
   const [marker, setMarker] = useState<{
     latitude: number;
     longitude: number;
@@ -598,146 +601,45 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                     multiline
                     numberOfLines={4}
                   />
-                  <View style={styles.locationContainer}>
-                    <Text
-                      style={[
-                        styles.locationLabel,
-                        Typography.f_14_nunito_semi_bold,
-                      ]}
-                    >
-                      {t("location")}
-                    </Text>
-                      <GooglePlacesAutocomplete
-                      ref={placesRef}
-                      placeholder={t("location")}
-                      fetchDetails={true}
-                      enablePoweredByContainer={false}
-                      textInputProps={{
-                        value: inputText,
-                        onChangeText: setInputText,
-                      }}
-                      minLength={2}
-                      onPress={(data, details) => {
-                        if (details?.geometry?.location) {
-                          const location = {
-                            address: details.formatted_address || "",
-                            lat: details.geometry.location.lat,
-                            long: details.geometry.location.lng,
-                          };
+                <View style={styles.locationContainer}>
+  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+    <Text
+      style={[
+        styles.locationLabel,
+        Typography.f_14_nunito_semi_bold,
+      ]}
+    >
+      {t("location")}
+    </Text>
 
-                          setInputText(details.formatted_address || "");
-                          setFieldValue("location", location);
-                          setCurrentLocation(location);
-                          updateMapLocation(location.lat, location.long);
-                        }
-                      }}
-                      query={{
-                        key: EnvConfig.googleMaps.apiKey,
-                        language: DEFAULT_LANGUAGE as Language,
-                      }}
-                      styles={{
-                        textInput: {
-                          ...Typography.f_12_nunito_medium,
-                          color: colors.black,
-                          paddingHorizontal: 14,
-                          borderWidth: 0.3,
-                          borderColor: colors.DARK_GRAY,
-                          borderRadius: 8,
-                          backgroundColor: colors.white,
-                          height: 40,
-                          marginLeft: 0,
-                          marginRight: 0,
-                        },
-                        textInputContainer: {
-                          backgroundColor: colors.white,
-                          borderTopWidth: 0,
-                          borderBottomWidth: 0,
-                          zIndex: 1,
-                        },
-                        listView: {
-                          backgroundColor: colors.white,
-                          borderWidth: 0.3,
-                          borderColor: colors.DARK_GRAY,
-                          borderRadius: 8,
-                          marginTop: 10,
-                          left: 0,
-                          right: 0,
-                          zIndex: 1000,
-                          elevation: 3,
-                          shadowColor: "#000",
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: 0.25,
-                          shadowRadius: 3.84,
-                        },
-                        row: {
-                          backgroundColor: colors.white,
-                          padding: 13,
-                          height: "auto",
-                          minHeight: 44,
-                        },
-                        description: {
-                          ...Typography.f_14_nunito_medium,
-                          color: "black",
-                        },
-                        separator: {
-                          height: 0.5,
-                          backgroundColor: colors.DARK_GRAY,
-                        },
-                      }}
-                    />
-                    {inputText ? (
-                      <TouchableOpacity
-                        style={styles.clearButton}
-                        onPress={handleClearInput}
-                      >
-                        <Icon name="close" size={18} color={Colors.DARK_GRAY} />
-                      </TouchableOpacity>
-                    ) : null}
-                    <View >
-                      <MapView
-                        key={mapKey}
-                        ref={mapRef}
-                        style={{ height: 200, width: "100%", marginTop: 10 }}
-                        provider={PROVIDER_GOOGLE}
-                        region={mapRegion}
-                      >
-                        {marker && (
-                          <Marker
-                            coordinate={{
-                              latitude: marker.latitude,
-                              longitude: marker.longitude,
-                            }}
-                          >
-                            <MarkerIcon />
-                          </Marker>
-                        )}
-                      </MapView>
-                      <TouchableOpacity
-                        activeOpacity={0.8}
-                        onPress={handleRecenter}
-                        style={{
-                          position: "absolute",
-                          top: 20,
-                          right: 10,
-                          backgroundColor: Colors.white,
-                          padding: 12,
-                          borderRadius: 30,
-                          elevation: 5,
-                          shadowColor: "#000",
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: 0.25,
-                          shadowRadius: 3.84,
-                          zIndex: 1000,
-                        }}
-                      >
-                        <MaterialIcons
-                          name="my-location"
-                          size={24}
-                          color={Colors.Error_Red}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+     <TouchableOpacity onPress={() => setModalVisible(true)}>
+                                      <Text style={{ fontSize: 24, color: 'red' }}>＋</Text>
+                                    
+                                    </TouchableOpacity>
+  </View>
+
+  <View>
+    <MapView
+      key={mapKey}
+      ref={mapRef}
+      style={{ height: 200, width: "100%", marginTop: 10 }}
+      provider={PROVIDER_GOOGLE}
+      region={mapRegion}
+    >
+      {marker && (
+        <Marker
+          coordinate={{
+            latitude: marker.latitude,
+            longitude: marker.longitude,
+          }}
+        >
+          <MarkerIcon />
+        </Marker>
+      )}
+    </MapView>
+  </View>
+</View>
+
                   <View style={{ marginVertical: 40 }}>
                     <CTAButton1
                       title={t("save")}
@@ -749,6 +651,21 @@ const EditProperty: React.FC<EditPropertyProps> = ({
             </Formik>
           )}
         </ScrollView>
+
+         {/* <LocationPickerModal
+                      visible={modalVisible}
+                      onClose={() => setModalVisible(false)}
+                      onLocationSelected={(loc: any) => {
+                        const location = [loc.lat, loc.lng]
+
+                        setModalVisible(false)
+                        updateMapLocation(location[0] , location[1])
+
+                      }}
+                      apiKey={EnvConfig.googleMaps.apiKey}
+                      userLocation={{ latitude: currentLocation[0], longitude: currentLocation[1] }}
+                      lastLocation={lastSelectedLocation}
+                    /> */}
       </View>
     </View>
   );
