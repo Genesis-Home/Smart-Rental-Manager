@@ -17,8 +17,7 @@ import { colors, DEFAULT_LANGUAGE } from "../../utilities/constants";
 import { Typography } from "../../utilities/constants/constant.style";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import Header from "../../components/Header";
-import FormInput from "../../components/FormInput";
-import { Edit, Cross } from "../../assets/icons";
+import { Edit, Cross, AddPhoto } from "../../assets/icons";
 import { EditPropertyProps } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { launchImageLibrary } from "react-native-image-picker";
@@ -39,6 +38,8 @@ import Colors from "../../utilities/constants/colors";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import ImageView from "react-native-image-viewing";
 import LocationPickerModal from "../../components/LocationPicker";
+import axios from "axios";
+import FormInput from "../../components/FormInput";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required(t("title") + " " + t("isRequired")),
@@ -117,7 +118,6 @@ const createStyles = (colors: any) => {
       position: "absolute",
       right: 10,
       top: 10,
-      // backgroundColor: "rgba(0,0,0,0.5)",
       borderRadius: 15,
       padding: 5,
     },
@@ -155,8 +155,16 @@ const EditProperty: React.FC<EditPropertyProps> = ({
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [viewingCoverPhoto, setViewingCoverPhoto] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
-  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [lastLocation, setLastLocation] = useState([
+    property?.location?.lat || 0,
+    property?.location?.long || 0
+  ]);
+
+  const lastLocationRef = useRef([property?.location?.lat || 0, property?.location?.long || 0]);
+
+
+
   const [marker, setMarker] = useState<{
     latitude: number;
     longitude: number;
@@ -173,8 +181,10 @@ const EditProperty: React.FC<EditPropertyProps> = ({
     lat: number;
     long: number;
   } | null>(null);
+
   const placesRef = useRef<any>(null);
   const mapRef = useRef<MapView>(null);
+  const setFieldValueRef = useRef<any>(null); // Add this ref
   const styles = createStyles(colors);
 
   useEffect(() => {
@@ -199,12 +209,15 @@ const EditProperty: React.FC<EditPropertyProps> = ({
         placesRef.current.setAddressText(address);
       }
       if (property.images && property.images.length > 0) {
-        // First image is cover photo, rest are gallery images
         setCoverPhoto(property.images[0]);
         setGalleryImages(property.images.slice(1));
       }
     }
   }, [property]);
+
+
+
+
 
   const handleCoverPhotoPick = () => {
     launchImageLibrary(
@@ -405,9 +418,6 @@ const EditProperty: React.FC<EditPropertyProps> = ({
             </View>
           </TouchableOpacity>
 
-         
-
-          {/* Cover Photo Section */}
           {isCoverPhotoUploading ? (
             <ActivityIndicator
               size="large"
@@ -449,10 +459,10 @@ const EditProperty: React.FC<EditPropertyProps> = ({
             )
           )}
 
-           <TouchableOpacity
+          <TouchableOpacity
             activeOpacity={0.8}
             onPress={handleGalleryImagesPick}
-            style={[styles.photoUploadSection,{marginTop:15}]}
+            style={[styles.photoUploadSection, { marginTop: 15 }]}
           >
             <Text
               style={[
@@ -472,7 +482,6 @@ const EditProperty: React.FC<EditPropertyProps> = ({
             </View>
           </TouchableOpacity>
 
-          {/* Gallery Images Section */}
           {isGalleryUploading ? (
             <ActivityIndicator
               size="large"
@@ -496,8 +505,8 @@ const EditProperty: React.FC<EditPropertyProps> = ({
           )}
           <ImageView
             images={
-              viewingCoverPhoto && coverPhoto 
-                ? [{ uri: coverPhoto }] 
+              viewingCoverPhoto && coverPhoto
+                ? [{ uri: coverPhoto }]
                 : galleryImages.map((url) => ({ uri: url }))
             }
             imageIndex={selectedIndex}
@@ -516,9 +525,8 @@ const EditProperty: React.FC<EditPropertyProps> = ({
               validationSchema={validationSchema}
               onSubmit={async (values) => {
                 try {
-                  // Combine cover photo and gallery images with cover photo at index 0
                   const allImages = coverPhoto ? [coverPhoto, ...galleryImages] : galleryImages;
-                  
+
                   const formData = {
                     ...values,
                     images: allImages,
@@ -557,115 +565,161 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                 values,
                 errors,
                 touched,
-              }) => (
-                <>
-                  <FormInput
-                    label={t("title")}
-                    placeholder={t("title")}
-                    value={values.title}
-                    onChangeText={handleChange("title")}
-                    onBlur={handleBlur("title")}
-                    error={
-                      touched.title && errors.title
-                        ? String(errors.title)
-                        : undefined
-                    }
-                  />
+              }) => {
+                // Store the setFieldValue function in the ref
+                setFieldValueRef.current = setFieldValue;
 
-                  <FormInput
-                    label={t("description")}
-                    placeholder={t("description")}
-                    value={values.description}
-                    onChangeText={handleChange("description")}
-                    onBlur={handleBlur("description")}
-                    error={
-                      touched.description && errors.description
-                        ? String(errors.description)
-                        : undefined
-                    }
-                    multiline
-                    numberOfLines={4}
-                  />
-
-                  <FormInput
-                    label={t("otherDet")}
-                    placeholder={t("otherDet")}
-                    value={values.otherDetails}
-                    onChangeText={handleChange("otherDetails")}
-                    onBlur={handleBlur("otherDetails")}
-                    error={
-                      touched.otherDetails && errors.otherDetails
-                        ? String(errors.otherDetails)
-                        : undefined
-                    }
-                    multiline
-                    numberOfLines={4}
-                  />
-                <View style={styles.locationContainer}>
-  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-    <Text
-      style={[
-        styles.locationLabel,
-        Typography.f_14_nunito_semi_bold,
-      ]}
-    >
-      {t("location")}
-    </Text>
-
-     <TouchableOpacity onPress={() => setModalVisible(true)}>
-                                      <Text style={{ fontSize: 24, color: 'red' }}>＋</Text>
-                                    
-                                    </TouchableOpacity>
-  </View>
-
-  <View>
-    <MapView
-      key={mapKey}
-      ref={mapRef}
-      style={{ height: 200, width: "100%", marginTop: 10 }}
-      provider={PROVIDER_GOOGLE}
-      region={mapRegion}
-    >
-      {marker && (
-        <Marker
-          coordinate={{
-            latitude: marker.latitude,
-            longitude: marker.longitude,
-          }}
-        >
-          <MarkerIcon />
-        </Marker>
-      )}
-    </MapView>
-  </View>
-</View>
-
-                  <View style={{ marginVertical: 40 }}>
-                    <CTAButton1
-                      title={t("save")}
-                      submitHandler={handleSubmit}
+                return (
+                  <>
+                    <FormInput
+                      label={t("title")}
+                      placeholder={t("title")}
+                      value={values.title}
+                      onChangeText={handleChange("title")}
+                      onBlur={handleBlur("title")}
+                      error={
+                        touched.title && errors.title
+                          ? String(errors.title)
+                          : undefined
+                      }
                     />
-                  </View>
-                </>
-              )}
+
+                    <FormInput
+                      label={t("description")}
+                      placeholder={t("description")}
+                      value={values.description}
+                      onChangeText={handleChange("description")}
+                      onBlur={handleBlur("description")}
+                      error={
+                        touched.description && errors.description
+                          ? String(errors.description)
+                          : undefined
+                      }
+                      multiline
+                      numberOfLines={4}
+                    />
+
+                    <FormInput
+                      label={t("otherDet")}
+                      placeholder={t("otherDet")}
+                      value={values.otherDetails}
+                      onChangeText={handleChange("otherDetails")}
+                      onBlur={handleBlur("otherDetails")}
+                      error={
+                        touched.otherDetails && errors.otherDetails
+                          ? String(errors.otherDetails)
+                          : undefined
+                      }
+                      multiline
+                      numberOfLines={4}
+                    />
+                    <View style={styles.locationContainer}>
+                      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <Text
+                          style={[
+                            styles.locationLabel,
+                            Typography.f_14_nunito_semi_bold,
+                          ]}
+                        >
+                          {t("location")}
+                        </Text>
+
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          onPress={() => setModalVisible(true)}
+
+                        >
+
+                          <View style={styles.photoUploadActionRow}>
+                            <AddPhoto />
+                            <Text
+                              style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                            >
+                              {t("changeLocation")}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+
+                      <View>
+                        <MapView
+                          key={mapKey}
+                          ref={mapRef}
+                          style={{ height: 200, width: "100%", marginTop: 10 }}
+                          provider={PROVIDER_GOOGLE}
+                          region={mapRegion}
+                        >
+                          {marker && (
+                            <Marker
+                              coordinate={{
+                                latitude: marker.latitude,
+                                longitude: marker.longitude,
+                              }}
+                            >
+                              <MarkerIcon />
+                            </Marker>
+                          )}
+                        </MapView>
+                      </View>
+                    </View>
+
+                    <View style={{ marginVertical: 40 }}>
+                      <CTAButton1
+                        title={t("save")}
+                        submitHandler={handleSubmit}
+                      />
+                    </View>
+                  </>
+                );
+              }}
             </Formik>
           )}
         </ScrollView>
 
-         {/* <LocationPickerModal
-                      visible={modalVisible}
-                      onClose={() => setModalVisible(false)}
-                      onLocationSelected={(loc: any) => {
-                        const location = [loc.lat, loc.lng]
+        <LocationPickerModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onLocationSelected={async (loc: any) => {
+            const location = [loc.lat, loc.lng];
+            setLastLocation(location);
+            setModalVisible(false);
 
-                        setModalVisible(false)
-                        updateMapLocation(location[0] , location[1])
+            updateMapLocation(location[0], location[1]);
 
-                      }}
-                      apiKey={EnvConfig.googleMaps.apiKey}
-                      userLocation={{ latitude: currentLocation[0], longitude: currentLocation[1] }}
-                      lastLocation={lastSelectedLocation}
-                    /> */}
+            const response = await axios.get(
+              `${EnvConfig.googleMaps.geocodeUrl}?latlng=${location[0]},${location[1]}&key=${EnvConfig.googleMaps.apiKey}`
+            );
+
+            if (response.data.status === "OK") {
+              const formattedAddress = response.data.results[0]?.formatted_address || "";
+
+              setInputText(formattedAddress || "");
+              setCurrentLocation({
+                address: formattedAddress,
+                lat: location[0],
+                long: location[1]
+              });
+
+              if (setFieldValueRef.current) {
+                setFieldValueRef.current("location", {
+                  address: formattedAddress,
+                  lat: location[0],
+                  long: location[1],
+                });
+
+                lastLocationRef.current = location;
+
+              }
+            }
+
+            setMarker({ latitude: location[0], longitude: location[1] });
+          }}
+          apiKey={EnvConfig.googleMaps.apiKey}
+          isEditMode={true}
+          lastLocation={lastLocation}
+
+        />
+
       </View>
     </View>
   );

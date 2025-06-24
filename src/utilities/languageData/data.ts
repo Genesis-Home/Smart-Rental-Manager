@@ -291,6 +291,11 @@ export const languageData: LanguageData[] = [
       fileSavedToDownloads: "File saved to Downloads folder",
       maxTwoBookingsAllowed: "A maximum of 2 bookings are allowed for the same date.",
       timeConflictMessage: "Check-in or check-out time is already booked for this date. Please select a different time.",
+      changeLocation:"Change Location",
+      locationRequired:"Location Required",
+      locationEnableMessageAddProperty:"Please enable location services to add a property.",
+      locationEnableMessage:"Please enable location permission in app settings.",
+      openSettings:"Open Settings"
     },
   },
   {
@@ -569,6 +574,12 @@ export const languageData: LanguageData[] = [
       fileSavedToDownloads: "File saved to Downloads folder",
       maxTwoBookingsAllowed: "Επιτρέπονται το πολύ 2 κρατήσεις για την ίδια ημερομηνία.",
       timeConflictMessage: "Η ώρα check-in ή check-out έχει ήδη κρατηθεί για αυτήν την ημερομηνία. Παρακαλώ επιλέξτε διαφορετική ώρα.",
+      changeLocation:"Αλλαγή τοποθεσίας",
+      locationRequired: "Απαιτείται τοποθεσία",
+  locationEnableMessageAddProperty: "Παρακαλώ ενεργοποιήστε τις υπηρεσίες τοποθεσίας για να προσθέσετε ένα ακίνητο.",
+  locationEnableMessage: "Παρακαλώ ενεργοποιήστε την άδεια τοποθεσίας στις ρυθμίσεις της εφαρμογής.",
+  openSettings:"Άνοιγμα Ρυθμίσεων"
+
     },
   },
 ];

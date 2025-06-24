@@ -44,14 +44,10 @@ import {
   Event,
   MarkerProps,
   AddPropertyProps,
-  GooglePlaceData,
   GooglePlaceDetail,
   Location as LocationProp,
 } from "../../types/types";
 import Colors from "../../utilities/constants/colors";
-import { Language } from "react-native-google-places-autocomplete";
-import Geolocation from "@react-native-community/geolocation";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { checkLocationPermission } from "../../services/locationServiceCheck";
 import LocationPickerModal from "../../components/LocationPicker";
 
@@ -107,7 +103,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     gpsenable()
 
   }, []);
-  console.log(currentLocation, 'current location')
 
   const appState = useRef(AppState.currentState);
 
@@ -115,10 +110,8 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     const subscription = AppState.addEventListener('change', async (nextAppState: AppStateStatus) => {
       if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
         try {
-          // await checkLocationPermission();
-          navigation.dispatch(
-            CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
-          );
+          await checkLocationPermission();
+        
         } catch (error) {
           console.log('Location fetch failed:', error);
         }
@@ -140,7 +133,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       const position: any = await checkLocationPermission();
       const { latitude, longitude } = position.coords;
       const loc = [latitude, longitude];
-      console.log(loc, "Location");
 
       dispatch(isLocationSet(true, loc));
 
@@ -750,10 +742,20 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                   {t("location")}
                                 </Text>
 
-                                {/* Plus Icon Button */}
-                                <TouchableOpacity onPress={() => setModalVisible(true)}>
-                                  <Text style={{ fontSize: 24, color: 'red' }}>＋</Text>
-                                
+                                <TouchableOpacity
+                                  activeOpacity={0.8}
+                                  onPress={() => setModalVisible(true)}
+
+                                >
+
+                                  <View style={styles.photoUploadActionRow}>
+                                    <AddPhoto />
+                                    <Text
+                                      style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                                    >
+                                      {t("changeLocation")}
+                                    </Text>
+                                  </View>
                                 </TouchableOpacity>
                               </View>
 
@@ -796,20 +798,39 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                     <LocationPickerModal
                       visible={modalVisible}
                       onClose={() => setModalVisible(false)}
-                      onLocationSelected={(loc: any) => {
+                      onLocationSelected={async (loc: any) => {
                         const location = [loc.lat, loc.lng]
 
-
                         setSelectedLocation(location as any);
-                        setInitialLocation(location as any)
                         setLastSelectedLocation(location as any)
+
                         updateMapAndMarker(loc.lat, loc.lng)
                         setModalVisible(false)
+                        const response = await axios.get(
+                          `${EnvConfig.googleMaps.geocodeUrl}?latlng=${location[0]},${location[1]}&key=${EnvConfig.googleMaps.apiKey}`
+                        );
+
+                        if (response.data.status === "OK") {
+                          setIsLocationLoading(false);
+                          const formattedAddress = response.data.results[0]?.formatted_address || "";
+                          const location = {
+                            address: formattedAddress,
+                            lat: loc.lat,
+                            long: loc.lng,
+                          };
+
+
+                          setInitialLocation(location);
+                          // setLastSelectedLocation(location);
+
+                          setIsInitialLocationSet(true);
+                        }
 
                       }}
                       apiKey={EnvConfig.googleMaps.apiKey}
                       userLocation={{ latitude: currentLocation[0], longitude: currentLocation[1] }}
                       lastLocation={lastSelectedLocation}
+                      isEditMode={false}
                     />
                   </View>
                 </>

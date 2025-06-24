@@ -45,6 +45,7 @@ export type RootStackParamList = {
   createContact: undefined;
   AddSchedule: undefined;
   ApartmentDetails: {
+    changeLocation:string;
     id: string;
     source?: string;
     scheduleId?: string;
@@ -419,6 +420,11 @@ export type LanguageTranslation = {
   fileSavedToDownloads: string;
   maxTwoBookingsAllowed: string;
   timeConflictMessage: string;
+  changeLocation:string;
+  locationRequired:string;
+  locationEnableMessage:string;
+  locationEnableMessageAddProperty:string;
+  openSettings:string;
 };
 
 export type LanguageData = {

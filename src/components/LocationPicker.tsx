@@ -25,8 +25,10 @@ interface LocationPickerModalProps {
         lng: number;
     }) => void;
     apiKey: string;
-    userLocation: any;
-    lastLocation:any
+    userLocation?: any;
+    lastLocation: any
+    isEditMode?: boolean;
+
 }
 
 
@@ -38,6 +40,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
     apiKey,
     userLocation,
     lastLocation,
+    isEditMode
 }) => {
     const [region, setRegion] = useState<Region | null>(null);
     const [marker, setMarker] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -45,7 +48,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
 
     const placesRef = useRef<GooglePlacesAutocomplete | null>(null);
     const mapRef = useRef<MapView | null>(null);
-const hasOpenedBeforeRef = useRef(false);
+    const hasOpenedBeforeRef = useRef(false);
 
 
 
@@ -66,70 +69,77 @@ const hasOpenedBeforeRef = useRef(false);
     //     }
     // }, [visible, userLocation]);
 
-useEffect(() => {
-    if (!visible) return; // Modal band ho to kuch mat karo
+    useEffect(() => {
+  if (!visible) return;
 
-    let locationToUse: { latitude: number; longitude: number } | null = null;
+  let locationToUse: { latitude: number; longitude: number } | null = null;
 
-    if (!hasOpenedBeforeRef.current && userLocation?.latitude && userLocation?.longitude) {
-        // First time: use current location
-        locationToUse = userLocation;
-    } else if (Array.isArray(lastLocation) && lastLocation.length === 2) {
-        // Next time: use last selected location
-        locationToUse = {
-            latitude: lastLocation[0],
-            longitude: lastLocation[1],
-        };
-    }
+  if (isEditMode && Array.isArray(lastLocation) && lastLocation.length === 2) {
+    // Edit mode: show last saved location
+    locationToUse = {
+      latitude: lastLocation[0],
+      longitude: lastLocation[1],
+    };
+  } else if (!hasOpenedBeforeRef.current && userLocation?.latitude && userLocation?.longitude) {
+    // First time opening: show user current location
+    locationToUse = userLocation;
+  } else if (Array.isArray(lastLocation) && lastLocation.length === 2) {
+    // Subsequent openings: show last selected location
+    locationToUse = {
+      latitude: lastLocation[0],
+      longitude: lastLocation[1],
+    };
+  }
 
-    if (
-        locationToUse &&
-        typeof locationToUse.latitude === "number" &&
-        typeof locationToUse.longitude === "number"
-    ) {
+  if (
+    locationToUse &&
+    typeof locationToUse.latitude === "number" &&
+    typeof locationToUse.longitude === "number"
+  ) {
+    const newRegion = {
+      latitude: locationToUse.latitude,
+      longitude: locationToUse.longitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    };
+
+    setRegion(newRegion);
+    setMarker({
+      latitude: locationToUse.latitude,
+      longitude: locationToUse.longitude,
+    });
+  }
+
+  hasOpenedBeforeRef.current = true;
+}, [visible, userLocation, lastLocation, isEditMode]);
+
+
+
+
+
+    const handleSelect = (details: any) => {
+        if (!details?.geometry?.location) {
+            console.warn("Invalid location details");
+            return;
+        }
+
+        const location = details.geometry.location;
+
         const newRegion = {
-            latitude: locationToUse.latitude,
-            longitude: locationToUse.longitude,
+            latitude: location.lat,
+            longitude: location.lng,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
         };
 
-        setRegion(newRegion);
-        setMarker({
-            latitude: locationToUse.latitude,
-            longitude: locationToUse.longitude,
-        });
-    }
+        // Animate map movement
+        if (mapRef.current) {
+            mapRef.current.animateToRegion(newRegion, 1000);
+        }
 
-    hasOpenedBeforeRef.current = true;
-}, [userLocation, lastLocation]); 
-
-
-
-
-   const handleSelect = (details: any) => {
-  if (!details?.geometry?.location) {
-    console.warn("Invalid location details");
-    return;
-  }
-
-  const location = details.geometry.location;
-
-  const newRegion = {
-    latitude: location.lat,
-    longitude: location.lng,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
-  };
-
-  // Animate map movement
-  if (mapRef.current) {
-    mapRef.current.animateToRegion(newRegion, 1000);
-  }
-
-  setMarker({ latitude: location.lat, longitude: location.lng });
-  onLocationSelected({ lat: location.lat, lng: location.lng });
-};
+        setMarker({ latitude: location.lat, longitude: location.lng });
+        onLocationSelected({ lat: location.lat, lng: location.lng });
+    };
 
 
 
@@ -154,18 +164,18 @@ useEffect(() => {
                 <View style={styles.container}>
                     {/* Map */}
                     {region && (
-                       <MapView
-  provider={PROVIDER_GOOGLE}
-  style={styles.map}
-  ref={mapRef}
-  initialRegion={region || {
-    latitude: 0,
-    longitude: 0,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
-  }}
-  onPress={(data: any) => handleSelect(data)}
->
+                        <MapView
+                            provider={PROVIDER_GOOGLE}
+                            style={styles.map}
+                            ref={mapRef}
+                            initialRegion={region || {
+                                latitude: 0,
+                                longitude: 0,
+                                latitudeDelta: 0.01,
+                                longitudeDelta: 0.01,
+                            }}
+                            onPress={(data: any) => handleSelect(data)}
+                        >
                             <Marker
                                 coordinate={marker as any}
                             >
@@ -260,36 +270,36 @@ useEffect(() => {
                             <Icon name="close" size={24} color="#333" />
                         </TouchableOpacity>
 
-                        
+
 
 
                     </View>
 
                     <TouchableOpacity
-                            onPress={() => {
-                                if (mapRef.current && userLocation) {
-                                    const newRegion = {
-                                        latitude: userLocation.latitude,
-                                        longitude: userLocation.longitude,
-                                        latitudeDelta: 0.01,
-                                        longitudeDelta: 0.01,
-                                    };
-                                    mapRef.current.animateToRegion(newRegion, 1000);
-                                    setRegion(newRegion);
-                                    setMarker({
-                                        latitude: userLocation.latitude,
-                                        longitude: userLocation.longitude,
-                                    });
-                                }
-                            }}
-                            style={styles.recenterBtn}
-                        >
-                            <MaterialIcons
-                                    name="my-location"
-                                    size={24}
-                                    color={Colors.Error_Red}
-                                  />
-                        </TouchableOpacity>
+                        onPress={() => {
+                            if (mapRef.current && userLocation) {
+                                const newRegion = {
+                                    latitude: userLocation.latitude,
+                                    longitude: userLocation.longitude,
+                                    latitudeDelta: 0.01,
+                                    longitudeDelta: 0.01,
+                                };
+                                mapRef.current.animateToRegion(newRegion, 1000);
+                                setRegion(newRegion);
+                                setMarker({
+                                    latitude: userLocation.latitude,
+                                    longitude: userLocation.longitude,
+                                });
+                            }
+                        }}
+                        style={styles.recenterBtn}
+                    >
+                        <MaterialIcons
+                            name="my-location"
+                            size={24}
+                            color={Colors.Error_Red}
+                        />
+                    </TouchableOpacity>
 
                 </View>
             </View>
@@ -340,18 +350,18 @@ const styles = StyleSheet.create({
         borderColor: colors.DARK_GRAY,
     },
     recenterBtn: {
-  position: "absolute",      // Add this
-  bottom: 30,                // Distance from bottom
-  right: 20,                 // Distance from right
-  backgroundColor: "#fff",
-  padding: 10,
-  borderRadius: 25,
-  elevation: 4,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 2,
-},
+        position: "absolute",      // Add this
+        bottom: 30,                // Distance from bottom
+        right: 20,                 // Distance from right
+        backgroundColor: "#fff",
+        padding: 10,
+        borderRadius: 25,
+        elevation: 4,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+    },
 
 
 });

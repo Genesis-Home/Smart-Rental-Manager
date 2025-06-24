@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Platform,
   BackHandler,
+  Alert,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { AppIcon, Notification, Search, ShareIcon } from "../../assets/icons";
@@ -32,8 +33,11 @@ import {
 } from "../../utilities/imageDownloader";
 import Toast from "react-native-toast-message";
 import Share from "react-native-share";
-import { fetchPropertiesByUserID } from "../../store/actions/action";
+import { fetchPropertiesByUserID, isLocationSet } from "../../store/actions/action";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
+import { checkLocationPermission } from "../../services/locationServiceCheck";
+import { PermissionsAndroid, Linking } from 'react-native';
+
 
 const { width } = Dimensions.get("window");
 
@@ -74,7 +78,7 @@ const Home: React.FC = () => {
         navigation.navigate("Signin");
       }
     };
-    
+
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
       () => {
@@ -87,10 +91,10 @@ const Home: React.FC = () => {
         setKeyboardVisible(false);
       }
     );
-    
+
     // Call initialize function
     initialize();
-    
+
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
@@ -101,6 +105,14 @@ const Home: React.FC = () => {
   useEffect(() => {
     setFilteredProperties(properties);
   }, [properties]);
+
+  useEffect(() => {
+    gpsenable()
+    handleExportPermission()
+
+
+
+  }, []);
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -127,8 +139,8 @@ const Home: React.FC = () => {
         lat && lng
           ? `https://www.google.com/maps?q=${lat},${lng}`
           : address !== "No location available"
-          ? `https://www.google.com/maps/search/${encodeURIComponent(address)}`
-          : "";
+            ? `https://www.google.com/maps/search/${encodeURIComponent(address)}`
+            : "";
 
       let downloadedImagePaths: string[] = [];
 
@@ -161,9 +173,8 @@ const Home: React.FC = () => {
             // Create share options with actual images
             const shareOptions = {
               title: title,
-              message: `🏢 ${title}\n\n📝 Description : ${description}\n\n📍 Location : ${address}\n${
-                mapsUrl ? `${mapsUrl}` : ""
-              }`,
+              message: `🏢 ${title}\n\n📝 Description : ${description}\n\n📍 Location : ${address}\n${mapsUrl ? `${mapsUrl}` : ""
+                }`,
               url:
                 Platform.OS === "android"
                   ? `file://${firstImagePath}`
@@ -222,9 +233,8 @@ const Home: React.FC = () => {
         // No images to share
         await Share.open({
           title: title,
-          message: `🏢 *${title}*\n\n📝 *Description:*\n${description}\n\n📍 *Location:*\n${address}\n${
-            mapsUrl ? `${mapsUrl}` : ""
-          }`,
+          message: `🏢 *${title}*\n\n📝 *Description:*\n${description}\n\n📍 *Location:*\n${address}\n${mapsUrl ? `${mapsUrl}` : ""
+            }`,
           failOnCancel: false,
         });
       }
@@ -277,6 +287,38 @@ const Home: React.FC = () => {
       });
     }
   };
+
+
+  const gpsenable = async () => {
+    try {
+      const position: any = await checkLocationPermission();
+      const { latitude, longitude } = position.coords;
+      const loc = [latitude, longitude];
+
+      dispatch(isLocationSet(true, loc));
+
+
+
+    } catch (error) {
+      console.error("Error in GPS enabling or reverse geocoding:", error);
+      dispatch(isLocationSet(false, []));
+    }
+  };
+
+  const handleExportPermission = async () => {
+    if (Platform.OS === "android" && Platform.Version < 30) {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+      );
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        Toast.show({ type: "error", text1: t("permissionDenied") });
+        return;
+      }
+    }
+  }
+
+
+
 
   const renderItem = ({ item }: { item: Property }) => {
     const activeIndex = activeIndexes[item.id] ?? 0;
@@ -461,8 +503,50 @@ const Home: React.FC = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
+     
+
       <TouchableOpacity
-        onPress={() => navigation.navigate("AddProperty")}
+        onPress={async () => {
+          try {
+            if (Platform.OS === 'android') {
+              const granted = await PermissionsAndroid.check(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+              );
+
+              if (granted) {
+                navigation.navigate("AddProperty");
+              } else {
+                const permissionRequest = await PermissionsAndroid.request(
+                  PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+                );
+
+                if (permissionRequest === PermissionsAndroid.RESULTS.GRANTED) {
+                  navigation.navigate("AddProperty");
+                } else {
+                  Alert.alert(
+                    t('locationRequired'),
+                    t('locationEnableMessageAddProperty'),
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel"
+                      },
+                      {
+                        text: t('openSettings'),
+                        onPress: () => Linking.openSettings()
+                      }
+                    ]
+                  );
+                }
+              }
+            } else {
+              // iOS optional
+              navigation.navigate("AddProperty");
+            }
+          } catch (err) {
+            console.warn(err);
+          }
+        }}
         style={{
           position: "absolute",
           bottom: keyboardVisible ? 40 : 5,
