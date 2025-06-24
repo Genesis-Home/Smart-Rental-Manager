@@ -28,10 +28,10 @@ import Toast from "react-native-toast-message";
 import moment from "moment";
 import { generateSchedulePDF } from "../../services/pdfService";
 import firestore from "@react-native-firebase/firestore";
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Share from "react-native-share";
-import SAF from 'react-native-saf-x';
-import RNFS from 'react-native-fs';
+import SAF from "react-native-saf-x";
+import RNFS from "react-native-fs";
 
 // Custom Button Component
 interface CustomButtonProps {
@@ -78,7 +78,15 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         <>
           {icon}
           {title && (
-            <Text style={{ color: textColor, fontSize: 14, fontWeight: "500", textAlign: "center", marginTop: 2 }}>
+            <Text
+              style={{
+                color: textColor,
+                fontSize: 14,
+                fontWeight: "500",
+                textAlign: "center",
+                marginTop: 2,
+              }}
+            >
               {title}
             </Text>
           )}
@@ -107,7 +115,7 @@ const Scheduled: React.FC = () => {
   // Group schedules by property
   const groupedSchedules = useMemo(() => {
     const grouped: { [propertyId: string]: any[] } = {};
-    
+
     userSchedules.forEach((schedule: any) => {
       if (!grouped[schedule.propertyId]) {
         grouped[schedule.propertyId] = [];
@@ -117,12 +125,12 @@ const Scheduled: React.FC = () => {
 
     return Object.entries(grouped).map(([propertyId, schedules]) => ({
       propertyId,
-      propertyName: schedules[0]?.property || 'Unknown Property',
+      propertyName: schedules[0]?.property || "Unknown Property",
       schedules: schedules.sort((a: any, b: any) => {
-        const dateA = moment(a.visitDates?.split(' - ')[0], 'MMM D, YYYY');
-        const dateB = moment(b.visitDates?.split(' - ')[0], 'MMM D, YYYY');
+        const dateA = moment(a.visitDates?.split(" - ")[0], "MMM D, YYYY");
+        const dateB = moment(b.visitDates?.split(" - ")[0], "MMM D, YYYY");
         return dateA.isBefore(dateB) ? -1 : 1;
-      })
+      }),
     }));
   }, [userSchedules]);
 
@@ -146,8 +154,14 @@ const Scheduled: React.FC = () => {
           }
         } catch (error) {
           console.log(error, "fetchschedule_error");
-          const errorMessage = await getFirebaseErrorMessage((error as any).code);
-          Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
+          const errorMessage = await getFirebaseErrorMessage(
+            (error as any).code
+          );
+          Toast.show({
+            type: "error",
+            text1: errorMessage,
+            position: "bottom",
+          });
         }
       } else {
         const customMessage = await getFirebaseErrorMessage(
@@ -231,12 +245,15 @@ const Scheduled: React.FC = () => {
     setCurrentDate(nextMonth);
   };
 
-  const handleSlotClick = (slotIndex: number, item: { propertyId: string; propertyName: string; schedules: any[] }) => {
+  const handleSlotClick = (
+    slotIndex: number,
+    item: { propertyId: string; propertyName: string; schedules: any[] }
+  ) => {
     const slotDate = addDays(
       startOfWeek(currentDate, { weekStartsOn: 5 }),
       slotIndex
     );
-    
+
     // Find which schedule is booked for this slot
     let clickedSchedule: any = null;
     item.schedules.forEach((schedule: any) => {
@@ -245,7 +262,7 @@ const Scheduled: React.FC = () => {
         const startDate = moment(startStr, "MMM D, YYYY").startOf("day");
         const endDate = moment(endStr, "MMM D, YYYY").endOf("day");
         const slotMoment = moment(slotDate);
-        
+
         if (
           slotMoment.isSameOrAfter(startDate) &&
           slotMoment.isSameOrBefore(endDate)
@@ -267,7 +284,9 @@ const Scheduled: React.FC = () => {
       setIsDeleting(true);
       try {
         // Custom delete function without global loader
-        const scheduleRef = firestore().collection("schedules").doc(selectedSchedule.id);
+        const scheduleRef = firestore()
+          .collection("schedules")
+          .doc(selectedSchedule.id);
         const scheduleDoc = await scheduleRef.get();
 
         if (scheduleDoc.exists) {
@@ -309,11 +328,11 @@ const Scheduled: React.FC = () => {
             }));
             dispatch({ type: "SET_USER_SCHEDULES", payload: schedules });
           }
-          
+
           setShowDeleteModal(false);
           setShowBookingDetailsModal(false);
           setSelectedSchedule(null);
-          
+
           const successMessage = await getFirebaseErrorMessage(
             "Booking cancelled successfully"
           );
@@ -352,7 +371,7 @@ const Scheduled: React.FC = () => {
           const data = scheduleDoc.data();
           updatedBookingDetails = {
             ...selectedSchedule,
-            notes: data?.notes || ""
+            notes: data?.notes || "",
           };
         }
 
@@ -382,7 +401,7 @@ const Scheduled: React.FC = () => {
           const data = scheduleDoc.data();
           updatedBookingDetails = {
             ...selectedSchedule,
-            notes: data?.notes || ""
+            notes: data?.notes || "",
           };
         }
 
@@ -397,12 +416,12 @@ const Scheduled: React.FC = () => {
             });
           } else {
             // Android 11+ (SDK 30+): Use SAF to show Save As dialog and write PDF
-            const fileName = pdfPath.split("/").pop() || 'Booking_Invoice.pdf';
-            const pdfBase64 = await RNFS.readFile(pdfPath, 'base64');
+            const fileName = pdfPath.split("/").pop() || "Booking_Invoice.pdf";
+            const pdfBase64 = await RNFS.readFile(pdfPath, "base64");
             const fileDetail = await SAF.createDocument(pdfBase64, {
-              mimeType: 'application/pdf',
+              mimeType: "application/pdf",
               initialName: fileName,
-              encoding: 'base64'
+              encoding: "base64",
             });
             if (!fileDetail || !fileDetail.uri) {
               Toast.show({
@@ -445,16 +464,20 @@ const Scheduled: React.FC = () => {
     }
   };
 
-  const renderPropertyRow = ({ item }: { item: { propertyId: string; propertyName: string; schedules: any[] } }) => {
+  const renderPropertyRow = ({
+    item,
+  }: {
+    item: { propertyId: string; propertyName: string; schedules: any[] };
+  }) => {
     const randomColors = [
       "#FF8A65",
-      "#4DB6AC", 
+      "#4DB6AC",
       "#9575CD",
       "#FFD54F",
       "#81C784",
       "#FFB74D",
       "#F06292",
-      "#64B5F6"
+      "#64B5F6",
     ];
 
     return (
@@ -464,7 +487,7 @@ const Scheduled: React.FC = () => {
           onPress={() =>
             navigation.navigate("ApartmentDetails", {
               id: item.propertyId,
-              source: 'schedules'
+              source: "schedules",
             })
           }
         >
@@ -480,7 +503,9 @@ const Scheduled: React.FC = () => {
             const bookingsForDay = item.schedules.filter((schedule: any) => {
               if (schedule.visitDates) {
                 const [startStr, endStr] = schedule.visitDates.split(" - ");
-                const startDate = moment(startStr, "MMM D, YYYY").startOf("day");
+                const startDate = moment(startStr, "MMM D, YYYY").startOf(
+                  "day"
+                );
                 const endDate = moment(endStr, "MMM D, YYYY").endOf("day");
                 const slotMoment = moment(slotDate);
                 return (
@@ -493,9 +518,21 @@ const Scheduled: React.FC = () => {
             if (bookingsForDay.length === 2) {
               // Two bookings: split slot in half
               return (
-                <View key={i} style={[styles.slot, { flexDirection: 'row', padding: 0 }]}> 
+                <View
+                  key={i}
+                  style={[styles.slot, { flexDirection: "row", padding: 0 }]}
+                >
                   <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: randomColors[item.schedules.indexOf(bookingsForDay[0]) % randomColors.length], borderTopLeftRadius: 4, borderBottomLeftRadius: 4 }}
+                    style={{
+                      flex: 1,
+                      backgroundColor:
+                        randomColors[
+                          item.schedules.indexOf(bookingsForDay[0]) %
+                            randomColors.length
+                        ],
+                      borderTopLeftRadius: 4,
+                      borderBottomLeftRadius: 4,
+                    }}
                     activeOpacity={0.8}
                     onPress={() => {
                       setSelectedSchedule(bookingsForDay[0]);
@@ -503,7 +540,16 @@ const Scheduled: React.FC = () => {
                     }}
                   />
                   <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: randomColors[item.schedules.indexOf(bookingsForDay[1]) % randomColors.length], borderTopRightRadius: 4, borderBottomRightRadius: 4 }}
+                    style={{
+                      flex: 1,
+                      backgroundColor:
+                        randomColors[
+                          item.schedules.indexOf(bookingsForDay[1]) %
+                            randomColors.length
+                        ],
+                      borderTopRightRadius: 4,
+                      borderBottomRightRadius: 4,
+                    }}
                     activeOpacity={0.8}
                     onPress={() => {
                       setSelectedSchedule(bookingsForDay[1]);
@@ -515,16 +561,18 @@ const Scheduled: React.FC = () => {
             } else {
               // 0 or 1 or >2 bookings: keep old logic
               let isBooked = bookingsForDay.length > 0;
-              let bookingColor = isBooked ? randomColors[item.schedules.indexOf(bookingsForDay[0]) % randomColors.length] : colors.Neutral_01;
+              let bookingColor = isBooked
+                ? randomColors[
+                    item.schedules.indexOf(bookingsForDay[0]) %
+                      randomColors.length
+                  ]
+                : colors.Neutral_01;
               return (
                 <TouchableOpacity
                   key={i}
                   activeOpacity={0.8}
                   onPress={() => handleSlotClick(i, item)}
-                  style={[
-                    styles.slot,
-                    { backgroundColor: bookingColor }
-                  ]}
+                  style={[styles.slot, { backgroundColor: bookingColor }]}
                 />
               );
             }
@@ -675,7 +723,10 @@ const Scheduled: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContainer, { maxHeight: "80%" }]}>
             <Text style={styles.modalTitle}>{t("bookingDetails")}</Text>
-            <ScrollView style={styles.bookingDetailsContainer} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              style={styles.bookingDetailsContainer}
+              showsVerticalScrollIndicator={false}
+            >
               <View style={styles.bookingDetailRow}>
                 <Text style={styles.bookingDetailLabel}>
                   {t("clientName")}:
@@ -747,9 +798,7 @@ const Scheduled: React.FC = () => {
                 </View>
               )}
               <View style={styles.bookingDetailRow}>
-                <Text style={styles.bookingDetailLabel}>
-                  {t("location")}:
-                </Text>
+                <Text style={styles.bookingDetailLabel}>{t("location")}:</Text>
                 <Text style={styles.bookingDetailValue}>
                   {selectedSchedule?.location?.address}
                 </Text>
@@ -777,14 +826,21 @@ const Scheduled: React.FC = () => {
                   {t("balanceAmount")}:
                 </Text>
                 <Text style={styles.bookingDetailValue}>
-                  {(parseInt(selectedSchedule?.agreedPrice || "0") - parseInt(selectedSchedule?.advanceAmount || "0"))}
+                  {parseInt(selectedSchedule?.agreedPrice || "0") -
+                    parseInt(selectedSchedule?.advanceAmount || "0")}
                 </Text>
               </View>
             </ScrollView>
             <View style={styles.modalButtons}>
               <View style={{ width: "24%" }}>
                 <CustomButton
-                  icon={<MaterialCommunityIcons name="file-eye-outline" size={24} color={colors.Primary_01} />}
+                  icon={
+                    <MaterialCommunityIcons
+                      name="file-eye-outline"
+                      size={24}
+                      color={colors.Primary_01}
+                    />
+                  }
                   onPress={handleViewPDF}
                   backgroundColor={colors.white}
                   textColor={colors.Primary_01}
@@ -793,7 +849,13 @@ const Scheduled: React.FC = () => {
               </View>
               <View style={{ width: "24%" }}>
                 <CustomButton
-                  icon={<MaterialCommunityIcons name="download-box-outline" size={24} color={colors.Primary_01} />}
+                  icon={
+                    <MaterialCommunityIcons
+                      name="download-box-outline"
+                      size={24}
+                      color={colors.Primary_01}
+                    />
+                  }
                   onPress={handleDownloadPDF}
                   backgroundColor={colors.white}
                   textColor={colors.Primary_01}
@@ -802,7 +864,13 @@ const Scheduled: React.FC = () => {
               </View>
               <View style={{ width: "24%" }}>
                 <CustomButton
-                  icon={<MaterialCommunityIcons name="delete-outline" size={24} color={colors.Primary_01} />}
+                  icon={
+                    <MaterialCommunityIcons
+                      name="delete-outline"
+                      size={24}
+                      color={colors.Primary_01}
+                    />
+                  }
                   onPress={() => setShowDeleteModal(true)}
                   backgroundColor={colors.white}
                   textColor={colors.Primary_01}
@@ -811,7 +879,13 @@ const Scheduled: React.FC = () => {
               </View>
               <View style={{ width: "24%" }}>
                 <CustomButton
-                  icon={<MaterialCommunityIcons name="close-circle-outline" size={24} color={colors.Primary_01} />}
+                  icon={
+                    <MaterialCommunityIcons
+                      name="close-circle-outline"
+                      size={24}
+                      color={colors.Primary_01}
+                    />
+                  }
                   onPress={() => setShowBookingDetailsModal(false)}
                   backgroundColor={colors.white}
                   textColor={colors.Primary_01}
@@ -821,6 +895,7 @@ const Scheduled: React.FC = () => {
             </View>
           </View>
         </View>
+        <Toast />
       </Modal>
 
       {/* Delete Confirmation Modal */}
@@ -832,9 +907,7 @@ const Scheduled: React.FC = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
-              {t("confirmDeleteBooking")}
-            </Text>
+            <Text style={styles.modalTitle}>{t("confirmDeleteBooking")}</Text>
             <View style={styles.modalButtons}>
               <View style={{ width: "48%" }}>
                 <CustomButton
