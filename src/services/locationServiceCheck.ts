@@ -15,7 +15,6 @@ type GeolocationError = any;
 
 export const checkLocationPermission = async (): Promise<GeolocationResponse> => {
 
-const {t} = useTranslation();
   return new Promise(async (resolve, reject) => {
     try {
       let fine, coarse;
@@ -27,17 +26,17 @@ const {t} = useTranslation();
         if (fine !== RESULTS.GRANTED && coarse !== RESULTS.GRANTED) {
           
           Alert.alert(
-             t('locationRequired'),
-            t('locationEnableMessage'),
+            'Location Required',
+           "Please enable location services to use this app.",
             [
               {
-                text: t('openSettings'),
+                text:'Open Settings',
                 onPress: async () => {
                   await openSettings();
                 },
               },
               {
-                text: t('cancel'),
+                text: 'Cancel',
                 style: 'cancel',
               },
             ],
