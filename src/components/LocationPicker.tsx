@@ -4,7 +4,6 @@ import {
     View,
     TouchableOpacity,
     StyleSheet,
-    Dimensions,
     Platform,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
@@ -15,6 +14,7 @@ import Colors from "../utilities/constants/colors";
 import { Typography } from "../utilities/constants/constant.style";
 import { colors } from "../utilities/constants";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { useTranslation } from "react-i18next";
 
 
 interface LocationPickerModalProps {
@@ -28,6 +28,7 @@ interface LocationPickerModalProps {
     userLocation?: any;
     lastLocation: any
     isEditMode?: boolean;
+    editRecenterLocation?: any
 
 }
 
@@ -40,13 +41,13 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
     apiKey,
     userLocation,
     lastLocation,
-    isEditMode
+    isEditMode,
+    editRecenterLocation,
 }) => {
     const [region, setRegion] = useState<Region | null>(null);
     const [marker, setMarker] = useState<{ latitude: number; longitude: number } | null>(null);
-    const regionTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    const placesRef = useRef<GooglePlacesAutocomplete | null>(null);
+    const placesRef = useRef<any | null>(null);
     const mapRef = useRef<MapView | null>(null);
     const hasOpenedBeforeRef = useRef(false);
 
@@ -54,48 +55,48 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
 
 
     useEffect(() => {
-  if (!visible) return;
+        if (!visible) return;
 
-  let locationToUse: { latitude: number; longitude: number } | null = null;
+        let locationToUse: { latitude: number; longitude: number } | null = null;
 
-  if (isEditMode && Array.isArray(lastLocation) && lastLocation.length === 2) {
-    // Edit mode: show last saved location
-    locationToUse = {
-      latitude: lastLocation[0],
-      longitude: lastLocation[1],
-    };
-  } else if (!hasOpenedBeforeRef.current && userLocation?.latitude && userLocation?.longitude) {
-    // First time opening: show user current location
-    locationToUse = userLocation;
-  } else if (Array.isArray(lastLocation) && lastLocation.length === 2) {
-    // Subsequent openings: show last selected location
-    locationToUse = {
-      latitude: lastLocation[0],
-      longitude: lastLocation[1],
-    };
-  }
+        if (isEditMode && Array.isArray(lastLocation) && lastLocation.length === 2) {
+            // Edit mode: show last saved location
+            locationToUse = {
+                latitude: lastLocation[0],
+                longitude: lastLocation[1],
+            };
+        } else if (!hasOpenedBeforeRef.current && userLocation?.latitude && userLocation?.longitude) {
+            // First time opening: show user current location
+            locationToUse = userLocation;
+        } else if (Array.isArray(lastLocation) && lastLocation.length === 2) {
+            // Subsequent openings: show last selected location
+            locationToUse = {
+                latitude: lastLocation[0],
+                longitude: lastLocation[1],
+            };
+        }
 
-  if (
-    locationToUse &&
-    typeof locationToUse.latitude === "number" &&
-    typeof locationToUse.longitude === "number"
-  ) {
-    const newRegion = {
-      latitude: locationToUse.latitude,
-      longitude: locationToUse.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    };
+        if (
+            locationToUse &&
+            typeof locationToUse.latitude === "number" &&
+            typeof locationToUse.longitude === "number"
+        ) {
+            const newRegion = {
+                latitude: locationToUse.latitude,
+                longitude: locationToUse.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+            };
 
-    setRegion(newRegion);
-    setMarker({
-      latitude: locationToUse.latitude,
-      longitude: locationToUse.longitude,
-    });
-  }
+            setRegion(newRegion);
+            setMarker({
+                latitude: locationToUse.latitude,
+                longitude: locationToUse.longitude,
+            });
+        }
 
-  hasOpenedBeforeRef.current = true;
-}, [visible, userLocation, lastLocation, isEditMode]);
+        hasOpenedBeforeRef.current = true;
+    }, [visible, userLocation, lastLocation, isEditMode]);
 
 
 
@@ -126,20 +127,11 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
     };
 
 
+    const { t } = useTranslation();
 
 
 
 
-
-    const handleRegionChange = useCallback((region: Region) => {
-        if (regionTimeout.current) {
-            clearTimeout(regionTimeout.current);
-        }
-
-        regionTimeout.current = setTimeout(() => {
-            setRegion(region);
-        }, 500);
-    }, []);
 
 
     return (
@@ -158,7 +150,28 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                                 latitudeDelta: 0.01,
                                 longitudeDelta: 0.01,
                             }}
-                            onPress={(data: any) => handleSelect(data)}
+
+                            onPress={(e) => {
+                                const coordinate = e.nativeEvent.coordinate;
+                                setRegion({
+                                    ...coordinate,
+                                    latitudeDelta: 0.01,
+                                    longitudeDelta: 0.01,
+                                });
+                                setMarker(coordinate);
+                                onLocationSelected({ lat: coordinate.latitude, lng: coordinate.longitude });
+                            }}
+                            onPoiClick={(e) => {
+                                const coordinate = e.nativeEvent.coordinate;
+                                setRegion({
+                                    ...coordinate,
+                                    latitudeDelta: 0.01,
+                                    longitudeDelta: 0.01,
+                                });
+                                setMarker(coordinate);
+                                onLocationSelected({ lat: coordinate.latitude, lng: coordinate.longitude });
+                            }}
+
                         >
                             <Marker
                                 coordinate={marker as any}
@@ -175,7 +188,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                         <View style={styles.searchWrapper}>
                             <GooglePlacesAutocomplete
                                 ref={placesRef}
-                                placeholder="Search for a location"
+                                placeholder={t("search")}
                                 fetchDetails
                                 onPress={(data, details = null) => {
 
@@ -203,6 +216,8 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                                         borderRadius: 50,
                                         paddingVertical: 5,
                                         zIndex: 10,
+                                        alignSelf: 'center',
+                                        width: '100%',
                                     },
                                     textInput: {
                                         backgroundColor: Colors.white,
@@ -210,6 +225,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                                         ...Typography.f_16_nunito_medium,
                                         color: Colors.DARK_GRAY,
                                         left: -8,
+
                                     },
                                     textInputContainer: {
                                         backgroundColor: Colors.white,
@@ -242,7 +258,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                                         flexDirection: 'row',
                                     },
                                     description: {
-                                        color: '#000', // 👈 this sets the text color to black
+                                        color: '#000',
                                         fontSize: 16,
                                     },
                                 }}
@@ -250,8 +266,8 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                         </View>
 
 
-                        <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-                            <Icon name="close" size={24} color="#333" />
+                        <TouchableOpacity activeOpacity={0.8} style={styles.closeBtn} onPress={onClose}>
+                            <Icon name="checkmark" size={24} color={colors.white} />
                         </TouchableOpacity>
 
 
@@ -260,22 +276,36 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                     </View>
 
                     <TouchableOpacity
+
+
                         onPress={() => {
-                            if (mapRef.current && userLocation) {
+                            const locationToUse =
+                                isEditMode && editRecenterLocation
+                                    ? {
+                                        latitude: editRecenterLocation[0],
+                                        longitude: editRecenterLocation[1],
+                                    }
+                                    : userLocation;
+
+                            if (mapRef.current && locationToUse) {
                                 const newRegion = {
-                                    latitude: userLocation.latitude,
-                                    longitude: userLocation.longitude,
+                                    latitude: locationToUse.latitude,
+                                    longitude: locationToUse.longitude,
                                     latitudeDelta: 0.01,
                                     longitudeDelta: 0.01,
                                 };
                                 mapRef.current.animateToRegion(newRegion, 1000);
                                 setRegion(newRegion);
                                 setMarker({
-                                    latitude: userLocation.latitude,
-                                    longitude: userLocation.longitude,
+                                    latitude: locationToUse.latitude,
+                                    longitude: locationToUse.longitude,
                                 });
 
-                                        onLocationSelected({ lat: userLocation.latitude, lng:userLocation.longitude  });
+                                onLocationSelected({ lat: locationToUse.latitude, lng: locationToUse.longitude });
+
+(placesRef.current as any)?.setAddressText('');
+
+
 
                             }
                         }}
@@ -325,21 +355,23 @@ const styles = StyleSheet.create({
 
     searchWrapper: {
         flex: 1,
-        marginRight: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 12,
     },
 
     closeBtn: {
-        backgroundColor: "#f0f0f0",
+        backgroundColor: colors.Primary_01,
         padding: 8,
         borderRadius: 30,
         elevation: 5,
-        borderWidth: 0.5,
-        borderColor: colors.DARK_GRAY,
+        // borderWidth: 0.5,
+        // borderColor: colors.DARK_GREEN,
     },
     recenterBtn: {
-        position: "absolute",      // Add this
-        bottom: 30,                // Distance from bottom
-        right: 20,                 // Distance from right
+        position: "absolute",
+        bottom: 30,
+        right: 20,
         backgroundColor: "#fff",
         padding: 10,
         borderRadius: 25,

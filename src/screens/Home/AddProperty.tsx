@@ -805,7 +805,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                         setLastSelectedLocation(location as any)
 
                         updateMapAndMarker(loc.lat, loc.lng)
-                        setModalVisible(false)
                         const response = await axios.get(
                           `${EnvConfig.googleMaps.geocodeUrl}?latlng=${location[0]},${location[1]}&key=${EnvConfig.googleMaps.apiKey}`
                         );

@@ -163,6 +163,8 @@ const EditProperty: React.FC<EditPropertyProps> = ({
 
   const lastLocationRef = useRef([property?.location?.lat || 0, property?.location?.long || 0]);
 
+  const [editLocation , setEditLocation] = useState<any[]>([]);
+
 
 
   const [marker, setMarker] = useState<{
@@ -212,8 +214,12 @@ const EditProperty: React.FC<EditPropertyProps> = ({
         setCoverPhoto(property.images[0]);
         setGalleryImages(property.images.slice(1));
       }
+      setEditLocation([lat , long])
     }
   }, [property]);
+
+
+  
 
 
 
@@ -678,12 +684,12 @@ const EditProperty: React.FC<EditPropertyProps> = ({
 
         <LocationPickerModal
           visible={modalVisible}
-          onClose={() => setModalVisible(false)}
+          onClose={() => {
+            setModalVisible(false);
+          }}
           onLocationSelected={async (loc: any) => {
             const location = [loc.lat, loc.lng];
             setLastLocation(location);
-            setModalVisible(false);
-
             updateMapLocation(location[0], location[1]);
 
             const response = await axios.get(
@@ -707,7 +713,6 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                   long: location[1],
                 });
 
-                lastLocationRef.current = location;
 
               }
             }
@@ -717,6 +722,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
           apiKey={EnvConfig.googleMaps.apiKey}
           isEditMode={true}
           lastLocation={lastLocation}
+          editRecenterLocation={editLocation}
 
         />
 
