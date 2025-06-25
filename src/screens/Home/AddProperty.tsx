@@ -766,7 +766,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                   style={{ height: 200, width: "100%" }}
                                   provider={PROVIDER_GOOGLE}
                                   region={mapRegion}
-                                  onPress={(event) => handleMapPress(event, setFieldValue)}
+                                 
                                 >
                                   {marker && (
                                     <Marker
@@ -970,7 +970,7 @@ const createStyles = (colors: any) =>
     photoUploadActionRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
+      gap: 3,
     },
     photoTextLabel: {
       color: colors.DARK_GREEN,

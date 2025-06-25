@@ -53,22 +53,6 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
 
 
 
-    // useEffect(() => {
-    //     if (visible && userLocation) {
-    //         const newRegion = {
-    //             latitude: userLocation.latitude,
-    //             longitude: userLocation.longitude,
-    //             latitudeDelta: 0.01,
-    //             longitudeDelta: 0.01,
-    //         };
-    //         setRegion(newRegion);
-    //         setMarker({
-    //             latitude: userLocation.latitude,
-    //             longitude: userLocation.longitude,
-    //         });
-    //     }
-    // }, [visible, userLocation]);
-
     useEffect(() => {
   if (!visible) return;
 
@@ -290,6 +274,9 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                                     latitude: userLocation.latitude,
                                     longitude: userLocation.longitude,
                                 });
+
+                                        onLocationSelected({ lat: userLocation.latitude, lng:userLocation.longitude  });
+
                             }
                         }}
                         style={styles.recenterBtn}
