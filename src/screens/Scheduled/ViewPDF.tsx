@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Colors from "../../utilities/constants/colors";
@@ -85,107 +87,113 @@ const ViewPDF: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.invoiceTitle}>{t("invoice")}</Text>
-      <View style={styles.header}>
-        <Text style={styles.invoiceId}>
-          {t("invoiceId")}: {visit?.scheduleId}
-        </Text>
-        <Text style={styles.invoiceDate}>
-          {t("invoiceDate")}: {moment().format("MMMM D, YYYY")}
-        </Text>
-      </View>
-      <Text style={styles.sectionTitle}>{t("customerInformation")}</Text>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("name")}:</Text>
-        <Text style={styles.detailValue}>{visit?.clientName}</Text>
-      </View>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("email")}:</Text>
-        <Text style={styles.detailValue}>{visit?.email}</Text>
-      </View>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("phoneNum")}:</Text>
-        <Text style={styles.detailValue}>{visit?.phoneNum}</Text>
-      </View>
-      <Text style={styles.sectionTitle}>{t("visitDetails")}</Text>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("property")}:</Text>
-        <Text style={styles.detailValue}>{visit?.property}</Text>
-      </View>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("location")}:</Text>
-        <Text style={styles.detailValue}> {visit?.location?.address}</Text>
-      </View>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("visitDates")}:</Text>
-        <Text style={styles.detailValue}> {visit?.visitDates}</Text>
-      </View>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("checkInTime")}:</Text>
-        <Text style={styles.detailValue}>{visit?.checkInTime}</Text>
-      </View>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("checkOutTime")}:</Text>
-        <Text style={styles.detailValue}>{visit?.checkOutTime}</Text>
-      </View>
-      <Text style={styles.sectionTitle}>{t("financialDetails")}</Text>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("agreedPrice")}:</Text>
-        <Text style={styles.detailValue}>{visit?.agreedPrice}</Text>
-      </View>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("advanceAmount")}:</Text>
-        <Text style={styles.detailValue}>{visit?.advanceAmount || "0"}</Text>
-      </View>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{t("balanceAmount")}:</Text>
-        <Text style={styles.detailValue}>
-          {parseInt(visit?.agreedPrice || "0") -
-            parseInt(visit?.advanceAmount || "0")}
-        </Text>
-      </View>
-      {isEditing ? (
-        <View style={[styles.notesContainer, { paddingBottom: 25 }]}>
-          <Text style={styles.notesLabel}>{t("notes")}</Text>
-          <TextInput
-            style={styles.notesTextInput}
-            placeholder={t("notes")}
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            numberOfLines={4}
-            placeholderTextColor={Colors.PLACE_HOLDER}
-          />
-          <View style={styles.notesButtons}>
-            <TouchableOpacity style={styles.notesButton} onPress={saveNotes}>
-              <Text style={styles.notesButtonText}>{t("save")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.notesButton, styles.cancelButton]}
-              onPress={handleCancelEdit}
-            >
-              <Text style={styles.notesButtonText}>{t("cancel")}</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+    >
+      <ScrollView style={styles.container}>
+        <Text style={styles.invoiceTitle}>{t("invoice")}</Text>
+        <View style={styles.header}>
+          <Text style={styles.invoiceId}>
+            {t("invoiceId")}: {visit?.scheduleId}
+          </Text>
+          <Text style={styles.invoiceDate}>
+            {t("invoiceDate")}: {moment().format("MMMM D, YYYY")}
+          </Text>
+        </View>
+        <Text style={styles.sectionTitle}>{t("customerInformation")}</Text>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("name")}:</Text>
+          <Text style={styles.detailValue}>{visit?.clientName}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("email")}:</Text>
+          <Text style={styles.detailValue}>{visit?.email}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("phoneNum")}:</Text>
+          <Text style={styles.detailValue}>{visit?.phoneNum}</Text>
+        </View>
+        <Text style={styles.sectionTitle}>{t("visitDetails")}</Text>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("property")}:</Text>
+          <Text style={styles.detailValue}>{visit?.property}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("location")}:</Text>
+          <Text style={styles.detailValue}> {visit?.location?.address}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("visitDates")}:</Text>
+          <Text style={styles.detailValue}> {visit?.visitDates}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("checkInTime")}:</Text>
+          <Text style={styles.detailValue}>{visit?.checkInTime}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("checkOutTime")}:</Text>
+          <Text style={styles.detailValue}>{visit?.checkOutTime}</Text>
+        </View>
+        <Text style={styles.sectionTitle}>{t("financialDetails")}</Text>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("agreedPrice")}:</Text>
+          <Text style={styles.detailValue}>{visit?.agreedPrice}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("advanceAmount")}:</Text>
+          <Text style={styles.detailValue}>{visit?.advanceAmount || "0"}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("balanceAmount")}:</Text>
+          <Text style={styles.detailValue}>
+            {parseInt(visit?.agreedPrice || "0") -
+              parseInt(visit?.advanceAmount || "0")}
+          </Text>
+        </View>
+        {isEditing ? (
+          <View style={[styles.notesContainer, { paddingBottom: 25 }]}>
+            <Text style={styles.notesLabel}>{t("notes")}</Text>
+            <TextInput
+              style={styles.notesTextInput}
+              placeholder={t("notes")}
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+              numberOfLines={4}
+              placeholderTextColor={Colors.PLACE_HOLDER}
+            />
+            <View style={styles.notesButtons}>
+              <TouchableOpacity style={styles.notesButton} onPress={saveNotes}>
+                <Text style={styles.notesButtonText}>{t("save")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.notesButton, styles.cancelButton]}
+                onPress={handleCancelEdit}
+              >
+                <Text style={styles.notesButtonText}>{t("cancel")}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.notesContainer}>
+            <Text style={styles.notesLabel}>{t("notes")}</Text>
+            <Text style={styles.notesText}>
+              {savedNotes || t("noNotesAdded")}
+            </Text>
+            <TouchableOpacity style={styles.editButton} onPress={handleEditNotes}>
+              <Text style={styles.editButtonText}>{t("editNotes")}</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      ) : (
-        <View style={styles.notesContainer}>
-          <Text style={styles.notesLabel}>{t("notes")}</Text>
-          <Text style={styles.notesText}>
-            {savedNotes || t("noNotesAdded")}
-          </Text>
-          <TouchableOpacity style={styles.editButton} onPress={handleEditNotes}>
-            <Text style={styles.editButtonText}>{t("editNotes")}</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+        )}
 
-      <Text style={styles.generatedInfo}>
-        {t("generatedOn")} {moment().format("MMMM D, YYYY h:mm A")}
-      </Text>
-      <Text style={styles.thankYou}>{t("thankYouMessage")}</Text>
-    </ScrollView>
+        <Text style={styles.generatedInfo}>
+          {t("generatedOn")} {moment().format("MMMM D, YYYY h:mm A")}
+        </Text>
+        <Text style={styles.thankYou}>{t("thankYouMessage")}</Text>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
