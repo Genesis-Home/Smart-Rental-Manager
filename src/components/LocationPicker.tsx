@@ -46,6 +46,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
 }) => {
     const [region, setRegion] = useState<Region | null>(null);
     const [marker, setMarker] = useState<{ latitude: number; longitude: number } | null>(null);
+    const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
 
     const placesRef = useRef<any | null>(null);
     const mapRef = useRef<MapView | null>(null);
@@ -93,6 +94,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                 latitude: locationToUse.latitude,
                 longitude: locationToUse.longitude,
             });
+            setSelectedLocation({ lat: locationToUse.latitude, lng: locationToUse.longitude });
         }
 
         hasOpenedBeforeRef.current = true;
@@ -123,7 +125,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         }
 
         setMarker({ latitude: location.lat, longitude: location.lng });
-        onLocationSelected({ lat: location.lat, lng: location.lng });
+        setSelectedLocation({ lat: location.lat, lng: location.lng });
     };
 
 
@@ -159,7 +161,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                                     longitudeDelta: 0.01,
                                 });
                                 setMarker(coordinate);
-                                onLocationSelected({ lat: coordinate.latitude, lng: coordinate.longitude });
+                                setSelectedLocation({ lat: coordinate.latitude, lng: coordinate.longitude });
                             }}
                             onPoiClick={(e) => {
                                 const coordinate = e.nativeEvent.coordinate;
@@ -169,7 +171,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                                     longitudeDelta: 0.01,
                                 });
                                 setMarker(coordinate);
-                                onLocationSelected({ lat: coordinate.latitude, lng: coordinate.longitude });
+                                setSelectedLocation({ lat: coordinate.latitude, lng: coordinate.longitude });
                             }}
 
                         >
@@ -266,7 +268,12 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                         </View>
 
 
-                        <TouchableOpacity activeOpacity={0.8} style={styles.closeBtn} onPress={onClose}>
+                        <TouchableOpacity activeOpacity={0.8} style={styles.closeBtn} onPress={() => {
+                            if (selectedLocation) {
+                                onLocationSelected(selectedLocation);
+                            }
+                            onClose();
+                        }}>
                             <Icon name="checkmark" size={24} color={colors.white} />
                         </TouchableOpacity>
 

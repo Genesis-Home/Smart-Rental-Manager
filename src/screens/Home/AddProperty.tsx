@@ -69,6 +69,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const [isLocationErr, setisLocationErr] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const formikSetFieldValueRef = useRef<((field: string, value: any) => void) | undefined>(undefined);
 
 
 
@@ -654,7 +655,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           images: [],
                           location: initialLocation || { address: "", lat: 0, long: 0 },
                         }}
-                        enableReinitialize={true}
                         validationSchema={validationSchema}
                         onSubmit={async (values, { resetForm }) => {
                           try {
@@ -702,96 +702,100 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           values,
                           errors,
                           touched,
-                        }) => (
-                          <View>
-                            <FormInput
-                              label={t("addTitle")}
-                              placeholder={`${t("addTitle")}...`}
-                              value={values.title}
-                              onChangeText={handleChange("title")}
-                              onBlur={handleBlur("title")}
-                              error={touched.title && errors.title}
-                            />
-                            <FormInput
-                              label={t("addDes")}
-                              placeholder={`${t("addDes")}...`}
-                              value={values.description}
-                              onChangeText={handleChange("description")}
-                              onBlur={handleBlur("description")}
-                              error={touched.description && errors.description}
-                              multiline
-                            />
-                            <FormInput
-                              label={t("otherDet")}
-                              placeholder={t("otherDet")}
-                              value={values.otherDetails}
-                              onChangeText={handleChange("otherDetails")}
-                              onBlur={handleBlur("otherDetails")}
-                              error={touched.otherDetails && errors.otherDetails}
-                              multiline
-                            />
-                            <View style={{ gap: 8, marginTop: 10 }}>
-                              {/* Header row with Location text and plus icon */}
-                              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                                <Text
-                                  style={[
-                                    Typography.f_16_nunito_medium,
-                                    { color: colors.black, paddingLeft: 3 },
-                                  ]}
-                                >
-                                  {t("location")}
-                                </Text>
-
-                                <TouchableOpacity
-                                  activeOpacity={0.8}
-                                  onPress={() => setModalVisible(true)}
-
-                                >
-
-                                  <View style={styles.photoUploadActionRow}>
-                                    <AddPhoto />
-                                    <Text
-                                      style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
-                                    >
-                                      {t("changeLocation")}
-                                    </Text>
-                                  </View>
-                                </TouchableOpacity>
-                              </View>
-
-                              {/* Map View */}
-                              <View>
-                                <MapView
-                                  ref={mapRef}
-                                  style={{ height: 200, width: "100%" }}
-                                  provider={PROVIDER_GOOGLE}
-                                  region={mapRegion}
-                                 
-                                >
-                                  {marker && (
-                                    <Marker
-                                      coordinate={{
-                                        latitude: marker.latitude,
-                                        longitude: marker.longitude,
-                                      }}
-                                    >
-                                      <MarkerIcon />
-                                    </Marker>
-                                  )}
-                                </MapView>
-
-
-                              </View>
-                            </View>
-
-                            <View style={styles.submitButtonContainer}>
-                              <CTAButton1
-                                title={t("submit")}
-                                submitHandler={handleSubmit}
+                        }) => {
+                          // Store setFieldValue in ref for modal callback
+                          formikSetFieldValueRef.current = setFieldValue;
+                          return (
+                            <View>
+                              <FormInput
+                                label={t("addTitle")}
+                                placeholder={`${t("addTitle")}...`}
+                                value={values.title}
+                                onChangeText={handleChange("title")}
+                                onBlur={handleBlur("title")}
+                                error={touched.title && errors.title}
                               />
+                              <FormInput
+                                label={t("addDes")}
+                                placeholder={`${t("addDes")}...`}
+                                value={values.description}
+                                onChangeText={handleChange("description")}
+                                onBlur={handleBlur("description")}
+                                error={touched.description && errors.description}
+                                multiline
+                              />
+                              <FormInput
+                                label={t("otherDet")}
+                                placeholder={t("otherDet")}
+                                value={values.otherDetails}
+                                onChangeText={handleChange("otherDetails")}
+                                onBlur={handleBlur("otherDetails")}
+                                error={touched.otherDetails && errors.otherDetails}
+                                multiline
+                              />
+                              <View style={{ gap: 8, marginTop: 10 }}>
+                                {/* Header row with Location text and plus icon */}
+                                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                                  <Text
+                                    style={[
+                                      Typography.f_16_nunito_medium,
+                                      { color: colors.black, paddingLeft: 3 },
+                                    ]}
+                                  >
+                                    {t("location")}
+                                  </Text>
+
+                                  <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    onPress={() => setModalVisible(true)}
+
+                                  >
+
+                                    <View style={styles.photoUploadActionRow}>
+                                      <AddPhoto />
+                                      <Text
+                                        style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                                      >
+                                        {t("changeLocation")}
+                                      </Text>
+                                    </View>
+                                  </TouchableOpacity>
+                                </View>
+
+                                {/* Map View */}
+                                <View>
+                                  <MapView
+                                    ref={mapRef}
+                                    style={{ height: 200, width: "100%" }}
+                                    provider={PROVIDER_GOOGLE}
+                                    region={mapRegion}
+                                   
+                                  >
+                                    {marker && (
+                                      <Marker
+                                        coordinate={{
+                                          latitude: marker.latitude,
+                                          longitude: marker.longitude,
+                                        }}
+                                      >
+                                        <MarkerIcon />
+                                      </Marker>
+                                    )}
+                                  </MapView>
+
+
+                                </View>
+                              </View>
+
+                              <View style={styles.submitButtonContainer}>
+                                <CTAButton1
+                                  title={t("submit")}
+                                  submitHandler={handleSubmit}
+                                />
+                              </View>
                             </View>
-                          </View>
-                        )}
+                          );
+                        }}
                       </Formik>
                     </ScrollView>
 
@@ -799,32 +803,24 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                       visible={modalVisible}
                       onClose={() => setModalVisible(false)}
                       onLocationSelected={async (loc: any) => {
-                        const location = [loc.lat, loc.lng]
-
-                        setSelectedLocation(location as any);
-                        setLastSelectedLocation(location as any)
-
-                        updateMapAndMarker(loc.lat, loc.lng)
+                        updateMapAndMarker(loc.lat, loc.lng);
                         const response = await axios.get(
-                          `${EnvConfig.googleMaps.geocodeUrl}?latlng=${location[0]},${location[1]}&key=${EnvConfig.googleMaps.apiKey}`
+                          `${EnvConfig.googleMaps.geocodeUrl}?latlng=${loc.lat},${loc.lng}&key=${EnvConfig.googleMaps.apiKey}`
                         );
-
                         if (response.data.status === "OK") {
                           setIsLocationLoading(false);
                           const formattedAddress = response.data.results[0]?.formatted_address || "";
-                          const location = {
+                          const locationObj = {
                             address: formattedAddress,
                             lat: loc.lat,
                             long: loc.lng,
                           };
-
-
-                          setInitialLocation(location);
-                          // setLastSelectedLocation(location);
-
-                          setIsInitialLocationSet(true);
+                          // Only update the location field in Formik, do not update initialLocation
+                          if (formikSetFieldValueRef.current) {
+                            formikSetFieldValueRef.current("location", locationObj);
+                          }
+                          setModalVisible(false);
                         }
-
                       }}
                       apiKey={EnvConfig.googleMaps.apiKey}
                       userLocation={{ latitude: currentLocation[0], longitude: currentLocation[1] }}
