@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Platform } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Platform, KeyboardAvoidingView } from "react-native";
 import { t } from "i18next";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -50,134 +50,140 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   };
 
   return (
-    <View
-      style={[
-        styles.mainContainer,
-        { marginTop: Platform.OS === "ios" ? 50 : 0 },
-      ]}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}
     >
-      <View style={{ flex: 8 }}>
-        <Header title={t("pleaseRegisterHere")} />
-        <ScrollView
-          contentContainerStyle={styles.containerC1}
-          showsVerticalScrollIndicator={false}
-        >
-          <Text
-            style={[
-              Typography.f_20_nunito_bold,
-              { marginTop: 20, color: colors.DARK_GREEN },
-            ]}
+      <View
+        style={[
+          styles.mainContainer,
+          { marginTop: Platform.OS === "ios" ? 50 : 0 },
+        ]}
+      >
+        <View style={{ flex: 8 }}>
+          <Header title={t("pleaseRegisterHere")} />
+          <ScrollView
+            contentContainerStyle={styles.containerC1}
+            showsVerticalScrollIndicator={false}
           >
-            {t("signup")}
-          </Text>
-          <Text
-            style={[
-              Typography.f_16_nunito_regular,
-              { marginTop: 5, color: colors.DARK_GREEN },
-            ]}
-          >
-            {t("registerEmailPrompt")}
-          </Text>
-          <Formik
-            initialValues={{
-              agencyName: "",
-              ownerName: "",
-              email: "",
-              password: "",
-              confirmPassword: "",
-            }}
-            validationSchema={validationSchema}
-            // onSubmit={() => navigation.navigate("Tabs")}
-            onSubmit={submit}
-          >
-            {({
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              values,
-              errors,
-              touched,
-            }) => (
-              <View style={styles.containerc1_c2}>
-                <FormInput
-                  label={t("agencyName")}
-                  placeholder={t("agencyName")}
-                  value={values.agencyName}
-                  onChangeText={handleChange("agencyName")}
-                  onBlur={() => handleBlur("agencyName")}
-                  error={touched.agencyName && errors.agencyName}
-                />
-                <FormInput
-                  label={t("ownerName")}
-                  placeholder={t("ownerName")}
-                  value={values.ownerName}
-                  onChangeText={handleChange("ownerName")}
-                  onBlur={() => handleBlur("ownerName")}
-                  error={touched.ownerName && errors.ownerName}
-                />
-                <FormInput
-                  label={t("emailAddress")}
-                  placeholder={t("emailAddress")}
-                  value={values.email}
-                  onChangeText={handleChange("email")}
-                  onBlur={() => handleBlur("email")}
-                  error={touched.email && errors.email}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-                <FormInput
-                  label={t("password")}
-                  placeholder={t("password")}
-                  value={values.password}
-                  onChangeText={handleChange("password")}
-                  onBlur={() => handleBlur("password")}
-                  error={touched.password && errors.password}
-                  secureTextEntry={showPassword}
-                  showToggle
-                  onToggleSecure={() => setShowPassword(!showPassword)}
-                />
-                <FormInput
-                  label={t("confirmpassword")}
-                  placeholder={t("confirmpassword")}
-                  value={values.confirmPassword}
-                  onChangeText={handleChange("confirmPassword")}
-                  onBlur={() => handleBlur("confirmPassword")}
-                  error={touched.confirmPassword && errors.confirmPassword}
-                  secureTextEntry={showConfirmPassword}
-                  showToggle
-                  onToggleSecure={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
-                />
-                <View style={{ marginTop: 40 }}>
-                  <CTAButton1
-                    title={t("signup")}
-                    submitHandler={handleSubmit}
+            <Text
+              style={[
+                Typography.f_20_nunito_bold,
+                { marginTop: 20, color: colors.DARK_GREEN },
+              ]}
+            >
+              {t("signup")}
+            </Text>
+            <Text
+              style={[
+                Typography.f_16_nunito_regular,
+                { marginTop: 5, color: colors.DARK_GREEN },
+              ]}
+            >
+              {t("registerEmailPrompt")}
+            </Text>
+            <Formik
+              initialValues={{
+                agencyName: "",
+                ownerName: "",
+                email: "",
+                password: "",
+                confirmPassword: "",
+              }}
+              validationSchema={validationSchema}
+              // onSubmit={() => navigation.navigate("Tabs")}
+              onSubmit={submit}
+            >
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+              }) => (
+                <View style={styles.containerc1_c2}>
+                  <FormInput
+                    label={t("agencyName")}
+                    placeholder={t("agencyName")}
+                    value={values.agencyName}
+                    onChangeText={handleChange("agencyName")}
+                    onBlur={() => handleBlur("agencyName")}
+                    error={touched.agencyName && errors.agencyName}
                   />
-                </View>
-                 <Text
-                onPress={()=>navigation.navigate('Signin')}
-                  style={[
-                    Typography.f_16_nunito_semi_bold,
-                    {
-                      color: colors.DARK_GREEN,
-                      paddingVertical: 10,
-                      textAlign: "center",
-                      marginTop: 20,
-                    },
-                  ]}
-                >
-                  {t("alreadyhaveanaccount")}{" "}
-                  <Text style={[{ color: colors.Primary_01 },Typography.f_16_nunito_bold]}>
-                    {t("signIn")}
+                  <FormInput
+                    label={t("ownerName")}
+                    placeholder={t("ownerName")}
+                    value={values.ownerName}
+                    onChangeText={handleChange("ownerName")}
+                    onBlur={() => handleBlur("ownerName")}
+                    error={touched.ownerName && errors.ownerName}
+                  />
+                  <FormInput
+                    label={t("emailAddress")}
+                    placeholder={t("emailAddress")}
+                    value={values.email}
+                    onChangeText={handleChange("email")}
+                    onBlur={() => handleBlur("email")}
+                    error={touched.email && errors.email}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                  <FormInput
+                    label={t("password")}
+                    placeholder={t("password")}
+                    value={values.password}
+                    onChangeText={handleChange("password")}
+                    onBlur={() => handleBlur("password")}
+                    error={touched.password && errors.password}
+                    secureTextEntry={showPassword}
+                    showToggle
+                    onToggleSecure={() => setShowPassword(!showPassword)}
+                  />
+                  <FormInput
+                    label={t("confirmpassword")}
+                    placeholder={t("confirmpassword")}
+                    value={values.confirmPassword}
+                    onChangeText={handleChange("confirmPassword")}
+                    onBlur={() => handleBlur("confirmPassword")}
+                    error={touched.confirmPassword && errors.confirmPassword}
+                    secureTextEntry={showConfirmPassword}
+                    showToggle
+                    onToggleSecure={() =>
+                      setShowConfirmPassword(!showConfirmPassword)
+                    }
+                  />
+                  <View style={{ marginTop: 40 }}>
+                    <CTAButton1
+                      title={t("signup")}
+                      submitHandler={handleSubmit}
+                    />
+                  </View>
+                   <Text
+                  onPress={()=>navigation.navigate('Signin')}
+                    style={[
+                      Typography.f_16_nunito_semi_bold,
+                      {
+                        color: colors.DARK_GREEN,
+                        paddingVertical: 10,
+                        textAlign: "center",
+                        marginTop: 20,
+                      },
+                    ]}
+                  >
+                    {t("alreadyhaveanaccount")} {" "}
+                    <Text style={[{ color: colors.Primary_01 },Typography.f_16_nunito_bold]}>
+                      {t("signIn")}
+                    </Text>
                   </Text>
-                </Text>
-              </View>
-            )}
-          </Formik>
-        </ScrollView>
+                </View>
+              )}
+            </Formik>
+          </ScrollView>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

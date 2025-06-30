@@ -14,6 +14,7 @@ import {
   Image,
   ActivityIndicator,
   PermissionsAndroid,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -472,8 +473,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   };
 
   return (
-    <>
-
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}
+    >
       <View style={[styles.mainContainer, styles.platformMarginTop]}>
 
         {isLocationLoading ? (
@@ -837,7 +841,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
         )}
       </View>
-    </>
+    </KeyboardAvoidingView>
   );
 };
 

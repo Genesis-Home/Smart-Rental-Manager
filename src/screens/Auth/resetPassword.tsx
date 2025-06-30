@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Platform } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Platform, KeyboardAvoidingView } from "react-native";
 import { t } from "i18next";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -24,55 +24,61 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ navigation }) => {
   const { t } = useTranslation();
 
   return (
-    <View
-      style={[
-        styles.mainContainer,
-        { marginTop: Platform.OS === "ios" ? 50 : 0 },
-      ]}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}
     >
-      <Header title={t("recoverAccount")} />
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <View
+        style={[
+          styles.mainContainer,
+          { marginTop: Platform.OS === "ios" ? 50 : 0 },
+        ]}
       >
-        <Text style={styles.title}>{t("resetpassword")}</Text>
-        <Text style={styles.subtitle}>{t("enternewpassword")}</Text>
-        <Formik
-          initialValues={{ password: "" }}
-          validationSchema={validationSchema}
-          onSubmit={() => navigation.navigate("Tabs")}
+        <Header title={t("recoverAccount")} />
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-          }) => (
-            <View style={styles.formContainer}>
-              <FormInput
-                label={t("password")}
-                placeholder="**************"
-                secureTextEntry={secureEntry}
-                showToggle
-                onToggleSecure={() => setSecureEntry(!secureEntry)}
-                value={values.password}
-                onChangeText={handleChange("password")}
-                onBlur={handleBlur("password")}
-                error={touched.password && errors.password}
-              />
-              <View style={styles.buttonWrapper}>
-                <CTAButton1
-                  title={t("changePassword")}
-                  submitHandler={handleSubmit}
+          <Text style={styles.title}>{t("resetpassword")}</Text>
+          <Text style={styles.subtitle}>{t("enternewpassword")}</Text>
+          <Formik
+            initialValues={{ password: "" }}
+            validationSchema={validationSchema}
+            onSubmit={() => navigation.navigate("Tabs")}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+            }) => (
+              <View style={styles.formContainer}>
+                <FormInput
+                  label={t("password")}
+                  placeholder="**************"
+                  secureTextEntry={secureEntry}
+                  showToggle
+                  onToggleSecure={() => setSecureEntry(!secureEntry)}
+                  value={values.password}
+                  onChangeText={handleChange("password")}
+                  onBlur={handleBlur("password")}
+                  error={touched.password && errors.password}
                 />
+                <View style={styles.buttonWrapper}>
+                  <CTAButton1
+                    title={t("changePassword")}
+                    submitHandler={handleSubmit}
+                  />
+                </View>
               </View>
-            </View>
-          )}
-        </Formik>
-      </ScrollView>
-    </View>
+            )}
+          </Formik>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 

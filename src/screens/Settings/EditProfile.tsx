@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from "react-native";
 import { t } from "i18next";
 import { Formik } from "formik";
@@ -103,112 +104,118 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation }) => {
   };
 
   return (
-    <View
-      style={[
-        styles.mainContainer,
-        { marginTop: Platform.OS === "ios" ? 50 : 0 },
-      ]}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}
     >
-      <View style={{ flex: 8 }}>
-        <Header title={t("editProfile")} />
-        <ScrollView
-          contentContainerStyle={styles.containerC1}
-          showsVerticalScrollIndicator={false}
-        >
-          {isUploading ? (
-            <ActivityIndicator
-              size="large"
-              color={colors.Primary_01}
-              style={{ marginTop: 20 }}
-            />
-          ) : (
-            <TouchableOpacity
-              onPress={selectImage}
-              activeOpacity={0.8}
-              style={{ alignItems: "center", marginTop: 20 }}
-            >
-              <Image
-                source={
-                  profileImage || user?.profilePhoto
-                    ? { uri: profileImage || user.profilePhoto }
-                    : Images.ProfilePlaceholder 
-                }
-                resizeMode="cover"
-                style={{ height: 90, width: 90, borderRadius: 50 }}
-              />
-
-              <Edit
-                style={{ position: "absolute", bottom: "10%", right: "38%" }}
-              />
-            </TouchableOpacity>
-          )}
-
-          <Formik
-            initialValues={{
-              agencyName: user?.agencyName,
-              ownerName: user?.ownerName,
-              email: user?.email,
-            }}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmitForm}
+      <View
+        style={[
+          styles.mainContainer,
+          { marginTop: Platform.OS === "ios" ? 50 : 0 },
+        ]}
+      >
+        <View style={{ flex: 8 }}>
+          <Header title={t("editProfile")} />
+          <ScrollView
+            contentContainerStyle={styles.containerC1}
+            showsVerticalScrollIndicator={false}
           >
-            {({
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              values,
-              errors,
-              touched,
-            }) => (
-              <View style={styles.containerc1_c2}>
-                <FormInput
-                  label={t("agencyName")}
-                  placeholder={t("agencyName")}
-                  value={values.agencyName}
-                  onChangeText={handleChange("agencyName")}
-                  onBlur={() => handleBlur("agencyName")}
-                  error={
-                    touched.agencyName && errors.agencyName
-                      ? String(errors.agencyName)
-                      : undefined
+            {isUploading ? (
+              <ActivityIndicator
+                size="large"
+                color={colors.Primary_01}
+                style={{ marginTop: 20 }}
+              />
+            ) : (
+              <TouchableOpacity
+                onPress={selectImage}
+                activeOpacity={0.8}
+                style={{ alignItems: "center", marginTop: 20 }}
+              >
+                <Image
+                  source={
+                    profileImage || user?.profilePhoto
+                      ? { uri: profileImage || user.profilePhoto }
+                      : Images.ProfilePlaceholder 
                   }
+                  resizeMode="cover"
+                  style={{ height: 90, width: 90, borderRadius: 50 }}
                 />
-                <FormInput
-                  label={t("ownerName")}
-                  placeholder={t("ownerName")}
-                  value={values.ownerName}
-                  onChangeText={handleChange("ownerName")}
-                  onBlur={() => handleBlur("ownerName")}
-                  error={
-                    touched.ownerName && errors.ownerName
-                      ? String(errors.ownerName)
-                      : undefined
-                  }
+
+                <Edit
+                  style={{ position: "absolute", bottom: "10%", right: "38%" }}
                 />
-                <FormInput
-                  label={t("emailAddress")}
-                  placeholder={t("emailAddress")}
-                  value={values.email}
-                  onChangeText={handleChange("email")}
-                  onBlur={() => handleBlur("email")}
-                  editable={false}
-                  error={
-                    touched.email && errors.email
-                      ? String(errors.email)
-                      : undefined
-                  }
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-                <View style={{ marginTop: 40 }}>
-                  <CTAButton1 title={t("save")} submitHandler={handleSubmit} />
-                </View>
-              </View>
+              </TouchableOpacity>
             )}
-          </Formik>
-        </ScrollView>
+
+            <Formik
+              initialValues={{
+                agencyName: user?.agencyName,
+                ownerName: user?.ownerName,
+                email: user?.email,
+              }}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmitForm}
+            >
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+              }) => (
+                <View style={styles.containerc1_c2}>
+                  <FormInput
+                    label={t("agencyName")}
+                    placeholder={t("agencyName")}
+                    value={values.agencyName}
+                    onChangeText={handleChange("agencyName")}
+                    onBlur={() => handleBlur("agencyName")}
+                    error={
+                      touched.agencyName && errors.agencyName
+                        ? String(errors.agencyName)
+                        : undefined
+                    }
+                  />
+                  <FormInput
+                    label={t("ownerName")}
+                    placeholder={t("ownerName")}
+                    value={values.ownerName}
+                    onChangeText={handleChange("ownerName")}
+                    onBlur={() => handleBlur("ownerName")}
+                    error={
+                      touched.ownerName && errors.ownerName
+                        ? String(errors.ownerName)
+                        : undefined
+                    }
+                  />
+                  <FormInput
+                    label={t("emailAddress")}
+                    placeholder={t("emailAddress")}
+                    value={values.email}
+                    onChangeText={handleChange("email")}
+                    onBlur={() => handleBlur("email")}
+                    editable={false}
+                    error={
+                      touched.email && errors.email
+                        ? String(errors.email)
+                        : undefined
+                    }
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                  <View style={{ marginTop: 40 }}>
+                    <CTAButton1 title={t("save")} submitHandler={handleSubmit} />
+                  </View>
+                </View>
+              )}
+            </Formik>
+          </ScrollView>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

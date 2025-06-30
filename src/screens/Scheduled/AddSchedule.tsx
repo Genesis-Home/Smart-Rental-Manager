@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../utilities/constants";
@@ -426,518 +427,524 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.mainContainer, styles.platformMarginTop]}>
-      <View style={styles.contentContainer}>
-        <Header title={t("schedulePropertyVisit")} />
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <Formik
-            initialValues={{
-              propertyId: "",
-              location: "",
-              property: "",
-              clientName: "",
-              email: "",
-              phoneNum: "",
-              visitDates: "",
-              checkInTime: "",
-              checkOutTime: "",
-              numberOfVisitors: "",
-              numberOfInfants: "",
-              agreedPrice: "",
-              advanceAmount: "",
-            }}
-            validationSchema={validationSchema}
-            context={{ useExistingContact }}
-            onSubmit={handleCreate}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}
+    >
+      <View style={[styles.mainContainer, styles.platformMarginTop]}>
+        <View style={styles.contentContainer}>
+          <Header title={t("schedulePropertyVisit")} />
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
           >
-            {({
-              values,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              errors,
-              touched,
-              setFieldValue,
-            }) => (
-              <>
-                <View style={styles.textInputSection}>
-                  <Text style={styles.label}>{t("selectProperty")}</Text>
-                  <TouchableOpacity
-                    onPress={handleShowDropdown}
-                    activeOpacity={0.8}
-                    style={[
-                      styles.optionButton,
-                      {
-                        borderColor: showPropertyDropdown
-                          ? colors.Primary_01
-                          : colors.black,
-                        borderBottomLeftRadius: showPropertyDropdown ? 0 : 4,
-                        borderBottomRightRadius: showPropertyDropdown ? 0 : 4,
-                      },
-                    ]}
-                  >
-                    <Text style={styles.optionText}>
-                      {selectedProperty?.title || t("selectProperty")}
-                    </Text>
-                    {showPropertyDropdown ? <Down /> : <DropRight />}
-                  </TouchableOpacity>
-                  {showPropertyDropdown && (
-                    <View style={styles.propertyDropdown}>
-                      {userProperties.map((property: Property) => (
-                        <TouchableOpacity
-                          key={property.id}
-                          style={styles.propertyOption}
-                          onPress={() => {
-                            handleSelectApartment(property, setFieldValue);
-                            setFieldValue("location", property.location);
-                          }}
-                        >
-                          <Text style={styles.propertyText}>
-                            {property.title}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-                  {touched.property && errors.property && (
-                    <Text
+            <Formik
+              initialValues={{
+                propertyId: "",
+                location: "",
+                property: "",
+                clientName: "",
+                email: "",
+                phoneNum: "",
+                visitDates: "",
+                checkInTime: "",
+                checkOutTime: "",
+                numberOfVisitors: "",
+                numberOfInfants: "",
+                agreedPrice: "",
+                advanceAmount: "",
+              }}
+              validationSchema={validationSchema}
+              context={{ useExistingContact }}
+              onSubmit={handleCreate}
+            >
+              {({
+                values,
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                errors,
+                touched,
+                setFieldValue,
+              }) => (
+                <>
+                  <View style={styles.textInputSection}>
+                    <Text style={styles.label}>{t("selectProperty")}</Text>
+                    <TouchableOpacity
+                      onPress={handleShowDropdown}
+                      activeOpacity={0.8}
                       style={[
-                        Typography.f_14_nunito_medium,
-                        { color: Colors.Error_Red, marginTop: 5 },
+                        styles.optionButton,
+                        {
+                          borderColor: showPropertyDropdown
+                            ? colors.Primary_01
+                            : colors.black,
+                          borderBottomLeftRadius: showPropertyDropdown ? 0 : 4,
+                          borderBottomRightRadius: showPropertyDropdown ? 0 : 4,
+                        },
                       ]}
                     >
-                      {errors.property}
-                    </Text>
-                  )}
-
-                  <View style={styles.contactTypeSection}>
-                    <Text style={styles.label}>{t("contactType")}</Text>
-                    <View style={styles.radioGroup}>
-                      <TouchableOpacity
-                        style={styles.radioOption}
-                        onPress={() =>
-                          handleContactTypeChange(false, setFieldValue)
-                        }
-                      >
-                        <View
-                          style={[
-                            styles.radioButton,
-                            !useExistingContact && styles.radioButtonSelected,
-                          ]}
-                        >
-                          {!useExistingContact && (
-                            <View style={styles.radioButtonInner} />
-                          )}
-                        </View>
-                        <Text style={styles.radioLabel}>{t("newContact")}</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={styles.radioOption}
-                        onPress={() =>
-                          handleContactTypeChange(true, setFieldValue)
-                        }
-                      >
-                        <View
-                          style={[
-                            styles.radioButton,
-                            useExistingContact && styles.radioButtonSelected,
-                          ]}
-                        >
-                          {useExistingContact && (
-                            <View style={styles.radioButtonInner} />
-                          )}
-                        </View>
-                        <Text style={styles.radioLabel}>
-                          {t("existingContact")}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-
-                  {useExistingContact ? (
-                    <View>
-                      <Text style={styles.label}>{t("selectContact")}</Text>
-                      <TouchableOpacity
-                        onPress={() =>
-                          setShowContactDropdown(!showContactDropdown)
-                        }
-                        activeOpacity={0.8}
+                      <Text style={styles.optionText}>
+                        {selectedProperty?.title || t("selectProperty")}
+                      </Text>
+                      {showPropertyDropdown ? <Down /> : <DropRight />}
+                    </TouchableOpacity>
+                    {showPropertyDropdown && (
+                      <View style={styles.propertyDropdown}>
+                        {userProperties.map((property: Property) => (
+                          <TouchableOpacity
+                            key={property.id}
+                            style={styles.propertyOption}
+                            onPress={() => {
+                              handleSelectApartment(property, setFieldValue);
+                              setFieldValue("location", property.location);
+                            }}
+                          >
+                            <Text style={styles.propertyText}>
+                              {property.title}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                    {touched.property && errors.property && (
+                      <Text
                         style={[
-                          styles.optionButton,
-                          {
-                            borderColor: showContactDropdown
-                              ? colors.Primary_01
-                              : colors.black,
-                            borderBottomLeftRadius: showContactDropdown ? 0 : 4,
-                            borderBottomRightRadius: showContactDropdown
-                              ? 0
-                              : 4,
-                          },
+                          Typography.f_14_nunito_medium,
+                          { color: Colors.Error_Red, marginTop: 5 },
                         ]}
                       >
-                        <Text style={styles.optionText}>
-                          {selectedContact?.name || t("selectContact")}
-                        </Text>
-                        {showContactDropdown ? <Down /> : <DropRight />}
-                      </TouchableOpacity>
-                      {showContactDropdown && (
-                        <View style={styles.contactDropdown}>
-                          {userContacts.map((contact: any) => (
-                            <TouchableOpacity
-                              key={contact.id}
-                              style={styles.contactOption}
-                              onPress={() =>
-                                handleContactSelection(contact, setFieldValue)
-                              }
-                            >
-                              <Text style={styles.contactText}>
-                                {contact.name} - {contact.emailAddress}
+                        {errors.property}
+                      </Text>
+                    )}
+
+                    <View style={styles.contactTypeSection}>
+                      <Text style={styles.label}>{t("contactType")}</Text>
+                      <View style={styles.radioGroup}>
+                        <TouchableOpacity
+                          style={styles.radioOption}
+                          onPress={() =>
+                            handleContactTypeChange(false, setFieldValue)
+                          }
+                        >
+                          <View
+                            style={[
+                              styles.radioButton,
+                              !useExistingContact && styles.radioButtonSelected,
+                            ]}
+                          >
+                            {!useExistingContact && (
+                              <View style={styles.radioButtonInner} />
+                            )}
+                          </View>
+                          <Text style={styles.radioLabel}>{t("newContact")}</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.radioOption}
+                          onPress={() =>
+                            handleContactTypeChange(true, setFieldValue)
+                          }
+                        >
+                          <View
+                            style={[
+                              styles.radioButton,
+                              useExistingContact && styles.radioButtonSelected,
+                            ]}
+                          >
+                            {useExistingContact && (
+                              <View style={styles.radioButtonInner} />
+                            )}
+                          </View>
+                          <Text style={styles.radioLabel}>
+                            {t("existingContact")}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    {useExistingContact ? (
+                      <View>
+                        <Text style={styles.label}>{t("selectContact")}</Text>
+                        <TouchableOpacity
+                          onPress={() =>
+                            setShowContactDropdown(!showContactDropdown)
+                          }
+                          activeOpacity={0.8}
+                          style={[
+                            styles.optionButton,
+                            {
+                              borderColor: showContactDropdown
+                                ? colors.Primary_01
+                                : colors.black,
+                              borderBottomLeftRadius: showContactDropdown ? 0 : 4,
+                              borderBottomRightRadius: showContactDropdown
+                                ? 0
+                                : 4,
+                            },
+                          ]}
+                        >
+                          <Text style={styles.optionText}>
+                            {selectedContact?.name || t("selectContact")}
+                          </Text>
+                          {showContactDropdown ? <Down /> : <DropRight />}
+                        </TouchableOpacity>
+                        {showContactDropdown && (
+                          <View style={styles.contactDropdown}>
+                            {userContacts.map((contact: any) => (
+                              <TouchableOpacity
+                                key={contact.id}
+                                style={styles.contactOption}
+                                onPress={() =>
+                                  handleContactSelection(contact, setFieldValue)
+                                }
+                              >
+                                <Text style={styles.contactText}>
+                                  {contact.name} - {contact.emailAddress}
+                                </Text>
+                              </TouchableOpacity>
+                            ))}
+                          </View>
+                        )}
+
+                        {selectedContact && (
+                          <View style={styles.selectedContactDetails}>
+                            <Text style={styles.detailRow}>
+                              <Text style={styles.detailLabel}>
+                                {t("Email")}:{" "}
                               </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-                      )}
-
-                      {selectedContact && (
-                        <View style={styles.selectedContactDetails}>
-                          <Text style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>
-                              {t("Email")}:{" "}
+                              <Text style={styles.detailValue}>
+                                {selectedContact.emailAddress}
+                              </Text>
                             </Text>
-                            <Text style={styles.detailValue}>
-                              {selectedContact.emailAddress}
-                            </Text>
-                          </Text>
-                          <Text style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>
-                              {t("phoneNum")}:{" "}
-                            </Text>
-                            <Text style={styles.detailValue}>
-                              {" "}
-                              {selectedContact.phoneNumber}
-                            </Text>
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  ) : (
-                    <>
-                      <FormInput
-                        label={t("clientName")}
-                        placeholder={t("clientName")}
-                        value={values.clientName}
-                        onChangeText={handleChange("clientName")}
-                        onBlur={handleBlur("clientName")}
-                        error={touched.clientName && errors.clientName}
-                      />
-                      <FormInput
-                        label={t("Email")}
-                        placeholder={t("Email")}
-                        value={values.email}
-                        onChangeText={handleChange("email")}
-                        onBlur={handleBlur("email")}
-                        error={touched.email && errors.email}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                      />
-                      <FormInput
-                        label={t("phoneNum")}
-                        placeholder={t("phoneNum")}
-                        value={values.phoneNum}
-                        onChangeText={handleChange("phoneNum")}
-                        onBlur={handleBlur("phoneNum")}
-                        error={touched.phoneNum && errors.phoneNum}
-                        keyboardType="phone-pad"
-                      />
-                    </>
-                  )}
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => setCalendarVisible(true)}
-                  >
-                    <FormInput
-                      label={t("visitDates")}
-                      placeholder={t("visitDates")}
-                      value={values.visitDates}
-                      editable={false}
-                      error={touched.visitDates && errors.visitDates}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => setVisible(true)}
-                  >
-                    <FormInput
-                      label={t("checkInTime")}
-                      placeholder={t("checkInTime")}
-                      value={values.checkInTime}
-                      editable={false}
-                      error={touched.checkInTime && errors.checkInTime}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => setCheckOutTimeVisible(true)}
-                  >
-                    <FormInput
-                      label={t("checkOutTime")}
-                      placeholder={t("checkOutTime")}
-                      value={values.checkOutTime}
-                      editable={false}
-                      error={touched.checkOutTime && errors.checkOutTime}
-                    />
-                  </TouchableOpacity>
-                  <FormInput
-                    label={t("numberOfVisitors")}
-                    placeholder={t("numberOfVisitors")}
-                    value={values.numberOfVisitors}
-                    onChangeText={handleChange("numberOfVisitors")}
-                    onBlur={handleBlur("numberOfVisitors")}
-                    error={touched.numberOfVisitors && errors.numberOfVisitors}
-                    keyboardType="numeric"
-                  />
-                  <FormInput
-                    label={t("numberOfInfants")}
-                    placeholder={t("numberOfInfants")}
-                    value={values.numberOfInfants}
-                    onChangeText={handleChange("numberOfInfants")}
-                    onBlur={handleBlur("numberOfInfants")}
-                    error={touched.numberOfInfants && errors.numberOfInfants}
-                    keyboardType="numeric"
-                  />
-                  <FormInput
-                    label={t("agreedPrice")}
-                    placeholder={t("agreedPrice")}
-                    value={values.agreedPrice}
-                    onChangeText={(text) => {
-                      // Remove any non-numeric characters except decimal point
-                      const numericValue = text.replace(/[^0-9.]/g, "");
-                      // Ensure only one decimal point
-                      const parts = numericValue.split(".");
-                      const formattedValue =
-                        parts.length > 1
-                          ? `${parts[0]}.${parts[1].slice(0, 2)}`
-                          : numericValue;
-
-                      handleChange("agreedPrice")(formattedValue);
-                    }}
-                    onBlur={(e) => {
-                      // Format number without forcing decimals for integers
-                      const value = parseFloat(values.agreedPrice) || 0;
-                      const formattedValue = Number.isInteger(value)
-                        ? value.toString()
-                        : value.toFixed(2);
-                      setFieldValue("agreedPrice", formattedValue);
-                      handleBlur("agreedPrice")(e);
-                    }}
-                    error={touched.agreedPrice && errors.agreedPrice}
-                    keyboardType="decimal-pad"
-                  />
-                  <FormInput
-                    label={t("advanceAmount")}
-                    placeholder={t("advanceAmount")}
-                    value={values.advanceAmount}
-                    onChangeText={(text) => {
-                      // Remove any non-numeric characters except decimal point
-                      const numericValue = text.replace(/[^0-9.]/g, "");
-                      // Ensure only one decimal point
-                      const parts = numericValue.split(".");
-                      const formattedValue =
-                        parts.length > 1
-                          ? `${parts[0]}.${parts[1].slice(0, 2)}`
-                          : numericValue;
-
-                      const agreedPrice = parseFloat(values.agreedPrice) || 0;
-                      const newAdvanceAmount = parseFloat(formattedValue) || 0;
-
-                      if (newAdvanceAmount > agreedPrice) {
-                        Toast.show({
-                          type: "error",
-                          text1:
-                            "Down payment cannot be greater than agreed price",
-                          position: "bottom",
-                        });
-                        return;
-                      }
-                      handleChange("advanceAmount")(formattedValue);
-                    }}
-                    onBlur={(e) => {
-                      const value = parseFloat(values.advanceAmount) || 0;
-                      const formattedValue = Number.isInteger(value)
-                        ? value.toString()
-                        : value.toFixed(2);
-                      setFieldValue("advanceAmount", formattedValue);
-                      handleBlur("advanceAmount")(e);
-                    }}
-                    error={touched.advanceAmount && errors.advanceAmount}
-                    keyboardType="decimal-pad"
-                  />
-                  <FormInput
-                    label={t("balanceAmount")}
-                    placeholder={t("balanceAmount")}
-                    value={(() => {
-                      const agreedPrice = parseFloat(values.agreedPrice) || 0;
-                      const advance = parseFloat(values.advanceAmount) || 0;
-                      const balance = agreedPrice - advance;
-                      return Number.isInteger(balance)
-                        ? balance.toString()
-                        : balance.toFixed(2);
-                    })()}
-                    editable={false}
-                    keyboardType="decimal-pad"
-                  />
-                </View>
-                <View style={styles.createBTnContainer}>
-                  <CTAButton1
-                    title={t("createSchedule")}
-                    submitHandler={handleSubmit}
-                  />
-                </View>
-                <Modal
-                  visible={calendarVisible}
-                  transparent
-                  animationType="fade"
-                >
-                  <TouchableWithoutFeedback
-                    onPress={() => setCalendarVisible(false)}
-                  >
-                    <View style={styles.modalOverlay}>
-                      <TouchableWithoutFeedback onPress={() => {}}>
-                        <View style={styles.calendarModal}>
-                          {isLocaleReady && (
-                            <Calendar
-                              key={displayedMonth.toISOString()}
-                              hideExtraDays
-                              markingType="period"
-                              markedDates={markedDates}
-                              onDayPress={(day) =>
-                                onDayPress(day, setFieldValue)
-                              }
-                              hideArrows
-                              current={
-                                displayedMonth.toISOString().split("T")[0]
-                              }
-                              theme={{
-                                todayTextColor: colors.Primary_01,
-                                dayTextColor: colors.black,
-                                textDayFontFamily: "Nunito-Medium",
-                                textDayFontSize: 14,
-                                textDayHeaderFontFamily: "Nunito-Medium",
-                                textSectionTitleColor: colors.PLACE_HOLDER,
-                              }}
-                              renderHeader={() => (
-                                <View style={styles.calendarHeader}>
-                                  <TouchableOpacity onPress={handlePrevMonth}>
-                                    <Left />
-                                  </TouchableOpacity>
-                                  <Text style={styles.headerMonthText}>
-                                    {formatMonth(displayedMonth)}
-                                  </Text>
-                                  <TouchableOpacity onPress={handleNextMonth}>
-                                    <Right />
-                                  </TouchableOpacity>
-                                </View>
-                              )}
-                            />
-                          )}
-                        </View>
-                      </TouchableWithoutFeedback>
-                    </View>
-                  </TouchableWithoutFeedback>
-                </Modal>
-                {visible && (
-                  <TimePickerModal
-                    visible={visible}
-                    onDismiss={() => setVisible(false)}
-                    onConfirm={({ hours, minutes }) => {
-                      const ampm = hours >= 12 ? "PM" : "AM";
-                      const formattedHours = hours % 12 || 12;
-                      const formattedTime = `${formattedHours}:${minutes
-                        .toString()
-                        .padStart(2, "0")} ${ampm}`;
-                      setFieldValue("checkInTime", formattedTime);
-                      setVisible(false);
-                    }}
-                    locale={i18n.language}
-                    label={t("checkInTime")}
-                    cancelLabel={t("cancel")}
-                    confirmLabel={t("ok")}
-                    defaultInputType="keyboard"
-                  />
-                )}
-                {checkOutTimeVisible && (
-                  <TimePickerModal
-                    visible={checkOutTimeVisible}
-                    onDismiss={() => setCheckOutTimeVisible(false)}
-                    onConfirm={({ hours, minutes }) => {
-                      const ampm = hours >= 12 ? "PM" : "AM";
-                      const formattedHours = hours % 12 || 12;
-                      const formattedTime = `${formattedHours}:${minutes
-                        .toString()
-                        .padStart(2, "0")} ${ampm}`;
-                      setFieldValue("checkOutTime", formattedTime);
-                      setCheckOutTimeVisible(false);
-                    }}
-                    locale={i18n.language}
-                    label={t("checkOutTime")}
-                    cancelLabel={t("cancel")}
-                    confirmLabel={t("ok")}
-                    defaultInputType="keyboard"
-                  />
-                )}
-                <Modal
-                  visible={conflictModalVisible}
-                  transparent
-                  animationType="fade"
-                >
-                  <View style={styles.modalOverlay}>
-                    <View style={styles.conflictModal}>
-                      <Text style={styles.conflictTitle}>
-                        {t("datesAlreadyBooked")}
-                      </Text>
-                      <Text style={styles.conflictSubtitle}>
-                        {t("conflictingDates")}:
-                      </Text>
-
-                      <ScrollView
-                        style={styles.conflictList}
-                        showsVerticalScrollIndicator={false}
-                      >
-                        {conflictingDates.map((conflict, index) => (
-                          <View key={index} style={styles.conflictItem}>
-                            <Text style={styles.conflictDate}>
-                              {conflict.dates}
-                            </Text>
-                            <Text style={styles.conflictClient}>
-                              {t("bookedBy")}: {conflict.clientName}
+                            <Text style={styles.detailRow}>
+                              <Text style={styles.detailLabel}>
+                                {t("phoneNum")}:{" "}
+                              </Text>
+                              <Text style={styles.detailValue}>
+                                {" "}
+                                {selectedContact.phoneNumber}
+                              </Text>
                             </Text>
                           </View>
-                        ))}
-                      </ScrollView>
+                        )}
+                      </View>
+                    ) : (
+                      <>
+                        <FormInput
+                          label={t("clientName")}
+                          placeholder={t("clientName")}
+                          value={values.clientName}
+                          onChangeText={handleChange("clientName")}
+                          onBlur={handleBlur("clientName")}
+                          error={touched.clientName && errors.clientName}
+                        />
+                        <FormInput
+                          label={t("Email")}
+                          placeholder={t("Email")}
+                          value={values.email}
+                          onChangeText={handleChange("email")}
+                          onBlur={handleBlur("email")}
+                          error={touched.email && errors.email}
+                          keyboardType="email-address"
+                          autoCapitalize="none"
+                        />
+                        <FormInput
+                          label={t("phoneNum")}
+                          placeholder={t("phoneNum")}
+                          value={values.phoneNum}
+                          onChangeText={handleChange("phoneNum")}
+                          onBlur={handleBlur("phoneNum")}
+                          error={touched.phoneNum && errors.phoneNum}
+                          keyboardType="phone-pad"
+                        />
+                      </>
+                    )}
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() => setCalendarVisible(true)}
+                    >
+                      <FormInput
+                        label={t("visitDates")}
+                        placeholder={t("visitDates")}
+                        value={values.visitDates}
+                        editable={false}
+                        error={touched.visitDates && errors.visitDates}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() => setVisible(true)}
+                    >
+                      <FormInput
+                        label={t("checkInTime")}
+                        placeholder={t("checkInTime")}
+                        value={values.checkInTime}
+                        editable={false}
+                        error={touched.checkInTime && errors.checkInTime}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() => setCheckOutTimeVisible(true)}
+                    >
+                      <FormInput
+                        label={t("checkOutTime")}
+                        placeholder={t("checkOutTime")}
+                        value={values.checkOutTime}
+                        editable={false}
+                        error={touched.checkOutTime && errors.checkOutTime}
+                      />
+                    </TouchableOpacity>
+                    <FormInput
+                      label={t("numberOfVisitors")}
+                      placeholder={t("numberOfVisitors")}
+                      value={values.numberOfVisitors}
+                      onChangeText={handleChange("numberOfVisitors")}
+                      onBlur={handleBlur("numberOfVisitors")}
+                      error={touched.numberOfVisitors && errors.numberOfVisitors}
+                      keyboardType="numeric"
+                    />
+                    <FormInput
+                      label={t("numberOfInfants")}
+                      placeholder={t("numberOfInfants")}
+                      value={values.numberOfInfants}
+                      onChangeText={handleChange("numberOfInfants")}
+                      onBlur={handleBlur("numberOfInfants")}
+                      error={touched.numberOfInfants && errors.numberOfInfants}
+                      keyboardType="numeric"
+                    />
+                    <FormInput
+                      label={t("agreedPrice")}
+                      placeholder={t("agreedPrice")}
+                      value={values.agreedPrice}
+                      onChangeText={(text) => {
+                        // Remove any non-numeric characters except decimal point
+                        const numericValue = text.replace(/[^0-9.]/g, "");
+                        // Ensure only one decimal point
+                        const parts = numericValue.split(".");
+                        const formattedValue =
+                          parts.length > 1
+                            ? `${parts[0]}.${parts[1].slice(0, 2)}`
+                            : numericValue;
 
-                      <Text style={[Typography.f_14_nunito_medium,{ color: colors.Primary_01, marginTop: 10 }]}>
-                        {t('maxTwoBookingsAllowed')}
-                      </Text>
+                        handleChange("agreedPrice")(formattedValue);
+                      }}
+                      onBlur={(e) => {
+                        // Format number without forcing decimals for integers
+                        const value = parseFloat(values.agreedPrice) || 0;
+                        const formattedValue = Number.isInteger(value)
+                          ? value.toString()
+                          : value.toFixed(2);
+                        setFieldValue("agreedPrice", formattedValue);
+                        handleBlur("agreedPrice")(e);
+                      }}
+                      error={touched.agreedPrice && errors.agreedPrice}
+                      keyboardType="decimal-pad"
+                    />
+                    <FormInput
+                      label={t("advanceAmount")}
+                      placeholder={t("advanceAmount")}
+                      value={values.advanceAmount}
+                      onChangeText={(text) => {
+                        // Remove any non-numeric characters except decimal point
+                        const numericValue = text.replace(/[^0-9.]/g, "");
+                        // Ensure only one decimal point
+                        const parts = numericValue.split(".");
+                        const formattedValue =
+                          parts.length > 1
+                            ? `${parts[0]}.${parts[1].slice(0, 2)}`
+                            : numericValue;
 
-                      <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => setConflictModalVisible(false)}
-                      >
-                        <Text style={styles.closeButtonText}>{t("ok")}</Text>
-                      </TouchableOpacity>
-                    </View>
+                        const agreedPrice = parseFloat(values.agreedPrice) || 0;
+                        const newAdvanceAmount = parseFloat(formattedValue) || 0;
+
+                        if (newAdvanceAmount > agreedPrice) {
+                          Toast.show({
+                            type: "error",
+                            text1:
+                              "Down payment cannot be greater than agreed price",
+                            position: "bottom",
+                          });
+                          return;
+                        }
+                        handleChange("advanceAmount")(formattedValue);
+                      }}
+                      onBlur={(e) => {
+                        const value = parseFloat(values.advanceAmount) || 0;
+                        const formattedValue = Number.isInteger(value)
+                          ? value.toString()
+                          : value.toFixed(2);
+                        setFieldValue("advanceAmount", formattedValue);
+                        handleBlur("advanceAmount")(e);
+                      }}
+                      error={touched.advanceAmount && errors.advanceAmount}
+                      keyboardType="decimal-pad"
+                    />
+                    <FormInput
+                      label={t("balanceAmount")}
+                      placeholder={t("balanceAmount")}
+                      value={(() => {
+                        const agreedPrice = parseFloat(values.agreedPrice) || 0;
+                        const advance = parseFloat(values.advanceAmount) || 0;
+                        const balance = agreedPrice - advance;
+                        return Number.isInteger(balance)
+                          ? balance.toString()
+                          : balance.toFixed(2);
+                      })()}
+                      editable={false}
+                      keyboardType="decimal-pad"
+                    />
                   </View>
-                </Modal>
-              </>
-            )}
-          </Formik>
-        </ScrollView>
+                  <View style={styles.createBTnContainer}>
+                    <CTAButton1
+                      title={t("createSchedule")}
+                      submitHandler={handleSubmit}
+                    />
+                  </View>
+                  <Modal
+                    visible={calendarVisible}
+                    transparent
+                    animationType="fade"
+                  >
+                    <TouchableWithoutFeedback
+                      onPress={() => setCalendarVisible(false)}
+                    >
+                      <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback onPress={() => {}}>
+                          <View style={styles.calendarModal}>
+                            {isLocaleReady && (
+                              <Calendar
+                                key={displayedMonth.toISOString()}
+                                hideExtraDays
+                                markingType="period"
+                                markedDates={markedDates}
+                                onDayPress={(day) =>
+                                  onDayPress(day, setFieldValue)
+                                }
+                                hideArrows
+                                current={
+                                  displayedMonth.toISOString().split("T")[0]
+                                }
+                                theme={{
+                                  todayTextColor: colors.Primary_01,
+                                  dayTextColor: colors.black,
+                                  textDayFontFamily: "Nunito-Medium",
+                                  textDayFontSize: 14,
+                                  textDayHeaderFontFamily: "Nunito-Medium",
+                                  textSectionTitleColor: colors.PLACE_HOLDER,
+                                }}
+                                renderHeader={() => (
+                                  <View style={styles.calendarHeader}>
+                                    <TouchableOpacity onPress={handlePrevMonth}>
+                                      <Left />
+                                    </TouchableOpacity>
+                                    <Text style={styles.headerMonthText}>
+                                      {formatMonth(displayedMonth)}
+                                    </Text>
+                                    <TouchableOpacity onPress={handleNextMonth}>
+                                      <Right />
+                                    </TouchableOpacity>
+                                  </View>
+                                )}
+                              />
+                            )}
+                          </View>
+                        </TouchableWithoutFeedback>
+                      </View>
+                    </TouchableWithoutFeedback>
+                  </Modal>
+                  {visible && (
+                    <TimePickerModal
+                      visible={visible}
+                      onDismiss={() => setVisible(false)}
+                      onConfirm={({ hours, minutes }) => {
+                        const ampm = hours >= 12 ? "PM" : "AM";
+                        const formattedHours = hours % 12 || 12;
+                        const formattedTime = `${formattedHours}:${minutes
+                          .toString()
+                          .padStart(2, "0")} ${ampm}`;
+                        setFieldValue("checkInTime", formattedTime);
+                        setVisible(false);
+                      }}
+                      locale={i18n.language}
+                      label={t("checkInTime")}
+                      cancelLabel={t("cancel")}
+                      confirmLabel={t("ok")}
+                      defaultInputType="keyboard"
+                    />
+                  )}
+                  {checkOutTimeVisible && (
+                    <TimePickerModal
+                      visible={checkOutTimeVisible}
+                      onDismiss={() => setCheckOutTimeVisible(false)}
+                      onConfirm={({ hours, minutes }) => {
+                        const ampm = hours >= 12 ? "PM" : "AM";
+                        const formattedHours = hours % 12 || 12;
+                        const formattedTime = `${formattedHours}:${minutes
+                          .toString()
+                          .padStart(2, "0")} ${ampm}`;
+                        setFieldValue("checkOutTime", formattedTime);
+                        setCheckOutTimeVisible(false);
+                      }}
+                      locale={i18n.language}
+                      label={t("checkOutTime")}
+                      cancelLabel={t("cancel")}
+                      confirmLabel={t("ok")}
+                      defaultInputType="keyboard"
+                    />
+                  )}
+                  <Modal
+                    visible={conflictModalVisible}
+                    transparent
+                    animationType="fade"
+                  >
+                    <View style={styles.modalOverlay}>
+                      <View style={styles.conflictModal}>
+                        <Text style={styles.conflictTitle}>
+                          {t("datesAlreadyBooked")}
+                        </Text>
+                        <Text style={styles.conflictSubtitle}>
+                          {t("conflictingDates")}:
+                        </Text>
+
+                        <ScrollView
+                          style={styles.conflictList}
+                          showsVerticalScrollIndicator={false}
+                        >
+                          {conflictingDates.map((conflict, index) => (
+                            <View key={index} style={styles.conflictItem}>
+                              <Text style={styles.conflictDate}>
+                                {conflict.dates}
+                              </Text>
+                              <Text style={styles.conflictClient}>
+                                {t("bookedBy")}: {conflict.clientName}
+                              </Text>
+                            </View>
+                          ))}
+                        </ScrollView>
+
+                        <Text style={[Typography.f_14_nunito_medium,{ color: colors.Primary_01, marginTop: 10 }]}>
+                          {t('maxTwoBookingsAllowed')}
+                        </Text>
+
+                        <TouchableOpacity
+                          style={styles.closeButton}
+                          onPress={() => setConflictModalVisible(false)}
+                        >
+                          <Text style={styles.closeButtonText}>{t("ok")}</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </Modal>
+                </>
+              )}
+            </Formik>
+          </ScrollView>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   FlatList,
   Text,
+  KeyboardAvoidingView,
 } from "react-native";
 import { t } from "i18next";
 import { Formik } from "formik";
@@ -387,347 +388,353 @@ const EditProperty: React.FC<EditPropertyProps> = ({
   };
 
   return (
-    <View
-      style={[
-        styles.mainContainer,
-        { marginTop: Platform.OS === "ios" ? 50 : 0 },
-      ]}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}
     >
-      <View style={{ flex: 8 }}>
-        <View style={{ marginHorizontal: "5%" }}>
-          <Header title={t("editProperty")} />
-        </View>
-        <ScrollView
-          contentContainerStyle={styles.containerC1}
-          showsVerticalScrollIndicator={false}
-        >
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={handleCoverPhotoPick}
-            style={styles.photoUploadSection}
+      <View
+        style={[
+          styles.mainContainer,
+          { marginTop: Platform.OS === "ios" ? 50 : 0 },
+        ]}
+      >
+        <View style={{ flex: 8 }}>
+          <View style={{ marginHorizontal: "5%" }}>
+            <Header title={t("editProperty")} />
+          </View>
+          <ScrollView
+            contentContainerStyle={styles.containerC1}
+            showsVerticalScrollIndicator={false}
           >
-            <Text
-              style={[
-                styles.photoUploadLabel,
-                Typography.f_14_nunito_extra_bold,
-              ]}
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleCoverPhotoPick}
+              style={styles.photoUploadSection}
             >
-              {t("PhotoUpload")}
-            </Text>
-            <View style={styles.photoUploadActionRow}>
-              <Edit />
               <Text
-                style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                style={[
+                  styles.photoUploadLabel,
+                  Typography.f_14_nunito_extra_bold,
+                ]}
               >
-                {t("coverPhoto")}
+                {t("PhotoUpload")}
               </Text>
-            </View>
-          </TouchableOpacity>
-
-          {isCoverPhotoUploading ? (
-            <ActivityIndicator
-              size="large"
-              color={colors.Primary_01}
-              style={{ marginTop: 20 }}
-            />
-          ) : (
-            coverPhoto && (
-              <View style={styles.coverPhotoSection}>
+              <View style={styles.photoUploadActionRow}>
+                <Edit />
                 <Text
-                  style={[
-                    Typography.f_16_nunito_medium,
-                    { color: colors.black, marginBottom: 10 },
-                  ]}
+                  style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
                 >
                   {t("coverPhoto")}
                 </Text>
-                {coverPhoto && (
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => openImageView(0, true)}
-                    style={styles.coverPhotoContainer}
+              </View>
+            </TouchableOpacity>
+
+            {isCoverPhotoUploading ? (
+              <ActivityIndicator
+                size="large"
+                color={colors.Primary_01}
+                style={{ marginTop: 20 }}
+              />
+            ) : (
+              coverPhoto && (
+                <View style={styles.coverPhotoSection}>
+                  <Text
+                    style={[
+                      Typography.f_16_nunito_medium,
+                      { color: colors.black, marginBottom: 10 },
+                    ]}
                   >
-                    <Image
-                      style={styles.coverPhoto}
-                      source={{ uri: coverPhoto }}
-                      resizeMode="cover"
-                    />
+                    {t("coverPhoto")}
+                  </Text>
+                  {coverPhoto && (
                     <TouchableOpacity
                       activeOpacity={0.8}
-                      style={styles.removeButton}
-                      onPress={handleRemoveCoverPhoto}
+                      onPress={() => openImageView(0, true)}
+                      style={styles.coverPhotoContainer}
                     >
-                      <Cross />
+                      <Image
+                        style={styles.coverPhoto}
+                        source={{ uri: coverPhoto }}
+                        resizeMode="cover"
+                      />
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        style={styles.removeButton}
+                        onPress={handleRemoveCoverPhoto}
+                      >
+                        <Cross />
+                      </TouchableOpacity>
                     </TouchableOpacity>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )
-          )}
+                  )}
+                </View>
+              )
+            )}
 
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={handleGalleryImagesPick}
-            style={[styles.photoUploadSection, { marginTop: 15 }]}
-          >
-            <Text
-              style={[
-                styles.photoUploadLabel,
-                Typography.f_14_nunito_extra_bold,
-              ]}
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleGalleryImagesPick}
+              style={[styles.photoUploadSection, { marginTop: 15 }]}
             >
-              {t("PhotoUpload")}
-            </Text>
-            <View style={styles.photoUploadActionRow}>
-              <Edit />
               <Text
-                style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                style={[
+                  styles.photoUploadLabel,
+                  Typography.f_14_nunito_extra_bold,
+                ]}
               >
-                {t("galleryImages")}
+                {t("PhotoUpload")}
               </Text>
-            </View>
-          </TouchableOpacity>
-
-          {isGalleryUploading ? (
-            <ActivityIndicator
-              size="large"
-              color={colors.Primary_01}
-              style={{ marginTop: 20 }}
-            />
-          ) : (
-            galleryImages.length > 0 && (
-              <View style={styles.gallerySection}>
+              <View style={styles.photoUploadActionRow}>
+                <Edit />
                 <Text
-                  style={[
-                    Typography.f_16_nunito_medium,
-                    { color: colors.black, marginBottom: 10 },
-                  ]}
+                  style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
                 >
                   {t("galleryImages")}
                 </Text>
-                {renderImages()}
               </View>
-            )
-          )}
-          <ImageView
-            images={
-              viewingCoverPhoto && coverPhoto
-                ? [{ uri: coverPhoto }]
-                : galleryImages.map((url) => ({ uri: url }))
-            }
-            imageIndex={selectedIndex}
-            visible={visible}
-            onRequestClose={() => setIsVisible(false)}
-          />
-          {property && (
-            <Formik
-              initialValues={{
-                title: property.title || "",
-                description: property.description || "",
-                otherDetails: property.otherDetails || "",
-                location: property.location || { address: "", lat: 0, long: 0 },
-                createdBy: property.createdBy,
-              }}
-              validationSchema={validationSchema}
-              onSubmit={async (values) => {
-                try {
-                  const allImages = coverPhoto ? [coverPhoto, ...galleryImages] : galleryImages;
+            </TouchableOpacity>
 
-                  const formData = {
-                    ...values,
-                    images: allImages,
-                  };
+            {isGalleryUploading ? (
+              <ActivityIndicator
+                size="large"
+                color={colors.Primary_01}
+                style={{ marginTop: 20 }}
+              />
+            ) : (
+              galleryImages.length > 0 && (
+                <View style={styles.gallerySection}>
+                  <Text
+                    style={[
+                      Typography.f_16_nunito_medium,
+                      { color: colors.black, marginBottom: 10 },
+                    ]}
+                  >
+                    {t("galleryImages")}
+                  </Text>
+                  {renderImages()}
+                </View>
+              )
+            )}
+            <ImageView
+              images={
+                viewingCoverPhoto && coverPhoto
+                  ? [{ uri: coverPhoto }]
+                  : galleryImages.map((url) => ({ uri: url }))
+              }
+              imageIndex={selectedIndex}
+              visible={visible}
+              onRequestClose={() => setIsVisible(false)}
+            />
+            {property && (
+              <Formik
+                initialValues={{
+                  title: property.title || "",
+                  description: property.description || "",
+                  otherDetails: property.otherDetails || "",
+                  location: property.location || { address: "", lat: 0, long: 0 },
+                  createdBy: property.createdBy,
+                }}
+                validationSchema={validationSchema}
+                onSubmit={async (values) => {
+                  try {
+                    const allImages = coverPhoto ? [coverPhoto, ...galleryImages] : galleryImages;
 
-                  if (user?.userId) {
-                    dispatch(updateProperty(id, formData, navigation));
-                  } else {
+                    const formData = {
+                      ...values,
+                      images: allImages,
+                    };
+
+                    if (user?.userId) {
+                      dispatch(updateProperty(id, formData, navigation));
+                    } else {
+                      const errorMessage = await getFirebaseErrorMessage(
+                        "User not authenticated"
+                      );
+                      Toast.show({
+                        type: "error",
+                        text1: errorMessage,
+                      });
+                      navigation.navigate("Signin");
+                    }
+                  } catch (error) {
+                    console.error("Form submission error:", error);
                     const errorMessage = await getFirebaseErrorMessage(
-                      "User not authenticated"
+                      "Failed to update property. Please try again."
                     );
                     Toast.show({
                       type: "error",
                       text1: errorMessage,
+                      position: "bottom",
                     });
-                    navigation.navigate("Signin");
                   }
-                } catch (error) {
-                  console.error("Form submission error:", error);
-                  const errorMessage = await getFirebaseErrorMessage(
-                    "Failed to update property. Please try again."
-                  );
-                  Toast.show({
-                    type: "error",
-                    text1: errorMessage,
-                    position: "bottom",
-                  });
-                }
-              }}
-            >
-              {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                setFieldValue,
-                values,
-                errors,
-                touched,
-              }) => {
-                // Store the setFieldValue function in the ref
-                setFieldValueRef.current = setFieldValue;
+                }}
+              >
+                {({
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  setFieldValue,
+                  values,
+                  errors,
+                  touched,
+                }) => {
+                  // Store the setFieldValue function in the ref
+                  setFieldValueRef.current = setFieldValue;
 
-                return (
-                  <>
-                    <FormInput
-                      label={t("title")}
-                      placeholder={t("title")}
-                      value={values.title}
-                      onChangeText={handleChange("title")}
-                      onBlur={handleBlur("title")}
-                      error={
-                        touched.title && errors.title
-                          ? String(errors.title)
-                          : undefined
-                      }
-                    />
-
-                    <FormInput
-                      label={t("description")}
-                      placeholder={t("description")}
-                      value={values.description}
-                      onChangeText={handleChange("description")}
-                      onBlur={handleBlur("description")}
-                      error={
-                        touched.description && errors.description
-                          ? String(errors.description)
-                          : undefined
-                      }
-                      multiline
-                      numberOfLines={4}
-                    />
-
-                    <FormInput
-                      label={t("otherDet")}
-                      placeholder={t("otherDet")}
-                      value={values.otherDetails}
-                      onChangeText={handleChange("otherDetails")}
-                      onBlur={handleBlur("otherDetails")}
-                      error={
-                        touched.otherDetails && errors.otherDetails
-                          ? String(errors.otherDetails)
-                          : undefined
-                      }
-                      multiline
-                      numberOfLines={4}
-                    />
-                    <View style={styles.locationContainer}>
-                      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                        <Text
-                          style={[
-                            styles.locationLabel,
-                            Typography.f_14_nunito_semi_bold,
-                          ]}
-                        >
-                          {t("location")}
-                        </Text>
-
-                        <TouchableOpacity
-                          activeOpacity={0.8}
-                          onPress={() => setModalVisible(true)}
-
-                        >
-
-                          <View style={styles.photoUploadActionRow}>
-                            <AddPhoto />
-                            <Text
-                              style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
-                            >
-                              {t("changeLocation")}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-
-                      <View>
-                        <MapView
-                          key={mapKey}
-                          ref={mapRef}
-                          style={{ height: 200, width: "100%", marginTop: 10 }}
-                          provider={PROVIDER_GOOGLE}
-                          region={mapRegion}
-                        >
-                          {marker && (
-                            <Marker
-                              coordinate={{
-                                latitude: marker.latitude,
-                                longitude: marker.longitude,
-                              }}
-                            >
-                              <MarkerIcon />
-                            </Marker>
-                          )}
-                        </MapView>
-                      </View>
-                    </View>
-
-                    <View style={{ marginVertical: 40 }}>
-                      <CTAButton1
-                        title={t("save")}
-                        submitHandler={handleSubmit}
+                  return (
+                    <>
+                      <FormInput
+                        label={t("title")}
+                        placeholder={t("title")}
+                        value={values.title}
+                        onChangeText={handleChange("title")}
+                        onBlur={handleBlur("title")}
+                        error={
+                          touched.title && errors.title
+                            ? String(errors.title)
+                            : undefined
+                        }
                       />
-                    </View>
-                  </>
-                );
-              }}
-            </Formik>
-          )}
-        </ScrollView>
 
-        <LocationPickerModal
-          visible={modalVisible}
-          onClose={() => {
-            setModalVisible(false);
-          }}
-          onLocationSelected={async (loc: any) => {
-            const location = [loc.lat, loc.lng];
-            setLastLocation(location);
-            updateMapLocation(location[0], location[1]);
+                      <FormInput
+                        label={t("description")}
+                        placeholder={t("description")}
+                        value={values.description}
+                        onChangeText={handleChange("description")}
+                        onBlur={handleBlur("description")}
+                        error={
+                          touched.description && errors.description
+                            ? String(errors.description)
+                            : undefined
+                        }
+                        multiline
+                        numberOfLines={4}
+                      />
 
-            const response = await axios.get(
-              `${EnvConfig.googleMaps.geocodeUrl}?latlng=${location[0]},${location[1]}&key=${EnvConfig.googleMaps.apiKey}`
-            );
+                      <FormInput
+                        label={t("otherDet")}
+                        placeholder={t("otherDet")}
+                        value={values.otherDetails}
+                        onChangeText={handleChange("otherDetails")}
+                        onBlur={handleBlur("otherDetails")}
+                        error={
+                          touched.otherDetails && errors.otherDetails
+                            ? String(errors.otherDetails)
+                            : undefined
+                        }
+                        multiline
+                        numberOfLines={4}
+                      />
+                      <View style={styles.locationContainer}>
+                        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                          <Text
+                            style={[
+                              styles.locationLabel,
+                              Typography.f_14_nunito_semi_bold,
+                            ]}
+                          >
+                            {t("location")}
+                          </Text>
 
-            if (response.data.status === "OK") {
-              const formattedAddress = response.data.results[0]?.formatted_address || "";
+                          <TouchableOpacity
+                            activeOpacity={0.8}
+                            onPress={() => setModalVisible(true)}
 
-              setInputText(formattedAddress || "");
-              setCurrentLocation({
-                address: formattedAddress,
-                lat: location[0],
-                long: location[1]
-              });
+                          >
 
-              if (setFieldValueRef.current) {
-                setFieldValueRef.current("location", {
+                            <View style={styles.photoUploadActionRow}>
+                              <AddPhoto />
+                              <Text
+                                style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                              >
+                                {t("changeLocation")}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        </View>
+
+                        <View>
+                          <MapView
+                            key={mapKey}
+                            ref={mapRef}
+                            style={{ height: 200, width: "100%", marginTop: 10 }}
+                            provider={PROVIDER_GOOGLE}
+                            region={mapRegion}
+                          >
+                            {marker && (
+                              <Marker
+                                coordinate={{
+                                  latitude: marker.latitude,
+                                  longitude: marker.longitude,
+                                }}
+                              >
+                                <MarkerIcon />
+                              </Marker>
+                            )}
+                          </MapView>
+                        </View>
+                      </View>
+
+                      <View style={{ marginVertical: 40 }}>
+                        <CTAButton1
+                          title={t("save")}
+                          submitHandler={handleSubmit}
+                        />
+                      </View>
+                    </>
+                  );
+                }}
+              </Formik>
+            )}
+          </ScrollView>
+
+          <LocationPickerModal
+            visible={modalVisible}
+            onClose={() => {
+              setModalVisible(false);
+            }}
+            onLocationSelected={async (loc: any) => {
+              const location = [loc.lat, loc.lng];
+              setLastLocation(location);
+              updateMapLocation(location[0], location[1]);
+
+              const response = await axios.get(
+                `${EnvConfig.googleMaps.geocodeUrl}?latlng=${location[0]},${location[1]}&key=${EnvConfig.googleMaps.apiKey}`
+              );
+
+              if (response.data.status === "OK") {
+                const formattedAddress = response.data.results[0]?.formatted_address || "";
+
+                setInputText(formattedAddress || "");
+                setCurrentLocation({
                   address: formattedAddress,
                   lat: location[0],
-                  long: location[1],
+                  long: location[1]
                 });
 
+                if (setFieldValueRef.current) {
+                  setFieldValueRef.current("location", {
+                    address: formattedAddress,
+                    lat: location[0],
+                    long: location[1],
+                  });
 
+
+                }
               }
-            }
 
-            setMarker({ latitude: location[0], longitude: location[1] });
-          }}
-          apiKey={EnvConfig.googleMaps.apiKey}
-          isEditMode={true}
-          lastLocation={lastLocation}
-          editRecenterLocation={editLocation}
+              setMarker({ latitude: location[0], longitude: location[1] });
+            }}
+            apiKey={EnvConfig.googleMaps.apiKey}
+            isEditMode={true}
+            lastLocation={lastLocation}
+            editRecenterLocation={editLocation}
 
-        />
+          />
 
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

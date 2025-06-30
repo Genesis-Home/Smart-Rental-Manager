@@ -6,6 +6,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { t } from "i18next";
 import { RFValue } from "react-native-responsive-fontsize";
@@ -47,151 +48,157 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   };
 
   return (
-    <View
-      style={[
-        styles.mainContainer,
-        { marginTop: Platform.OS === "ios" ? 50 : 0 },
-      ]}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}
     >
-      <View style={{ flex: 8 }}>
-        <Header title={t("pleaseLoginHere")} />
-        <ScrollView
-          contentContainerStyle={styles.containerC1}
-          showsVerticalScrollIndicator={false}
-        >
-          <Text
-            style={[
-              Typography.f_20_nunito_bold,
-              { marginTop: 20, color: colors.DARK_GREEN },
-            ]}
+      <View
+        style={[
+          styles.mainContainer,
+          { marginTop: Platform.OS === "ios" ? 50 : 0 },
+        ]}
+      >
+        <View style={{ flex: 8 }}>
+          <Header title={t("pleaseLoginHere")} />
+          <ScrollView
+            contentContainerStyle={styles.containerC1}
+            showsVerticalScrollIndicator={false}
           >
-            {t("signIn")}
-          </Text>
-          <Text
-            style={[
-              Typography.f_16_nunito_regular,
-              { marginTop: 5, color: colors.DARK_GREEN },
-            ]}
-          >
-            {t("loginEmailPrompt")}
-          </Text>
-          <Formik
-            initialValues={{
-              email: "",
-              password: "",
-            }}
-            validationSchema={validationSchema}
-            onSubmit={submit}
-          >
-            {({
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              values,
-              errors,
-              touched,
-            }) => (
-              <View style={styles.containerc1_c2}>
-                <FormInput
-                  label={t("emailAddress")}
-                  placeholder={t("email")}
-                  value={values.email}
-                  onChangeText={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  error={touched.email && errors.email}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-                <FormInput
-                  label={t("password")}
-                  placeholder={t("password")}
-                  secureTextEntry={secureEntryState}
-                  showToggle
-                  onToggleSecure={() => setsecureEntryState(!secureEntryState)}
-                  value={values.password}
-                  onChangeText={handleChange("password")}
-                  onBlur={handleBlur("password")}
-                  error={touched.password && errors.password}
-                />
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
+            <Text
+              style={[
+                Typography.f_20_nunito_bold,
+                { marginTop: 20, color: colors.DARK_GREEN },
+              ]}
+            >
+              {t("signIn")}
+            </Text>
+            <Text
+              style={[
+                Typography.f_16_nunito_regular,
+                { marginTop: 5, color: colors.DARK_GREEN },
+              ]}
+            >
+              {t("loginEmailPrompt")}
+            </Text>
+            <Formik
+              initialValues={{
+                email: "",
+                password: "",
+              }}
+              validationSchema={validationSchema}
+              onSubmit={submit}
+            >
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+              }) => (
+                <View style={styles.containerc1_c2}>
+                  <FormInput
+                    label={t("emailAddress")}
+                    placeholder={t("email")}
+                    value={values.email}
+                    onChangeText={handleChange("email")}
+                    onBlur={handleBlur("email")}
+                    error={touched.email && errors.email}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                  <FormInput
+                    label={t("password")}
+                    placeholder={t("password")}
+                    secureTextEntry={secureEntryState}
+                    showToggle
+                    onToggleSecure={() => setsecureEntryState(!secureEntryState)}
+                    value={values.password}
+                    onChangeText={handleChange("password")}
+                    onBlur={handleBlur("password")}
+                    error={touched.password && errors.password}
+                  />
                   <View
                     style={{
-                      alignItems: "center",
                       flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
                     }}
                   >
-                    <CheckBox
-                      tintColors={{
-                        true: colors.Primary_01,
-                        false: colors.Primary_01,
+                    <View
+                      style={{
+                        alignItems: "center",
+                        flexDirection: "row",
                       }}
-                      disabled={false}
-                      value={isSelectedRemember}
-                      onValueChange={setisSelectedRemember}
-                    />
+                    >
+                      <CheckBox
+                        tintColors={{
+                          true: colors.Primary_01,
+                          false: colors.Primary_01,
+                        }}
+                        disabled={false}
+                        value={isSelectedRemember}
+                        onValueChange={setisSelectedRemember}
+                      />
+                      <Text
+                        style={[
+                        styles.label,
+                          Typography.f_14_nunito_medium,
+                          { color: colors.Primary_01 },
+                        ]}
+                      >
+                        {t("rememberme")}
+                      </Text>
+                    </View>
                     <Text
                       style={[
-                      styles.label,
                         Typography.f_14_nunito_medium,
-                        { color: colors.Primary_01 },
+                        {
+                          color: colors.DARK_GREEN,
+                          paddingVertical: 10,
+                        },
                       ]}
+                      onPress={() => navigation.navigate("ForgotPassword")}
                     >
-                      {t("rememberme")}
+                      {t("forgotPassword")}
                     </Text>
                   </View>
+                  <View style={{ marginTop: 10 }}>
+                    <CTAButton1
+                      title={t("signIn")}
+                      submitHandler={handleSubmit}
+                    />
+                  </View>
                   <Text
+                    onPress={() => navigation.navigate("Signup")}
                     style={[
-                      Typography.f_14_nunito_medium,
+                      Typography.f_16_nunito_semi_bold,
                       {
                         color: colors.DARK_GREEN,
                         paddingVertical: 10,
+                        textAlign: "center",
+                        marginTop: 20,
                       },
                     ]}
-                    onPress={() => navigation.navigate("ForgotPassword")}
                   >
-                    {t("forgotPassword")}
+                    {t("donthaveaccount")} {" "}
+                    <Text
+                      style={[
+                        { color: colors.Primary_01 },
+                        Typography.f_16_nunito_bold,
+                      ]}
+                    >
+                      {t("signup")}
+                    </Text>
                   </Text>
                 </View>
-                <View style={{ marginTop: 10 }}>
-                  <CTAButton1
-                    title={t("signIn")}
-                    submitHandler={handleSubmit}
-                  />
-                </View>
-                <Text
-                  onPress={() => navigation.navigate("Signup")}
-                  style={[
-                    Typography.f_16_nunito_semi_bold,
-                    {
-                      color: colors.DARK_GREEN,
-                      paddingVertical: 10,
-                      textAlign: "center",
-                      marginTop: 20,
-                    },
-                  ]}
-                >
-                  {t("donthaveaccount")}{" "}
-                  <Text
-                    style={[
-                      { color: colors.Primary_01 },
-                      Typography.f_16_nunito_bold,
-                    ]}
-                  >
-                    {t("signup")}
-                  </Text>
-                </Text>
-              </View>
-            )}
-          </Formik>
-        </ScrollView>
+              )}
+            </Formik>
+          </ScrollView>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
