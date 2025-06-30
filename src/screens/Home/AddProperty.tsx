@@ -475,7 +475,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       // If coming back to this screen after successful add, reset form and images
-      if (navigation.getState().routes.some(route => route.name === 'Tabs')) {
+      if (navigation.getState().routes.some((route:any) => route.name === 'Tabs')) {
         if (formikSetFieldValueRef.current) {
           formikSetFieldValueRef.current('title', '');
           formikSetFieldValueRef.current('description', '');

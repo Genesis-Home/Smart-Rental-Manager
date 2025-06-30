@@ -975,9 +975,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                             </View>
                           ))}
                         </ScrollView>
-                        <Text style={[Typography.f_14_nunito_medium,{ color: colors.Primary_01, marginTop: 10 }]}>
-                          {t('maxTwoBookingsAllowed')}
-                        </Text>
                         <TouchableOpacity
                           style={styles.closeButton}
                           onPress={() => setConflictModalVisible(false)}

@@ -556,6 +556,7 @@ export const addSchedule =
         advanceAmount: formData.advanceAmount,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
+        notes: formData.notes || "",
       };
 
       await scheduleRef.set(scheduleData);

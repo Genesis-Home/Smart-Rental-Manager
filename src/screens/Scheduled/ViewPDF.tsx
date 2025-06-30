@@ -11,7 +11,7 @@ import {
 import React, { useState, useEffect } from "react";
 import Colors from "../../utilities/constants/colors";
 import { colors } from "../../utilities/constants";
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { RouteProp, useRoute, useFocusEffect } from "@react-navigation/native";
 import { RootStackParamList } from "../../types/types";
 import moment from "moment";
 import firestore from "@react-native-firebase/firestore";
@@ -33,19 +33,30 @@ const ViewPDF: React.FC = () => {
     }
   }, [visit?.scheduleId]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      if (visit?.scheduleId || visit?.id) {
+        loadNotes();
+      }
+    }, [visit?.scheduleId, visit?.id])
+  );
+
   const loadNotes = async () => {
     try {
+      const docId = visit?.scheduleId || visit?.id;
+      if (!docId) {
+        console.error("No scheduleId or id found in visit object!", visit);
+        return;
+      }
       const scheduleDoc = await firestore()
         .collection("schedules")
-        .doc(visit.scheduleId)
+        .doc(docId)
         .get();
 
       if (scheduleDoc.exists) {
         const data = scheduleDoc.data();
-        if (data?.notes) {
-          setNotes(data.notes);
-          setSavedNotes(data.notes);
-        }
+        setNotes(data?.notes || "");
+        setSavedNotes(data?.notes || "");
       }
     } catch (error) {
       console.error("Error loading notes:", error);
@@ -54,19 +65,31 @@ const ViewPDF: React.FC = () => {
 
   const saveNotes = async () => {
     try {
-      if (visit?.scheduleId) {
-        await firestore().collection("schedules").doc(visit.scheduleId).update({
-          notes: notes,
-        });
-
-        setSavedNotes(notes);
-        setIsEditing(false);
+      const docId = visit?.scheduleId || visit?.id;
+      if (!docId) {
+        console.error("No scheduleId or id found in visit object!", visit);
         Toast.show({
-          type: "success",
-          text1: t("notesSavedSuccessfully"),
+          type: "error",
+          text1: "No scheduleId or id found!",
           position: "bottom",
         });
+        return;
       }
+      console.log('Saving notes:', notes, 'to docId:', docId);
+      await firestore().collection("schedules").doc(docId).update({
+        notes: notes,
+      });
+
+      // Reload notes from Firestore for latest value
+      await loadNotes();
+
+      setIsEditing(false);
+
+      Toast.show({
+        type: "success",
+        text1: t("notesSavedSuccessfully"),
+        position: "bottom",
+      });
     } catch (error) {
       console.error("Error saving notes:", error);
       Toast.show({
@@ -180,7 +203,7 @@ const ViewPDF: React.FC = () => {
           <View style={styles.notesContainer}>
             <Text style={styles.notesLabel}>{t("notes")}</Text>
             <Text style={styles.notesText}>
-              {savedNotes || t("noNotesAdded")}
+              {notes || t("noNotesAdded")}
             </Text>
             <TouchableOpacity style={styles.editButton} onPress={handleEditNotes}>
               <Text style={styles.editButtonText}>{t("editNotes")}</Text>
