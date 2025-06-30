@@ -33,8 +33,12 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
 
   const handleCreate = async (values: any, resetForm: () => void) => {
     if (user?.userId) {
-      dispatch(addContact(values, user.userId, navigation));
-      resetForm();
+      try {
+        await dispatch(addContact(values, user.userId, navigation));
+        resetForm();
+      } catch (err) {
+        // error toast ya handling (optional)
+      }
     } else {
       const customMessage = await getFirebaseErrorMessage(
         "User not authenticated"
