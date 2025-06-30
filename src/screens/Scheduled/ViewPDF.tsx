@@ -130,11 +130,11 @@ const ViewPDF: React.FC = () => {
         </View>
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("checkInTime")}:</Text>
-          <Text style={styles.detailValue}>{visit?.checkInTime}</Text>
+          <Text style={styles.detailValue}>{visit?.checkInTime ? moment(visit.checkInTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}</Text>
         </View>
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("checkOutTime")}:</Text>
-          <Text style={styles.detailValue}>{visit?.checkOutTime}</Text>
+          <Text style={styles.detailValue}>{visit?.checkOutTime ? moment(visit.checkOutTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}</Text>
         </View>
         <Text style={styles.sectionTitle}>{t("financialDetails")}</Text>
         <View style={styles.detailRow}>

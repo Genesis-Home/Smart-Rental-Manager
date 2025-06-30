@@ -367,11 +367,11 @@ const ExportData: React.FC = () => {
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>{t("checkInTime")}</Text>
-                    <Text style={styles.detailValue}>{item.checkInTime}</Text>
+                    <Text style={styles.detailValue}>{item.checkInTime ? moment(item.checkInTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}</Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>{t("checkOutTime")}</Text>
-                    <Text style={styles.detailValue}>{item.checkOutTime}</Text>
+                    <Text style={styles.detailValue}>{item.checkOutTime ? moment(item.checkOutTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}</Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>

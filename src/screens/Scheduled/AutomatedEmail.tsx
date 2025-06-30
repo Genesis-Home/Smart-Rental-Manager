@@ -50,8 +50,8 @@ const AutomatedEmail: React.FC = () => {
   const visitMessage = `${t("visitDetails")}:
 
 📅 ${t("visitData")}: ${visit?.visitDates}
-⏰ ${t("checkInTime")}: ${visit?.checkInTime}
-⏰ ${t("checkOutTime")}: ${visit?.checkOutTime}
+⏰ ${t("checkInTime")}: ${visit?.checkInTime ? moment(visit.checkInTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}
+⏰ ${t("checkOutTime")}: ${visit?.checkOutTime ? moment(visit.checkOutTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}
 👨‍👩‍👧‍👦 ${t("numberOfVisitors")}: ${visit?.numberOfVisitors}
 👶 ${t("numberOfInfants")}: ${visit?.numberOfInfants}
 🏠 ${t("propertyAddress")}: ${visit?.location.address}
@@ -310,11 +310,11 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
           </Text>
           <Text style={styles.detailRow}>
             <Text style={styles.detailLabel}>{t("checkInTime")}: </Text>
-            {visit?.checkInTime}
+            {visit?.checkInTime ? moment(visit.checkInTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}
           </Text>
           <Text style={styles.detailRow}>
             <Text style={styles.detailLabel}>{t("checkOutTime")}: </Text>
-            {visit?.checkOutTime}
+            {visit?.checkOutTime ? moment(visit.checkOutTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}
           </Text>
 
           {visit?.numberOfVisitors && (

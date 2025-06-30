@@ -763,7 +763,7 @@ const Scheduled: React.FC = () => {
                     {t("checkInTime")}:
                   </Text>
                   <Text style={styles.bookingDetailValue}>
-                    {selectedSchedule?.checkInTime}
+                    {moment(selectedSchedule.checkInTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A')}
                   </Text>
                 </View>
               )}
@@ -773,7 +773,7 @@ const Scheduled: React.FC = () => {
                     {t("checkOutTime")}:
                   </Text>
                   <Text style={styles.bookingDetailValue}>
-                    {selectedSchedule?.checkOutTime}
+                    {moment(selectedSchedule.checkOutTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A')}
                   </Text>
                 </View>
               )}

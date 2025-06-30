@@ -35,31 +35,6 @@ import moment from "moment";
 import Colors from "../../utilities/constants/colors";
 import { useFocusEffect } from "@react-navigation/native";
 
-// Time validation function
-const validateTimeOrder = (checkInTime: string, checkOutTime: string): boolean => {
-  if (!checkInTime || !checkOutTime) return true; // Skip validation if either time is empty
-  
-  // Parse time strings (format: "12:30 PM")
-  const parseTime = (timeStr: string) => {
-    const [time, period] = timeStr.split(' ');
-    const [hours, minutes] = time.split(':').map(Number);
-    let hour24 = hours;
-    
-    if (period === 'PM' && hours !== 12) {
-      hour24 += 12;
-    } else if (period === 'AM' && hours === 12) {
-      hour24 = 0;
-    }
-    
-    return hour24 * 60 + minutes; // Convert to minutes for easy comparison
-  };
-  
-  const checkInMinutes = parseTime(checkInTime);
-  const checkOutMinutes = parseTime(checkOutTime);
-  
-  return checkInMinutes > checkOutMinutes; // Check-in must be AFTER check-out
-};
-
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
   const dispatch = useAppDispatch();
@@ -206,19 +181,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     }),
     visitDates: Yup.string().required(t("visitDates") + " " + t("isRequired")),
     checkInTime: Yup.string()
-      .required(t("checkInTime") + " " + t("isRequired"))
-      .test("time-order", t("checkInTimeMustBeAfterCheckOut") || "Check-in time must be after check-out time", function(value) {
-        const checkOutTime = this.parent.checkOutTime;
-        if (!value || !checkOutTime) return true;
-        return validateTimeOrder(value, checkOutTime);
-      }),
+      .required(t("checkInTime") + " " + t("isRequired")),
     checkOutTime: Yup.string()
-      .required(t("checkOutTime") + " " + t("isRequired"))
-      .test("time-order", t("checkOutTimeMustBeBeforeCheckIn") || "Check-out time must be before check-in time", function(value) {
-        const checkInTime = this.parent.checkInTime;
-        if (!value || !checkInTime) return true;
-        return validateTimeOrder(checkInTime, value);
-      }),
+      .required(t("checkOutTime") + " " + t("isRequired")),
     advanceAmount: Yup.string()
       .required(t("advanceAmount") + " " + t("isRequired"))
       .test("is-number", t("mustBeNumber"), (value) => !isNaN(Number(value)))
@@ -297,13 +262,10 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       );
 
       const selectedStart = moment(startDate, "YYYY-MM-DD").startOf("day");
-      const selectedEnd = moment(endDate, "YYYY-MM-DD").endOf("day");
+      const selectedEnd = moment(endDate, "YYYY-DD-MM").endOf("day");
 
       const conflicts: { dates: string; clientName: string }[] = [];
-
-      let bookingCount = 0;
-      let timeConflict = false;
-      let timeConflictInfo = null;
+      let timeConflictMessage = '';
 
       existingSchedules.forEach((schedule: any) => {
         if (!schedule.visitDates || typeof schedule.visitDates !== "string")
@@ -321,40 +283,67 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
           return;
         }
 
-        if (
-          (selectedStart.isSameOrBefore(rangeEnd) && selectedEnd.isSameOrAfter(rangeStart)) ||
-          (rangeStart.isSameOrBefore(selectedEnd) && rangeEnd.isSameOrAfter(selectedStart))
-        ) {
-          bookingCount++;
+        if (selectedStart.isAfter(rangeEnd)) {
+          // No conflict
+        } else if (selectedStart.isSame(rangeEnd, 'day')) {
+          // Same day: check full datetime
+          const prevCheckoutDateTime = moment(schedule.checkOutTime, 'YYYY-MM-DD HH:mm');
+          const newCheckinDateTime = moment(`${startDate} ${finalFormData.checkInTime}`, 'YYYY-MM-DD HH:mm');
+          if (!prevCheckoutDateTime.isValid() || !newCheckinDateTime.isValid()) {
+            // fallback to old logic if parsing fails
+            const parseTime = (timeStr: string) => {
+              if (!timeStr) return 0;
+              const [time, period] = timeStr.split(' ');
+              const [hours, minutes] = time.split(':').map(Number);
+              let hour24 = hours;
+              if (period === 'PM' && hours !== 12) hour24 += 12;
+              if (period === 'AM' && hours === 12) hour24 = 0;
+              return hour24 * 60 + minutes;
+            };
+            const prevCheckoutTime = parseTime(schedule.checkOutTime);
+            const newCheckinTime = parseTime(finalFormData.checkInTime);
+            if (newCheckinTime <= prevCheckoutTime) {
+              timeConflictMessage = `Check-in allowed only after ${prevCheckoutDateTime.format('D MMM YYYY, h:mm A')}`;
+            }
+          } else {
+            if (newCheckinDateTime.isSameOrBefore(prevCheckoutDateTime)) {
+              timeConflictMessage = `Check-in allowed only after ${prevCheckoutDateTime.format('D MMM YYYY, h:mm A')}`;
+            }
+          }
+        } else if (selectedStart.isBetween(rangeStart, rangeEnd, undefined, '[]')) {
+          // Overlap: not allowed
           conflicts.push({
             dates: schedule.visitDates,
             clientName: schedule.clientName,
           });
-
-          if (
-            (schedule.checkInTime && schedule.checkInTime === finalFormData.checkInTime) ||
-            (schedule.checkOutTime && schedule.checkOutTime === finalFormData.checkOutTime)
-          ) {
-            timeConflict = true;
-            timeConflictInfo = schedule;
-          }
         }
       });
 
-      if (bookingCount >= 2) {
+      if (timeConflictMessage) {
+        Toast.show({
+          type: 'error',
+          text1: timeConflictMessage,
+          position: 'bottom',
+        });
+        return;
+      }
+      if (conflicts.length > 0) {
         setConflictingDates(conflicts);
         setConflictModalVisible(true);
         return;
       }
 
-      if (timeConflict) {
-        Toast.show({
-          type: "error",
-          text1: t("timeConflictMessage"),
-          position: "bottom",
-        });
-        return;
-      }
+      // Format check-in and check-out as full datetime strings in 12-hour format with AM/PM
+      const formatDateTime = (date: string, time: string) => {
+        if (!date || !time) return '';
+        const [hoursMinutes, ampm] = time.split(' ');
+        let [hours, minutes] = hoursMinutes.split(':').map(Number);
+        if (ampm === 'PM' && hours !== 12) hours += 12;
+        if (ampm === 'AM' && hours === 12) hours = 0;
+        // Create a moment object and format as 12-hour with AM/PM
+        const dateTime = moment(`${date} ${hours}:${minutes}`, 'YYYY-MM-DD HH:mm');
+        return dateTime.format('YYYY-MM-DD hh:mm A');
+      };
 
       const scheduleData = {
         ...finalFormData,
@@ -364,6 +353,8 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         userId: user?.userId,
         createdAt: new Date(),
         revenue: parseFloat(finalFormData.agreedPrice || "0"),
+        checkInTime: formatDateTime(startDate, finalFormData.checkInTime),
+        checkOutTime: formatDateTime(endDate, finalFormData.checkOutTime),
       };
 
       dispatch(addSchedule(scheduleData, user?.userId, navigation));
@@ -923,17 +914,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                           .toString()
                           .padStart(2, "0")} ${ampm}`;
 
-                        // Validate that check-in is after checkout time if it exists
-                        if (values.checkOutTime && !validateTimeOrder(formattedTime, values.checkOutTime)) {
-                          Toast.show({
-                            type: "error",
-                            text1: t("checkInTimeMustBeAfterCheckOut") || "Check-in time must be after check-out time",
-                            position: "bottom",
-                          });
-                          setVisible(false);
-                          return;
-                        }
-
                         setFieldValue("checkInTime", formattedTime);
                         setVisible(false);
                       }}
@@ -955,17 +935,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         const formattedTime = `${formattedHours}:${minutes
                           .toString()
                           .padStart(2, "0")} ${ampm}`;
-
-                        // Validate that checkout is before checkin time if it exists
-                        if (values.checkInTime && !validateTimeOrder(values.checkInTime, formattedTime)) {
-                          Toast.show({
-                            type: "error",
-                            text1: t("checkOutTimeMustBeBeforeCheckIn") || "Check-out time must be before check-in time",
-                            position: "bottom",
-                          });
-                          setCheckOutTimeVisible(false);
-                          return;
-                        }
 
                         setFieldValue("checkOutTime", formattedTime);
                         setCheckOutTimeVisible(false);
