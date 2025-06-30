@@ -472,6 +472,23 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     updateMapAndMarker(location.lat, location.long);
   };
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // If coming back to this screen after successful add, reset form and images
+      if (navigation.getState().routes.some(route => route.name === 'Tabs')) {
+        if (formikSetFieldValueRef.current) {
+          formikSetFieldValueRef.current('title', '');
+          formikSetFieldValueRef.current('description', '');
+          formikSetFieldValueRef.current('otherDetails', '');
+          formikSetFieldValueRef.current('location', initialLocation || { address: '', lat: 0, long: 0 });
+        }
+        setCoverPhoto(null);
+        setGalleryImages([]);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, initialLocation]);
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -672,9 +689,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
                             if (user?.userId) {
                               dispatch(addProperty(formData, user.userId, navigation));
-                              resetForm();
-                              setCoverPhoto(null);
-                              setGalleryImages([]);
                             } else {
                               const errorMessage = await getFirebaseErrorMessage(
                                 "User not authenticated"
