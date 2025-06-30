@@ -425,6 +425,8 @@ export type LanguageTranslation = {
   locationEnableMessage:string;
   locationEnableMessageAddProperty:string;
   openSettings:string;
+  checkInTimeMustBeAfterCheckOut: string;
+  checkOutTimeMustBeBeforeCheckIn: string;
 };
 
 export type LanguageData = {

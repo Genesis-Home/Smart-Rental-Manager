@@ -295,7 +295,9 @@ export const languageData: LanguageData[] = [
       locationRequired:"Location Required",
       locationEnableMessageAddProperty:"Please enable location services to add a property.",
       locationEnableMessage:"Please enable location permission in app settings.",
-      openSettings:"Open Settings"
+      openSettings:"Open Settings",
+      checkInTimeMustBeAfterCheckOut: "Check-in time must be after check-out time",
+      checkOutTimeMustBeBeforeCheckIn: "Check-out time must be before check-in time"
     },
   },
   {
@@ -578,7 +580,9 @@ export const languageData: LanguageData[] = [
       locationRequired: "Απαιτείται τοποθεσία",
   locationEnableMessageAddProperty: "Παρακαλώ ενεργοποιήστε τις υπηρεσίες τοποθεσίας για να προσθέσετε ένα ακίνητο.",
   locationEnableMessage: "Παρακαλώ ενεργοποιήστε την άδεια τοποθεσίας στις ρυθμίσεις της εφαρμογής.",
-  openSettings:"Άνοιγμα Ρυθμίσεων"
+  openSettings:"Άνοιγμα Ρυθμίσεων",
+  checkInTimeMustBeAfterCheckOut: "Η ώρα check-in πρέπει να είναι μετά την ώρα check-out",
+  checkOutTimeMustBeBeforeCheckIn: "Η ώρα check-out πρέπει να είναι πριν την ώρα check-in"
 
     },
   },

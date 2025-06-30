@@ -35,6 +35,31 @@ import moment from "moment";
 import Colors from "../../utilities/constants/colors";
 import { useFocusEffect } from "@react-navigation/native";
 
+// Time validation function
+const validateTimeOrder = (checkInTime: string, checkOutTime: string): boolean => {
+  if (!checkInTime || !checkOutTime) return true; // Skip validation if either time is empty
+  
+  // Parse time strings (format: "12:30 PM")
+  const parseTime = (timeStr: string) => {
+    const [time, period] = timeStr.split(' ');
+    const [hours, minutes] = time.split(':').map(Number);
+    let hour24 = hours;
+    
+    if (period === 'PM' && hours !== 12) {
+      hour24 += 12;
+    } else if (period === 'AM' && hours === 12) {
+      hour24 = 0;
+    }
+    
+    return hour24 * 60 + minutes; // Convert to minutes for easy comparison
+  };
+  
+  const checkInMinutes = parseTime(checkInTime);
+  const checkOutMinutes = parseTime(checkOutTime);
+  
+  return checkInMinutes > checkOutMinutes; // Check-in must be AFTER check-out
+};
+
 const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const styles = createStyles(colors);
   const dispatch = useAppDispatch();
@@ -64,14 +89,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   const [useExistingContact, setUseExistingContact] = useState(false);
   const [showContactDropdown, setShowContactDropdown] = useState(false);
   const [selectedContact, setSelectedContact] = useState<any>(null);
-
-  // useEffect(() => {
-  //   if (selectedProperty?.id) {
-  //     dispatch(
-  //       fetchSchedulesByPropertyIdAndUserId(selectedProperty.id, user?.userId)
-  //     );
-  //   }
-  // }, [selectedProperty]);
 
   useFocusEffect(
     useCallback(() => {
@@ -188,8 +205,20 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       otherwise: (schema) => schema.notRequired(),
     }),
     visitDates: Yup.string().required(t("visitDates") + " " + t("isRequired")),
-    checkInTime: Yup.string().required(t("checkInTime") + " " + t("isRequired")),
-    checkOutTime: Yup.string().required(t("checkOutTime") + " " + t("isRequired")),
+    checkInTime: Yup.string()
+      .required(t("checkInTime") + " " + t("isRequired"))
+      .test("time-order", t("checkInTimeMustBeAfterCheckOut") || "Check-in time must be after check-out time", function(value) {
+        const checkOutTime = this.parent.checkOutTime;
+        if (!value || !checkOutTime) return true;
+        return validateTimeOrder(value, checkOutTime);
+      }),
+    checkOutTime: Yup.string()
+      .required(t("checkOutTime") + " " + t("isRequired"))
+      .test("time-order", t("checkOutTimeMustBeBeforeCheckIn") || "Check-out time must be before check-in time", function(value) {
+        const checkInTime = this.parent.checkInTime;
+        if (!value || !checkInTime) return true;
+        return validateTimeOrder(checkInTime, value);
+      }),
     advanceAmount: Yup.string()
       .required(t("advanceAmount") + " " + t("isRequired"))
       .test("is-number", t("mustBeNumber"), (value) => !isNaN(Number(value)))
@@ -239,6 +268,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
     }
 
     let finalFormData = { ...formData };
+
     if (useExistingContact && selectedContact) {
       finalFormData.clientName = selectedContact.name;
       finalFormData.email = selectedContact.emailAddress;
@@ -270,20 +300,27 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       const selectedEnd = moment(endDate, "YYYY-MM-DD").endOf("day");
 
       const conflicts: { dates: string; clientName: string }[] = [];
+
       let bookingCount = 0;
       let timeConflict = false;
       let timeConflictInfo = null;
+
       existingSchedules.forEach((schedule: any) => {
         if (!schedule.visitDates || typeof schedule.visitDates !== "string")
           return;
+
         const [rangeStartStr, rangeEndStr] = schedule.visitDates.split(" - ");
+
         if (!rangeStartStr || !rangeEndStr) return;
+
         const rangeStart = moment(rangeStartStr.trim(), "MMM D, YYYY").startOf("day");
         const rangeEnd = moment(rangeEndStr.trim(), "MMM D, YYYY").endOf("day");
+
         if (!rangeStart.isValid() || !rangeEnd.isValid()) {
           console.error("Failed to parse dates:", rangeStartStr, rangeEndStr);
           return;
         }
+
         if (
           (selectedStart.isSameOrBefore(rangeEnd) && selectedEnd.isSameOrAfter(rangeStart)) ||
           (rangeStart.isSameOrBefore(selectedEnd) && rangeEnd.isSameOrAfter(selectedStart))
@@ -293,6 +330,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
             dates: schedule.visitDates,
             clientName: schedule.clientName,
           });
+
           if (
             (schedule.checkInTime && schedule.checkInTime === finalFormData.checkInTime) ||
             (schedule.checkOutTime && schedule.checkOutTime === finalFormData.checkOutTime)
@@ -302,11 +340,13 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
           }
         }
       });
+
       if (bookingCount >= 2) {
         setConflictingDates(conflicts);
         setConflictModalVisible(true);
         return;
       }
+
       if (timeConflict) {
         Toast.show({
           type: "error",
@@ -362,11 +402,13 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         });
         return;
       }
-      const newMarkedDates: Record<string, any> = {};
-      let current = start.clone();
 
+      const newMarkedDates: Record<string, any> = {};
+
+      let current = start.clone();
       while (current.isSameOrBefore(end)) {
         const dateStr = current.format("YYYY-MM-DD");
+
         if (dateStr === startDate) {
           newMarkedDates[dateStr] = {
             startingDay: true,
@@ -385,6 +427,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
             textColor: colors.black,
           };
         }
+
         current.add(1, "days");
       }
 
@@ -398,6 +441,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       const visitDates = `${formatDate(startDate)} - ${formatDate(
         day.dateString
       )}`;
+
       setFieldValue("visitDates", visitDates);
       setCalendarVisible(false);
     }
@@ -435,6 +479,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       <View style={[styles.mainContainer, styles.platformMarginTop]}>
         <View style={styles.contentContainer}>
           <Header title={t("schedulePropertyVisit")} />
+
           <ScrollView
             contentContainerStyle={styles.scrollContainer}
             showsVerticalScrollIndicator={false}
@@ -607,7 +652,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                             ))}
                           </View>
                         )}
-
                         {selectedContact && (
                           <View style={styles.selectedContactDetails}>
                             <Text style={styles.detailRow}>
@@ -640,6 +684,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                           onBlur={handleBlur("clientName")}
                           error={touched.clientName && errors.clientName}
                         />
+
                         <FormInput
                           label={t("Email")}
                           placeholder={t("Email")}
@@ -650,6 +695,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                           keyboardType="email-address"
                           autoCapitalize="none"
                         />
+
                         <FormInput
                           label={t("phoneNum")}
                           placeholder={t("phoneNum")}
@@ -661,6 +707,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         />
                       </>
                     )}
+
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={() => setCalendarVisible(true)}
@@ -673,6 +720,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         error={touched.visitDates && errors.visitDates}
                       />
                     </TouchableOpacity>
+
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={() => setVisible(true)}
@@ -685,6 +733,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         error={touched.checkInTime && errors.checkInTime}
                       />
                     </TouchableOpacity>
+
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={() => setCheckOutTimeVisible(true)}
@@ -697,6 +746,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         error={touched.checkOutTime && errors.checkOutTime}
                       />
                     </TouchableOpacity>
+
                     <FormInput
                       label={t("numberOfVisitors")}
                       placeholder={t("numberOfVisitors")}
@@ -706,6 +756,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       error={touched.numberOfVisitors && errors.numberOfVisitors}
                       keyboardType="numeric"
                     />
+
                     <FormInput
                       label={t("numberOfInfants")}
                       placeholder={t("numberOfInfants")}
@@ -715,6 +766,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       error={touched.numberOfInfants && errors.numberOfInfants}
                       keyboardType="numeric"
                     />
+
                     <FormInput
                       label={t("agreedPrice")}
                       placeholder={t("agreedPrice")}
@@ -728,7 +780,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                           parts.length > 1
                             ? `${parts[0]}.${parts[1].slice(0, 2)}`
                             : numericValue;
-
                         handleChange("agreedPrice")(formattedValue);
                       }}
                       onBlur={(e) => {
@@ -743,6 +794,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       error={touched.agreedPrice && errors.agreedPrice}
                       keyboardType="decimal-pad"
                     />
+
                     <FormInput
                       label={t("advanceAmount")}
                       placeholder={t("advanceAmount")}
@@ -769,6 +821,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                           });
                           return;
                         }
+
                         handleChange("advanceAmount")(formattedValue);
                       }}
                       onBlur={(e) => {
@@ -782,6 +835,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       error={touched.advanceAmount && errors.advanceAmount}
                       keyboardType="decimal-pad"
                     />
+
                     <FormInput
                       label={t("balanceAmount")}
                       placeholder={t("balanceAmount")}
@@ -797,12 +851,14 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       keyboardType="decimal-pad"
                     />
                   </View>
+
                   <View style={styles.createBTnContainer}>
                     <CTAButton1
                       title={t("createSchedule")}
                       submitHandler={handleSubmit}
                     />
                   </View>
+
                   <Modal
                     visible={calendarVisible}
                     transparent
@@ -855,6 +911,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       </View>
                     </TouchableWithoutFeedback>
                   </Modal>
+
                   {visible && (
                     <TimePickerModal
                       visible={visible}
@@ -865,6 +922,18 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         const formattedTime = `${formattedHours}:${minutes
                           .toString()
                           .padStart(2, "0")} ${ampm}`;
+
+                        // Validate that check-in is after checkout time if it exists
+                        if (values.checkOutTime && !validateTimeOrder(formattedTime, values.checkOutTime)) {
+                          Toast.show({
+                            type: "error",
+                            text1: t("checkInTimeMustBeAfterCheckOut") || "Check-in time must be after check-out time",
+                            position: "bottom",
+                          });
+                          setVisible(false);
+                          return;
+                        }
+
                         setFieldValue("checkInTime", formattedTime);
                         setVisible(false);
                       }}
@@ -875,6 +944,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       defaultInputType="keyboard"
                     />
                   )}
+
                   {checkOutTimeVisible && (
                     <TimePickerModal
                       visible={checkOutTimeVisible}
@@ -885,6 +955,18 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         const formattedTime = `${formattedHours}:${minutes
                           .toString()
                           .padStart(2, "0")} ${ampm}`;
+
+                        // Validate that checkout is before checkin time if it exists
+                        if (values.checkInTime && !validateTimeOrder(values.checkInTime, formattedTime)) {
+                          Toast.show({
+                            type: "error",
+                            text1: t("checkOutTimeMustBeBeforeCheckIn") || "Check-out time must be before check-in time",
+                            position: "bottom",
+                          });
+                          setCheckOutTimeVisible(false);
+                          return;
+                        }
+
                         setFieldValue("checkOutTime", formattedTime);
                         setCheckOutTimeVisible(false);
                       }}
@@ -895,6 +977,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       defaultInputType="keyboard"
                     />
                   )}
+
                   <Modal
                     visible={conflictModalVisible}
                     transparent
@@ -908,7 +991,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                         <Text style={styles.conflictSubtitle}>
                           {t("conflictingDates")}:
                         </Text>
-
                         <ScrollView
                           style={styles.conflictList}
                           showsVerticalScrollIndicator={false}
@@ -924,11 +1006,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                             </View>
                           ))}
                         </ScrollView>
-
                         <Text style={[Typography.f_14_nunito_medium,{ color: colors.Primary_01, marginTop: 10 }]}>
                           {t('maxTwoBookingsAllowed')}
                         </Text>
-
                         <TouchableOpacity
                           style={styles.closeButton}
                           onPress={() => setConflictModalVisible(false)}
