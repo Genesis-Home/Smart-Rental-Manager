@@ -25,6 +25,7 @@ const ViewPDF: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, "ViewPDF">>();
   const { t } = useTranslation();
   const visit = route.params.visit;
+  console.log("ViewPDF visit.images:", visit.images);
   console.log("ViewPDF visit param:", visit);
   const [notes, setNotes] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -182,11 +183,11 @@ const ViewPDF: React.FC = () => {
               parseInt(visit?.advanceAmount || "0")}
           </Text>
         </View>
-           {visit?.images && visit.images.length > 0 && (
+           {visit?.images && visit.images.length > 1 && (
           <View style={styles.gallerySection}>
             <Text style={styles.sectionTitle}>Property Images</Text>
             <FlatList
-              data={visit.images}
+              data={visit.images.slice(1)}
               keyExtractor={(item, index) => item + index}
               numColumns={3}
               renderItem={({ item }) => (

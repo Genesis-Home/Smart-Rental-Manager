@@ -45,17 +45,25 @@ export const generateSchedulePDF = async (scheduleData: any) => {
           <div class="header">
             <div class="invoice-title">Invoice</div>
             <div class="invoice-details">
-              <div><span>Invoice ID:</span> ${scheduleData.id || 'N/A'}</div>
-              <div><span>Invoice Date:</span> ${moment().format('MMMM D, YYYY')}</div>
+              <div><span>Invoice ID:</span> ${scheduleData.id || "N/A"}</div>
+              <div><span>Invoice Date:</span> ${moment().format(
+                "MMMM D, YYYY"
+              )}</div>
             </div>
           </div>
           
           <div class="section">
             <div class="section-title">Customer Information</div>
             <div class="customer-info">
-              <div><span class="label">Name:</span> <span class="value"> ${scheduleData.clientName}</span></div>
-              <div><span class="label">Email:</span> <span class="value"> ${scheduleData.email}</span></div>
-              <div><span class="label">Phone:</span> <span class="value"> ${scheduleData.phoneNum}</span></div>
+              <div><span class="label">Name:</span> <span class="value"> ${
+                scheduleData.clientName
+              }</span></div>
+              <div><span class="label">Email:</span> <span class="value"> ${
+                scheduleData.email
+              }</span></div>
+              <div><span class="label">Phone:</span> <span class="value"> ${
+                scheduleData.phoneNum
+              }</span></div>
             </div>
           </div>
 
@@ -68,9 +76,7 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               </tr>
               <tr>
                 <td class="table-label">Location:</td>
-                <td class="table-value"> ${
-                scheduleData.location?.address
-              }</td>
+                <td class="table-value"> ${scheduleData.location?.address}</td>
               </tr>
               <tr>
                 <td class="table-label">Visit Dates:</td>
@@ -85,35 +91,35 @@ export const generateSchedulePDF = async (scheduleData: any) => {
                 <td class="table-value"> ${scheduleData.checkOutTime}</td>
               </tr>
               ${
-              scheduleData.numberOfVisitors
-                ? `
+                scheduleData.numberOfVisitors
+                  ? `
               <tr>
                 <td class="table-label">Number of Visitors:</td>
                 <td class="table-value"> ${scheduleData.numberOfVisitors}</td>
               </tr>
               `
-                : ""
-            }
+                  : ""
+              }
               ${
-              scheduleData.numberOfInfants
-                ? `
+                scheduleData.numberOfInfants
+                  ? `
               <tr>
                 <td class="table-label">Number of Infants:</td>
                 <td class="table-value"> ${scheduleData.numberOfInfants}</td>
               </tr>
               `
-                : ""
-            }
+                  : ""
+              }
               ${
-              scheduleData.otherDetails
-                ? `
+                scheduleData.otherDetails
+                  ? `
               <tr>
                 <td class="table-label">Details For Customer:</td>
                 <td class="table-value"> ${scheduleData.otherDetails}</td>
               </tr>
               `
-                : ""
-            }
+                  : ""
+              }
             </table>
           </div>
 
@@ -126,29 +132,41 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               </tr>
               <tr>
                 <td class="table-label">Down Payment:</td>
-                <td class="table-value"> ${scheduleData.advanceAmount || "0"}</td>
+                <td class="table-value"> ${
+                  scheduleData.advanceAmount || "0"
+                }</td>
               </tr>
               <tr>
                 <td class="table-label">Balance Amount:</td>
-                <td class="table-value"> ${(
-                parseFloat(scheduleData.agreedPrice || "0") -
-                parseFloat(scheduleData.advanceAmount || "0")
-              )}</td>
+                <td class="table-value"> ${
+                  parseFloat(scheduleData.agreedPrice || "0") -
+                  parseFloat(scheduleData.advanceAmount || "0")
+                }</td>
               </tr>
             </table>
           </div>
-             ${(scheduleData.images && scheduleData.images.length > 0) ? `
+             ${
+               scheduleData.images && scheduleData.images.length > 1
+                 ? `
             <div class="gallery-section">
               <div class="gallery-title">Property Images</div>
               <div class="gallery-grid">
-                ${(scheduleData.images as string[]).map((img: string) => `
-                  <div class="gallery-img-box">
-                    <img src="${img}" class="gallery-img" />
-                  </div>
-                `).join('')}
+              ${(scheduleData.images as string[])
+                .slice(1)
+                .map(
+                  (img: string) => `
+    <div class="gallery-img-box">
+      <img src="${img}" class="gallery-img" />
+    </div>
+  `
+                )
+                .join("")}
+
               </div>
             </div>
-          ` : ''}
+          `
+                 : ""
+             }
 
           ${
             scheduleData.notes
