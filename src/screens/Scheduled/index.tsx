@@ -464,6 +464,67 @@ const Scheduled: React.FC = () => {
     }
   };
 
+  const handleSharePDF = async () => {
+    if (selectedSchedule) {
+      try {
+        const scheduleDoc = await firestore()
+          .collection("schedules")
+          .doc(selectedSchedule.id)
+          .get();
+
+        let updatedBookingDetails = { ...selectedSchedule };
+        if (scheduleDoc.exists) {
+          const data = scheduleDoc.data();
+          updatedBookingDetails = {
+            ...selectedSchedule,
+            notes: data?.notes || "",
+          };
+        }
+
+        const pdfPath = await generateSchedulePDF(updatedBookingDetails);
+        const fileExists = await RNFS.exists(pdfPath);
+        if (!fileExists) {
+          Toast.show({
+            type: "error",
+            text1: t("pdfNotAvailable"),
+            position: "bottom",
+          });
+          return;
+        }
+        const fileInfo = await RNFS.stat(pdfPath);
+        if (fileInfo.size === 0) {
+          throw new Error("PDF file is empty");
+        }
+        const fileName = `Booking_Invoice_${moment().format("YYYY-MM-DD_HH-mm")}.pdf`;
+        const shareOptions = {
+          title: t("sharePDF"),
+          url: Platform.OS === "android" ? `file://${pdfPath}` : pdfPath,
+          type: "application/pdf",
+          filename: fileName,
+          saveToFiles: true,
+          mimeType: "application/pdf",
+          fileSize: fileInfo.size,
+          subject: "Booking Invoice",
+          message: "Please find attached the booking invoice.",
+          failOnCancel: false,
+          showAppsToView: true,
+          isBase64: false,
+          dialogTitle: "Share PDF",
+          forceDialog: true,
+          chooserTitle: "Share PDF with",
+        };
+        await Share.open(shareOptions);
+      } catch (error) {
+        console.error("Error sharing PDF:", error);
+        Toast.show({
+          type: "error",
+          text1: t("shareFailed"),
+          position: "bottom",
+        });
+      }
+    }
+  };
+
   const renderPropertyRow = ({
     item,
   }: {
@@ -559,7 +620,6 @@ const Scheduled: React.FC = () => {
                 </View>
               );
             } else {
-              // 0 or 1 or >2 bookings: keep old logic
               let isBooked = bookingsForDay.length > 0;
               let bookingColor = isBooked
                 ? randomColors[
@@ -712,8 +772,6 @@ const Scheduled: React.FC = () => {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-
-      {/* Booking Details Modal */}
       <Modal
         visible={showBookingDetailsModal}
         transparent={true}
@@ -832,7 +890,7 @@ const Scheduled: React.FC = () => {
               </View>
             </ScrollView>
             <View style={styles.modalButtons}>
-              <View style={{ width: "24%" }}>
+              <View>
                 <CustomButton
                   icon={
                     <MaterialCommunityIcons
@@ -847,7 +905,7 @@ const Scheduled: React.FC = () => {
                   disabled={isDeleting}
                 />
               </View>
-              <View style={{ width: "24%" }}>
+              <View >
                 <CustomButton
                   icon={
                     <MaterialCommunityIcons
@@ -862,7 +920,22 @@ const Scheduled: React.FC = () => {
                   disabled={isDeleting}
                 />
               </View>
-              <View style={{ width: "24%" }}>
+              <View >
+                <CustomButton
+                  icon={
+                    <MaterialCommunityIcons
+                      name="share-variant"
+                      size={24}
+                      color={colors.Primary_01}
+                    />
+                  }
+                  onPress={handleSharePDF}
+                  backgroundColor={colors.white}
+                  textColor={colors.Primary_01}
+                  disabled={isDeleting}
+                />
+              </View>
+              <View>
                 <CustomButton
                   icon={
                     <MaterialCommunityIcons
@@ -877,7 +950,7 @@ const Scheduled: React.FC = () => {
                   disabled={isDeleting}
                 />
               </View>
-              <View style={{ width: "24%" }}>
+              <View >
                 <CustomButton
                   icon={
                     <MaterialCommunityIcons
