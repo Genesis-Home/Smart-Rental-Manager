@@ -392,6 +392,8 @@ const Scheduled: React.FC = () => {
         updatedBookingDetails.images = propertyImages;
         updatedBookingDetails.otherDetails = propertyOtherDetails;
 
+        // Before navigating to ViewPDF, ensure scheduleId is set
+        updatedBookingDetails.scheduleId = updatedBookingDetails.id;
         navigation.navigate("ViewPDF", { visit: updatedBookingDetails });
       } catch (error) {
         console.error("Error viewing PDF:", error);

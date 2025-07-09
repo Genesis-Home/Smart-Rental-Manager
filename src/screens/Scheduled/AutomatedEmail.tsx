@@ -33,6 +33,7 @@ import { BackHandler } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import SAF from 'react-native-saf-x';
 import firestore from '@react-native-firebase/firestore';
+import { generateSchedulePDF } from "../../services/pdfService";
 
 type AutomatedEmailParams = {
   visitDetails: VisitDetails;
@@ -93,17 +94,46 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
     Toast.show({ type: "success", text1: t("copyMsg"), position: "bottom" });
   };
 
-  const handleDownloadPDF = async () => {
-    if (!pdfPath) {
-      Toast.show({
-        type: "error",
-        text1: t("pdfNotAvailable"),
-        position: "bottom",
-      });
-      return;
+  // Helper function to enrich visit with property images and otherDetails
+  const enrichVisitWithPropertyDetails = async (visit: VisitDetails): Promise<VisitWithProperty> => {
+    let visitWithExtras = { ...visit };
+    let propertyId = (visit as any).propertyId;
+    if (!propertyId && visit.property) {
+      try {
+        const propertyQuery = await firestore()
+          .collection("properties")
+          .where("title", "==", visit.property)
+          .limit(1)
+          .get();
+        if (!propertyQuery.empty) {
+          propertyId = propertyQuery.docs[0].id;
+        }
+      } catch (error) {
+        console.error("Error finding propertyId by name:", error);
+      }
     }
+    if (propertyId) {
+      try {
+        const propertyDoc = await firestore()
+          .collection("properties")
+          .doc(propertyId)
+          .get();
+        if (propertyDoc.exists) {
+          const propertyData = propertyDoc.data();
+          (visitWithExtras as any).images = propertyData?.images || [];
+          (visitWithExtras as any).otherDetails = propertyData?.otherDetails || "";
+        }
+      } catch (error) {
+        console.error("Error fetching property details for PDF:", error);
+      }
+    }
+    return visitWithExtras;
+  };
 
+  const handleDownloadPDF = async () => {
+    const visitWithExtras = await enrichVisitWithPropertyDetails(visit);
     try {
+      const newPdfPath = await generateSchedulePDF(visitWithExtras);
       if (Platform.OS === "android") {
         if (Platform.Version < 30) {
           const granted = await PermissionsAndroid.request(
@@ -124,8 +154,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             });
             return;
           }
-          // For Android < 11, file is already in Downloads
-          const fileExists = await RNFS.exists(pdfPath);
+          const fileExists = await RNFS.exists(newPdfPath);
           if (!fileExists) {
             Toast.show({
               type: "error",
@@ -134,7 +163,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             });
             return;
           }
-          const fileInfo = await RNFS.stat(pdfPath);
+          const fileInfo = await RNFS.stat(newPdfPath);
           if (fileInfo.size === 0) {
             throw new Error("PDF file is empty");
           }
@@ -146,8 +175,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
           });
           return;
         } else {
-          // Android 11+ (SDK 30+): Use SAF to show Save As dialog and write PDF
-          const fileExists = await RNFS.exists(pdfPath);
+          const fileExists = await RNFS.exists(newPdfPath);
           if (!fileExists) {
             Toast.show({
               type: "error",
@@ -156,14 +184,12 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             });
             return;
           }
-          const fileInfo = await RNFS.stat(pdfPath);
+          const fileInfo = await RNFS.stat(newPdfPath);
           if (fileInfo.size === 0) {
             throw new Error("PDF file is empty");
           }
-          // Read PDF as base64
-          const fileName = pdfPath.split("/").pop() || `Booking_Invoice.pdf`;
-          const pdfBase64 = await RNFS.readFile(pdfPath, 'base64');
-          // Show SAF Save As dialog and write file
+          const fileName = newPdfPath.split("/").pop() || `Booking_Invoice.pdf`;
+          const pdfBase64 = await RNFS.readFile(newPdfPath, 'base64');
           const fileDetail = await SAF.createDocument(pdfBase64, {
             mimeType: 'application/pdf',
             initialName: fileName,
@@ -186,8 +212,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
           return;
         }
       } else if (Platform.OS === "ios") {
-        // iOS: Use Share dialog
-        const fileExists = await RNFS.exists(pdfPath);
+        const fileExists = await RNFS.exists(newPdfPath);
         if (!fileExists) {
           Toast.show({
             type: "error",
@@ -196,15 +221,15 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
           });
           return;
         }
-        const fileInfo = await RNFS.stat(pdfPath);
+        const fileInfo = await RNFS.stat(newPdfPath);
         if (fileInfo.size === 0) {
           throw new Error("PDF file is empty");
         }
         await Share.open({
           title: t("sharePDF"),
-          url: pdfPath,
+          url: newPdfPath,
           type: "application/pdf",
-          filename: pdfPath.split("/").pop(),
+          filename: newPdfPath.split("/").pop(),
           saveToFiles: true,
         });
         Toast.show({
@@ -213,7 +238,6 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
           text2: t("useShareToSave"),
           position: "bottom",
         });
-        return;
       }
     } catch (error) {
       console.error("PDF download error:", error);
@@ -226,17 +250,10 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
   };
 
   const handleSharePDF = async () => {
-    if (!pdfPath) {
-      Toast.show({
-        type: "error",
-        text1: t("pdfNotAvailable"),
-        position: "bottom",
-      });
-      return;
-    }
-
+    const visitWithExtras = await enrichVisitWithPropertyDetails(visit);
     try {
-      const fileExists = await RNFS.exists(pdfPath);
+      const newPdfPath = await generateSchedulePDF(visitWithExtras);
+      const fileExists = await RNFS.exists(newPdfPath);
       if (!fileExists) {
         Toast.show({
           type: "error",
@@ -245,19 +262,14 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
         });
         return;
       }
-
-      const fileInfo = await RNFS.stat(pdfPath);
+      const fileInfo = await RNFS.stat(newPdfPath);
       if (fileInfo.size === 0) {
         throw new Error("PDF file is empty");
       }
-
-      const fileName = `Booking_Invoice_${moment().format(
-        "YYYY-MM-DD_HH-mm"
-      )}.pdf`;
-
+      const fileName = `Booking_Invoice_${moment().format("YYYY-MM-DD_HH-mm")}.pdf`;
       const shareOptions = {
         title: t("sharePDF"),
-        url: Platform.OS === "android" ? `file://${pdfPath}` : pdfPath,
+        url: Platform.OS === "android" ? `file://${newPdfPath}` : newPdfPath,
         type: "application/pdf",
         filename: fileName,
         saveToFiles: true,
@@ -272,9 +284,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
         forceDialog: true,
         chooserTitle: "Share PDF with",
       };
-
-      const result = await Share.open(shareOptions);
-      console.log("Share result:", result);
+      await Share.open(shareOptions);
     } catch (error) {
       console.error("PDF share error:", error);
       Toast.show({
@@ -285,8 +295,9 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
     }
   };
 
-  const handleViewPDF = () => {
-    navigation.navigate('ViewPDF', { visit });
+  const handleViewPDF = async () => {
+    const visitWithExtras = await enrichVisitWithPropertyDetails(visit);
+    navigation.navigate('ViewPDF', { visit: visitWithExtras });
   };
 
   useFocusEffect(

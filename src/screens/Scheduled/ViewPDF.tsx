@@ -25,6 +25,7 @@ const ViewPDF: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, "ViewPDF">>();
   const { t } = useTranslation();
   const visit = route.params.visit;
+  console.log("ViewPDF visit param:", visit);
   const [notes, setNotes] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [savedNotes, setSavedNotes] = useState("");
