@@ -140,7 +140,7 @@ const ViewPDF: React.FC = () => {
         </View>
         <Text style={styles.sectionTitle}>{t("visitDetails")}</Text>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("property")}:</Text>
+          <Text style={styles.detailLabel}>{t("propertyName")}:</Text>
           <Text style={styles.detailValue}>{visit?.property}</Text>
         </View>
         <View style={styles.detailRow}>

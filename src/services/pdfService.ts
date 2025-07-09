@@ -58,7 +58,7 @@ export const generateSchedulePDF = async (scheduleData: any) => {
             <div class="section-title">Visit Details</div>
             <table>
               <tr>
-                <td class="table-label">Property:</td>
+                <td class="table-label">Property Name:</td>
                 <td class="table-value"> ${scheduleData.property}</td>
               </tr>
               <tr>

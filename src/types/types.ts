@@ -356,7 +356,7 @@ export type LanguageTranslation = {
   ok: string;
   cancel: string;
   selectProperty: string;
-  property: string;
+  propertyName: string;
   checkInTime: string;
   checkOutTime: string;
   infants: string;
