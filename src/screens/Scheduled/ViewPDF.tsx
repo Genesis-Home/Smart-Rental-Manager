@@ -7,6 +7,8 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  FlatList,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Colors from "../../utilities/constants/colors";
@@ -175,6 +177,25 @@ const ViewPDF: React.FC = () => {
               parseInt(visit?.advanceAmount || "0")}
           </Text>
         </View>
+           {visit?.images && visit.images.length > 0 && (
+          <View style={styles.gallerySection}>
+            <Text style={styles.sectionTitle}>Property Images</Text>
+            <FlatList
+              data={visit.images}
+              keyExtractor={(item, index) => item + index}
+              numColumns={3}
+              renderItem={({ item }) => (
+                <Image
+                  source={{ uri: item }}
+                  style={styles.galleryImage}
+                  resizeMode="cover"
+                />
+              )}
+              contentContainerStyle={styles.galleryList}
+              scrollEnabled={false}
+            />
+          </View>
+        )}
         {isEditing ? (
           <View style={[styles.notesContainer, { paddingBottom: 25 }]}>
             <Text style={styles.notesLabel}>{t("notes")}</Text>
@@ -215,6 +236,8 @@ const ViewPDF: React.FC = () => {
           {t("generatedOn")} {moment().format("MMMM D, YYYY h:mm A")}
         </Text>
         <Text style={styles.thankYou}>{t("thankYouMessage")}</Text>
+
+        {/* Property Images Gallery */}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -351,5 +374,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     color: "#fff",
+  },
+  gallerySection: {
+    // marginTop: 20,
+    // marginBottom: 20,
+  },
+  galleryList: {
+    gap: 8,
+  },
+  galleryImage: {
+    width: '30%',
+    aspectRatio: 1,
+    margin: '1.5%',
+    borderRadius: 8,
+    backgroundColor: '#eee',
   },
 });

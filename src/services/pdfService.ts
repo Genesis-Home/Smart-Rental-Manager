@@ -34,6 +34,11 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               line-height: 1.5;
             }
             .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
+            .gallery-section { margin-top: 30px; }
+            .gallery-title { font-size: 16px; font-weight: bold; color: #24A69E; margin-bottom:10px}
+            .gallery-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+            .gallery-img-box { width: 20%; margin-bottom: 8px; }
+            .gallery-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; background: #eee; }
           </style>
         </head>
         <body>
@@ -122,6 +127,18 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               </tr>
             </table>
           </div>
+             ${(scheduleData.images && scheduleData.images.length > 0) ? `
+            <div class="gallery-section">
+              <div class="gallery-title">Property Images</div>
+              <div class="gallery-grid">
+                ${(scheduleData.images as string[]).map((img: string) => `
+                  <div class="gallery-img-box">
+                    <img src="${img}" class="gallery-img" />
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
 
           ${
             scheduleData.notes
@@ -138,6 +155,7 @@ export const generateSchedulePDF = async (scheduleData: any) => {
             <p>Generated on ${moment().format("MMMM D, YYYY h:mm A")}</p>
             <p>Thank you for choosing our service!</p>
           </div>
+
         </body>
       </html>
     `;

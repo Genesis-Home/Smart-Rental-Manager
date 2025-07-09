@@ -375,6 +375,20 @@ const Scheduled: React.FC = () => {
           };
         }
 
+        // Fetch property images from Firestore
+        let propertyImages = [];
+        if (selectedSchedule.propertyId) {
+          const propertyDoc = await firestore()
+            .collection("properties")
+            .doc(selectedSchedule.propertyId)
+            .get();
+          if (propertyDoc.exists) {
+            const propertyData = propertyDoc.data();
+            propertyImages = propertyData?.images || [];
+          }
+        }
+        updatedBookingDetails.images = propertyImages;
+
         navigation.navigate("ViewPDF", { visit: updatedBookingDetails });
       } catch (error) {
         console.error("Error viewing PDF:", error);
@@ -404,6 +418,20 @@ const Scheduled: React.FC = () => {
             notes: data?.notes || "",
           };
         }
+
+        // Fetch property images from Firestore
+        let propertyImages = [];
+        if (selectedSchedule.propertyId) {
+          const propertyDoc = await firestore()
+            .collection("properties")
+            .doc(selectedSchedule.propertyId)
+            .get();
+          if (propertyDoc.exists) {
+            const propertyData = propertyDoc.data();
+            propertyImages = propertyData?.images || [];
+          }
+        }
+        updatedBookingDetails.images = propertyImages;
 
         const pdfPath = await generateSchedulePDF(updatedBookingDetails);
         if (Platform.OS === "android") {
@@ -480,6 +508,20 @@ const Scheduled: React.FC = () => {
             notes: data?.notes || "",
           };
         }
+
+        // Fetch property images from Firestore
+        let propertyImages = [];
+        if (selectedSchedule.propertyId) {
+          const propertyDoc = await firestore()
+            .collection("properties")
+            .doc(selectedSchedule.propertyId)
+            .get();
+          if (propertyDoc.exists) {
+            const propertyData = propertyDoc.data();
+            propertyImages = propertyData?.images || [];
+          }
+        }
+        updatedBookingDetails.images = propertyImages;
 
         const pdfPath = await generateSchedulePDF(updatedBookingDetails);
         const fileExists = await RNFS.exists(pdfPath);
