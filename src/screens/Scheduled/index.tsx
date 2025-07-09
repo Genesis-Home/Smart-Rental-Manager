@@ -375,8 +375,9 @@ const Scheduled: React.FC = () => {
           };
         }
 
-        // Fetch property images from Firestore
+        // Fetch property images and otherDetails from Firestore
         let propertyImages = [];
+        let propertyOtherDetails = "";
         if (selectedSchedule.propertyId) {
           const propertyDoc = await firestore()
             .collection("properties")
@@ -385,9 +386,11 @@ const Scheduled: React.FC = () => {
           if (propertyDoc.exists) {
             const propertyData = propertyDoc.data();
             propertyImages = propertyData?.images || [];
+            propertyOtherDetails = propertyData?.otherDetails || "";
           }
         }
         updatedBookingDetails.images = propertyImages;
+        updatedBookingDetails.otherDetails = propertyOtherDetails;
 
         navigation.navigate("ViewPDF", { visit: updatedBookingDetails });
       } catch (error) {
@@ -419,8 +422,9 @@ const Scheduled: React.FC = () => {
           };
         }
 
-        // Fetch property images from Firestore
+        // Fetch property images and otherDetails from Firestore
         let propertyImages = [];
+        let propertyOtherDetails = "";
         if (selectedSchedule.propertyId) {
           const propertyDoc = await firestore()
             .collection("properties")
@@ -429,9 +433,11 @@ const Scheduled: React.FC = () => {
           if (propertyDoc.exists) {
             const propertyData = propertyDoc.data();
             propertyImages = propertyData?.images || [];
+            propertyOtherDetails = propertyData?.otherDetails || "";
           }
         }
         updatedBookingDetails.images = propertyImages;
+        updatedBookingDetails.otherDetails = propertyOtherDetails;
 
         const pdfPath = await generateSchedulePDF(updatedBookingDetails);
         if (Platform.OS === "android") {
@@ -509,8 +515,9 @@ const Scheduled: React.FC = () => {
           };
         }
 
-        // Fetch property images from Firestore
+        // Fetch property images and otherDetails from Firestore
         let propertyImages = [];
+        let propertyOtherDetails = "";
         if (selectedSchedule.propertyId) {
           const propertyDoc = await firestore()
             .collection("properties")
@@ -519,9 +526,11 @@ const Scheduled: React.FC = () => {
           if (propertyDoc.exists) {
             const propertyData = propertyDoc.data();
             propertyImages = propertyData?.images || [];
+            propertyOtherDetails = propertyData?.otherDetails || "";
           }
         }
         updatedBookingDetails.images = propertyImages;
+        updatedBookingDetails.otherDetails = propertyOtherDetails;
 
         const pdfPath = await generateSchedulePDF(updatedBookingDetails);
         const fileExists = await RNFS.exists(pdfPath);

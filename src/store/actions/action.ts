@@ -88,6 +88,21 @@ export const sendEmail =
       console.log("Email sent successfully:", response.data);
 
       if (!silent) {
+        // Fetch property images and otherDetails before navigating
+        let images = [];
+        let otherDetails = '';
+        if (property) {
+          try {
+            const propertyDoc = await firestore().collection('properties').doc(property).get();
+            if (propertyDoc.exists) {
+              const propertyData = propertyDoc.data();
+              images = propertyData?.images || [];
+              otherDetails = propertyData?.otherDetails || '';
+            }
+          } catch (e) {
+            // Optionally handle error
+          }
+        }
         navigation.navigate("AutomatedEmail", {
           visitDetails: {
             visitDates: formattedVisitDates,
@@ -104,6 +119,8 @@ export const sendEmail =
             clientName,
             phoneNum,
             email,
+            images,
+            otherDetails,
           },
           pdfPath: pdfPath,
         });

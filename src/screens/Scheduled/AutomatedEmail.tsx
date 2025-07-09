@@ -32,6 +32,7 @@ import { ScrollView } from "react-native";
 import { BackHandler } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import SAF from 'react-native-saf-x';
+import firestore from '@react-native-firebase/firestore';
 
 type AutomatedEmailParams = {
   visitDetails: VisitDetails;
@@ -43,6 +44,8 @@ const AutomatedEmail: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, "AutomatedEmail">>();
   const visit = route.params?.visitDetails;
   const pdfPath = (route.params as AutomatedEmailParams)?.pdfPath;
+
+  type VisitWithProperty = typeof visit & { images?: string[]; otherDetails?: string };
 
   const navigation = useNavigation<NavigationProp<RootStackParamList, "Map">>();
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${visit?.location.lat},${visit?.location.long}`;
@@ -282,6 +285,10 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
     }
   };
 
+  const handleViewPDF = () => {
+    navigation.navigate('ViewPDF', { visit });
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
@@ -375,7 +382,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
           <View style={{ width: "32%" }}>
             <CTAButton1
               title={t("viewPdf")}
-              submitHandler={()=>navigation.navigate('ViewPDF',{visit:visit})}
+              submitHandler={handleViewPDF}
               backgroundColor={Colors.Primary_01}
               textColor={Colors.white}
             />

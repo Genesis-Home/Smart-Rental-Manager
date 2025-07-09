@@ -161,6 +161,10 @@ const ViewPDF: React.FC = () => {
           <Text style={styles.detailLabel}>{t("checkOutTime")}:</Text>
           <Text style={styles.detailValue}>{visit?.checkOutTime ? moment(visit.checkOutTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}</Text>
         </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{t("otherDet")}:</Text>
+          <Text style={styles.detailValue}>{visit.otherDetails}</Text>
+        </View>
         <Text style={styles.sectionTitle}>{t("financialDetails")}</Text>
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>{t("agreedPrice")}:</Text>
@@ -236,8 +240,6 @@ const ViewPDF: React.FC = () => {
           {t("generatedOn")} {moment().format("MMMM D, YYYY h:mm A")}
         </Text>
         <Text style={styles.thankYou}>{t("thankYouMessage")}</Text>
-
-        {/* Property Images Gallery */}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -312,6 +314,15 @@ const styles = StyleSheet.create({
     marginTop: 5,
     color: "#888",
     paddingBottom: 100,
+  },
+  detailsForCustomerSection: {
+    marginTop: 20,
+    marginBottom: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#eee",
+    borderRadius: 5,
+    backgroundColor: "#f9f9f9",
   },
   notesContainer: {
     marginTop: 10,

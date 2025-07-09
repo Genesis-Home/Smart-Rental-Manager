@@ -104,6 +104,16 @@ export const generateSchedulePDF = async (scheduleData: any) => {
               `
                 : ""
             }
+              ${
+              scheduleData.otherDetails
+                ? `
+              <tr>
+                <td class="table-label">Details For Customer:</td>
+                <td class="table-value"> ${scheduleData.otherDetails}</td>
+              </tr>
+              `
+                : ""
+            }
             </table>
           </div>
 
