@@ -20,6 +20,7 @@ import firestore from "@react-native-firebase/firestore";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
 import { Typography } from "../../utilities/constants/constant.style";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const ViewPDF: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, "ViewPDF">>();
@@ -114,136 +115,137 @@ const ViewPDF: React.FC = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+    <KeyboardAwareScrollView
+      style={{ flex: 1,marginHorizontal:'5%' }}
+      contentContainerStyle={{ flexGrow: 1, minHeight: '100%' }}
+      enableOnAndroid={true}
+      enableAutomaticScroll={true}
+      extraScrollHeight={100}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView style={styles.container}>
-        <Text style={styles.invoiceTitle}>{t("invoice")}</Text>
-        <View style={styles.header}>
-          <Text style={styles.invoiceId}>
-            {t("invoiceId")}: {visit?.scheduleId}
-          </Text>
-          <Text style={styles.invoiceDate}>
-            {t("invoiceDate")}: {moment().format("MMMM D, YYYY")}
-          </Text>
+      <Text style={styles.invoiceTitle}>{t("invoice")}</Text>
+      <View style={styles.header}>
+        <Text style={styles.invoiceId}>
+          {t("invoiceId")}: {visit?.scheduleId}
+        </Text>
+        <Text style={styles.invoiceDate}>
+          {t("invoiceDate")}: {moment().format("MMMM D, YYYY")}
+        </Text>
+      </View>
+      <Text style={styles.sectionTitle}>{t("customerInformation")}</Text>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("name")}:</Text>
+        <Text style={styles.detailValue}>{visit?.clientName}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("email")}:</Text>
+        <Text style={styles.detailValue}>{visit?.email}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("phoneNum")}:</Text>
+        <Text style={styles.detailValue}>{visit?.phoneNum}</Text>
+      </View>
+      <Text style={styles.sectionTitle}>{t("visitDetails")}</Text>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("propertyName")}:</Text>
+        <Text style={styles.detailValue}>{visit?.property}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("location")}:</Text>
+        <Text style={styles.detailValue}> {visit?.location?.address}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("visitDates")}:</Text>
+        <Text style={styles.detailValue}> {visit?.visitDates}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("checkInTime")}:</Text>
+        <Text style={styles.detailValue}>{visit?.checkInTime ? moment(visit.checkInTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("checkOutTime")}:</Text>
+        <Text style={styles.detailValue}>{visit?.checkOutTime ? moment(visit.checkOutTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("otherDet")}:</Text>
+        <Text style={styles.detailValue}>{visit.otherDetails}</Text>
+      </View>
+      <Text style={styles.sectionTitle}>{t("financialDetails")}</Text>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("agreedPrice")}:</Text>
+        <Text style={styles.detailValue}>{visit?.agreedPrice}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("advanceAmount")}:</Text>
+        <Text style={styles.detailValue}>{visit?.advanceAmount || "0"}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{t("balanceAmount")}:</Text>
+        <Text style={styles.detailValue}>
+          {parseInt(visit?.agreedPrice || "0") -
+            parseInt(visit?.advanceAmount || "0")}
+        </Text>
+      </View>
+         {visit?.images && visit.images.length > 1 && (
+        <View style={styles.gallerySection}>
+          <Text style={styles.sectionTitle}>Property Images</Text>
+          <FlatList
+            data={visit.images.slice(1)}
+            keyExtractor={(item, index) => item + index}
+            numColumns={3}
+            renderItem={({ item }) => (
+              <Image
+                source={{ uri: item }}
+                style={styles.galleryImage}
+                resizeMode="cover"
+              />
+            )}
+            contentContainerStyle={styles.galleryList}
+            scrollEnabled={false}
+          />
         </View>
-        <Text style={styles.sectionTitle}>{t("customerInformation")}</Text>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("name")}:</Text>
-          <Text style={styles.detailValue}>{visit?.clientName}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("email")}:</Text>
-          <Text style={styles.detailValue}>{visit?.email}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("phoneNum")}:</Text>
-          <Text style={styles.detailValue}>{visit?.phoneNum}</Text>
-        </View>
-        <Text style={styles.sectionTitle}>{t("visitDetails")}</Text>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("propertyName")}:</Text>
-          <Text style={styles.detailValue}>{visit?.property}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("location")}:</Text>
-          <Text style={styles.detailValue}> {visit?.location?.address}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("visitDates")}:</Text>
-          <Text style={styles.detailValue}> {visit?.visitDates}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("checkInTime")}:</Text>
-          <Text style={styles.detailValue}>{visit?.checkInTime ? moment(visit.checkInTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("checkOutTime")}:</Text>
-          <Text style={styles.detailValue}>{visit?.checkOutTime ? moment(visit.checkOutTime, 'YYYY-MM-DD hh:mm A').format('hh:mm A') : ''}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("otherDet")}:</Text>
-          <Text style={styles.detailValue}>{visit.otherDetails}</Text>
-        </View>
-        <Text style={styles.sectionTitle}>{t("financialDetails")}</Text>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("agreedPrice")}:</Text>
-          <Text style={styles.detailValue}>{visit?.agreedPrice}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("advanceAmount")}:</Text>
-          <Text style={styles.detailValue}>{visit?.advanceAmount || "0"}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{t("balanceAmount")}:</Text>
-          <Text style={styles.detailValue}>
-            {parseInt(visit?.agreedPrice || "0") -
-              parseInt(visit?.advanceAmount || "0")}
-          </Text>
-        </View>
-           {visit?.images && visit.images.length > 1 && (
-          <View style={styles.gallerySection}>
-            <Text style={styles.sectionTitle}>Property Images</Text>
-            <FlatList
-              data={visit.images.slice(1)}
-              keyExtractor={(item, index) => item + index}
-              numColumns={3}
-              renderItem={({ item }) => (
-                <Image
-                  source={{ uri: item }}
-                  style={styles.galleryImage}
-                  resizeMode="cover"
-                />
-              )}
-              contentContainerStyle={styles.galleryList}
-              scrollEnabled={false}
-            />
-          </View>
-        )}
-        {isEditing ? (
-          <View style={[styles.notesContainer, { paddingBottom: 25 }]}>
-            <Text style={styles.notesLabel}>{t("notes")}</Text>
-            <TextInput
-              style={styles.notesTextInput}
-              placeholder={t("notes")}
-              value={notes}
-              onChangeText={setNotes}
-              multiline
-              numberOfLines={4}
-              placeholderTextColor={Colors.PLACE_HOLDER}
-            />
-            <View style={styles.notesButtons}>
-              <TouchableOpacity style={styles.notesButton} onPress={saveNotes}>
-                <Text style={styles.notesButtonText}>{t("save")}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.notesButton, styles.cancelButton]}
-                onPress={handleCancelEdit}
-              >
-                <Text style={styles.notesButtonText}>{t("cancel")}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : (
-          <View style={styles.notesContainer}>
-            <Text style={styles.notesLabel}>{t("notes")}</Text>
-            <Text style={styles.notesText}>
-              {notes || t("noNotesAdded")}
-            </Text>
-            <TouchableOpacity style={styles.editButton} onPress={handleEditNotes}>
-              <Text style={styles.editButtonText}>{t("editNotes")}</Text>
+      )}
+      {isEditing ? (
+        <View style={[styles.notesContainer, { paddingBottom: 25 }]}>
+          <Text style={styles.notesLabel}>{t("notes")}</Text>
+          <TextInput
+            style={styles.notesTextInput}
+            placeholder={t("notes")}
+            value={notes}
+            onChangeText={setNotes}
+            multiline
+            numberOfLines={4}
+            placeholderTextColor={Colors.PLACE_HOLDER}
+          />
+          <View style={styles.notesButtons}>
+            <TouchableOpacity style={styles.notesButton} onPress={saveNotes}>
+              <Text style={styles.notesButtonText}>{t("save")}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.notesButton, styles.cancelButton]}
+              onPress={handleCancelEdit}
+            >
+              <Text style={styles.notesButtonText}>{t("cancel")}</Text>
             </TouchableOpacity>
           </View>
-        )}
+        </View>
+      ) : (
+        <View style={styles.notesContainer}>
+          <Text style={styles.notesLabel}>{t("notes")}</Text>
+          <Text style={styles.notesText}>
+            {notes || t("noNotesAdded")}
+          </Text>
+          <TouchableOpacity style={styles.editButton} onPress={handleEditNotes}>
+            <Text style={styles.editButtonText}>{t("editNotes")}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
-        <Text style={styles.generatedInfo}>
-          {t("generatedOn")} {moment().format("MMMM D, YYYY h:mm A")}
-        </Text>
-        <Text style={styles.thankYou}>{t("thankYouMessage")}</Text>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Text style={styles.generatedInfo}>
+        {t("generatedOn")} {moment().format("MMMM D, YYYY h:mm A")}
+      </Text>
+      <Text style={styles.thankYou}>{t("thankYouMessage")}</Text>
+    </KeyboardAwareScrollView>
   );
 };
 
