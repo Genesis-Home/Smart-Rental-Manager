@@ -28,6 +28,8 @@ const EditSchedule: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'EditSchedule'>>();
   const booking = route.params?.booking;
 
+  console.log(booking,'ndcnd ndw')
+
   const [calendarVisible, setCalendarVisible] = React.useState(false);
   const [displayedMonth, setDisplayedMonth] = React.useState(new Date());
   const [markedDates, setMarkedDates] = React.useState<Record<string, any>>({});
@@ -285,6 +287,7 @@ const EditSchedule: React.FC = () => {
                   placeholder={t("property")}
                   value={values.property}
                   onChangeText={handleChange("property")}
+                  editable={false}
                   onBlur={handleBlur("property")}
                   error={touched.property && typeof errors.property === "string" ? errors.property : undefined}
                 />
