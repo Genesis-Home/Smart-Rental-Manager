@@ -4,6 +4,7 @@ import notifee, {
 } from "@notifee/react-native";
 import moment from "moment";
 import firestore from "@react-native-firebase/firestore";
+import FirebaseFirestoreTypes from '@react-native-firebase/firestore';
 import messaging from "@react-native-firebase/messaging";
 import Toast from "react-native-toast-message";
 
@@ -71,24 +72,30 @@ export async function scheduleBookingNotifications(bookingData: any) {
       return;
     }
 
+    // Combine date and time, then parse together in strict mode
     const [startStr, endStr] = bookingData.visitDates.split(" - ");
-    const checkInDate = moment(startStr, "MMM D, YYYY");
-    const checkOutDate = moment(endStr, "MMM D, YYYY");
 
-    const [checkInTimeStr, checkInPeriod] = bookingData.checkInTime.split(" ");
-    const [checkInHours, checkInMinutes] = checkInTimeStr.split(":");
-    let checkInHour = parseInt(checkInHours);
-    if (checkInPeriod === "PM" && checkInHour !== 12) checkInHour += 12;
-    if (checkInPeriod === "AM" && checkInHour === 12) checkInHour = 0;
+    // Helper to extract time in "hh:mm A" format
+    function extractTime(timeStr: string) {
+      const m = moment(timeStr, ["YYYY-MM-DD hh:mm A", "hh:mm A"]);
+      return m.isValid() ? m.format("hh:mm A") : timeStr;
+    }
 
-    const [checkOutTimeStr, checkOutPeriod] = bookingData.checkOutTime.split(" ");
-    const [checkOutHours, checkOutMinutes] = checkOutTimeStr.split(":");
-    let checkOutHour = parseInt(checkOutHours);
-    if (checkOutPeriod === "PM" && checkOutHour !== 12) checkOutHour += 12;
-    if (checkOutPeriod === "AM" && checkOutHour === 12) checkOutHour = 0;
+    const checkInTimeOnly = extractTime(bookingData.checkInTime);
+    const checkOutTimeOnly = extractTime(bookingData.checkOutTime);
 
-    checkInDate.hours(checkInHour).minutes(parseInt(checkInMinutes)).seconds(0);
-    checkOutDate.hours(checkOutHour).minutes(parseInt(checkOutMinutes)).seconds(0);
+    const checkInDateTimeStr = `${startStr} ${checkInTimeOnly}`;
+    const checkOutDateTimeStr = `${endStr} ${checkOutTimeOnly}`;
+
+    const checkInDate = moment(checkInDateTimeStr, "MMM D, YYYY hh:mm A", true);
+    const checkOutDate = moment(checkOutDateTimeStr, "MMM D, YYYY hh:mm A", true);
+
+    console.log("Parsed checkInDate:", checkInDate.format(), "Parsed checkOutDate:", checkOutDate.format());
+
+    if (!checkInDate.isValid() || !checkOutDate.isValid()) {
+      console.error("Invalid check-in or check-out date/time:", checkInDateTimeStr, checkOutDateTimeStr);
+      return;
+    }
 
     try {
       const fcmToken = await messaging().getToken();
@@ -225,5 +232,20 @@ export async function scheduleBookingNotifications(bookingData: any) {
     }
   } catch (error) {
     console.error("Error scheduling booking notifications:", error);
+  }
+}
+
+export async function deleteBookingNotifications(bookingId: string) {
+  try {
+    const snapshot = await firestore()
+      .collection('scheduledNotifications')
+      .where('bookingId', '==', bookingId)
+      .get();
+    const batch = firestore().batch();
+    snapshot.forEach((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => batch.delete(doc.ref));
+    await batch.commit();
+    console.log('Deleted old notifications for booking:', bookingId);
+  } catch (error) {
+    console.error('Error deleting old notifications:', error);
   }
 }

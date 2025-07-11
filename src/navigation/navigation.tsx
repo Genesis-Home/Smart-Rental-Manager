@@ -22,6 +22,7 @@ import EditProperty from "../screens/EditProperty";
 import { AppBottomNavigator } from "./BottomNavigation";
 import { RootStackParamList } from "../types/types";
 import ViewPDF from "../screens/Scheduled/ViewPDF";
+import EditSchedule from "../screens/Scheduled/EditSchedule";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -114,6 +115,11 @@ function App() {
             options={{ headerShown: false }}
             component={ViewPDF}
             name="ViewPDF"
+          />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            component={EditSchedule}
+            name="EditSchedule"
           />
           <Stack.Screen
             options={{ headerShown: false }}

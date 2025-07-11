@@ -153,6 +153,9 @@ export const languageData: LanguageData[] = [
       },
       selectDateRange: "Select Date Range",
       editProfile: "Edit Profile",
+      editBooking: "Edit Booking",
+      bookingUpdatedSuccessfully: "Booking updated successfully!",
+      failedToUpdateBooking: "Failed to update booking!",
       notification: "Notification",
       language: "Language",
       termsConditions: "Terms & Conditions",
@@ -297,7 +300,9 @@ export const languageData: LanguageData[] = [
       locationEnableMessage:"Please enable location permission in app settings.",
       openSettings:"Open Settings",
       checkInTimeMustBeAfterCheckOut: "Check-in time must be after check-out time",
-      checkOutTimeMustBeBeforeCheckIn: "Check-out time must be before check-in time"
+      checkOutTimeMustBeBeforeCheckIn: "Check-out time must be before check-in time",
+      update: "Update",
+      property: "Property"
     },
   },
   {
@@ -582,7 +587,9 @@ export const languageData: LanguageData[] = [
   locationEnableMessage: "Παρακαλώ ενεργοποιήστε την άδεια τοποθεσίας στις ρυθμίσεις της εφαρμογής.",
   openSettings:"Άνοιγμα Ρυθμίσεων",
   checkInTimeMustBeAfterCheckOut: "Η ώρα check-in πρέπει να είναι μετά την ώρα check-out",
-  checkOutTimeMustBeBeforeCheckIn: "Η ώρα check-out πρέπει να είναι πριν την ώρα check-in"
+  checkOutTimeMustBeBeforeCheckIn: "Η ώρα check-out πρέπει να είναι πριν την ώρα check-in",
+  update: "Update",
+  property: "Property"
 
     },
   },

@@ -190,9 +190,9 @@ const Scheduled: React.FC = () => {
   };
 
   const generateWeekDays = (date: Date) => {
-    const start = startOfWeek(date, { weekStartsOn: 5, locale: getLocale() });
+    const start = startOfWeek(date, { weekStartsOn: 7, locale: getLocale() });
     const week: Day[] = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 7; i++) {
       const dayDate = addDays(start, i);
       week.push({
         day: format(dayDate, "EEE", { locale: getLocale() }),
@@ -600,6 +600,7 @@ const Scheduled: React.FC = () => {
           activeOpacity={0.8}
           onPress={() =>
             navigation.navigate("ApartmentDetails", {
+              changeLocation: "",
               id: item.propertyId,
               source: "schedules",
             })
@@ -998,6 +999,24 @@ const Scheduled: React.FC = () => {
                     />
                   }
                   onPress={() => setShowDeleteModal(true)}
+                  backgroundColor={colors.white}
+                  textColor={colors.Primary_01}
+                  disabled={isDeleting}
+                />
+              </View>
+              <View >
+                <CustomButton
+                  icon={
+                    <MaterialCommunityIcons
+                      name="pencil-outline"
+                      size={24}
+                      color={colors.Primary_01}
+                    />
+                  }
+                  onPress={() => {
+                    setShowBookingDetailsModal(false);
+                    navigation.navigate("EditSchedule", { booking: selectedSchedule });
+                  }}
                   backgroundColor={colors.white}
                   textColor={colors.Primary_01}
                   disabled={isDeleting}

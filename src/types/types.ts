@@ -44,6 +44,7 @@ export type RootStackParamList = {
   Profile: undefined;
   createContact: undefined;
   AddSchedule: undefined;
+  EditSchedule: { booking: any };
   ApartmentDetails: {
     changeLocation:string;
     id: string;
@@ -300,6 +301,9 @@ export type LanguageTranslation = {
   calendarData: CalendarData;
   selectDateRange: string;
   editProfile: string;
+  editBooking: string;
+  bookingUpdatedSuccessfully: string;
+  failedToUpdateBooking: string;
   notification: string;
   language: string;
   termsConditions: string;
@@ -427,6 +431,8 @@ export type LanguageTranslation = {
   openSettings:string;
   checkInTimeMustBeAfterCheckOut: string;
   checkOutTimeMustBeBeforeCheckIn: string;
+  update: string;
+  property: string;
 };
 
 export type LanguageData = {
