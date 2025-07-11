@@ -207,11 +207,11 @@ const Scheduled: React.FC = () => {
   }, [currentDate, i18n.language]);
 
   const goToPreviousWeek = () => {
-    setCurrentDate((prev) => addDays(prev, -8));
+    setCurrentDate((prev) => addDays(prev, -7));
   };
 
   const goToNextWeek = () => {
-    setCurrentDate((prev) => addDays(prev, 8));
+    setCurrentDate((prev) => addDays(prev, 7));
   };
 
   const onDateSelect = (date: string) => {
