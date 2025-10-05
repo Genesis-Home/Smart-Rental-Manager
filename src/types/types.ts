@@ -533,6 +533,7 @@ export interface Property {
   location: { address: string; lat: number; long: number | null };
   images: string[];
   otherDetails: string;
+  notes: string;
 }
 
 export interface RouteParams {

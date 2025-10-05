@@ -355,6 +355,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         revenue: parseFloat(finalFormData.agreedPrice || "0"),
         checkInTime: formatDateTime(startDate, finalFormData.checkInTime),
         checkOutTime: formatDateTime(endDate, finalFormData.checkOutTime),
+        notes: selectedProperty?.notes || "",
       };
 
       dispatch(addSchedule(scheduleData, user?.userId, navigation));

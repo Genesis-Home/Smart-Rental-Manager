@@ -4,7 +4,6 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
   Image,
@@ -29,8 +28,6 @@ const ViewPDF: React.FC = () => {
   console.log("ViewPDF visit.images:", visit.images);
   console.log("ViewPDF visit param:", visit);
   const [notes, setNotes] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [savedNotes, setSavedNotes] = useState("");
 
   useEffect(() => {
     if (visit?.scheduleId) {
@@ -60,63 +57,17 @@ const ViewPDF: React.FC = () => {
 
       if (scheduleDoc.exists) {
         const data = scheduleDoc.data();
+       console.log("ViewPDF data:", data);
         setNotes(data?.notes || "");
-        setSavedNotes(data?.notes || "");
       }
     } catch (error) {
       console.error("Error loading notes:", error);
     }
   };
 
-  const saveNotes = async () => {
-    try {
-      const docId = visit?.scheduleId || visit?.id;
-      if (!docId) {
-        console.error("No scheduleId or id found in visit object!", visit);
-        Toast.show({
-          type: "error",
-          text1: "No scheduleId or id found!",
-          position: "bottom",
-        });
-        return;
-      }
-      console.log('Saving notes:', notes, 'to docId:', docId);
-      await firestore().collection("schedules").doc(docId).update({
-        notes: notes,
-      });
-
-      // Reload notes from Firestore for latest value
-      await loadNotes();
-
-      setIsEditing(false);
-
-      Toast.show({
-        type: "success",
-        text1: t("notesSavedSuccessfully"),
-        position: "bottom",
-      });
-    } catch (error) {
-      console.error("Error saving notes:", error);
-      Toast.show({
-        type: "error",
-        text1: t("failedToSaveNotes"),
-        position: "bottom",
-      });
-    }
-  };
-
-  const handleEditNotes = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancelEdit = () => {
-    setNotes(savedNotes);
-    setIsEditing(false);
-  };
-
   return (
     <KeyboardAwareScrollView
-      style={{ flex: 1,marginHorizontal:'5%' }}
+      style={{ flex: 1, marginHorizontal: '5%' }}
       contentContainerStyle={{ flexGrow: 1, minHeight: '100%' }}
       enableOnAndroid={true}
       enableAutomaticScroll={true}
@@ -186,7 +137,7 @@ const ViewPDF: React.FC = () => {
             parseInt(visit?.advanceAmount || "0")}
         </Text>
       </View>
-         {visit?.images && visit.images.length > 1 && (
+      {visit?.images && visit.images.length > 1 && (
         <View style={styles.gallerySection}>
           <Text style={styles.sectionTitle}>Property Images</Text>
           <FlatList
@@ -205,41 +156,12 @@ const ViewPDF: React.FC = () => {
           />
         </View>
       )}
-      {isEditing ? (
-        <View style={[styles.notesContainer, { paddingBottom: 25 }]}>
-          <Text style={styles.notesLabel}>{t("notes")}</Text>
-          <TextInput
-            style={styles.notesTextInput}
-            placeholder={t("notes")}
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            numberOfLines={4}
-            placeholderTextColor={Colors.PLACE_HOLDER}
-          />
-          <View style={styles.notesButtons}>
-            <TouchableOpacity style={styles.notesButton} onPress={saveNotes}>
-              <Text style={styles.notesButtonText}>{t("save")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.notesButton, styles.cancelButton]}
-              onPress={handleCancelEdit}
-            >
-              <Text style={styles.notesButtonText}>{t("cancel")}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.notesContainer}>
-          <Text style={styles.notesLabel}>{t("notes")}</Text>
-          <Text style={styles.notesText}>
-            {notes || t("noNotesAdded")}
-          </Text>
-          <TouchableOpacity style={styles.editButton} onPress={handleEditNotes}>
-            <Text style={styles.editButtonText}>{t("editNotes")}</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      <View style={styles.notesContainer}>
+        <Text style={styles.notesLabel}>{t("notes")}</Text>
+        <Text style={styles.notesText}>
+          {notes || t("noNotesAdded")}
+        </Text>
+      </View>
 
       <Text style={styles.generatedInfo}>
         {t("generatedOn")} {moment().format("MMMM D, YYYY h:mm A")}
@@ -340,55 +262,9 @@ const styles = StyleSheet.create({
     color: Colors.black,
     marginBottom: 5,
   },
-  notesTextInput: {
-    width: "100%",
-    color: Colors.black,
-    borderWidth: 1,
-    borderColor: "#eee",
-    borderRadius: 5,
-    padding: 10,
-    minHeight: 100,
-    textAlignVertical: "top",
-    backgroundColor: Colors.white,
-  },
-  notesButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-  notesButton: {
-    padding: 10,
-    backgroundColor: colors.Primary_01,
-    borderRadius: 5,
-    width: "47%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  notesButtonText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  cancelButton: {
-    borderColor: Colors.Primary_01,
-    borderWidth: 0.5,
-  },
   notesText: {
     fontSize: 14,
     color: Colors.black,
-  },
-  editButton: {
-    padding: 10,
-    backgroundColor: colors.Primary_01,
-    borderRadius: 5,
-    marginTop: 15,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  editButtonText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#fff",
   },
   gallerySection: {
     // marginTop: 20,
