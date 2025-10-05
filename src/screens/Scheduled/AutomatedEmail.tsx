@@ -34,6 +34,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import SAF from 'react-native-saf-x';
 import firestore from '@react-native-firebase/firestore';
 import { generateSchedulePDF } from "../../services/pdfService";
+import ReactNative from "react-native";
 
 type AutomatedEmailParams = {
   visitDetails: VisitDetails;
@@ -43,13 +44,32 @@ type AutomatedEmailParams = {
 const AutomatedEmail: React.FC = () => {
   const { t } = useTranslation();
   const route = useRoute<RouteProp<RootStackParamList, "AutomatedEmail">>();
-  const visit = route.params?.visitDetails;
+  const visit = route.params?.visitDetails as any;
   const pdfPath = (route.params as AutomatedEmailParams)?.pdfPath;
 
-  type VisitWithProperty = typeof visit & { images?: string[]; otherDetails?: string };
+  type VisitWithProperty = typeof visit & { images?: string[]; otherDetails?: string; notes?: string };
 
   const navigation = useNavigation<NavigationProp<RootStackParamList, "Map">>();
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${visit?.location.lat},${visit?.location.long}`;
+
+  const [notes, setNotes] = React.useState("");
+
+  React.useEffect(() => {
+    const loadNotes = async () => {
+      try {
+        const docId = visit?.scheduleId || visit?.id;
+        if (!docId) return;
+        const scheduleDoc = await firestore().collection('schedules').doc(docId).get();
+        if (scheduleDoc.exists) {
+          const data = scheduleDoc.data();
+          setNotes((data as any)?.notes || "");
+        }
+      } catch (error) {
+        // silent fail
+      }
+    };
+    loadNotes();
+  }, [visit?.scheduleId, visit?.id]);
 
   const visitMessage = `${t("visitDetails")}:
 
@@ -59,7 +79,9 @@ const AutomatedEmail: React.FC = () => {
 👨‍👩‍👧‍👦 ${t("numberOfVisitors")}: ${visit?.numberOfVisitors}
 👶 ${t("numberOfInfants")}: ${visit?.numberOfInfants}
 🏠 ${t("propertyAddress")}: ${visit?.location.address}
-
+${notes ? `
+📝 ${t("notes")}: ${notes}
+` : ''}
 💰 ${t("financialDetails")}:
 ${t("agreedPrice")}: ${visit?.agreedPrice}
 ${t("advanceAmount")}: ${visit?.advanceAmount || "0"}
@@ -95,21 +117,21 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
   };
 
   // Helper function to enrich visit with property images and otherDetails
-  const enrichVisitWithPropertyDetails = async (visit: VisitDetails): Promise<VisitWithProperty> => {
-    let visitWithExtras = { ...visit };
-    let propertyId = (visit as any).propertyId;
-    if (!propertyId && visit.property) {
+  const enrichVisitWithPropertyDetails = async (v: any): Promise<VisitWithProperty> => {
+    let visitWithExtras = { ...v } as VisitWithProperty;
+    let propertyId = (v as any).propertyId;
+    if (!propertyId && v.property) {
       try {
         const propertyQuery = await firestore()
           .collection("properties")
-          .where("title", "==", visit.property)
+          .where("title", "==", v.property)
           .limit(1)
           .get();
         if (!propertyQuery.empty) {
           propertyId = propertyQuery.docs[0].id;
         }
       } catch (error) {
-        console.error("Error finding propertyId by name:", error);
+        // noop
       }
     }
     if (propertyId) {
@@ -120,13 +142,15 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
           .get();
         if (propertyDoc.exists) {
           const propertyData = propertyDoc.data();
-          (visitWithExtras as any).images = propertyData?.images || [];
-          (visitWithExtras as any).otherDetails = propertyData?.otherDetails || "";
+          visitWithExtras.images = (propertyData as any)?.images || [];
+          visitWithExtras.otherDetails = (propertyData as any)?.otherDetails || "";
         }
       } catch (error) {
-        console.error("Error fetching property details for PDF:", error);
+        // noop
       }
     }
+    // attach notes from state if available
+    visitWithExtras.notes = notes || visitWithExtras.notes || "";
     return visitWithExtras;
   };
 
@@ -283,7 +307,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
         dialogTitle: "Share PDF",
         forceDialog: true,
         chooserTitle: "Share PDF with",
-      };
+      } as any;
       await Share.open(shareOptions);
     } catch (error) {
       console.error("PDF share error:", error);
@@ -353,6 +377,13 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             <Text style={styles.detailLabel}>{t("propertyAddress")}: </Text>
             {visit?.location?.address}
           </Text>
+
+          {Boolean(notes) && (
+            <View style={{ marginTop: 10 }}>
+              <Text style={styles.sectionTitle}>{t("notes")}</Text>
+              <Text style={styles.detailRow}>{notes}</Text>
+            </View>
+          )}
 
           <Text style={[styles.sectionTitle, { marginTop: 20 }]}>
             {t("financialDetails")}
