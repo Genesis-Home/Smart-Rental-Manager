@@ -111,7 +111,6 @@ const Scheduled: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const user = useAppSelector((state: any) => state.reducer.user);
   const userSchedules = useAppSelector((state: any) => state.reducer.schedules);
-
   // Group schedules by property
   const groupedSchedules = useMemo(() => {
     const grouped: { [propertyId: string]: any[] } = {};
@@ -942,6 +941,14 @@ const Scheduled: React.FC = () => {
                     parseInt(selectedSchedule?.advanceAmount || "0")}
                 </Text>
               </View>
+              {Boolean(selectedSchedule?.notes) && (
+                <View style={[styles.bookingDetailRow, { flexDirection: 'column', alignItems: 'flex-start' }]}>
+                  <Text style={styles.bookingDetailLabel}>{t("notes")}:</Text>
+                  <Text style={[styles.bookingDetailValue, { width: '100%', marginTop: 4 }]}>
+                    {selectedSchedule?.notes}
+                  </Text>
+                </View>
+              )}
             </ScrollView>
             <View style={styles.modalButtons}>
               <View>
