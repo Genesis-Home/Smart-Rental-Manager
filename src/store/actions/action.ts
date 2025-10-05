@@ -7,6 +7,7 @@ import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import { scheduleBookingNotifications } from "../../services/notificationService";
 import axios from "axios";
+import { buildVisitConfirmationHtml } from "../../services/emailTemplates";
 import { Location } from "../../types/types";
 import { generateSchedulePDF } from "../../services/pdfService";
 export const getCurrentUser =
@@ -70,12 +71,32 @@ export const sendEmail =
         message += `Balance Amount: ${balanceAmount}\n\n`;
         message += `🗺️ Google Maps Location: ${googleMapsUrl}`;
 
+        // Prepare HTML email
+        const html = buildVisitConfirmationHtml({
+          clientName,
+          phoneNum,
+          email,
+          visitDates: formattedVisitDates,
+          checkInTime,
+          checkOutTime,
+          numberOfVisitors,
+          numberOfInfants,
+          property,
+          location,
+          agreedPrice,
+          advanceAmount,
+          balanceAmount,
+          images: [], // optionally populated below
+          otherDetails: "",
+        });
+
         const response = await axios.post(
           "https://api-youshwrkza-uc.a.run.app/send-email",
           {
             to: email,
             subject: "Your visit is confirmed",
-            message,
+            message, // plain-text fallback
+            html, // rich HTML body
             pdfPath: pdfPath ? `file://${pdfPath}` : undefined,
           },
           {

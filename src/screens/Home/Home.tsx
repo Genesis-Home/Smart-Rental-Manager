@@ -37,6 +37,7 @@ import { fetchPropertiesByUserID, isLocationSet } from "../../store/actions/acti
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import { checkLocationPermission } from "../../services/locationServiceCheck";
 import { PermissionsAndroid, Linking } from 'react-native';
+import { generatePropertyPDF } from "../../services/pdfService";
 
 
 const { width } = Dimensions.get("window");
@@ -142,101 +143,67 @@ const Home: React.FC = () => {
             ? `https://www.google.com/maps/search/${encodeURIComponent(address)}`
             : "";
 
-      let downloadedImagePaths: string[] = [];
+      // Build share message
+      const baseMessage = `🏢 ${title}\n\n📝 Description: ${description}\n\n📍 Location: ${address}${mapsUrl ? `\n${mapsUrl}` : ""}`;
 
-      // If there are images, download them and include in share
-      if (item.images && item.images.length > 0) {
-        try {
-          console.log("Starting image download for property:", title);
-          downloadedImagePaths = await downloadMultipleImagesForSharing(
-            item.images
-          );
-
-          if (downloadedImagePaths.length > 0) {
-            console.log(
-              "Successfully downloaded images:",
-              downloadedImagePaths
-            );
-
-            // Test file access before sharing
-            const firstImagePath = downloadedImagePaths[0];
-            const fileAccessible = await testFileAccess(firstImagePath);
-
-            if (!fileAccessible) {
-              console.error("File is not accessible:", firstImagePath);
-              throw new Error("Downloaded file is not accessible");
-            }
-
-            const fileInfo = await getFileInfo(firstImagePath);
-            console.log("File info for sharing:", fileInfo);
-
-            // Create share options with actual images
-            const shareOptions = {
-              title: title,
-              message: `🏢 ${title}\n\n📝 Description : ${description}\n\n📍 Location : ${address}\n${mapsUrl ? `${mapsUrl}` : ""
-                }`,
-              url:
-                Platform.OS === "android"
-                  ? `file://${firstImagePath}`
-                  : firstImagePath,
-              type: "image/jpeg",
-              filename: `property_${title.replace(/\s+/g, "_")}.jpg`,
-              saveToFiles: true,
-              isNew: true,
-              mimeType: "image/jpeg",
-              subject: title,
-              failOnCancel: false,
-              showAppsToView: true,
-              isBase64: false,
-              dialogTitle: "Share Property",
-              forceDialog: true,
-              chooserTitle: "Share Property with",
-            };
-
-            console.log("Sharing with options:", shareOptions);
-            await Share.open(shareOptions);
-            console.log("Share completed successfully");
-          } else {
-            console.log("No images downloaded, falling back to URL sharing");
-            // Fallback to sharing URLs if image download fails
-            const fallbackMessage = createFallbackShareMessage(
-              title,
-              description,
-              address,
-              item.images,
-              mapsUrl
-            );
-            await Share.open({
-              title: title,
-              message: fallbackMessage,
-              failOnCancel: false,
-            });
-          }
-        } catch (downloadError) {
-          console.error("Error downloading images for sharing:", downloadError);
-          // Fallback to sharing without images if download fails
-          const fallbackMessage = createFallbackShareMessage(
-            title,
-            description,
-            address,
-            item.images,
-            mapsUrl
-          );
-          await Share.open({
-            title: title,
-            message: fallbackMessage,
-            failOnCancel: false,
-          });
-        }
-      } else {
-        console.log("No images to share");
-        // No images to share
-        await Share.open({
-          title: title,
-          message: `🏢 *${title}*\n\n📝 *Description:*\n${description}\n\n📍 *Location:*\n${address}\n${mapsUrl ? `${mapsUrl}` : ""
-            }`,
-          failOnCancel: false,
+      // 1) Try to generate PDF with full formatted template
+      let pdfPath: string | null = null;
+      try {
+        pdfPath = await generatePropertyPDF({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          location: item.location,
+          images: item.images || [],
+          otherDetails: item.otherDetails,
+          notes: item.notes,
         });
+      } catch (e) {
+        pdfPath = null; // proceed with fallback
+      }
+
+      // 2) Download images if any
+      let downloadedImagePaths: string[] = [];
+      try {
+        if (item.images && item.images.length > 0) {
+          downloadedImagePaths = await downloadMultipleImagesForSharing(item.images);
+        }
+      } catch {}
+
+      // 3) Prefer sharing PDF + images (multi-file). Fallback to message with URLs
+      if (pdfPath || downloadedImagePaths.length > 0) {
+        const urls: string[] = [];
+        if (pdfPath) {
+          urls.push(`file://${pdfPath}`);
+        }
+        for (const imgPath of downloadedImagePaths) {
+          urls.push(Platform.OS === "android" ? `file://${imgPath}` : imgPath);
+        }
+
+        const shareOptions: any = {
+          title,
+          subject: title,
+          message: baseMessage,
+          urls,
+          failOnCancel: false,
+          showAppsToView: true,
+          isBase64: false,
+          dialogTitle: "Share Property",
+          forceDialog: true,
+          chooserTitle: "Share Property with",
+        };
+
+        await Share.open(shareOptions);
+      } else {
+        // Final fallback to text-only share with links
+        const fallbackMessage = createFallbackShareMessage(
+          title,
+          description,
+          address,
+          item.images,
+          mapsUrl
+        );
+        await Share.open({ title, message: fallbackMessage, failOnCancel: false });
       }
 
       // Clean up downloaded images after sharing

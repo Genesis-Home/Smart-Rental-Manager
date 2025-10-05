@@ -1,8 +1,12 @@
-import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_URL} from "@env";
+import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_URL } from "@env";
 
 export const EnvConfig = {
+  // googleMaps: {
+  //   apiKey: GOOGLE_MAPS_API_KEY,
+  //   geocodeUrl: GOOGLE_MAPS_URL,
+  // },
   googleMaps: {
-    apiKey: GOOGLE_MAPS_API_KEY,
-    geocodeUrl: GOOGLE_MAPS_URL,
+    apiKey: 'AIzaSyAN1-XDuQSu2O6V4nwbQP7M-U3xWO1ENDM',
+    geocodeUrl: "https://maps.googleapis.com/maps/api/geocode/json",
   },
 };
