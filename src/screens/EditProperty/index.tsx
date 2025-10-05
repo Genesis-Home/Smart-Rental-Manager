@@ -46,6 +46,7 @@ const validationSchema = Yup.object().shape({
   title: Yup.string().required(t("title") + " " + t("isRequired")),
   description: Yup.string().required(t("desc") + " " + t("isRequired")),
   otherDetails: Yup.string().required(t("otherDet") + " " + t("isRequired")),
+  notes: Yup.string(),
   location: Yup.object().shape({
     address: Yup.string().required(t("location") + " " + t("isRequired")),
     lat: Yup.number().required(),
@@ -531,6 +532,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                   title: property.title || "",
                   description: property.description || "",
                   otherDetails: property.otherDetails || "",
+                  notes: property.notes || "",
                   location: property.location || { address: "", lat: 0, long: 0 },
                   createdBy: property.createdBy,
                 }}
@@ -622,6 +624,15 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                             ? String(errors.otherDetails)
                             : undefined
                         }
+                        multiline
+                        numberOfLines={4}
+                      />
+                      <FormInput
+                        label={t("notes")}
+                        placeholder={t("notes")}
+                        value={(values as any).notes}
+                        onChangeText={handleChange("notes")}
+                        onBlur={handleBlur("notes")}
                         multiline
                         numberOfLines={4}
                       />

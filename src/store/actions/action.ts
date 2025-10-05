@@ -11,19 +11,19 @@ import { Location } from "../../types/types";
 import { generateSchedulePDF } from "../../services/pdfService";
 export const getCurrentUser =
   (navigation: NavigationProp<any>): any =>
-  async (dispatch: Dispatch) => {
-    try {
-      const user = await getItem("user", null);
-      if (user) {
-        dispatch({ type: "SET_USER", payload: user });
-        return user;
+    async (dispatch: Dispatch) => {
+      try {
+        const user = await getItem("user", null);
+        if (user) {
+          dispatch({ type: "SET_USER", payload: user });
+          return user;
+        }
+        return null;
+      } catch (error) {
+        console.error("Error getting current user:", error);
+        return null;
       }
-      return null;
-    } catch (error) {
-      console.error("Error getting current user:", error);
-      return null;
-    }
-  };
+    };
 
 export const sendEmail =
   (
@@ -44,136 +44,136 @@ export const sendEmail =
     scheduleId?: string,
     silent: boolean = false
   ): any =>
-  async (dispatch: Dispatch) => {
-    try {
-      const formattedVisitDates = visitDates.replace(" - ", " to ");
-      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.long}`;
-      const balance =
-        parseFloat(agreedPrice) - parseFloat(advanceAmount || "0");
-      const balanceAmount = Number.isInteger(balance)
-        ? balance.toString()
-        : balance.toFixed(2);
+    async (dispatch: Dispatch) => {
+      try {
+        const formattedVisitDates = visitDates.replace(" - ", " to ");
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${location.lat},${location.long}`;
+        const balance =
+          parseFloat(agreedPrice) - parseFloat(advanceAmount || "0");
+        const balanceAmount = Number.isInteger(balance)
+          ? balance.toString()
+          : balance.toFixed(2);
 
-      let message = `Visit Details:\n\n📅 Visit Date: ${formattedVisitDates}\n⏰ Check In Time: ${checkInTime}\n⏰ Check Out Time: ${checkOutTime}\n`;
+        let message = `Visit Details:\n\n📅 Visit Date: ${formattedVisitDates}\n⏰ Check In Time: ${checkInTime}\n⏰ Check Out Time: ${checkOutTime}\n`;
 
-      if (numberOfVisitors && numberOfVisitors.trim() !== "") {
-        message += `👨‍👩‍👧‍👦 Number of Visitors: ${numberOfVisitors}\n`;
-      }
-      if (numberOfInfants && numberOfInfants.trim() !== "") {
-        message += `👶 Number of Infants: ${numberOfInfants}\n`;
-      }
-
-      message += `🏠 Property Address: ${location.address}\n\n`;
-      message += `💰 Financial Details:\n`;
-      message += `Agreed Price: ${agreedPrice}\n`;
-      message += `Down Payment: ${advanceAmount || "0"}\n`;
-      message += `Balance Amount: ${balanceAmount}\n\n`;
-      message += `🗺️ Google Maps Location: ${googleMapsUrl}`;
-
-      const response = await axios.post(
-        "https://api-youshwrkza-uc.a.run.app/send-email",
-        {
-          to: email,
-          subject: "Your visit is confirmed",
-          message,
-          pdfPath: pdfPath ? `file://${pdfPath}` : undefined,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
+        if (numberOfVisitors && numberOfVisitors.trim() !== "") {
+          message += `👨‍👩‍👧‍👦 Number of Visitors: ${numberOfVisitors}\n`;
         }
-      );
+        if (numberOfInfants && numberOfInfants.trim() !== "") {
+          message += `👶 Number of Infants: ${numberOfInfants}\n`;
+        }
 
-      console.log("Email sent successfully:", response.data);
+        message += `🏠 Property Address: ${location.address}\n\n`;
+        message += `💰 Financial Details:\n`;
+        message += `Agreed Price: ${agreedPrice}\n`;
+        message += `Down Payment: ${advanceAmount || "0"}\n`;
+        message += `Balance Amount: ${balanceAmount}\n\n`;
+        message += `🗺️ Google Maps Location: ${googleMapsUrl}`;
 
-      if (!silent) {
-        // Fetch property images and otherDetails before navigating
-        let images = [];
-        let otherDetails = '';
-        if (property) {
-          try {
-            const propertyDoc = await firestore().collection('properties').doc(property).get();
-            if (propertyDoc.exists) {
-              const propertyData = propertyDoc.data();
-              images = propertyData?.images || [];
-              otherDetails = propertyData?.otherDetails || '';
-            }
-          } catch (e) {
-            // Optionally handle error
+        const response = await axios.post(
+          "https://api-youshwrkza-uc.a.run.app/send-email",
+          {
+            to: email,
+            subject: "Your visit is confirmed",
+            message,
+            pdfPath: pdfPath ? `file://${pdfPath}` : undefined,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
           }
+        );
+
+        console.log("Email sent successfully:", response.data);
+
+        if (!silent) {
+          // Fetch property images and otherDetails before navigating
+          let images = [];
+          let otherDetails = '';
+          if (property) {
+            try {
+              const propertyDoc = await firestore().collection('properties').doc(property).get();
+              if (propertyDoc.exists) {
+                const propertyData = propertyDoc.data();
+                images = propertyData?.images || [];
+                otherDetails = propertyData?.otherDetails || '';
+              }
+            } catch (e) {
+              // Optionally handle error
+            }
+          }
+          navigation.navigate("AutomatedEmail", {
+            visitDetails: {
+              visitDates: formattedVisitDates,
+              checkInTime,
+              checkOutTime,
+              ...(numberOfVisitors && { numberOfVisitors }),
+              ...(numberOfInfants && { numberOfInfants }),
+              property,
+              location,
+              agreedPrice,
+              advanceAmount,
+              balanceAmount,
+              scheduleId,
+              clientName,
+              phoneNum,
+              email,
+              images,
+              otherDetails,
+            },
+            pdfPath: pdfPath,
+          });
         }
-        navigation.navigate("AutomatedEmail", {
-          visitDetails: {
-            visitDates: formattedVisitDates,
-            checkInTime,
-            checkOutTime,
-            ...(numberOfVisitors && { numberOfVisitors }),
-            ...(numberOfInfants && { numberOfInfants }),
-            property,
-            location,
-            agreedPrice,
-            advanceAmount,
-            balanceAmount,
-            scheduleId,
-            clientName,
-            phoneNum,
-            email,
-            images,
-            otherDetails,
-          },
-          pdfPath: pdfPath,
-        });
+      } catch (error) {
+        console.error("Error sending email:", error);
+        if (!silent) {
+          Toast.show({
+            type: "error",
+            text1: "Failed to send email",
+            position: "bottom",
+          });
+        }
       }
-    } catch (error) {
-      console.error("Error sending email:", error);
-      if (!silent) {
-        Toast.show({
-          type: "error",
-          text1: "Failed to send email",
-          position: "bottom",
-        });
-      }
-    }
-  };
+    };
 
 export const loginUser =
   (credentials: any, isSelectedRemember: any, navigation: any) =>
-  async (dispatch: any) => {
-    try {
-      dispatch({ type: "IS_LOADER", payload: true });
-      const userCredential = await auth().signInWithEmailAndPassword(
-        credentials.email,
-        credentials.password
-      );
+    async (dispatch: any) => {
+      try {
+        dispatch({ type: "IS_LOADER", payload: true });
+        const userCredential = await auth().signInWithEmailAndPassword(
+          credentials.email,
+          credentials.password
+        );
 
-      const user = (userCredential.user as any)._user;
-      const userDoc = await firestore().collection("users").doc(user.uid).get();
-      const userData = userDoc.data();
+        const user = (userCredential.user as any)._user;
+        const userDoc = await firestore().collection("users").doc(user.uid).get();
+        const userData = userDoc.data();
 
-      if (!userData) {
-        throw new Error("User data not found");
+        if (!userData) {
+          throw new Error("User data not found");
+        }
+
+        isSelectedRemember && setItem("user", userData);
+        !isSelectedRemember && deleteItem("user");
+
+        dispatch({ type: "SET_USER", payload: userData });
+        dispatch({ type: "IS_LOADER", payload: false });
+
+        navigation.dispatch(
+          CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
+        );
+
+        const customMessage = await getFirebaseErrorMessage("Login successful!");
+        Toast.show({ type: "success", text1: customMessage, position: "bottom" });
+      } catch (error) {
+        console.log(error, "loginUser_error");
+        dispatch({ type: "IS_LOADER", payload: false });
+        const errorMessage = await getFirebaseErrorMessage((error as any).code);
+        Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
       }
-
-      isSelectedRemember && setItem("user", userData);
-      !isSelectedRemember && deleteItem("user");
-
-      dispatch({ type: "SET_USER", payload: userData });
-      dispatch({ type: "IS_LOADER", payload: false });
-
-      navigation.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name: "Tabs" }] })
-      );
-
-      const customMessage = await getFirebaseErrorMessage("Login successful!");
-      Toast.show({ type: "success", text1: customMessage, position: "bottom" });
-    } catch (error) {
-      console.log(error, "loginUser_error");
-      dispatch({ type: "IS_LOADER", payload: false });
-      const errorMessage = await getFirebaseErrorMessage((error as any).code);
-      Toast.show({ type: "error", text1: errorMessage, position: "bottom" });
-    }
-  };
+    };
 
 export const registerUser =
   (credentials: any, navigation: any) => async (dispatch: any) => {
@@ -236,6 +236,7 @@ export const addProperty =
         title: formData.title,
         description: formData.description,
         otherDetails: formData.otherDetails,
+        notes: formData.notes || "",
         location: formData.location,
         images: formData.images,
         revenue: 0,
@@ -518,8 +519,8 @@ export const updateUser =
           !userDataWithoutPassword.role && { role: currentUserData.role }),
         ...(currentUserData.expertise &&
           !userDataWithoutPassword.expertise && {
-            expertise: currentUserData.expertise,
-          }),
+          expertise: currentUserData.expertise,
+        }),
       };
 
       await userRef.update(updateData);
@@ -865,78 +866,79 @@ export const deletePropertyById =
 
 export const updateProperty =
   (propertyId: string, formData: any, navigation: any) =>
-  async (dispatch: any) => {
-    try {
-      dispatch({ type: "IS_LOADER", payload: true });
+    async (dispatch: any) => {
+      try {
+        dispatch({ type: "IS_LOADER", payload: true });
 
-      const propertyData = {
-        title: formData.title,
-        description: formData.description,
-        otherDetails: formData.otherDetails,
-        location: formData.location,
-        images: formData.images,
-        updatedAt: firestore.FieldValue.serverTimestamp(),
-      };
+        const propertyData = {
+          title: formData.title,
+          description: formData.description,
+          otherDetails: formData.otherDetails,
+          notes: formData.notes || "",
+          location: formData.location,
+          images: formData.images,
+          updatedAt: firestore.FieldValue.serverTimestamp(),
+        };
 
-      await firestore()
-        .collection("properties")
-        .doc(propertyId)
-        .update(propertyData);
+        await firestore()
+          .collection("properties")
+          .doc(propertyId)
+          .update(propertyData);
 
-      const propertyDoc = await firestore()
-        .collection("properties")
-        .doc(propertyId)
-        .get();
-      const updatedProperty = {
-        ...propertyDoc.data(),
-        id: propertyDoc.id,
-      };
-      dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
+        const propertyDoc = await firestore()
+          .collection("properties")
+          .doc(propertyId)
+          .get();
+        const updatedProperty = {
+          ...propertyDoc.data(),
+          id: propertyDoc.id,
+        };
+        dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
 
-      const snapshot = await firestore()
-        .collection("properties")
-        .where("createdBy", "==", formData.createdBy)
-        .get();
+        const snapshot = await firestore()
+          .collection("properties")
+          .where("createdBy", "==", formData.createdBy)
+          .get();
 
-      if (snapshot.empty) {
-        dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
-      } else {
-        const properties = snapshot.docs
-          .map((doc: any) => ({
-            ...doc.data(),
-            id: doc.id,
-          }))
-          .sort(
-            (a: any, b: any) =>
-              b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime()
-          );
-        dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
+        if (snapshot.empty) {
+          dispatch({ type: "SET_USER_PROPERTIES", payload: [] });
+        } else {
+          const properties = snapshot.docs
+            .map((doc: any) => ({
+              ...doc.data(),
+              id: doc.id,
+            }))
+            .sort(
+              (a: any, b: any) =>
+                b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime()
+            );
+          dispatch({ type: "SET_USER_PROPERTIES", payload: properties });
+        }
+
+        dispatch({ type: "IS_LOADER", payload: false });
+        const customMessage = await getFirebaseErrorMessage(
+          "Property updated successfully"
+        );
+        Toast.show({
+          type: "success",
+          text1: customMessage,
+          position: "bottom",
+        });
+
+        navigation.navigate("Tabs", { screen: "Home1" });
+      } catch (error: any) {
+        console.error("Update Property Error:", error);
+        dispatch({ type: "IS_LOADER", payload: false });
+        const errorMessage = await getFirebaseErrorMessage(
+          "Failed to update property. Please try again."
+        );
+        Toast.show({
+          type: "error",
+          text1: errorMessage,
+          position: "bottom",
+        });
       }
-
-      dispatch({ type: "IS_LOADER", payload: false });
-      const customMessage = await getFirebaseErrorMessage(
-        "Property updated successfully"
-      );
-      Toast.show({
-        type: "success",
-        text1: customMessage,
-        position: "bottom",
-      });
-
-      navigation.navigate("Tabs", { screen: "Home1" });
-    } catch (error: any) {
-      console.error("Update Property Error:", error);
-      dispatch({ type: "IS_LOADER", payload: false });
-      const errorMessage = await getFirebaseErrorMessage(
-        "Failed to update property. Please try again."
-      );
-      Toast.show({
-        type: "error",
-        text1: errorMessage,
-        position: "bottom",
-      });
-    }
-  };
+    };
 
 export const deleteContact =
   (contactId: string, userID: string) => async (dispatch: any) => {
@@ -983,80 +985,80 @@ export const deleteContact =
 
 export const deleteScheduleById =
   (scheduleId: string, userId: string, isFromSchedules: boolean = false) =>
-  async (dispatch: any) => {
-    dispatch({ type: "IS_LOADER", payload: true });
-    try {
-      const scheduleRef = firestore().collection("schedules").doc(scheduleId);
-      const scheduleDoc = await scheduleRef.get();
+    async (dispatch: any) => {
+      dispatch({ type: "IS_LOADER", payload: true });
+      try {
+        const scheduleRef = firestore().collection("schedules").doc(scheduleId);
+        const scheduleDoc = await scheduleRef.get();
 
-      if (scheduleDoc.exists) {
-        const scheduleData = scheduleDoc.data();
-        const propertyId = scheduleData?.propertyId;
-        const agreedPrice = parseFloat(scheduleData?.agreedPrice || "0");
+        if (scheduleDoc.exists) {
+          const scheduleData = scheduleDoc.data();
+          const propertyId = scheduleData?.propertyId;
+          const agreedPrice = parseFloat(scheduleData?.agreedPrice || "0");
 
-        await scheduleRef.delete();
+          await scheduleRef.delete();
 
-        if (propertyId) {
-          const propertyRef = firestore()
-            .collection("properties")
-            .doc(propertyId);
-          const propertyDoc = await propertyRef.get();
+          if (propertyId) {
+            const propertyRef = firestore()
+              .collection("properties")
+              .doc(propertyId);
+            const propertyDoc = await propertyRef.get();
 
-          if (propertyDoc.exists) {
-            const propertyData = propertyDoc.data();
-            const currentRevenue = parseFloat(propertyData?.revenue || "0");
-            const newRevenue = Math.max(0, currentRevenue - agreedPrice);
+            if (propertyDoc.exists) {
+              const propertyData = propertyDoc.data();
+              const currentRevenue = parseFloat(propertyData?.revenue || "0");
+              const newRevenue = Math.max(0, currentRevenue - agreedPrice);
 
-            await propertyRef.update({
-              revenue: newRevenue,
-            });
+              await propertyRef.update({
+                revenue: newRevenue,
+              });
 
-            const updatedPropertyDoc = await propertyRef.get();
-            const updatedProperty = {
-              ...updatedPropertyDoc.data(),
-              id: updatedPropertyDoc.id,
-            };
-            dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
+              const updatedPropertyDoc = await propertyRef.get();
+              const updatedProperty = {
+                ...updatedPropertyDoc.data(),
+                id: updatedPropertyDoc.id,
+              };
+              dispatch({ type: "SET_PROPERTY", payload: updatedProperty });
+            }
           }
+
+          const userSchedulesSnapshot = await firestore()
+            .collection("schedules")
+            .where("createdBy", "==", userId)
+            .get();
+
+          const updatedSchedules = userSchedulesSnapshot.docs
+            .map((doc: any) => ({ id: doc.id, ...doc.data() }))
+            .filter((schedule: any) => schedule.id !== scheduleId);
+
+          dispatch({
+            type: "SET_USER_SCHEDULES",
+            payload: updatedSchedules,
+          });
+
+          const successMessage = await getFirebaseErrorMessage(
+            "Booking cancelled successfully"
+          );
+          Toast.show({
+            type: "success",
+            text1: successMessage,
+            position: "bottom",
+          });
         }
-
-        const userSchedulesSnapshot = await firestore()
-          .collection("schedules")
-          .where("createdBy", "==", userId)
-          .get();
-
-        const updatedSchedules = userSchedulesSnapshot.docs
-          .map((doc: any) => ({ id: doc.id, ...doc.data() }))
-          .filter((schedule: any) => schedule.id !== scheduleId);
-
-        dispatch({
-          type: "SET_USER_SCHEDULES",
-          payload: updatedSchedules,
-        });
-
-        const successMessage = await getFirebaseErrorMessage(
-          "Booking cancelled successfully"
+      } catch (error) {
+        console.error("Error deleting schedule:", error);
+        const errorMessage = await getFirebaseErrorMessage(
+          "Failed to cancel booking"
         );
         Toast.show({
-          type: "success",
-          text1: successMessage,
+          type: "error",
+          text1: errorMessage,
           position: "bottom",
         });
+      } finally {
+        dispatch({ type: "IS_LOADER", payload: false });
       }
-    } catch (error) {
-      console.error("Error deleting schedule:", error);
-      const errorMessage = await getFirebaseErrorMessage(
-        "Failed to cancel booking"
-      );
-      Toast.show({
-        type: "error",
-        text1: errorMessage,
-        position: "bottom",
-      });
-    } finally {
-      dispatch({ type: "IS_LOADER", payload: false });
-    }
-  };
+    };
 
 export const fetchAllSchedules = () => async (dispatch: any) => {
   try {
@@ -1113,7 +1115,7 @@ export const fetchAllContacts = () => async (dispatch: any) => {
 
 export const isLocationSet =
   (isLocationAvailable?: boolean, loc?: object): any =>
-  async (dispatch: Dispatch) => {
-    dispatch({type: 'IS_LOCATION', payload: isLocationAvailable});
-    dispatch({type: 'SAVED_COORDS', payload: loc});
-  };
+    async (dispatch: Dispatch) => {
+      dispatch({ type: 'IS_LOCATION', payload: isLocationAvailable });
+      dispatch({ type: 'SAVED_COORDS', payload: loc });
+    };

@@ -184,6 +184,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     title: Yup.string().required(t("title") + " " + t("isRequired")),
     description: Yup.string().required(t("desc") + " " + t("isRequired")),
     otherDetails: Yup.string().required(t("detail") + " " + t("isRequired")),
+    notes: Yup.string(),
     location: Yup.object().shape({
       address: Yup.string().required(t("location") + " " + t("isRequired")),
       lat: Yup.number().required(),
@@ -479,6 +480,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
           formikSetFieldValueRef.current('title', '');
           formikSetFieldValueRef.current('description', '');
           formikSetFieldValueRef.current('otherDetails', '');
+          formikSetFieldValueRef.current('notes', '');
           formikSetFieldValueRef.current('location', initialLocation || { address: '', lat: 0, long: 0 });
         }
         setCoverPhoto(null);
@@ -672,6 +674,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           title: "",
                           description: "",
                           otherDetails: "",
+                          notes: "",
                           images: [],
                           location: initialLocation || { address: "", lat: 0, long: 0 },
                         }}
@@ -748,6 +751,14 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                 onChangeText={handleChange("otherDetails")}
                                 onBlur={handleBlur("otherDetails")}
                                 error={touched.otherDetails && errors.otherDetails}
+                                multiline
+                              />
+                              <FormInput
+                                label={t("notes")}
+                                placeholder={t("notes")}
+                                value={(values as any).notes}
+                                onChangeText={handleChange("notes")}
+                                onBlur={handleBlur("notes")}
                                 multiline
                               />
                               <View style={{ gap: 8, marginTop: 10 }}>
