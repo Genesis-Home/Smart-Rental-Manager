@@ -922,7 +922,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       label={t("checkInTime")}
                       cancelLabel={t("cancel")}
                       confirmLabel={t("ok")}
-                      defaultInputType="keyboard"
+                      defaultInputType="picker"
                     />
                   )}
 
@@ -944,7 +944,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       label={t("checkOutTime")}
                       cancelLabel={t("cancel")}
                       confirmLabel={t("ok")}
-                      defaultInputType="keyboard"
+                      defaultInputType="picker"
                     />
                   )}
 
