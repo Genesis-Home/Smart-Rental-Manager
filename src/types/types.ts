@@ -247,6 +247,8 @@ export type LanguageTranslation = {
   galleryImages: string;
   addGalleryImages: string;
   selectGalleryImages: string;
+  galleryImagesBefore: string;
+  galleryImagesAfter: string;
   addTitle: string;
   addDes: string;
   detail: string;
@@ -532,6 +534,8 @@ export interface Property {
   description: string;
   location: { address: string; lat: number; long: number | null };
   images: string[];
+  imagesBefore?: string[];
+  imagesAfter?: string[];
   otherDetails: string;
   notes: string;
 }

@@ -150,13 +150,15 @@ const EditProperty: React.FC<EditPropertyProps> = ({
   const property = useAppSelector((state: any) => state.reducer.property);
   const [inputText, setInputText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryImagesBefore, setGalleryImagesBefore] = useState<string[]>([]);
+  const [galleryImagesAfter, setGalleryImagesAfter] = useState<string[]>([]);
   const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
   const [isCoverPhotoUploading, setIsCoverPhotoUploading] = useState(false);
-  const [isGalleryUploading, setIsGalleryUploading] = useState(false);
+  const [isGalleryBeforeUploading, setIsGalleryBeforeUploading] = useState(false);
+  const [isGalleryAfterUploading, setIsGalleryAfterUploading] = useState(false);
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [viewingCoverPhoto, setViewingCoverPhoto] = useState(false);
+  const [viewingWhich, setViewingWhich] = useState<"cover" | "before" | "after">("cover");
   const [modalVisible, setModalVisible] = useState(false);
   const [lastLocation, setLastLocation] = useState([
     property?.location?.lat || 0,
@@ -214,7 +216,17 @@ const EditProperty: React.FC<EditPropertyProps> = ({
       }
       if (property.images && property.images.length > 0) {
         setCoverPhoto(property.images[0]);
-        setGalleryImages(property.images.slice(1));
+      }
+      // Prefer dedicated fields if available; fallback to legacy images array
+      if (property.imagesBefore && property.imagesBefore.length > 0) {
+        setGalleryImagesBefore(property.imagesBefore);
+      } else if (property.images && property.images.length > 1) {
+        setGalleryImagesBefore(property.images.slice(1));
+      }
+      if (property.imagesAfter && property.imagesAfter.length > 0) {
+        setGalleryImagesAfter(property.imagesAfter);
+      } else {
+        setGalleryImagesAfter([]);
       }
       setEditLocation([lat , long])
     }
@@ -267,7 +279,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
     );
   };
 
-  const handleGalleryImagesPick = () => {
+  const handleGalleryImagesPick = (which: "before" | "after") => {
     launchImageLibrary(
       {
         mediaType: "photo",
@@ -277,7 +289,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
       },
       async (response) => {
         if (response.assets && response.assets.length > 0) {
-          setIsGalleryUploading(true);
+          which === "before" ? setIsGalleryBeforeUploading(true) : setIsGalleryAfterUploading(true);
           const uploadPromises = response.assets.map(async (asset) => {
             if (asset.uri) {
               const fileName = asset.uri.substring(
@@ -293,7 +305,11 @@ const EditProperty: React.FC<EditPropertyProps> = ({
           try {
             const urls = await Promise.all(uploadPromises);
             const validUrls = urls.filter((url): url is string => url !== null);
-            setGalleryImages((prev) => [...prev, ...validUrls]);
+            if (which === "before") {
+              setGalleryImagesBefore((prev) => [...prev, ...validUrls]);
+            } else {
+              setGalleryImagesAfter((prev) => [...prev, ...validUrls]);
+            }
           } catch (error) {
             console.error("Gallery images upload error:", error);
             const errorMessage = await getFirebaseErrorMessage(
@@ -305,38 +321,42 @@ const EditProperty: React.FC<EditPropertyProps> = ({
               position: "bottom",
             });
           } finally {
-            setIsGalleryUploading(false);
+            which === "before" ? setIsGalleryBeforeUploading(false) : setIsGalleryAfterUploading(false);
           }
         }
       }
     );
   };
 
-  const handleRemoveImage = (index: number) => {
-    setGalleryImages((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveImage = (index: number, which: "before" | "after") => {
+    if (which === "before") {
+      setGalleryImagesBefore((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      setGalleryImagesAfter((prev) => prev.filter((_, i) => i !== index));
+    }
   };
 
   const handleRemoveCoverPhoto = () => {
     setCoverPhoto(null);
   };
 
-  const openImageView = (index: number, isCoverPhoto: boolean = false) => {
+  const openImageView = (index: number, which: "cover" | "before" | "after" = "cover") => {
     setSelectedIndex(index);
     setIsVisible(true);
-    setViewingCoverPhoto(isCoverPhoto);
+    setViewingWhich(which);
   };
 
   const renderImages = () => {
     return (
       <FlatList
-        data={galleryImages}
+        data={galleryImagesBefore}
         numColumns={3}
         columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
         renderItem={({ item, index }) => (
           <TouchableOpacity
             key={index}
             activeOpacity={0.8}
-            onPress={() => openImageView(index, false)}
+            onPress={() => openImageView(index, "before")}
             style={styles.imageContainer}
           >
             <Image
@@ -347,7 +367,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
             <TouchableOpacity
               activeOpacity={0.8}
               style={{ position: "absolute", right: 0, padding: 10 }}
-              onPress={() => handleRemoveImage(index)}
+              onPress={() => handleRemoveImage(index, "before")}
             >
               <Cross />
             </TouchableOpacity>
@@ -451,7 +471,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                   {coverPhoto && (
                     <TouchableOpacity
                       activeOpacity={0.8}
-                      onPress={() => openImageView(0, true)}
+                      onPress={() => openImageView(0, "cover")}
                       style={styles.coverPhotoContainer}
                     >
                       <Image
@@ -474,7 +494,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={handleGalleryImagesPick}
+              onPress={() => handleGalleryImagesPick("before")}
               style={[styles.photoUploadSection, { marginTop: 15 }]}
             >
               <Text
@@ -490,19 +510,19 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                 <Text
                   style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
                 >
-                  {t("galleryImages")}
+                  {t("galleryImagesBefore")}
                 </Text>
               </View>
             </TouchableOpacity>
 
-            {isGalleryUploading ? (
+            {isGalleryBeforeUploading ? (
               <ActivityIndicator
                 size="large"
                 color={colors.Primary_01}
                 style={{ marginTop: 20 }}
               />
             ) : (
-              galleryImages.length > 0 && (
+              galleryImagesBefore.length > 0 && (
                 <View style={styles.gallerySection}>
                   <Text
                     style={[
@@ -510,17 +530,89 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                       { color: colors.black, marginBottom: 10 },
                     ]}
                   >
-                    {t("galleryImages")}
+                    {t("galleryImagesBefore")}
                   </Text>
                   {renderImages()}
                 </View>
               )
             )}
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => handleGalleryImagesPick("after")}
+              style={[styles.photoUploadSection, { marginTop: 15 }]}
+            >
+              <Text
+                style={[
+                  styles.photoUploadLabel,
+                  Typography.f_14_nunito_extra_bold,
+                ]}
+              >
+                {t("PhotoUpload")}
+              </Text>
+              <View style={styles.photoUploadActionRow}>
+                <Edit />
+                <Text
+                  style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                >
+                  {t("galleryImagesAfter")}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {isGalleryAfterUploading ? (
+              <ActivityIndicator
+                size="large"
+                color={colors.Primary_01}
+                style={{ marginTop: 20 }}
+              />
+            ) : (
+              galleryImagesAfter.length > 0 && (
+                <View style={styles.gallerySection}>
+                  <Text
+                    style={[
+                      Typography.f_16_nunito_medium,
+                      { color: colors.black, marginBottom: 10 },
+                    ]}
+                  >
+                    {t("galleryImagesAfter")}
+                  </Text>
+                  <FlatList
+                    data={galleryImagesAfter}
+                    numColumns={3}
+                    columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
+                    renderItem={({ item, index }) => (
+                      <TouchableOpacity
+                        key={index}
+                        activeOpacity={0.8}
+                        onPress={() => openImageView(index, "after")}
+                        style={styles.imageContainer}
+                      >
+                        <Image
+                          style={styles.image}
+                          source={{ uri: item }}
+                          resizeMode="cover"
+                        />
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          style={{ position: "absolute", right: 0, padding: 10 }}
+                          onPress={() => handleRemoveImage(index, "after")}
+                        >
+                          <Cross />
+                        </TouchableOpacity>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+              )
+            )}
             <ImageView
               images={
-                viewingCoverPhoto && coverPhoto
+                viewingWhich === "cover" && coverPhoto
                   ? [{ uri: coverPhoto }]
-                  : galleryImages.map((url) => ({ uri: url }))
+                  : viewingWhich === "before"
+                  ? galleryImagesBefore.map((url) => ({ uri: url }))
+                  : galleryImagesAfter.map((url) => ({ uri: url }))
               }
               imageIndex={selectedIndex}
               visible={visible}
@@ -539,11 +631,15 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                 validationSchema={validationSchema}
                 onSubmit={async (values) => {
                   try {
-                    const allImages = coverPhoto ? [coverPhoto, ...galleryImages] : galleryImages;
+                    const allImages = coverPhoto
+                      ? [coverPhoto, ...galleryImagesBefore, ...galleryImagesAfter]
+                      : [...galleryImagesBefore, ...galleryImagesAfter];
 
                     const formData = {
                       ...values,
                       images: allImages,
+                      imagesBefore: galleryImagesBefore,
+                      imagesAfter: galleryImagesAfter,
                     };
 
                     if (user?.userId) {

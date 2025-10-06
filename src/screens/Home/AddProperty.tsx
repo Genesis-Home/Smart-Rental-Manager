@@ -61,9 +61,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
   const [isCoverPhotoUploading, setIsCoverPhotoUploading] = useState(false);
-  const [isGalleryUploading, setIsGalleryUploading] = useState(false);
+  const [isGalleryBeforeUploading, setIsGalleryBeforeUploading] = useState(false);
+  const [isGalleryAfterUploading, setIsGalleryAfterUploading] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryImagesBefore, setGalleryImagesBefore] = useState<string[]>([]);
+  const [galleryImagesAfter, setGalleryImagesAfter] = useState<string[]>([]);
   const [visible, setIsVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const isLocation = useSelector((state: any) => state.reducer.isLocation);
@@ -96,7 +98,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     longitudeDelta: 0.01,
   });
   const mapRef = useRef<MapView>(null);
-  const [viewingCoverPhoto, setViewingCoverPhoto] = useState(false);
+  const [viewingWhich, setViewingWhich] = useState<"cover" | "before" | "after">("cover");
 
   useEffect(() => {
     setisLocationErr(isLocation);
@@ -254,7 +256,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     );
   };
 
-  const handleGalleryImagesPick = async () => {
+  const handleGalleryImagesPick = async (which: "before" | "after") => {
     launchImageLibrary(
       {
         mediaType: "photo",
@@ -283,7 +285,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
         }
         if (response.assets?.length) {
           console.log("Selected gallery images:", response.assets);
-          setIsGalleryUploading(true);
+          which === "before" ? setIsGalleryBeforeUploading(true) : setIsGalleryAfterUploading(true);
           const uploadedImages = await Promise.all(
             response.assets.map(async (img) => {
               const fileName = img.fileName || `gallery_image_${Date.now()}.jpg`;
@@ -314,8 +316,13 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
           );
 
           const validImages = uploadedImages.filter((image) => image !== null);
-          setGalleryImages((prev) => [...prev, ...validImages]);
-          setIsGalleryUploading(false);
+          if (which === "before") {
+            setGalleryImagesBefore((prev) => [...prev, ...(validImages as string[])]);
+            setIsGalleryBeforeUploading(false);
+          } else {
+            setGalleryImagesAfter((prev) => [...prev, ...(validImages as string[])]);
+            setIsGalleryAfterUploading(false);
+          }
         }
       }
     );
@@ -325,16 +332,18 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     setCoverPhoto(null);
   };
 
-  const handleRemoveGalleryImage = (indexToRemove: number) => {
-    setGalleryImages((prevImages) =>
-      prevImages.filter((_, index) => index !== indexToRemove)
-    );
+  const handleRemoveGalleryImage = (indexToRemove: number, which: "before" | "after") => {
+    if (which === "before") {
+      setGalleryImagesBefore((prevImages) => prevImages.filter((_, index) => index !== indexToRemove));
+    } else {
+      setGalleryImagesAfter((prevImages) => prevImages.filter((_, index) => index !== indexToRemove));
+    }
   };
 
-  const openImageView = (index: number, isCoverPhoto: boolean = false) => {
+  const openImageView = (index: number, which: "cover" | "before" | "after" = "cover") => {
     setSelectedIndex(index);
     setIsVisible(true);
-    setViewingCoverPhoto(isCoverPhoto);
+    setViewingWhich(which);
   };
 
 
@@ -354,7 +363,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
             </Text>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => openImageView(0, true)}
+              onPress={() => openImageView(0, "cover")}
               style={styles.coverPhotoContainer}
             >
               <Image
@@ -372,8 +381,8 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
           </View>
         )}
 
-        {/* Gallery Images Section */}
-        {galleryImages.length > 0 && (
+        {/* Gallery Images Before Section */}
+        {galleryImagesBefore.length > 0 && (
           <View style={styles.gallerySection}>
             <Text
               style={[
@@ -381,17 +390,17 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                 { color: colors.black, marginBottom: 10 },
               ]}
             >
-              {t("galleryImages")}
+              {t("galleryImagesBefore")}
             </Text>
             <FlatList
-              data={galleryImages}
+              data={galleryImagesBefore}
               numColumns={3}
               columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
               renderItem={({ item, index }) => (
                 <TouchableOpacity
                   key={index}
                   activeOpacity={0.8}
-                  onPress={() => openImageView(index, false)}
+                  onPress={() => openImageView(index, "before")}
                   style={styles.imageContainer}
                 >
                   <Image
@@ -402,7 +411,46 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                   <TouchableOpacity
                     activeOpacity={0.8}
                     style={{ position: "absolute", right: 0, padding: 10 }}
-                    onPress={() => handleRemoveGalleryImage(index)}
+                    onPress={() => handleRemoveGalleryImage(index, "before")}
+                  >
+                    <Cross />
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        )}
+        {/* Gallery Images After Section */}
+        {galleryImagesAfter.length > 0 && (
+          <View style={styles.gallerySection}>
+            <Text
+              style={[
+                Typography.f_16_nunito_medium,
+                { color: colors.black, marginBottom: 10 },
+              ]}
+            >
+              {t("galleryImagesAfter")}
+            </Text>
+            <FlatList
+              data={galleryImagesAfter}
+              numColumns={3}
+              columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity
+                  key={index}
+                  activeOpacity={0.8}
+                  onPress={() => openImageView(index, "after")}
+                  style={styles.imageContainer}
+                >
+                  <Image
+                    style={styles.image}
+                    source={{ uri: item }}
+                    resizeMode="cover"
+                  />
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={{ position: "absolute", right: 0, padding: 10 }}
+                    onPress={() => handleRemoveGalleryImage(index, "after")}
                   >
                     <Cross />
                   </TouchableOpacity>
@@ -484,7 +532,8 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
           formikSetFieldValueRef.current('location', initialLocation || { address: '', lat: 0, long: 0 });
         }
         setCoverPhoto(null);
-        setGalleryImages([]);
+        setGalleryImagesBefore([]);
+        setGalleryImagesAfter([]);
       }
     });
     return unsubscribe;
@@ -517,11 +566,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                   <View style={styles.contentContainer}>
 
                     <Header title={t("addProperty")} />
-
-
-
-
-
                     <ScrollView
                       contentContainerStyle={styles.scrollContainer}
                       showsVerticalScrollIndicator={false}
@@ -569,7 +613,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                             </Text>
                             <TouchableOpacity
                               activeOpacity={0.8}
-                              onPress={() => openImageView(0, true)}
+                              onPress={() => openImageView(0, "cover")}
                               style={styles.coverPhotoContainer}
                             >
                               <Image
@@ -591,7 +635,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
                       <TouchableOpacity
                         activeOpacity={0.8}
-                        onPress={handleGalleryImagesPick}
+                        onPress={() => handleGalleryImagesPick("before")}
                         style={styles.photoUploadSection}
                       >
                         <Text
@@ -607,20 +651,20 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           <Text
                             style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
                           >
-                            {t("galleryImages")}
+                            {t("galleryImagesBefore")}
                           </Text>
                         </View>
                       </TouchableOpacity>
 
-                      {/* Gallery Images Section */}
-                      {isGalleryUploading ? (
+                      {/* Gallery Images Before Section */}
+                      {isGalleryBeforeUploading ? (
                         <ActivityIndicator
                           size="large"
                           color={colors.Primary_01}
                           style={{ marginTop: 20 }}
                         />
                       ) : (
-                        galleryImages.length > 0 && (
+                        galleryImagesBefore.length > 0 && (
                           <View style={styles.gallerySection}>
                             <Text
                               style={[
@@ -628,17 +672,17 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                 { color: colors.black, marginBottom: 10 },
                               ]}
                             >
-                              {t("galleryImages")}
+                              {t("galleryImagesBefore")}
                             </Text>
                             <FlatList
-                              data={galleryImages}
+                              data={galleryImagesBefore}
                               numColumns={3}
                               columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
                               renderItem={({ item, index }) => (
                                 <TouchableOpacity
                                   key={index}
                                   activeOpacity={0.8}
-                                  onPress={() => openImageView(index, false)}
+                                  onPress={() => openImageView(index, "before")}
                                   style={styles.imageContainer}
                                 >
                                   <Image
@@ -649,7 +693,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                   <TouchableOpacity
                                     activeOpacity={0.8}
                                     style={{ position: "absolute", right: 0, padding: 10 }}
-                                    onPress={() => handleRemoveGalleryImage(index)}
+                                    onPress={() => handleRemoveGalleryImage(index, "before")}
                                   >
                                     <Cross />
                                   </TouchableOpacity>
@@ -659,11 +703,85 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           </View>
                         )
                       )}
+
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => handleGalleryImagesPick("after")}
+                        style={styles.photoUploadSection}
+                      >
+                        <Text
+                          style={[
+                            styles.photoUploadLabel,
+                            Typography.f_14_nunito_extra_bold,
+                          ]}
+                        >
+                          {t("PhotoUpload")}
+                        </Text>
+                        <View style={styles.photoUploadActionRow}>
+                          <AddPhoto />
+                          <Text
+                            style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                          >
+                            {t("galleryImagesAfter")}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+
+                      {/* Gallery Images After Section */}
+                      {isGalleryAfterUploading ? (
+                        <ActivityIndicator
+                          size="large"
+                          color={colors.Primary_01}
+                          style={{ marginTop: 20 }}
+                        />
+                      ) : (
+                        galleryImagesAfter.length > 0 && (
+                          <View style={styles.gallerySection}>
+                            <Text
+                              style={[
+                                Typography.f_16_nunito_medium,
+                                { color: colors.black, marginBottom: 10 },
+                              ]}
+                            >
+                              {t("galleryImagesAfter")}
+                            </Text>
+                            <FlatList
+                              data={galleryImagesAfter}
+                              numColumns={3}
+                              columnWrapperStyle={{ gap: 7, paddingBottom: 12 }}
+                              renderItem={({ item, index }) => (
+                                <TouchableOpacity
+                                  key={index}
+                                  activeOpacity={0.8}
+                                  onPress={() => openImageView(index, "after")}
+                                  style={styles.imageContainer}
+                                >
+                                  <Image
+                                    style={styles.image}
+                                    source={{ uri: item }}
+                                    resizeMode="cover"
+                                  />
+                                  <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    style={{ position: "absolute", right: 0, padding: 10 }}
+                                    onPress={() => handleRemoveGalleryImage(index, "after")}
+                                  >
+                                    <Cross />
+                                  </TouchableOpacity>
+                                </TouchableOpacity>
+                              )}
+                            />
+                          </View>
+                        )
+                      )}
+
                       <ImageView
                         images={
-                          viewingCoverPhoto && coverPhoto
+                          viewingWhich === "cover" && coverPhoto
                             ? [{ uri: coverPhoto }]
-                            : galleryImages.map((url) => ({ uri: url }))
+                            : viewingWhich === "before"
+                              ? galleryImagesBefore.map((url) => ({ uri: url }))
+                              : galleryImagesAfter.map((url) => ({ uri: url }))
                         }
                         imageIndex={selectedIndex}
                         visible={visible}
@@ -681,12 +799,16 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                         validationSchema={validationSchema}
                         onSubmit={async (values, { resetForm }) => {
                           try {
-                            // Combine cover photo and gallery images with cover photo at index 0
-                            const allImages = coverPhoto ? [coverPhoto, ...galleryImages] : galleryImages;
+                            // Combine cover photo and both galleries with cover photo at index 0
+                            const allImages = coverPhoto
+                              ? [coverPhoto, ...galleryImagesBefore, ...galleryImagesAfter]
+                              : [...galleryImagesBefore, ...galleryImagesAfter];
 
                             const formData = {
                               ...values,
                               images: allImages,
+                              imagesBefore: galleryImagesBefore,
+                              imagesAfter: galleryImagesAfter,
                             };
 
                             if (user?.userId) {

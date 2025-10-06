@@ -260,6 +260,8 @@ export const addProperty =
         notes: formData.notes || "",
         location: formData.location,
         images: formData.images,
+        imagesBefore: formData.imagesBefore || [],
+        imagesAfter: formData.imagesAfter || [],
         revenue: 0,
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
@@ -898,6 +900,8 @@ export const updateProperty =
           notes: formData.notes || "",
           location: formData.location,
           images: formData.images,
+          imagesBefore: formData.imagesBefore || [],
+          imagesAfter: formData.imagesAfter || [],
           updatedAt: firestore.FieldValue.serverTimestamp(),
         };
 

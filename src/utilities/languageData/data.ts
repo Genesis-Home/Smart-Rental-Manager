@@ -52,6 +52,8 @@ export const languageData: LanguageData[] = [
       coverPhoto: "Cover Photo",
       selectCoverPhoto: "Select Cover Photo",
       galleryImages: "Gallery Images",
+      galleryImagesBefore: "Gallery Images (before booking)",
+      galleryImagesAfter: "Gallery Images (after booking)",
       addGalleryImages: "Add Gallery Images",
       selectGalleryImages: "Select Gallery Images",
       addTitle: "Add Title",
@@ -303,7 +305,7 @@ export const languageData: LanguageData[] = [
       checkOutTimeMustBeBeforeCheckIn: "Check-out time must be before check-in time",
       update: "Update",
       property: "Property"
-    },
+    } as any,
   },
   {
     locale: "gr",
@@ -353,11 +355,13 @@ export const languageData: LanguageData[] = [
       addProperty: "Προσθήκη Ακινήτου",
       PhotoUpload: "Μεταφόρτωση Φωτογραφίας",
       photo: "Φωτογραφία",
-      coverPhoto: "Cover Photo",
-      selectCoverPhoto: "Select Cover Photo",
-      galleryImages: "Gallery Images",
-      addGalleryImages: "Add Gallery Images",
-      selectGalleryImages: "Select Gallery Images",
+      coverPhoto: "Φωτογραφία εξωφύλλου",
+      selectCoverPhoto: "Επιλογή φωτογραφίας εξωφύλλου",
+      galleryImages: "Εικόνες Γκαλερί",
+      galleryImagesBefore: "Εικόνες από τη συλλογή (πριν από την κράτηση)",
+      galleryImagesAfter: "Εικόνες από τη συλλογή (μετά την κράτηση)",
+      addGalleryImages: "Προσθήκη εικόνων συλλογής",
+      selectGalleryImages: "Επιλογή εικόνων συλλογής",
       addTitle: "Προσθήκη Τίτλου",
       addDes: "Προσθήκη Περιγραφής",
       detail: "Λεπτομέρειες",
@@ -591,7 +595,7 @@ export const languageData: LanguageData[] = [
   update: "Update",
   property: "Property"
 
-    },
+    } as any,
   },
 ];
 
