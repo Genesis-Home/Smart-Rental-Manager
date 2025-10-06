@@ -115,7 +115,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
         try {
           await checkLocationPermission();
-        
+
         } catch (error) {
           console.log('Location fetch failed:', error);
         }
@@ -523,7 +523,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      if (navigation.getState().routes.some((route:any) => route.name === 'Tabs')) {
+      if (navigation.getState().routes.some((route: any) => route.name === 'Tabs')) {
         if (formikSetFieldValueRef.current) {
           formikSetFieldValueRef.current('title', '');
           formikSetFieldValueRef.current('description', '');
@@ -797,12 +797,76 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           location: initialLocation || { address: "", lat: 0, long: 0 },
                         }}
                         validationSchema={validationSchema}
+                        // onSubmit={async (values, { resetForm }) => {
+                        //   try {
+                        //     // Combine cover photo and both galleries with cover photo at index 0
+                        //     const allImages = coverPhoto
+                        //       ? [coverPhoto, ...galleryImagesBefore, ...galleryImagesAfter]
+                        //       : [...galleryImagesBefore, ...galleryImagesAfter];
+
+                        //     const formData = {
+                        //       ...values,
+                        //       images: allImages,
+                        //       imagesBefore: galleryImagesBefore,
+                        //       imagesAfter: galleryImagesAfter,
+                        //     };
+
+                        //     if (user?.userId) {
+                        //       dispatch(addProperty(formData, user.userId, navigation));
+                        //     } else {
+                        //       const errorMessage = await getFirebaseErrorMessage(
+                        //         "User not authenticated"
+                        //       );
+                        //       Toast.show({
+                        //         type: "error",
+                        //         text1: errorMessage,
+                        //       });
+                        //       navigation.navigate("Signin");
+                        //     }
+                        //   } catch (error) {
+                        //     console.error("Form submission error:", error);
+                        //     const errorMessage = await getFirebaseErrorMessage(
+                        //       "Failed to upload images. Please try again."
+                        //     );
+                        //     Toast.show({
+                        //       type: "error",
+                        //       text1: errorMessage,
+                        //       position: "bottom",
+                        //     });
+                        //   }
+                        // }}
                         onSubmit={async (values, { resetForm }) => {
                           try {
-                            // Combine cover photo and both galleries with cover photo at index 0
-                            const allImages = coverPhoto
-                              ? [coverPhoto, ...galleryImagesBefore, ...galleryImagesAfter]
-                              : [...galleryImagesBefore, ...galleryImagesAfter];
+                            // ✅ Check if all required image sets are present
+                            if (!coverPhoto) {
+                              Toast.show({
+                                type: "error",
+                                text1: "Please upload a cover photo before submitting.",
+                                position: "bottom",
+                              });
+                              return;
+                            }
+
+                            if (!galleryImagesBefore || galleryImagesBefore.length === 0) {
+                              Toast.show({
+                                type: "error",
+                                text1: "Please upload images before booking.",
+                                position: "bottom",
+                              });
+                              return;
+                            }
+
+                            if (!galleryImagesAfter || galleryImagesAfter.length === 0) {
+                              Toast.show({
+                                type: "error",
+                                text1: "Please upload images after booking.",
+                                position: "bottom",
+                              });
+                              return;
+                            }
+
+                            // ✅ Combine all images
+                            const allImages = [coverPhoto, ...galleryImagesBefore, ...galleryImagesAfter];
 
                             const formData = {
                               ...values,
@@ -814,9 +878,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                             if (user?.userId) {
                               dispatch(addProperty(formData, user.userId, navigation));
                             } else {
-                              const errorMessage = await getFirebaseErrorMessage(
-                                "User not authenticated"
-                              );
+                              const errorMessage = await getFirebaseErrorMessage("User not authenticated");
                               Toast.show({
                                 type: "error",
                                 text1: errorMessage,
@@ -919,7 +981,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                                     style={{ height: 200, width: "100%" }}
                                     provider={PROVIDER_GOOGLE}
                                     region={mapRegion}
-                                   
+
                                   >
                                     {marker && (
                                       <Marker

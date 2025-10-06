@@ -167,7 +167,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
 
   const lastLocationRef = useRef([property?.location?.lat || 0, property?.location?.long || 0]);
 
-  const [editLocation , setEditLocation] = useState<any[]>([]);
+  const [editLocation, setEditLocation] = useState<any[]>([]);
 
 
 
@@ -228,12 +228,12 @@ const EditProperty: React.FC<EditPropertyProps> = ({
       } else {
         setGalleryImagesAfter([]);
       }
-      setEditLocation([lat , long])
+      setEditLocation([lat, long])
     }
   }, [property]);
 
 
-  
+
 
 
 
@@ -611,8 +611,8 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                 viewingWhich === "cover" && coverPhoto
                   ? [{ uri: coverPhoto }]
                   : viewingWhich === "before"
-                  ? galleryImagesBefore.map((url) => ({ uri: url }))
-                  : galleryImagesAfter.map((url) => ({ uri: url }))
+                    ? galleryImagesBefore.map((url) => ({ uri: url }))
+                    : galleryImagesAfter.map((url) => ({ uri: url }))
               }
               imageIndex={selectedIndex}
               visible={visible}
@@ -631,6 +631,33 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                 validationSchema={validationSchema}
                 onSubmit={async (values) => {
                   try {
+                    // ✅ Check if all required image sets are present
+                    if (!coverPhoto) {
+                      Toast.show({
+                        type: "error",
+                        text1: "Please upload a cover photo before submitting.",
+                        position: "bottom",
+                      });
+                      return;
+                    }
+
+                    if (!galleryImagesBefore || galleryImagesBefore.length === 0) {
+                      Toast.show({
+                        type: "error",
+                        text1: "Please upload images before booking.",
+                        position: "bottom",
+                      });
+                      return;
+                    }
+
+                    if (!galleryImagesAfter || galleryImagesAfter.length === 0) {
+                      Toast.show({
+                        type: "error",
+                        text1: "Please upload images after booking.",
+                        position: "bottom",
+                      });
+                      return;
+                    }
                     const allImages = coverPhoto
                       ? [coverPhoto, ...galleryImagesBefore, ...galleryImagesAfter]
                       : [...galleryImagesBefore, ...galleryImagesAfter];
