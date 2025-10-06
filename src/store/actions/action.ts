@@ -598,6 +598,7 @@ export const addSchedule =
         createdBy: userId,
         createdAt: firestore.FieldValue.serverTimestamp(),
         notes: formData.notes || "",
+        imagesAfter: formData.imagesAfter || [],
       };
 
       await scheduleRef.set(scheduleData);

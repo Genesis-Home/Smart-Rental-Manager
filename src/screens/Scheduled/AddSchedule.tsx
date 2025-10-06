@@ -356,7 +356,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         checkInTime: formatDateTime(startDate, finalFormData.checkInTime),
         checkOutTime: formatDateTime(endDate, finalFormData.checkOutTime),
         notes: selectedProperty?.notes || "",
+        imagesAfter: selectedProperty?.imagesAfter || [],
       };
+      console.log(scheduleData,'-----------scheduleData-----------')
 
       dispatch(addSchedule(scheduleData, user?.userId, navigation));
     }

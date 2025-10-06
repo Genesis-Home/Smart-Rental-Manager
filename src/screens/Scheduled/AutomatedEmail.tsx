@@ -60,6 +60,7 @@ const AutomatedEmail: React.FC = () => {
         const docId = visit?.scheduleId || visit?.id;
         if (!docId) return;
         const scheduleDoc = await firestore().collection('schedules').doc(docId).get();
+        console.log(scheduleDoc, '-----------scheduleDoc-----------')
         if (scheduleDoc.exists) {
           const data = scheduleDoc.data();
           setNotes((data as any)?.notes || "");
@@ -418,7 +419,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            marginTop:30
+            marginTop: 30
           }}
         >
           <View style={{ width: "32%" }}>
@@ -519,6 +520,6 @@ const styles = StyleSheet.create({
   buttonGroup: {
     marginTop: 30,
     gap: 15,
-    marginBottom:40
+    marginBottom: 40
   },
 });
