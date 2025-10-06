@@ -866,15 +866,14 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                             }
 
                             // ✅ Combine all images
-                            const allImages = [coverPhoto, ...galleryImagesBefore, ...galleryImagesAfter];
-
+                            const allImages = [coverPhoto, ...galleryImagesBefore, ];
                             const formData = {
                               ...values,
                               images: allImages,
                               imagesBefore: galleryImagesBefore,
                               imagesAfter: galleryImagesAfter,
                             };
-
+                            
                             if (user?.userId) {
                               dispatch(addProperty(formData, user.userId, navigation));
                             } else {

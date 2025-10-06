@@ -41,6 +41,7 @@ const ApartmentDetails: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isImageViewVisible, setIsImageViewVisible] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [viewingGallery, setViewingGallery] = useState<"main" | "after">("main");
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const scrollRef = useRef<FlatList>(null);
@@ -114,8 +115,9 @@ const ApartmentDetails: React.FC = () => {
     }
   };
 
-  const openImageView = (index: number) => {
+  const openImageView = (index: number, gallery: "main" | "after" = "main") => {
     setSelectedImageIndex(index);
+    setViewingGallery(gallery);
     setIsImageViewVisible(true);
   };
 
@@ -137,7 +139,7 @@ const ApartmentDetails: React.FC = () => {
                 renderItem={({ item, index }) => (
                   <TouchableOpacity
                     activeOpacity={0.8}
-                    onPress={() => openImageView(index)}
+                    onPress={() => openImageView(index, "main")}
                   >
                     <FastImage
                       key={index}
@@ -189,7 +191,9 @@ const ApartmentDetails: React.FC = () => {
 
           <ImageView
             images={
-              apartmentDetail?.images.map((url: string) => ({ uri: url })) || []
+              viewingGallery === "main"
+                ? apartmentDetail?.images.map((url: string) => ({ uri: url })) || []
+                : apartmentDetail?.imagesAfter?.map((url: string) => ({ uri: url })) || []
             }
             imageIndex={selectedImageIndex}
             visible={isImageViewVisible}
@@ -316,6 +320,35 @@ const ApartmentDetails: React.FC = () => {
           >
             {apartmentDetail?.otherDetails}
           </Text>
+
+          {/* Images After Booking Section */}
+          {apartmentDetail?.imagesAfter && apartmentDetail.imagesAfter.length > 0 && (
+            <View style={styles.afterImagesSection}>
+              <Text style={[Typography.f_16_nunito_bold, { color: Colors.black, marginTop: 20, marginBottom: 10 }]}>
+                {t("galleryImagesAfter")}
+              </Text>
+              <FlatList
+                data={apartmentDetail.imagesAfter}
+                numColumns={3}
+                scrollEnabled={false}
+                columnWrapperStyle={{ gap: 7, marginBottom: 7 }}
+                renderItem={({ item, index }) => (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => openImageView(index, "after")}
+                    style={styles.thumbnailContainer}
+                  >
+                    <FastImage
+                      source={{ uri: item }}
+                      resizeMode={FastImage.resizeMode.cover}
+                      style={styles.thumbnailImage}
+                    />
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => `after-${index}`}
+              />
+            </View>
+          )}
         </View>
         <Modal
           transparent={true}
@@ -420,6 +453,19 @@ const styles = StyleSheet.create({
     color: Colors.DARK_GREEN,
     lineHeight: 24,
     marginBottom: 10,
+  },
+  afterImagesSection: {
+    marginTop: 10,
+  },
+  thumbnailContainer: {
+    width: (width * 0.9 - 14) / 3,
+    height: 100,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  thumbnailImage: {
+    width: "100%",
+    height: "100%",
   },
   modalOverlay: {
     flex: 1,

@@ -198,8 +198,8 @@ const EditProperty: React.FC<EditPropertyProps> = ({
       dispatch(fetchPropertyById(id));
     }
   }, [id]);
-
   useEffect(() => {
+
     if (property && property.location) {
       const { lat, long, address } = property.location;
       setInputText(address || "");
