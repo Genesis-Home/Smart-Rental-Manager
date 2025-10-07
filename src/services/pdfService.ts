@@ -1,7 +1,7 @@
 import RNHTMLtoPDF from "react-native-html-to-pdf";
 import RNFS from "react-native-fs";
 import moment from "moment";
-
+import { Share } from "react-native";
 export const generateSchedulePDF = async (scheduleData: any) => {
   try {
     const htmlContent = `
@@ -46,134 +46,72 @@ export const generateSchedulePDF = async (scheduleData: any) => {
             <div class="invoice-title">Invoice</div>
             <div class="invoice-details">
               <div><span>Invoice ID:</span> ${scheduleData.id || "N/A"}</div>
-              <div><span>Invoice Date:</span> ${moment().format(
-      "MMMM D, YYYY"
-    )}</div>
+              <div><span>Invoice Date:</span> ${moment().format("MMMM D, YYYY")}</div>
             </div>
           </div>
           
           <div class="section">
             <div class="section-title">Customer Information</div>
             <div class="customer-info">
-              <div><span class="label">Name:</span> <span class="value"> ${scheduleData.clientName
-      }</span></div>
-              <div><span class="label">Email:</span> <span class="value"> ${scheduleData.email
-      }</span></div>
-              <div><span class="label">Phone:</span> <span class="value"> ${scheduleData.phoneNum
-      }</span></div>
+              <div><span class="label">Name:</span> <span class="value">${scheduleData.clientName}</span></div>
+              <div><span class="label">Email:</span> <span class="value">${scheduleData.email}</span></div>
+              <div><span class="label">Phone:</span> <span class="value">${scheduleData.phoneNum}</span></div>
             </div>
           </div>
 
           <div class="section">
             <div class="section-title">Visit Details</div>
             <table>
-              <tr>
-                <td class="table-label">Property Name:</td>
-                <td class="table-value"> ${scheduleData.property}</td>
-              </tr>
-              <tr>
-                <td class="table-label">Location:</td>
-                <td class="table-value"> ${scheduleData.location?.address}</td>
-              </tr>
-              <tr>
-                <td class="table-label">Visit Dates:</td>
-                <td class="table-value"> ${scheduleData.visitDates}</td>
-              </tr>
-              <tr>
-                <td class="table-label">Check In Time:</td>
-                <td class="table-value"> ${scheduleData.checkInTime}</td>
-              </tr>
-              <tr>
-                <td class="table-label">Check Out Time:</td>
-                <td class="table-value"> ${scheduleData.checkOutTime}</td>
-              </tr>
-              ${scheduleData.numberOfVisitors
-        ? `
-              <tr>
-                <td class="table-label">Number of Visitors:</td>
-                <td class="table-value"> ${scheduleData.numberOfVisitors}</td>
-              </tr>
-              `
-        : ""
-      }
-              ${scheduleData.numberOfInfants
-        ? `
-              <tr>
-                <td class="table-label">Number of Infants:</td>
-                <td class="table-value"> ${scheduleData.numberOfInfants}</td>
-              </tr>
-              `
-        : ""
-      }
-              ${scheduleData.otherDetails
-        ? `
-              <tr>
-                <td class="table-label">Details For Customer:</td>
-                <td class="table-value"> ${scheduleData.otherDetails}</td>
-              </tr>
-              `
-        : ""
-      }
+              <tr><td class="table-label">Property Name:</td><td class="table-value">${scheduleData.property}</td></tr>
+              <tr><td class="table-label">Location:</td><td class="table-value">${scheduleData.location?.address}</td></tr>
+              <tr><td class="table-label">Visit Dates:</td><td class="table-value">${scheduleData.visitDates}</td></tr>
+              <tr><td class="table-label">Check In Time:</td><td class="table-value">${scheduleData.checkInTime}</td></tr>
+              <tr><td class="table-label">Check Out Time:</td><td class="table-value">${scheduleData.checkOutTime}</td></tr>
+              ${scheduleData.numberOfVisitors ? `<tr><td class="table-label">Number of Visitors:</td><td class="table-value">${scheduleData.numberOfVisitors}</td></tr>` : ""}
+              ${scheduleData.numberOfInfants ? `<tr><td class="table-label">Number of Infants:</td><td class="table-value">${scheduleData.numberOfInfants}</td></tr>` : ""}
+              ${scheduleData.otherDetails ? `<tr><td class="table-label">Details For Customer:</td><td class="table-value">${scheduleData.otherDetails}</td></tr>` : ""}
             </table>
           </div>
 
           <div class="section">
             <div class="section-title">Financial Details</div>
             <table>
-               <tr>
-                <td class="table-label">Agreed Price:</td>
-                <td class="table-value"> ${scheduleData.agreedPrice}</td>
-              </tr>
-              <tr>
-                <td class="table-label">Down Payment:</td>
-                <td class="table-value"> ${scheduleData.advanceAmount || "0"
-      }</td>
-              </tr>
-              <tr>
-                <td class="table-label">Balance Amount:</td>
-                <td class="table-value"> ${parseFloat(scheduleData.agreedPrice || "0") -
-      parseFloat(scheduleData.advanceAmount || "0")
-      }</td>
-              </tr>
+              <tr><td class="table-label">Agreed Price:</td><td class="table-value">${scheduleData.agreedPrice}</td></tr>
+              <tr><td class="table-label">Down Payment:</td><td class="table-value">${scheduleData.advanceAmount || "0"}</td></tr>
+              <tr><td class="table-label">Balance Amount:</td><td class="table-value">${parseFloat(scheduleData.agreedPrice || "0") - parseFloat(scheduleData.advanceAmount || "0")}</td></tr>
             </table>
           </div>
-             ${scheduleData.images && scheduleData.images.length > 1
-        ? `
+
+          ${scheduleData.images && scheduleData.images.length > 1 ? `
             <div class="gallery-section">
-              <div class="gallery-title">Property Images</div>
+              <div class="gallery-title">Property Images (Before)</div>
               <div class="gallery-grid">
-              ${(scheduleData.images as string[])
-          .slice(1)
-          .map(
-            (img: string) => `
-    <div class="gallery-img-box">
-      <img src="${img}" class="gallery-img" />
-    </div>
-  `
-          )
-          .join("")}
-
+                ${scheduleData.images.slice(1).map((img: string) => `
+                  <div class="gallery-img-box"><img src="${img}" class="gallery-img" /></div>
+                `).join("")}
               </div>
-            </div>
-          `
-        : ""
-      }
-
-          ${scheduleData.notes
-        ? `
-          <div class="section">
-            <div class="section-title">Notes</div>
-            <div class="notes-content">${scheduleData.notes} </div>
-          </div>
-          `
-        : ""
-      }
-
+            </div>` : ""}
+          
+          ${scheduleData.imagesAfter && scheduleData.imagesAfter.length > 0 ? `
+            <div class="gallery-section">
+              <div class="gallery-title">Property Images (After)</div>
+              <div class="gallery-grid">
+                ${scheduleData.imagesAfter.map((img: string) => `
+                  <div class="gallery-img-box"><img src="${img}" class="gallery-img" /></div>
+                `).join("")}
+              </div>
+            </div>` : ""}
+          
+          ${scheduleData.notes ? `
+            <div class="section">
+              <div class="section-title">Notes</div>
+              <div class="notes-content">${scheduleData.notes}</div>
+            </div>` : ""}
+          
           <div class="footer">
             <p>Generated on ${moment().format("MMMM D, YYYY h:mm A")}</p>
             <p>Thank you for choosing our service!</p>
           </div>
-
         </body>
       </html>
     `;
@@ -184,57 +122,238 @@ export const generateSchedulePDF = async (scheduleData: any) => {
     const options = {
       html: htmlContent,
       fileName: fileName,
-      directory: "Cache",
+      directory: 'Cache',
       base64: false,
       height: 792,
       width: 612,
       padding: 10,
     };
 
-    console.log("Generating PDF with options:", options);
+    console.log('Generating PDF with options:', options);
     const file = await RNHTMLtoPDF.convert(options);
-    console.log("PDF generated at:", file.filePath);
 
-    if (!file.filePath) {
-      throw new Error("PDF generation failed - no file path returned");
-    }
+    if (!file.filePath) throw new Error('PDF generation failed - no file path returned');
 
     const fileExists = await RNFS.exists(file.filePath);
-    if (!fileExists) {
-      throw new Error("PDF file not found after generation");
-    }
+    if (!fileExists) throw new Error('PDF file not found after generation');
 
-    const fileInfo = await RNFS.stat(file.filePath);
-    if (fileInfo.size === 0) {
-      throw new Error("Generated PDF file is empty");
-    }
-
-    const downloadsPath = `${RNFS.DownloadDirectoryPath}/${fileName}.pdf`;
-    const downloadsDirExists = await RNFS.exists(RNFS.DownloadDirectoryPath);
-    if (!downloadsDirExists) {
-      await RNFS.mkdir(RNFS.DownloadDirectoryPath);
-    }
+    // ✅ Use app-safe external directory (no permission needed)
+    const downloadsPath = `${RNFS.ExternalDirectoryPath}/${fileName}.pdf`;
 
     await RNFS.copyFile(file.filePath, downloadsPath);
-    console.log("PDF copied to:", downloadsPath);
+    console.log('PDF saved to:', downloadsPath);
 
-    const copiedFileExists = await RNFS.exists(downloadsPath);
-    if (!copiedFileExists) {
-      throw new Error("Failed to copy PDF to downloads directory");
-    }
-
+    // Cleanup temp file
     try {
       await RNFS.unlink(file.filePath);
     } catch (cleanupError) {
-      console.warn("Failed to clean up temporary PDF file:", cleanupError);
+      console.warn('Failed to clean up temporary PDF file:', cleanupError);
+    }
+
+    // ✅ Optional: Automatically share or open the PDF
+    try {
+      await Share.open({
+        url: `file://${downloadsPath}`,
+        type: 'application/pdf',
+        title: 'Booking Invoice PDF',
+      });
+    } catch (shareError) {
+      console.warn('User canceled share or failed to open PDF:', shareError);
     }
 
     return downloadsPath;
+
   } catch (error) {
-    console.error("Error generating PDF:", error);
+    console.error('Error generating PDF:', error);
     throw error;
   }
 };
+// export const generatePropertyPDF = async (propertyData: {
+
+
+
+
+
+
+//   id: string;
+//   title: string;
+//   description: string;
+//   location: { address: string; lat: number; long: number | null };
+//   images: string[];
+//   imagesAfter?: string[];
+//   otherDetails?: string;
+//   notes?: string;
+// }) => {
+//   try {
+//     const mapsUrl = propertyData.location?.lat && propertyData.location?.long
+//       ? `https://www.google.com/maps?q=${propertyData.location.lat},${propertyData.location.long}`
+//       : propertyData.location?.address
+//         ? `https://www.google.com/maps/search/${encodeURIComponent(propertyData.location.address)}`
+//         : "";
+
+//     const heroImage = propertyData.images && propertyData.images.length > 0 ? propertyData.images[0] : "";
+
+//     const htmlContent = `
+//       <html>
+//         <head>
+//           <meta charset="utf-8" />
+//           <meta name="viewport" content="width=device-width, initial-scale=1" />
+//           <style>
+//             @page { size: A4; margin: 18pt 18pt 22pt 18pt; }
+//             :root {
+//               --primary: #24A69E;
+//               --bg: #F6F8FA;
+//               --text: #1F2937;
+//               --muted: #6B7280;
+//               --card: #FFFFFF;
+//               --border: #E5E7EB;
+//             }
+//             * { box-sizing: border-box; }
+//             body { margin: 0; padding: 0; background: var(--bg); font-family: Arial, Helvetica, sans-serif; color: var(--text); }
+//             .container { width: 100%; max-width: 720px; margin: 0 auto; padding: 14px; }
+//             .header { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+//             .bar { background: var(--primary); color: #fff; padding: 14px 18px; font-weight: 700; font-size: 18px; display: flex; align-items: center; justify-content: space-between; }
+//             .bar small { font-weight: 400; font-size: 12px; opacity: .95; }
+//             .hero { width: 100%; background: #ececec; }
+//             .hero-img { width: 100%; height: auto; max-height: 280px; display: block; object-fit: cover; }
+//             .content { padding: 14px; }
+//             .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 12px; }
+//             .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; page-break-inside: avoid; }
+//             .section-title { color: var(--primary); font-size: 14px; font-weight: 700; margin: 0 0 8px; letter-spacing: .2px; }
+//             .text { font-size: 12.5px; line-height: 1.65; color: var(--text); white-space: pre-wrap; }
+//             .muted { color: var(--muted); font-size: 12px; }
+//             .info-row { display: grid; grid-template-columns: 95px 1fr; gap: 8px; margin: 4px 0; font-size: 12.5px; align-items: start; }
+//             .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; border: 1px solid #cbecea; background: #f4fffe; color: var(--primary); font-size: 12px; }
+//             .btn { display: inline-block; padding: 10px 12px; background: var(--primary); color: #fff; text-decoration: none; border-radius: 8px; font-size: 13px; }
+//             .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+//             .image { width: 100%; height: 140px; border-radius: 10px; object-fit: cover; background: #eee; }
+//             .gallery-section { margin-top: 14px; }
+//             .gallery-title { font-size: 14px; font-weight: bold; color: #24A69E; margin-bottom: 10px; }
+//             .gallery-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+//             .gallery-img-box { width: 32%; margin-bottom: 8px; }
+//             .gallery-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; background: #eee; }
+//             .footer { text-align: center; color: var(--muted); font-size: 11.5px; margin-top: 10px; }
+//             @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+//           </style>
+//         </head>
+//         <body>
+//           <div class="container">
+//             <div class="header" style="width: 94%; margin: 0 auto;">
+//               <div class="bar">
+//                 <span>${propertyData.title || "Property"}</span>
+//                 <small>${moment().format("MMM D, YYYY h:mm A")}</small>
+//               </div>
+//               <div class="hero">${heroImage ? `<img class=\"hero-img\" src=\"${heroImage}\" />` : ``}</div>
+//             </div>
+
+//             <div class="content">
+//               <div class="grid">
+//                 ${propertyData.images && propertyData.images.length > 1 ? `
+//                 <div class="card" style="margin-top:14px;">
+//                   <div class="section-title">Gallery (Before)</div>
+//                   <div class="gallery">
+//                     ${propertyData.images.slice(1).map((img) => `<img src="${img}" class="image" />`).join("")}
+//                   </div>
+//                 </div>` : ""}
+                
+//                 <div class="card">
+//                   <div class="section-title">Description</div>
+//                   <div class="text">${propertyData.description || "N/A"}</div>
+//                 </div>
+
+//                 <div class="card">
+//                   <div class="section-title">Location</div>
+//                   <div class="info-row"><strong>Address</strong><span>${propertyData.location?.address || "N/A"}</span></div>
+//                   ${mapsUrl ? `<div style="margin-top:8px"><a class="btn" href="${mapsUrl}">Open in Google Maps</a></div>` : ""}
+//                 </div>
+//               </div>
+
+//               ${propertyData.imagesAfter && propertyData.imagesAfter.length > 0 ? `
+//                 <div class="gallery-section">
+//                   <div class="card">
+//                     <div class="section-title">Property Images (After)</div>
+//                     <div class="gallery-grid">
+//                       ${propertyData.imagesAfter.map((img: string) => `
+//                         <div class="gallery-img-box"><img src="${img}" class="gallery-img" /></div>
+//                       `).join("")}
+//                     </div>
+//                   </div>
+//                 </div>` : ""}
+
+//               ${propertyData.otherDetails ? `
+//                 <div class="card" style="margin-top:14px;">
+//                   <div class="section-title">Other Details</div>
+//                   <div class="text">${propertyData.otherDetails}</div>
+//                 </div>` : ""}
+
+//               ${propertyData.notes ? `
+//                 <div class="card" style="margin-top:14px;">
+//                   <div class="section-title">Notes</div>
+//                   <div class="text">${propertyData.notes}</div>
+//                 </div>` : ""}
+                
+//               <div class="footer">Smart Rental Manager • Generated PDF</div>
+//             </div>
+//           </div>
+//         </body>
+//       </html>
+//     `;
+
+//     const timestamp = moment().format("YYYY-MM-DD_HH-mm-ss");
+//     const safeTitle = (propertyData.title || "Property").replace(/[^a-z0-9_\-]/gi, "_");
+//     const fileName = `Property_${safeTitle}_${timestamp}`;
+
+//     const options = {
+//       html: htmlContent,
+//       fileName: fileName,
+//       directory: "Cache",
+//       base64: false,
+//       height: 792,
+//       width: 612,
+//       padding: 10,
+//     } as const;
+
+//     const file = await RNHTMLtoPDF.convert(options);
+//     if (!file.filePath) {
+//       throw new Error("PDF generation failed - no file path returned");
+//     }
+
+//     const fileExists = await RNFS.exists(file.filePath);
+//     if (!fileExists) {
+//       throw new Error("PDF file not found after generation");
+//     }
+
+//     // ✅ FIXED: Use ExternalDirectoryPath instead of DownloadDirectoryPath (no permission needed)
+//     const downloadsPath = `${RNFS.ExternalDirectoryPath}/${fileName}.pdf`;
+
+//     await RNFS.copyFile(file.filePath, downloadsPath);
+//     console.log('PDF saved to:===========', downloadsPath);
+
+//     // Cleanup temp file
+//     try {
+//       await RNFS.unlink(file.filePath);
+//     } catch (cleanupError) {
+//       console.warn('Failed to clean up temporary PDF file:', cleanupError);
+//     }
+
+//     // ✅ Optional: Automatically share or open the PDF
+//     // try {
+//     //   await Share.open({
+//     //     url: `file://${downloadsPath}`,
+//     //     type: 'application/pdf',
+//     //     title: 'Property PDF',
+//     //   });
+//     // } catch (shareError) {
+//     //   console.warn('User canceled share or failed to open PDF:', shareError);
+//     // }
+
+//     return downloadsPath;
+//   } catch (error) {
+//     console.error("Error generating property PDF:", error);
+//     throw error;
+//   }
+// };
+
 
 export const generatePropertyPDF = async (propertyData: {
   id: string;
@@ -242,6 +361,7 @@ export const generatePropertyPDF = async (propertyData: {
   description: string;
   location: { address: string; lat: number; long: number | null };
   images: string[];
+  imagesAfter?: string[];
   otherDetails?: string;
   notes?: string;
 }) => {
@@ -255,92 +375,297 @@ export const generatePropertyPDF = async (propertyData: {
     const heroImage = propertyData.images && propertyData.images.length > 0 ? propertyData.images[0] : "";
 
     const htmlContent = `
-      <html>
-        <head>
-          <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <style>
-            @page { size: A4; margin: 18pt 18pt 22pt 18pt; }
-            :root {
-              --primary: #24A69E;
-              --bg: #F6F8FA;
-              --text: #1F2937;
-              --muted: #6B7280;
-              --card: #FFFFFF;
-              --border: #E5E7EB;
-            }
-            * { box-sizing: border-box; }
-            body { margin: 0; padding: 0; background: var(--bg); font-family: Arial, Helvetica, sans-serif; color: var(--text); }
-            .container { width: 100%; max-width: 720px; margin: 0 auto; padding: 14px; }
-            .header { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-            .bar { background: var(--primary); color: #fff; padding: 14px 18px; font-weight: 700; font-size: 18px; display: flex; align-items: center; justify-content: space-between; }
-            .bar small { font-weight: 400; font-size: 12px; opacity: .95; }
-            .hero { width: 100%; background: #ececec; }
-            .hero-img { width: 100%; height: auto; max-height: 280px; display: block; object-fit: cover; }
-            .content { padding: 14px; }
-            .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 12px; }
-            .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; page-break-inside: avoid; }
-            .section-title { color: var(--primary); font-size: 14px; font-weight: 700; margin: 0 0 8px; letter-spacing: .2px; }
-            .text { font-size: 12.5px; line-height: 1.65; color: var(--text); white-space: pre-wrap; }
-            .muted { color: var(--muted); font-size: 12px; }
-            .info-row { display: grid; grid-template-columns: 95px 1fr; gap: 8px; margin: 4px 0; font-size: 12.5px; align-items: start; }
-            .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; border: 1px solid #cbecea; background: #f4fffe; color: var(--primary); font-size: 12px; }
-            .btn { display: inline-block; padding: 10px 12px; background: var(--primary); color: #fff; text-decoration: none; border-radius: 8px; font-size: 13px; }
-            .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-            .image { width: 100%; height: 140px; border-radius: 10px; object-fit: cover; background: #eee; }
-            .footer { text-align: center; color: var(--muted); font-size: 11.5px; margin-top: 10px; }
-            @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header" style="width: 94%; margin: 0 auto;">
-              <div class="bar">
-                <span>${propertyData.title || "Property"}</span>
-                <small>${moment().format("MMM D, YYYY h:mm A")}</small>
-              </div>
-              <div class="hero">${heroImage ? `<img class=\"hero-img\" src=\"${heroImage}\" />` : ``}</div>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      @page { 
+        size: A4; 
+        margin: 0; 
+      }
+      
+      * { 
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box; 
+      }
+      
+      body { 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        color: #1a1a1a;
+        background: #ffffff;
+        line-height: 1.6;
+      }
+      
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 20mm;
+        background: white;
+      }
+      
+      .header {
+        background: linear-gradient(135deg, #24A69E 0%, #1e8b84 100%);
+        color: white;
+        padding: 24px 28px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(36, 166, 158, 0.15);
+      }
+      
+      .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      
+      .property-title {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+      
+      .property-id {
+        font-size: 11px;
+        opacity: 0.85;
+        background: rgba(255,255,255,0.2);
+        padding: 4px 10px;
+        border-radius: 6px;
+      }
+      
+      .header-date {
+        font-size: 12px;
+        opacity: 0.9;
+        margin-top: 4px;
+      }
+      
+      .hero-section {
+        margin-bottom: 24px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f5f5f5;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      }
+      
+      .hero-image {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        display: block;
+      }
+      
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      
+      .content-card {
+        background: #fafafa;
+        border: 1px solid #e8e8e8;
+        border-radius: 10px;
+        padding: 20px;
+        break-inside: avoid;
+      }
+      
+      .card-title {
+        color: #24A69E;
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .card-title::before {
+        content: '';
+        width: 4px;
+        height: 16px;
+        background: #24A69E;
+        border-radius: 2px;
+      }
+      
+      .card-content {
+        font-size: 13px;
+        color: #333;
+        line-height: 1.7;
+        white-space: pre-wrap;
+      }
+      
+      .location-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .info-item {
+        display: flex;
+        gap: 10px;
+      }
+      
+      .info-label {
+        font-weight: 600;
+        color: #555;
+        min-width: 80px;
+        font-size: 12px;
+      }
+      
+      .info-value {
+        color: #333;
+        font-size: 13px;
+        flex: 1;
+      }
+      
+      .map-link {
+        display: inline-block;
+        background: #24A69E;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 8px;
+      }
+      
+      .gallery-card {
+        grid-column: 1 / -1;
+      }
+      
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+      
+      .gallery-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #e8e8e8;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      }
+      
+      .full-width-card {
+        grid-column: 1 / -1;
+      }
+      
+      .footer {
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 2px solid #e8e8e8;
+        text-align: center;
+        color: #888;
+        font-size: 11px;
+      }
+      
+      .footer-logo {
+        font-weight: 700;
+        color: #24A69E;
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      
+      @media print {
+        .page { margin: 0; box-shadow: none; }
+        .content-card { break-inside: avoid; page-break-inside: avoid; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="header">
+        <div class="header-top">
+          <div class="property-title">${propertyData.title || "Property Details"}</div>
+          <div class="property-id">ID: ${propertyData.id}</div>
+        </div>
+        <div class="header-date">Generated on ${moment().format("MMMM D, YYYY • h:mm A")}</div>
+      </div>
+      
+      ${heroImage ? `
+      <div class="hero-section">
+        <img class="hero-image" src="${heroImage}" alt="Property" />
+      </div>
+      ` : ''}
+      
+      <div class="content-grid">
+        <div class="content-card full-width-card">
+          <div class="card-title">Description</div>
+          <div class="card-content">${propertyData.description || "No description available"}</div>
+        </div>
+        
+        <div class="content-card">
+          <div class="card-title">Location</div>
+          <div class="location-info">
+            <div class="info-item">
+              <span class="info-label">Address:</span>
+              <span class="info-value">${propertyData.location?.address || "N/A"}</span>
             </div>
-
-            <div class="content">
-              <div class="grid">
-              ${propertyData.images && propertyData.images.length > 0 ? `
-                <div class="card" style="margin-top:14px;">
-                  <div class="section-title">Gallery</div>
-                  <div class="gallery">
-                    ${propertyData.images.map((img) => `<img src="${img}" class="image" />`).join("")}
-                  </div>
-                </div>` : ""}
-                
-              <div class="card">
-                  <div class="section-title">Description</div>
-                  <div class="text">${propertyData.description || "N/A"}</div>
-                </div>
-
-                <div class="card">
-                  <div class="section-title">Location</div>
-                  <div class="info-row"><strong>Address</strong><span>${propertyData.location?.address || "N/A"}</span></div>
-                  ${mapsUrl ? `<div style="margin-top:8px"><a class="btn" href="${mapsUrl}">Open in Google Maps</a></div>` : ""}
-                </div>
-              </div>
-
-              ${propertyData.otherDetails ? `
-                <div class="card" style="margin-top:14px;">
-                  <div class="section-title">Other Details</div>
-                  <div class="text">${propertyData.otherDetails}</div>
-                </div>` : ""}
-
-              ${propertyData.notes ? `
-                <div class="card" style="margin-top:14px;">
-                  <div class="section-title">Notes</div>
-                  <div class="text">${propertyData.notes}</div>
-                </div>` : ""}
-                
-              <div class="footer">Smart Rental Manager • Generated PDF</div>
+            ${propertyData.location?.lat ? `
+            <div class="info-item">
+              <span class="info-label">Coordinates:</span>
+              <span class="info-value">${propertyData.location.lat}, ${propertyData.location.long || "N/A"}</span>
             </div>
+            ` : ''}
+            ${mapsUrl ? `
+            <a href="${mapsUrl}" class="map-link">📍 Open in Google Maps</a>
+            ` : ''}
           </div>
-        </body>
-      </html>
+        </div>
+        
+        ${propertyData.otherDetails ? `
+        <div class="content-card">
+          <div class="card-title">Other Details</div>
+          <div class="card-content">${propertyData.otherDetails}</div>
+        </div>
+        ` : ''}
+        
+        ${propertyData.notes ? `
+        <div class="content-card ${!propertyData.otherDetails ? 'full-width-card' : ''}">
+          <div class="card-title">Notes</div>
+          <div class="card-content">${propertyData.notes}</div>
+        </div>
+        ` : ''}
+        
+        ${propertyData.images && propertyData.images.length > 1 ? `
+        <div class="content-card gallery-card">
+          <div class="card-title">Property Images (Before)</div>
+          <div class="gallery-grid">
+            ${propertyData.images.slice(1).map((img) => 
+              `<img src="${img}" class="gallery-image" alt="Property Image" />`
+            ).join('')}
+          </div>
+        </div>
+        ` : ''}
+        
+        ${propertyData.imagesAfter && propertyData.imagesAfter.length > 0 ? `
+        <div class="content-card gallery-card">
+          <div class="card-title">Property Images (After)</div>
+          <div class="gallery-grid">
+            ${propertyData.imagesAfter.map((img) => 
+              `<img src="${img}" class="gallery-image" alt="Property Image After" />`
+            ).join('')}
+          </div>
+        </div>
+        ` : ''}
+      </div>
+      
+      <div class="footer">
+        <div class="footer-logo">🏢 Smart Rental Manager</div>
+        <div>Professional Property Management System</div>
+      </div>
+    </div>
+  </body>
+</html>
     `;
 
     const timestamp = moment().format("YYYY-MM-DD_HH-mm-ss");
@@ -350,14 +675,16 @@ export const generatePropertyPDF = async (propertyData: {
     const options = {
       html: htmlContent,
       fileName: fileName,
-      directory: "Cache",
+      directory: Platform.OS === 'ios' ? 'Documents' : 'Downloads',
       base64: false,
-      height: 792,
-      width: 612,
-      padding: 10,
+      height: 842, // A4 height in points (297mm)
+      width: 595,  // A4 width in points (210mm)
+      padding: 0,
     } as const;
 
+    console.log('🔄 Generating PDF...');
     const file = await RNHTMLtoPDF.convert(options);
+    
     if (!file.filePath) {
       throw new Error("PDF generation failed - no file path returned");
     }
@@ -367,31 +694,33 @@ export const generatePropertyPDF = async (propertyData: {
       throw new Error("PDF file not found after generation");
     }
 
-    const fileInfo = await RNFS.stat(file.filePath);
-    if (fileInfo.size === 0) {
-      throw new Error("Generated PDF file is empty");
-    }
+    // Platform-specific save path
+    const finalPath = Platform.OS === 'android' 
+      ? `${RNFS.ExternalDirectoryPath}/${fileName}.pdf`
+      : `${RNFS.DocumentDirectoryPath}/${fileName}.pdf`;
 
-    const downloadsPath = `${RNFS.DownloadDirectoryPath}/${fileName}.pdf`;
-    const downloadsDirExists = await RNFS.exists(RNFS.DownloadDirectoryPath);
-    if (!downloadsDirExists) {
-      await RNFS.mkdir(RNFS.DownloadDirectoryPath);
-    }
+    await RNFS.copyFile(file.filePath, finalPath);
+    console.log('✅ PDF saved to:', finalPath);
 
-    await RNFS.copyFile(file.filePath, downloadsPath);
-
-    const copiedFileExists = await RNFS.exists(downloadsPath);
-    if (!copiedFileExists) {
-      throw new Error("Failed to copy PDF to downloads directory");
-    }
-
+    // Cleanup temp file
     try {
       await RNFS.unlink(file.filePath);
-    } catch { }
+    } catch (cleanupError) {
+      console.warn('⚠️ Failed to clean up temporary PDF:', cleanupError);
+    }
 
-    return downloadsPath;
+    // Verify final file
+    const finalExists = await RNFS.exists(finalPath);
+    if (!finalExists) {
+      throw new Error("Final PDF file not found at: " + finalPath);
+    }
+
+    const fileStats = await RNFS.stat(finalPath);
+    console.log('📄 PDF file size:', fileStats.size, 'bytes');
+
+    return finalPath;
   } catch (error) {
-    console.error("Error generating property PDF:", error);
+    console.error("❌ Error generating property PDF:", error);
     throw error;
   }
 };

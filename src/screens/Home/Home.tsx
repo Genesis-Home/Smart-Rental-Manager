@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import { HomeScreenNavigationProp, Property } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { colors } from "../../utilities/constants";
+import RNFS from "react-native-fs";
 import FastImage from "react-native-fast-image";
 import {
   downloadMultipleImagesForSharing,
@@ -126,26 +127,125 @@ const Home: React.FC = () => {
       setFilteredProperties(filtered);
     }
   };
+  // const handleShare = async (item: Property) => {
+  //   try {
+  //     setIsSharing(item.id);
+
+  //     const title = item.title || "No Title";
+  //     const description = item.description || "No Description";
+  //     const address = item.location?.address || "No location available";
+  //     const lat = item.location?.lat;
+  //     const lng = item.location?.long;
+
+  //     const mapsUrl =
+  //       lat && lng
+  //         ? `https://www.google.com/maps?q=${lat},${lng}`
+  //         : address !== "No location available"
+  //           ? `https://www.google.com/maps/search/${encodeURIComponent(address)}`
+  //           : "";
+
+  //     // Build share message
+  //     const baseMessage = `🏢 ${title}\n\n📝 Description: ${description}\n\n📍 Location: ${address}${mapsUrl ? `\n${mapsUrl}` : ""}`;
+
+  //     // 1) Try to generate PDF with full formatted template
+  //     let pdfPath: string | null = null;
+  //     try {
+  //       pdfPath = await generatePropertyPDF({
+  //         id: item.id,
+  //         title: item.title,
+  //         description: item.description,
+  //         location: item.location,
+  //         images: item.images || [],
+  //         otherDetails: item.otherDetails,
+  //         notes: item.notes,
+  //         imagesAfter: item.imagesAfter,
+
+  //       });
+  //     } catch (e) {
+  //       pdfPath = null; // proceed with fallback
+  //     }
+
+  //     // 2) Download images if any
+  //     let downloadedImagePaths: string[] = [];
+  //     try {
+  //       if (item.images && item.images.length > 0) {
+  //         downloadedImagePaths = await downloadMultipleImagesForSharing(item.images);
+  //       }
+  //     } catch { }
+
+  //     // 3) Prefer sharing PDF + images (multi-file). Fallback to message with URLs
+  //     if (pdfPath || downloadedImagePaths.length > 0) {
+  //       const urls: string[] = [];
+  //       if (pdfPath) {
+  //         urls.push(`file://${pdfPath}`);
+  //       }
+  //       for (const imgPath of downloadedImagePaths) {
+  //         urls.push(Platform.OS === "android" ? `file://${imgPath}` : imgPath);
+  //       }
+
+  //       const shareOptions: any = {
+  //         title,
+  //         subject: title,
+  //         message: baseMessage,
+  //         urls,
+  //         failOnCancel: false,
+  //         showAppsToView: true,
+  //         isBase64: false,
+  //         dialogTitle: "Share Property",
+  //         forceDialog: true,
+  //         chooserTitle: "Share Property with",
+  //       };
+
+  //       await Share.open(shareOptions);
+  //     } else {
+  //       // Final fallback to text-only share with links
+  //       const fallbackMessage = createFallbackShareMessage(
+  //         title,
+  //         description,
+  //         address,
+  //         item.images,
+  //         mapsUrl
+  //       );
+  //       await Share.open({ title, message: fallbackMessage, failOnCancel: false });
+  //     }
+
+  //     // Clean up downloaded images after sharing
+  //     if (downloadedImagePaths.length > 0) {
+  //       try {
+  //         await cleanupSharedImages(downloadedImagePaths);
+  //       } catch (cleanupError) {
+  //         console.error("Error cleaning up shared images:", cleanupError);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error sharing property:", error);
+  //     Toast.show({
+  //       type: "error",
+  //       text1: "Failed to share property",
+  //       position: "bottom",
+  //     });
+  //   } finally {
+  //     setIsSharing(null);
+  //   }
+  // };
   const handleShare = async (item: Property) => {
     try {
       setIsSharing(item.id);
-
       const title = item.title || "No Title";
       const description = item.description || "No Description";
       const address = item.location?.address || "No location available";
       const lat = item.location?.lat;
       const lng = item.location?.long;
-
       const mapsUrl =
         lat && lng
           ? `https://www.google.com/maps?q=${lat},${lng}`
           : address !== "No location available"
             ? `https://www.google.com/maps/search/${encodeURIComponent(address)}`
             : "";
-
+  
       // Build share message
       const baseMessage = `🏢 ${title}\n\n📝 Description: ${description}\n\n📍 Location: ${address}${mapsUrl ? `\n${mapsUrl}` : ""}`;
-
+  
       // 1) Try to generate PDF with full formatted template
       let pdfPath: string | null = null;
       try {
@@ -157,43 +257,85 @@ const Home: React.FC = () => {
           images: item.images || [],
           otherDetails: item.otherDetails,
           notes: item.notes,
+          imagesAfter: item.imagesAfter,
         });
+        console.log('PDF generated at:', pdfPath);
       } catch (e) {
-        pdfPath = null; // proceed with fallback
+        console.error('PDF generation failed:', e);
+        pdfPath = null;
       }
-
+  
       // 2) Download images if any
       let downloadedImagePaths: string[] = [];
       try {
         if (item.images && item.images.length > 0) {
           downloadedImagePaths = await downloadMultipleImagesForSharing(item.images);
+          console.log('Downloaded images:', downloadedImagePaths.length);
         }
-      } catch {}
-
-      // 3) Prefer sharing PDF + images (multi-file). Fallback to message with URLs
+      } catch (e) {
+        console.error('Image download failed:', e);
+      }
+  
+      // 3) Share with proper file URIs and types
       if (pdfPath || downloadedImagePaths.length > 0) {
         const urls: string[] = [];
+        const types: string[] = [];
+  
+        // Add PDF
         if (pdfPath) {
-          urls.push(`file://${pdfPath}`);
+          const pdfUri = Platform.OS === 'android' ? `file://${pdfPath}` : pdfPath;
+          urls.push(pdfUri);
+          types.push('application/pdf');
+          console.log('Adding PDF to share:', pdfUri);
         }
+  
+        // Add images
         for (const imgPath of downloadedImagePaths) {
-          urls.push(Platform.OS === "android" ? `file://${imgPath}` : imgPath);
+          const imgUri = Platform.OS === 'android' ? `file://${imgPath}` : imgPath;
+          urls.push(imgUri);
+          
+          // Determine image type based on extension
+          const ext = imgPath.toLowerCase().split('.').pop();
+          const mimeType = ext === 'png' ? 'image/png' : 
+                          ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
+                          'image/*';
+          types.push(mimeType);
+          console.log('Adding image to share:', imgUri, mimeType);
         }
-
+  
+        // Verify all files exist before sharing
+        const fileChecks = await Promise.all(
+          [pdfPath, ...downloadedImagePaths]
+            .filter((path): path is string => !!path)
+            .map(async (path) => {
+              const exists = await RNFS.exists(path);
+              if (!exists) {
+                console.error('File does not exist:', path);
+              }
+              return exists;
+            })
+        );
+  
+        if (!fileChecks.every(Boolean)) {
+          throw new Error('Some files are missing');
+        }
+  
         const shareOptions: any = {
-          title,
+          title: title,
           subject: title,
           message: baseMessage,
-          urls,
+          urls: urls,
+          type: types.length === 1 ? types[0] : undefined, // Single type if only one file
           failOnCancel: false,
           showAppsToView: true,
-          isBase64: false,
-          dialogTitle: "Share Property",
-          forceDialog: true,
-          chooserTitle: "Share Property with",
+          saveToFiles: Platform.OS === 'ios', // iOS specific
         };
-
+  
+        console.log('Share options:', JSON.stringify(shareOptions, null, 2));
+        
         await Share.open(shareOptions);
+        
+        console.log('Share completed successfully');
       } else {
         // Final fallback to text-only share with links
         const fallbackMessage = createFallbackShareMessage(
@@ -203,29 +345,36 @@ const Home: React.FC = () => {
           item.images,
           mapsUrl
         );
-        await Share.open({ title, message: fallbackMessage, failOnCancel: false });
+        await Share.open({ 
+          title, 
+          message: fallbackMessage, 
+          failOnCancel: false 
+        });
       }
-
-      // Clean up downloaded images after sharing
+  
+      // Clean up downloaded images after a delay (give time for share to complete)
       if (downloadedImagePaths.length > 0) {
-        try {
-          await cleanupSharedImages(downloadedImagePaths);
-        } catch (cleanupError) {
-          console.error("Error cleaning up shared images:", cleanupError);
-        }
+        setTimeout(async () => {
+          try {
+            await cleanupSharedImages(downloadedImagePaths);
+            console.log('Cleanup completed');
+          } catch (cleanupError) {
+            console.error("Error cleaning up shared images:", cleanupError);
+          }
+        }, 2000); // 2 second delay
       }
     } catch (error) {
       console.error("Error sharing property:", error);
       Toast.show({
         type: "error",
         text1: "Failed to share property",
+        text2: error instanceof Error ? error.message : 'Unknown error',
         position: "bottom",
       });
     } finally {
       setIsSharing(null);
     }
   };
-
   const handleScroll = (event: any, id: string) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
     setActiveIndexes((prev) => ({ ...prev, [id]: index }));
@@ -470,7 +619,7 @@ const Home: React.FC = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
-     
+
 
       <TouchableOpacity
         onPress={async () => {

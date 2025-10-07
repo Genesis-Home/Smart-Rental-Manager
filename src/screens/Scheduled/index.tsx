@@ -32,6 +32,8 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import Share from "react-native-share";
 import SAF from "react-native-saf-x";
 import RNFS from "react-native-fs";
+import FastImage from "react-native-fast-image";
+import ImageView from "react-native-image-viewing";
 
 // Custom Button Component
 interface CustomButtonProps {
@@ -109,6 +111,80 @@ const Scheduled: React.FC = () => {
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [propertyImages, setPropertyImages] = useState<string[]>([]);
+  const [propertyImagesAfter, setPropertyImagesAfter] = useState<string[]>([]);
+  const [isImageViewVisible, setIsImageViewVisible] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [viewingGallery, setViewingGallery] = useState<"before" | "after">("before");
+
+
+  const fetchPropertyImages = async (schedule: any) => {
+    if (schedule?.propertyId) {
+      try {
+        const propertyDoc = await firestore()
+          .collection("properties")
+          .doc(schedule.propertyId)
+          .get();
+
+        if (propertyDoc.exists) {
+          const propertyData = propertyDoc.data();
+          // Set images before (excluding cover photo which is first image)
+          const imagesBefore = propertyData?.imagesBefore || propertyData?.images?.slice(1) || [];
+          setPropertyImages(imagesBefore);
+
+          // Set images after
+          const imagesAfter = propertyData?.imagesAfter || [];
+          setPropertyImagesAfter(imagesAfter);
+        }
+      } catch (error) {
+        console.error("Error fetching property images:", error);
+      }
+    }
+  };
+
+
+  // Add this function to open image viewer
+  const openImageView = (index: number, gallery: "before" | "after") => {
+    setSelectedImageIndex(index);
+    setViewingGallery(gallery);
+    setIsImageViewVisible(true);
+  };
+  const handleSlotClick = async (
+    slotIndex: number,
+    item: { propertyId: string; propertyName: string; schedules: any[] }
+  ) => {
+    const slotDate = addDays(
+      startOfWeek(currentDate, { weekStartsOn: 5 }),
+      slotIndex
+    );
+
+    let clickedSchedule: any = null;
+    item.schedules.forEach((schedule: any) => {
+      if (schedule.visitDates) {
+        const [startStr, endStr] = schedule.visitDates.split(" - ");
+        const startDate = moment(startStr, "MMM D, YYYY").startOf("day");
+        const endDate = moment(endStr, "MMM D, YYYY").endOf("day");
+        const slotMoment = moment(slotDate);
+        if (
+          slotMoment.isSameOrAfter(startDate) &&
+          slotMoment.isSameOrBefore(endDate)
+        ) {
+          clickedSchedule = schedule;
+        }
+      }
+    });
+
+    if (clickedSchedule) {
+      setSelectedSchedule(clickedSchedule);
+      await fetchPropertyImages(clickedSchedule); // Fetch images before showing modal
+      setShowBookingDetailsModal(true);
+    }
+  };
+
+
+
+
   const user = useAppSelector((state: any) => state.reducer.user);
   const userSchedules = useAppSelector((state: any) => state.reducer.schedules);
   // Group schedules by property
@@ -244,39 +320,7 @@ const Scheduled: React.FC = () => {
     setCurrentDate(nextMonth);
   };
 
-  const handleSlotClick = (
-    slotIndex: number,
-    item: { propertyId: string; propertyName: string; schedules: any[] }
-  ) => {
-    const slotDate = addDays(
-      startOfWeek(currentDate, { weekStartsOn: 5 }),
-      slotIndex
-    );
 
-    // Find which schedule is booked for this slot
-    let clickedSchedule: any = null;
-    item.schedules.forEach((schedule: any) => {
-      if (schedule.visitDates) {
-        const [startStr, endStr] = schedule.visitDates.split(" - ");
-        const startDate = moment(startStr, "MMM D, YYYY").startOf("day");
-        const endDate = moment(endStr, "MMM D, YYYY").endOf("day");
-        const slotMoment = moment(slotDate);
-
-        if (
-          slotMoment.isSameOrAfter(startDate) &&
-          slotMoment.isSameOrBefore(endDate)
-        ) {
-          clickedSchedule = schedule;
-        }
-      }
-    });
-
-    // Show booking details modal if slot is booked
-    if (clickedSchedule) {
-      setSelectedSchedule(clickedSchedule);
-      setShowBookingDetailsModal(true);
-    }
-  };
 
   const handleDeleteSchedule = async () => {
     if (selectedSchedule && user?.userId) {
@@ -630,7 +674,6 @@ const Scheduled: React.FC = () => {
               return false;
             });
             if (bookingsForDay.length === 2) {
-              // Two bookings: split slot in half
               return (
                 <View
                   key={i}
@@ -641,15 +684,16 @@ const Scheduled: React.FC = () => {
                       flex: 1,
                       backgroundColor:
                         randomColors[
-                          item.schedules.indexOf(bookingsForDay[0]) %
-                            randomColors.length
+                        item.schedules.indexOf(bookingsForDay[0]) %
+                        randomColors.length
                         ],
                       borderTopLeftRadius: 4,
                       borderBottomLeftRadius: 4,
                     }}
                     activeOpacity={0.8}
-                    onPress={() => {
+                    onPress={async () => {
                       setSelectedSchedule(bookingsForDay[0]);
+                      await fetchPropertyImages(bookingsForDay[0]);
                       setShowBookingDetailsModal(true);
                     }}
                   />
@@ -658,27 +702,29 @@ const Scheduled: React.FC = () => {
                       flex: 1,
                       backgroundColor:
                         randomColors[
-                          item.schedules.indexOf(bookingsForDay[1]) %
-                            randomColors.length
+                        item.schedules.indexOf(bookingsForDay[1]) %
+                        randomColors.length
                         ],
                       borderTopRightRadius: 4,
                       borderBottomRightRadius: 4,
                     }}
                     activeOpacity={0.8}
-                    onPress={() => {
+                    onPress={async () => {
                       setSelectedSchedule(bookingsForDay[1]);
+                      await fetchPropertyImages(bookingsForDay[1]);
                       setShowBookingDetailsModal(true);
                     }}
                   />
                 </View>
               );
-            } else {
+            }
+            else {
               let isBooked = bookingsForDay.length > 0;
               let bookingColor = isBooked
                 ? randomColors[
-                    item.schedules.indexOf(bookingsForDay[0]) %
-                      randomColors.length
-                  ]
+                item.schedules.indexOf(bookingsForDay[0]) %
+                randomColors.length
+                ]
                 : colors.Neutral_01;
               return (
                 <TouchableOpacity
@@ -776,7 +822,7 @@ const Scheduled: React.FC = () => {
       <Modal visible={showCalendar} transparent animationType="fade">
         <TouchableWithoutFeedback onPress={() => setShowCalendar(false)}>
           <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback onPress={() => {}}>
+            <TouchableWithoutFeedback onPress={() => { }}>
               <View style={styles.calendarModal}>
                 {isLocaleReady && (
                   <Calendar
@@ -803,11 +849,11 @@ const Scheduled: React.FC = () => {
                     markedDates={
                       selectedDate
                         ? {
-                            [selectedDate]: {
-                              selected: true,
-                              selectedColor: colors.Primary_01,
-                            },
-                          }
+                          [selectedDate]: {
+                            selected: true,
+                            selectedColor: colors.Primary_01,
+                          },
+                        }
                         : {}
                     }
                     theme={{
@@ -949,6 +995,71 @@ const Scheduled: React.FC = () => {
                   </Text>
                 </View>
               )}
+              {propertyImages && propertyImages.length > 0 && (
+                <View style={styles.gallerySection}>
+                  <Text style={[styles.bookingDetailLabel, { marginTop: 15, marginBottom: 10, width: '100%' }]}>
+                    {t("galleryImagesBefore")}
+                  </Text>
+                  <View style={styles.galleryGrid}>
+                    {propertyImages.map((item: string, index: number) => (
+                      <TouchableOpacity
+                        key={`before-${index}`}
+                        activeOpacity={0.8}
+                        onPress={() => openImageView(index, "before")}
+                        style={styles.imageWrapper}
+                      >
+                        <FastImage
+                          source={{ uri: item }}
+                          style={styles.galleryImage}
+                          resizeMode={FastImage.resizeMode.cover}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Images After Booking */}
+              {propertyImagesAfter && propertyImagesAfter.length > 0 && (
+                <View style={styles.gallerySection}>
+                  <Text style={[styles.bookingDetailLabel, { marginTop: 15, marginBottom: 10, width: '100%' }]}>
+                    {t("galleryImagesAfter")}
+                  </Text>
+                  <View style={styles.galleryGrid}>
+                    {propertyImagesAfter.map((item: string, index: number) => (
+                      <TouchableOpacity
+                        key={`after-${index}`}
+                        activeOpacity={0.8}
+                        onPress={() => openImageView(index, "after")}
+                        style={styles.imageWrapper}
+                      >
+                        <FastImage
+                          source={{ uri: item }}
+                          style={styles.galleryImage}
+                          resizeMode={FastImage.resizeMode.cover}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Image Viewer - Add this right after the images sections, still inside ScrollView */}
+              <ImageView
+                images={
+                  viewingGallery === "before"
+                    ? propertyImages.map((url: string) => ({ uri: url }))
+                    : propertyImagesAfter.map((url: string) => ({ uri: url }))
+                }
+                imageIndex={selectedImageIndex}
+                visible={isImageViewVisible}
+                onRequestClose={() => setIsImageViewVisible(false)}
+                swipeToCloseEnabled={true}
+                doubleTapToZoomEnabled={true}
+              />
+
+
+
             </ScrollView>
             <View style={styles.modalButtons}>
               <View>
@@ -1218,6 +1329,25 @@ const styles = StyleSheet.create({
     ...Typography.f_14_nunito_medium,
     color: colors.black,
     flex: 1,
+  },
+  gallerySection: {
+    marginTop: 10,
+    paddingHorizontal: 10,
+  },
+  galleryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  imageWrapper: {
+    width: "31%",
+    height: 80,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  galleryImage: {
+    width: "100%",
+    height: "100%",
   },
 });
 

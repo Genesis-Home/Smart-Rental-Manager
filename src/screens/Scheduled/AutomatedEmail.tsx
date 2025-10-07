@@ -7,6 +7,9 @@ import {
   Platform,
   PermissionsAndroid,
   Share as ShareRN,
+  FlatList,
+  TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import Header from "../../components/Header";
@@ -34,7 +37,10 @@ import { useFocusEffect } from "@react-navigation/native";
 import SAF from 'react-native-saf-x';
 import firestore from '@react-native-firebase/firestore';
 import { generateSchedulePDF } from "../../services/pdfService";
-import ReactNative from "react-native";
+import FastImage from "react-native-fast-image";
+import ImageView from "react-native-image-viewing";
+
+const { width } = Dimensions.get("window");
 
 type AutomatedEmailParams = {
   visitDetails: VisitDetails;
@@ -47,30 +53,72 @@ const AutomatedEmail: React.FC = () => {
   const visit = route.params?.visitDetails as any;
   const pdfPath = (route.params as AutomatedEmailParams)?.pdfPath;
 
-  type VisitWithProperty = typeof visit & { images?: string[]; otherDetails?: string; notes?: string };
+  type VisitWithProperty = typeof visit & { 
+    images?: string[]; 
+    imagesBefore?: string[];
+    imagesAfter?: string[];
+    otherDetails?: string; 
+    notes?: string;
+  };
 
   const navigation = useNavigation<NavigationProp<RootStackParamList, "Map">>();
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${visit?.location.lat},${visit?.location.long}`;
 
   const [notes, setNotes] = React.useState("");
+  const [imagesAfter, setImagesAfter] = React.useState<string[]>([]);
+  const [isImageViewVisible, setIsImageViewVisible] = React.useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = React.useState(0);
 
   React.useEffect(() => {
-    const loadNotes = async () => {
+    const loadData = async () => {
       try {
         const docId = visit?.scheduleId || visit?.id;
         if (!docId) return;
+        
         const scheduleDoc = await firestore().collection('schedules').doc(docId).get();
-        console.log(scheduleDoc, '-----------scheduleDoc-----------')
+        
         if (scheduleDoc.exists) {
           const data = scheduleDoc.data();
           setNotes((data as any)?.notes || "");
         }
+
+        // Fetch property images
+        let propertyId = (visit as any).propertyId;
+        if (!propertyId && visit.property) {
+          try {
+            const propertyQuery = await firestore()
+              .collection("properties")
+              .where("title", "==", visit.property)
+              .limit(1)
+              .get();
+            if (!propertyQuery.empty) {
+              propertyId = propertyQuery.docs[0].id;
+            }
+          } catch (error) {
+            console.error("Error finding property:", error);
+          }
+        }
+
+        if (propertyId) {
+          try {
+            const propertyDoc = await firestore()
+              .collection("properties")
+              .doc(propertyId)
+              .get();
+            if (propertyDoc.exists) {
+              const propertyData = propertyDoc.data();
+              setImagesAfter((propertyData as any)?.imagesAfter || []);
+            }
+          } catch (error) {
+            console.error("Error fetching property details:", error);
+          }
+        }
       } catch (error) {
-        // silent fail
+        console.error("Error loading data:", error);
       }
     };
-    loadNotes();
-  }, [visit?.scheduleId, visit?.id]);
+    loadData();
+  }, [visit?.scheduleId, visit?.id, visit?.property, visit?.propertyId]);
 
   const visitMessage = `${t("visitDetails")}:
 
@@ -117,7 +165,6 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
     Toast.show({ type: "success", text1: t("copyMsg"), position: "bottom" });
   };
 
-  // Helper function to enrich visit with property images and otherDetails
   const enrichVisitWithPropertyDetails = async (v: any): Promise<VisitWithProperty> => {
     let visitWithExtras = { ...v } as VisitWithProperty;
     let propertyId = (v as any).propertyId;
@@ -144,13 +191,14 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
         if (propertyDoc.exists) {
           const propertyData = propertyDoc.data();
           visitWithExtras.images = (propertyData as any)?.images || [];
+          visitWithExtras.imagesBefore = (propertyData as any)?.imagesBefore || [];
+          visitWithExtras.imagesAfter = (propertyData as any)?.imagesAfter || [];
           visitWithExtras.otherDetails = (propertyData as any)?.otherDetails || "";
         }
       } catch (error) {
         // noop
       }
     }
-    // attach notes from state if available
     visitWithExtras.notes = notes || visitWithExtras.notes || "";
     return visitWithExtras;
   };
@@ -325,6 +373,11 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
     navigation.navigate('ViewPDF', { visit: visitWithExtras });
   };
 
+  const openImageView = (index: number) => {
+    setSelectedImageIndex(index);
+    setIsImageViewVisible(true);
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
@@ -402,6 +455,44 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             {(parseInt(visit?.agreedPrice || "0") - parseInt(visit?.advanceAmount || "0"))}
           </Text>
         </View>
+
+        {/* Images After Section */}
+        {imagesAfter.length > 0 && (
+          <View style={styles.afterImagesSection}>
+            <Text style={[styles.sectionTitle, { marginTop: 20, marginBottom: 10 }]}>
+              {t("galleryImagesAfter")}
+            </Text>
+            <FlatList
+              data={imagesAfter}
+              numColumns={3}
+              scrollEnabled={false}
+              columnWrapperStyle={{ gap: 7, marginBottom: 7 }}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => openImageView(index)}
+                  style={styles.thumbnailContainer}
+                >
+                  <FastImage
+                    source={{ uri: item }}
+                    resizeMode={FastImage.resizeMode.cover}
+                    style={styles.thumbnailImage}
+                  />
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item, index) => `after-${index}`}
+            />
+          </View>
+        )}
+
+        <ImageView
+          images={imagesAfter.map((url: string) => ({ uri: url }))}
+          imageIndex={selectedImageIndex}
+          visible={isImageViewVisible}
+          onRequestClose={() => setIsImageViewVisible(false)}
+          swipeToCloseEnabled={true}
+          doubleTapToZoomEnabled={true}
+        />
 
         <View style={styles.mapLinkWrapper}>
           <Address />
@@ -521,5 +612,18 @@ const styles = StyleSheet.create({
     marginTop: 30,
     gap: 15,
     marginBottom: 40
+  },
+  afterImagesSection: {
+    marginTop: 10,
+  },
+  thumbnailContainer: {
+    width: (width * 0.9 - 14) / 3,
+    height: 100,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  thumbnailImage: {
+    width: "100%",
+    height: "100%",
   },
 });

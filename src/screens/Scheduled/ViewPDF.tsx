@@ -20,14 +20,21 @@ import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
 import { Typography } from "../../utilities/constants/constant.style";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import FastImage from "react-native-fast-image";
+import ImageView from "react-native-image-viewing";
 
 const ViewPDF: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, "ViewPDF">>();
   const { t } = useTranslation();
   const visit = route.params.visit;
   console.log("ViewPDF visit.images:", visit.images);
+  console.log("ViewPDF visit.imagesAfter:", visit.imagesAfter);
   console.log("ViewPDF visit param:", visit);
+  
   const [notes, setNotes] = useState("");
+  const [isImageViewVisible, setIsImageViewVisible] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [viewingGallery, setViewingGallery] = useState<"before" | "after">("before");
 
   useEffect(() => {
     if (visit?.scheduleId) {
@@ -57,12 +64,18 @@ const ViewPDF: React.FC = () => {
 
       if (scheduleDoc.exists) {
         const data = scheduleDoc.data();
-       console.log("ViewPDF data:", data);
+        console.log("ViewPDF data:", data);
         setNotes(data?.notes || "");
       }
     } catch (error) {
       console.error("Error loading notes:", error);
     }
+  };
+
+  const openImageView = (index: number, gallery: "before" | "after" = "before") => {
+    setSelectedImageIndex(index);
+    setViewingGallery(gallery);
+    setIsImageViewVisible(true);
   };
 
   return (
@@ -137,25 +150,66 @@ const ViewPDF: React.FC = () => {
             parseInt(visit?.advanceAmount || "0")}
         </Text>
       </View>
+
+      {/* Images Before Booking */}
       {visit?.images && visit.images.length > 1 && (
         <View style={styles.gallerySection}>
-          <Text style={styles.sectionTitle}>Property Images</Text>
-          <FlatList
-            data={visit.images.slice(1)}
-            keyExtractor={(item, index) => item + index}
-            numColumns={3}
-            renderItem={({ item }) => (
-              <Image
-                source={{ uri: item }}
-                style={styles.galleryImage}
-                resizeMode="cover"
-              />
-            )}
-            contentContainerStyle={styles.galleryList}
-            scrollEnabled={false}
-          />
+          <Text style={styles.sectionTitle}>{t("galleryImagesBefore")}</Text>
+          <View style={styles.galleryGrid}>
+            {visit.images.slice(1).map((item: string, index: number) => (
+              <TouchableOpacity
+                key={`before-${index}`}
+                activeOpacity={0.8}
+                onPress={() => openImageView(index, "before")}
+                style={styles.imageWrapper}
+              >
+                <FastImage
+                  source={{ uri: item }}
+                  style={styles.galleryImage}
+                  resizeMode={FastImage.resizeMode.cover}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       )}
+
+      {/* Images After Booking */}
+      {visit?.imagesAfter && visit.imagesAfter.length > 0 && (
+        <View style={styles.gallerySection}>
+          <Text style={styles.sectionTitle}>{t("galleryImagesAfter")}</Text>
+          <View style={styles.galleryGrid}>
+            {visit.imagesAfter.map((item: string, index: number) => (
+              <TouchableOpacity
+                key={`after-${index}`}
+                activeOpacity={0.8}
+                onPress={() => openImageView(index, "after")}
+                style={styles.imageWrapper}
+              >
+                <FastImage
+                  source={{ uri: item }}
+                  style={styles.galleryImage}
+                  resizeMode={FastImage.resizeMode.cover}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
+
+      <ImageView
+        images={
+          viewingGallery === "before"
+            ? visit?.images?.slice(1).map((url: string) => ({ uri: url })) || []
+            : visit?.imagesAfter?.map((url: string) => ({ uri: url })) || []
+        }
+        imageIndex={selectedImageIndex}
+        visible={isImageViewVisible}
+        onRequestClose={() => setIsImageViewVisible(false)}
+        swipeToCloseEnabled={true}
+        doubleTapToZoomEnabled={true}
+      />
+
       <View style={styles.notesContainer}>
         <Text style={styles.notesLabel}>{t("notes")}</Text>
         <Text style={styles.notesText}>
@@ -267,16 +321,26 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   gallerySection: {
-    // marginTop: 20,
-    // marginBottom: 20,
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  galleryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    marginTop: 5,
+  },
+  imageWrapper: {
+    width: '31%',
+    marginRight: '2.5%',
+    marginBottom: 8,
   },
   galleryList: {
-    gap: 8,
+    paddingVertical: 5,
   },
   galleryImage: {
-    width: '30%',
-    aspectRatio: 1,
-    margin: '1.5%',
+    width: '100%',
+    height: 100,
     borderRadius: 8,
     backgroundColor: '#eee',
   },
