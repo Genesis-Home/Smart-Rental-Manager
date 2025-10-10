@@ -358,7 +358,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         notes: selectedProperty?.notes || "",
         imagesAfter: selectedProperty?.imagesAfter || [],
       };
-      console.log(scheduleData,'-----------scheduleData-----------')
+      console.log(scheduleData, '-----------scheduleData-----------')
 
       dispatch(addSchedule(scheduleData, user?.userId, navigation));
     }
@@ -487,8 +487,8 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                 email: "",
                 phoneNum: "",
                 visitDates: "",
-                checkInTime: "",
-                checkOutTime: "",
+                checkInTime: "03:00 PM",
+                checkOutTime: "11:00 AM",
                 numberOfVisitors: "",
                 numberOfInfants: "",
                 agreedPrice: "",
@@ -722,7 +722,8 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       <FormInput
                         label={t("checkInTime")}
                         placeholder={t("checkInTime")}
-                        value={values.checkInTime}
+                        // value={values.checkInTime}
+                        value={values.checkInTime || "03:00 PM"}
                         editable={false}
                         error={touched.checkInTime && errors.checkInTime}
                       />
@@ -735,7 +736,8 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       <FormInput
                         label={t("checkOutTime")}
                         placeholder={t("checkOutTime")}
-                        value={values.checkOutTime}
+                        // value={values.checkOutTime}
+                        value={values.checkOutTime || "11:00 AM"}
                         editable={false}
                         error={touched.checkOutTime && errors.checkOutTime}
                       />
@@ -862,7 +864,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       onPress={() => setCalendarVisible(false)}
                     >
                       <View style={styles.modalOverlay}>
-                        <TouchableWithoutFeedback onPress={() => {}}>
+                        <TouchableWithoutFeedback onPress={() => { }}>
                           <View style={styles.calendarModal}>
                             {isLocaleReady && (
                               <Calendar
@@ -907,6 +909,25 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                   </Modal>
 
                   {visible && (
+                    // <TimePickerModal
+                    //   visible={visible}
+                    //   onDismiss={() => setVisible(false)}
+                    //   onConfirm={({ hours, minutes }) => {
+                    //     const ampm = hours >= 12 ? "PM" : "AM";
+                    //     const formattedHours = hours % 12 || 12;
+                    //     const formattedTime = `${formattedHours}:${minutes
+                    //       .toString()
+                    //       .padStart(2, "0")} ${ampm}`;
+
+                    //     setFieldValue("checkInTime", formattedTime);
+                    //     setVisible(false);
+                    //   }}
+                    //   locale={i18n.language}
+                    //   label={t("checkInTime")}
+                    //   cancelLabel={t("cancel")}
+                    //   confirmLabel={t("ok")}
+                    //   defaultInputType="picker"
+                    // />
                     <TimePickerModal
                       visible={visible}
                       onDismiss={() => setVisible(false)}
@@ -925,10 +946,32 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       cancelLabel={t("cancel")}
                       confirmLabel={t("ok")}
                       defaultInputType="picker"
+                      hours={15}     // 👈 Default 3 PM
+                      minutes={0}    // 👈 Default 00 minutes
                     />
                   )}
 
                   {checkOutTimeVisible && (
+                    // <TimePickerModal
+                    //   visible={checkOutTimeVisible}
+                    //   onDismiss={() => setCheckOutTimeVisible(false)}
+                    //   onConfirm={({ hours, minutes }) => {
+                    //     const ampm = hours >= 12 ? "PM" : "AM";
+                    //     const formattedHours = hours % 12 || 12;
+                    //     const formattedTime = `${formattedHours}:${minutes
+                    //       .toString()
+                    //       .padStart(2, "0")} ${ampm}`;
+
+                    //     setFieldValue("checkOutTime", formattedTime);
+                    //     setCheckOutTimeVisible(false);
+                    //   }}
+                    //   locale={i18n.language}
+                    //   label={t("checkOutTime")}
+                    //   cancelLabel={t("cancel")}
+                    //   confirmLabel={t("ok")}
+                    //   defaultInputType="picker"
+                    // />
+
                     <TimePickerModal
                       visible={checkOutTimeVisible}
                       onDismiss={() => setCheckOutTimeVisible(false)}
@@ -947,7 +990,11 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                       cancelLabel={t("cancel")}
                       confirmLabel={t("ok")}
                       defaultInputType="picker"
+                      hours={11}    // 👈 Default 11 AM
+                      minutes={0}   // 👈 Default 00 minutes
                     />
+
+
                   )}
 
                   <Modal
