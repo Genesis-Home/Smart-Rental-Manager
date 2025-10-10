@@ -257,10 +257,26 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
   };
 
   const handleGalleryImagesPick = async (which: "before" | "after") => {
+    const currentImages = which === "before" ? galleryImagesBefore : galleryImagesAfter;
+    const MAX_IMAGES = 20;
+    
+    // Check if already at max limit
+    if (currentImages.length >= MAX_IMAGES) {
+      Toast.show({
+        type: "error",
+        text1: `Maximum ${MAX_IMAGES} images allowed`,
+        position: "bottom",
+      });
+      return;
+    }
+    
+    // Calculate remaining slots
+    const remainingSlots = MAX_IMAGES - currentImages.length;
+    
     launchImageLibrary(
       {
         mediaType: "photo",
-        selectionLimit: 5,
+        selectionLimit: Math.min(5, remainingSlots), // Dynamic limit based on remaining slots
         includeBase64: false,
         quality: 0.8,
         maxWidth: 1024,
@@ -316,11 +332,24 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
           );
 
           const validImages = uploadedImages.filter((image) => image !== null);
+          const currentCount = which === "before" ? galleryImagesBefore.length : galleryImagesAfter.length;
+
+          // Only add images up to the limit
+          const imagesToAdd = validImages.slice(0, MAX_IMAGES - currentCount);
+
+          if (imagesToAdd.length < validImages.length) {
+            Toast.show({
+              type: "warning",
+              text1: `Only ${imagesToAdd.length} images added. Maximum limit is ${MAX_IMAGES}`,
+              position: "bottom",
+            });
+          }
+
           if (which === "before") {
-            setGalleryImagesBefore((prev) => [...prev, ...(validImages as string[])]);
+            setGalleryImagesBefore((prev) => [...prev, ...(imagesToAdd as string[])]);
             setIsGalleryBeforeUploading(false);
           } else {
-            setGalleryImagesAfter((prev) => [...prev, ...(validImages as string[])]);
+            setGalleryImagesAfter((prev) => [...prev, ...(imagesToAdd as string[])]);
             setIsGalleryAfterUploading(false);
           }
         }
