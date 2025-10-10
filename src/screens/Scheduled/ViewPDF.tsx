@@ -152,7 +152,7 @@ const ViewPDF: React.FC = () => {
       </View>
 
       {/* Images Before Booking */}
-      {visit?.images && visit.images.length > 1 && (
+      {/* {visit?.images && visit.images.length > 1 && (
         <View style={styles.gallerySection}>
           <Text style={styles.sectionTitle}>{t("galleryImagesBefore")}</Text>
           <View style={styles.galleryGrid}>
@@ -172,7 +172,7 @@ const ViewPDF: React.FC = () => {
             ))}
           </View>
         </View>
-      )}
+      )} */}
 
       {/* Images After Booking */}
       {visit?.imagesAfter && visit.imagesAfter.length > 0 && (

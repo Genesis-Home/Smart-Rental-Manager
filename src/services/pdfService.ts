@@ -82,19 +82,10 @@ export const generateSchedulePDF = async (scheduleData: any) => {
             </table>
           </div>
 
-          ${scheduleData.images && scheduleData.images.length > 1 ? `
-            <div class="gallery-section">
-              <div class="gallery-title">Property Images (Before)</div>
-              <div class="gallery-grid">
-                ${scheduleData.images.slice(1).map((img: string) => `
-                  <div class="gallery-img-box"><img src="${img}" class="gallery-img" /></div>
-                `).join("")}
-              </div>
-            </div>` : ""}
           
           ${scheduleData.imagesAfter && scheduleData.imagesAfter.length > 0 ? `
             <div class="gallery-section">
-              <div class="gallery-title">Property Images (After)</div>
+              <div class="gallery-title">Property Images (After Booking)</div>
               <div class="gallery-grid">
                 ${scheduleData.imagesAfter.map((img: string) => `
                   <div class="gallery-img-box"><img src="${img}" class="gallery-img" /></div>
@@ -638,7 +629,7 @@ export const generatePropertyPDF = async (propertyData: {
         
         ${propertyData.images && propertyData.images.length > 1 ? `
         <div class="content-card gallery-card">
-          <div class="card-title">Property Images (Before)</div>
+          <div class="card-title">Property Images (Before Booking)</div>
           <div class="gallery-grid">
             ${propertyData.images.slice(1).map((img) => 
               `<img src="${img}" class="gallery-image" alt="Property Image" />`
@@ -649,7 +640,7 @@ export const generatePropertyPDF = async (propertyData: {
         
         ${propertyData.imagesAfter && propertyData.imagesAfter.length > 0 ? `
         <div class="content-card gallery-card">
-          <div class="card-title">Property Images (After)</div>
+          <div class="card-title">Property Images (After Booking)</div>
           <div class="gallery-grid">
             ${propertyData.imagesAfter.map((img) => 
               `<img src="${img}" class="gallery-image" alt="Property Image After" />`

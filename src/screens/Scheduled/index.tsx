@@ -995,7 +995,8 @@ const Scheduled: React.FC = () => {
                   </Text>
                 </View>
               )}
-              {propertyImages && propertyImages.length > 0 && (
+              
+              {/* {propertyImages && propertyImages.length > 0 && (
                 <View style={styles.gallerySection}>
                   <Text style={[styles.bookingDetailLabel, { marginTop: 15, marginBottom: 10, width: '100%' }]}>
                     {t("galleryImagesBefore")}
@@ -1017,7 +1018,7 @@ const Scheduled: React.FC = () => {
                     ))}
                   </View>
                 </View>
-              )}
+              )} */}
 
               {/* Images After Booking */}
               {propertyImagesAfter && propertyImagesAfter.length > 0 && (
