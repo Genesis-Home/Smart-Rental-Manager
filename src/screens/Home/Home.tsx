@@ -234,7 +234,6 @@ const Home: React.FC = () => {
       const title = item.title || "No Title";
       const description = item.description || "No Description";
       const address = item.location?.address || "No location available";
-      const otherDetails = item.otherDetails || "No other details";
       const lat = item.location?.lat;
       const lng = item.location?.long;
       const mapsUrl =
@@ -245,7 +244,8 @@ const Home: React.FC = () => {
             : "";
   
       // Build share message
-      const baseMessage = `🏢 ${title}\n\n📝 Description: ${description}\n\n📍 Location: ${address}${mapsUrl ? `\n${mapsUrl}` : ""}`;
+      const otherDetailsText = item.otherDetails ? `\n\n📋 Other Details: ${item.otherDetails}` : "";
+      const baseMessage = `🏢 ${title}\n\n📝 Description: ${description}${otherDetailsText}\n\n📍 Location: ${address}${mapsUrl ? `\n${mapsUrl}` : ""}`;
   
       // 1) Try to generate PDF with full formatted template
       let pdfPath: string | null = null;
@@ -257,8 +257,6 @@ const Home: React.FC = () => {
           location: item.location,
           images: item.images || [],
           otherDetails: item.otherDetails,
-          // notes: item.notes,
-          imagesAfter: item.imagesAfter,
         });
         console.log('PDF generated at:', pdfPath);
       } catch (e) {
@@ -344,7 +342,7 @@ const Home: React.FC = () => {
           description,
           address,
           item.images,
-          mapsUrl,
+          mapsUrl
         );
         await Share.open({ 
           title, 
