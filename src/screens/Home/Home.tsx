@@ -234,6 +234,7 @@ const Home: React.FC = () => {
       const title = item.title || "No Title";
       const description = item.description || "No Description";
       const address = item.location?.address || "No location available";
+      const otherDetails = item.otherDetails || "No other details";
       const lat = item.location?.lat;
       const lng = item.location?.long;
       const mapsUrl =
@@ -256,7 +257,7 @@ const Home: React.FC = () => {
           location: item.location,
           images: item.images || [],
           otherDetails: item.otherDetails,
-          notes: item.notes,
+          // notes: item.notes,
           imagesAfter: item.imagesAfter,
         });
         console.log('PDF generated at:', pdfPath);
@@ -343,7 +344,7 @@ const Home: React.FC = () => {
           description,
           address,
           item.images,
-          mapsUrl
+          mapsUrl,
         );
         await Share.open({ 
           title, 
