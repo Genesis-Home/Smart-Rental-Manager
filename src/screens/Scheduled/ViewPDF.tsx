@@ -30,7 +30,7 @@ const ViewPDF: React.FC = () => {
   console.log("ViewPDF visit.images:", visit.images);
   console.log("ViewPDF visit.imagesAfter:", visit.imagesAfter);
   console.log("ViewPDF visit param:", visit);
-  
+
   const [notes, setNotes] = useState("");
   const [isImageViewVisible, setIsImageViewVisible] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -80,6 +80,7 @@ const ViewPDF: React.FC = () => {
 
   return (
     <KeyboardAwareScrollView
+      showsVerticalScrollIndicator={false}
       style={{ flex: 1, marginHorizontal: '5%' }}
       contentContainerStyle={{ flexGrow: 1, minHeight: '100%' }}
       enableOnAndroid={true}
@@ -238,6 +239,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: colors.Primary_01,
     textAlign: "center",
+    marginTop: 20,
     marginBottom: 20,
   },
   header: {
