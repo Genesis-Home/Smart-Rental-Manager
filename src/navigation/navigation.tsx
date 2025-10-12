@@ -36,96 +36,24 @@ function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer theme={MyTheme}>
         <Stack.Navigator>
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={Splash}
-            name="Splash"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={Splash1}
-            name="Splash1"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={Signin}
-            name="Signin"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={Signup}
-            name="Signup"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={ForgotPassword}
-            name="ForgotPassword"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={ResetPassword}
-            name="ResetPassword"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={AddProperty}
-            name="AddProperty"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={Notification}
-            name="Notification"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={AutomatedEmail}
-            name="AutomatedEmail"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={Map}
-            name="Map"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={EditProfile}
-            name="EditProfile"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={MyAds}
-            name="MyAds"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={TermsAndConditions}
-            name="TermsAndConditions"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={PrivacyPolicy}
-            name="PrivacyPolicy"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={EditProperty}
-            name="EditProperty"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={ViewPDF}
-            name="ViewPDF"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            component={EditSchedule}
-            name="EditSchedule"
-          />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            name="Tabs"
-            component={AppBottomNavigator}
-          />
+          <Stack.Screen options={{ headerShown: false }} component={Splash} name="Splash" />
+          <Stack.Screen options={{ headerShown: false }} component={Splash1} name="Splash1" />
+          <Stack.Screen options={{ headerShown: false }} component={Signin} name="Signin" />
+          <Stack.Screen options={{ headerShown: false }} component={Signup} name="Signup" />
+          <Stack.Screen options={{ headerShown: false }} component={ForgotPassword} name="ForgotPassword" />
+          <Stack.Screen options={{ headerShown: false }} component={ResetPassword} name="ResetPassword" />
+          <Stack.Screen options={{ headerShown: false }} component={AddProperty} name="AddProperty" />
+          <Stack.Screen options={{ headerShown: false }} component={Notification} name="Notification" />
+          <Stack.Screen options={{ headerShown: false }} component={AutomatedEmail} name="AutomatedEmail" />
+          <Stack.Screen options={{ headerShown: false }} component={Map} name="Map" />
+          <Stack.Screen options={{ headerShown: false }} component={EditProfile} name="EditProfile" />
+          <Stack.Screen options={{ headerShown: false }} component={MyAds} name="MyAds" />
+          <Stack.Screen options={{ headerShown: false }} component={TermsAndConditions} name="TermsAndConditions" />
+          <Stack.Screen options={{ headerShown: false }} component={PrivacyPolicy} name="PrivacyPolicy" />
+          <Stack.Screen options={{ headerShown: false }} component={EditProperty} name="EditProperty" />
+          <Stack.Screen options={{ headerShown: false }} component={ViewPDF} name="ViewPDF" />
+          <Stack.Screen options={{ headerShown: false }} component={EditSchedule} name="EditSchedule" />
+          <Stack.Screen options={{ headerShown: false }} name="Tabs" component={AppBottomNavigator} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
