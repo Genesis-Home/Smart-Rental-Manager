@@ -82,22 +82,42 @@ export const generateSchedulePDF = async (scheduleData: any) => {
             </table>
           </div>
 
-          
-          ${scheduleData.imagesAfter && scheduleData.imagesAfter.length > 0 ? `
-            <div class="gallery-section">
-              <div class="gallery-title">Property Images (After Booking)</div>
-              <div class="gallery-grid">
-                ${scheduleData.imagesAfter.map((img: string) => `
-                  <div class="gallery-img-box"><img src="${img}" class="gallery-img" /></div>
-                `).join("")}
-              </div>
-            </div>` : ""}
-          
           ${scheduleData.notes ? `
             <div class="section">
               <div class="section-title">Notes</div>
               <div class="notes-content">${scheduleData.notes}</div>
             </div>` : ""}
+            
+          ${scheduleData.imagesAfter && scheduleData.imagesAfter.length > 0 ? `
+            ${scheduleData.imagesAfter.map((img: string, index: number) => `
+              <div style="
+                page-break-after: avoid;
+                page-break-inside: avoid;
+                height: 80vh;
+                min-height: 80vh;
+                max-height: 80vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                border-radius: 15px;
+                background: #ffffff;
+                padding: 25px;
+                margin: 10mm;
+                box-sizing: border-box;
+              ">
+                ${index === 0 ? '<div class="gallery-title">Property Images (After Booking)</div>' : ''}
+                <img src="${img}" style="
+                  width: 85%;
+                  height: 75%;
+                  object-fit: contain;
+                  border-radius: 10px;
+                  background: #f8f8f8;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                " />
+              </div>
+            `).join('')}
+          ` : ""}
           
           <div class="footer">
             <p>Generated on ${moment().format("MMMM D, YYYY h:mm A")}</p>
