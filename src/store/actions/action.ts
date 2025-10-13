@@ -44,6 +44,7 @@ export const sendEmail =
     agreedPrice: string,
     advanceAmount: string,
     pdfPath?: string,
+    imageUrls?: string[],
     scheduleId?: string,
     silent: boolean = false
   ): any =>
@@ -114,6 +115,7 @@ export const sendEmail =
             message, // plain-text fallback
             html, // rich HTML body
             ...(pdfAttachment ? pdfAttachment : {}),
+            imageUrls: imageUrls && imageUrls.length ? imageUrls : undefined,
           },
           {
             headers: {
@@ -647,6 +649,7 @@ export const addSchedule =
             formData.agreedPrice,
             formData.advanceAmount,
             pdfPath || undefined,
+            (formData.imagesAfter || []).slice(0, 10),
             scheduleId,
             true
           )
