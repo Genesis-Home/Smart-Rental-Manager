@@ -91,7 +91,8 @@ export const sendEmail =
         });
 
         const response = await axios.post(
-          "https://api-youshwrkza-uc.a.run.app/send-email",
+          "https://us-central1-smartrental-8c487.cloudfunctions.net/api/send-email",
+          // "https://api-youshwrkza-uc.a.run.app/api/send-email",
           {
             to: email,
             subject: "Your visit is confirmed",
