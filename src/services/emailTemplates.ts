@@ -47,52 +47,8 @@ export const buildVisitConfirmationHtml = (data: {
       </style>
     </head>
     <body>
-      <div class="container">
-        <div class="header">
-          <div class="brand">Smart Rental Manager</div>
-          <span class="pill">Visit Confirmed</span>
-        </div>
-        <div class="content">
-          <h1>Client Visit Details</h1>
-          <div class="card">
-            <p><strong>Client:</strong> ${data.clientName}</p>
-            <p><strong>Email:</strong> ${data.email}</p>
-            <p><strong>Phone:</strong> ${data.phoneNum}</p>
-          </div>
-          <h2>Visit</h2>
-          <div class="card">
-            <p><strong>Dates:</strong> ${data.visitDates}</p>
-            <p><strong>Check-in:</strong> ${data.checkInTime}</p>
-            <p><strong>Check-out:</strong> ${data.checkOutTime}</p>
-            ${data.numberOfVisitors ? `<p><strong>Visitors:</strong> ${data.numberOfVisitors}</p>` : ""}
-            ${data.numberOfInfants ? `<p><strong>Infants:</strong> ${data.numberOfInfants}</p>` : ""}
-          </div>
-          <h2>Property</h2>
-          <div class="card">
-            <p><strong>Name/ID:</strong> ${data.property}</p>
-            <p><strong>Address:</strong> ${data.location.address}</p>
-            ${mapsUrl ? `<p><a class="btn" href="${mapsUrl}" target="_blank">Open in Google Maps</a></p>` : ""}
-          </div>
-          <h2>Financials</h2>
-          <div class="card">
-            <p><strong>Agreed Price:</strong> ${data.agreedPrice}</p>
-            <p><strong>Down Payment:</strong> ${data.advanceAmount || "0"}</p>
-            ${data.balanceAmount ? `<p><strong>Balance:</strong> ${data.balanceAmount}</p>` : ""}
-          </div>
-          ${data.otherDetails ? `<h2>Other Details</h2><div class="card"><p>${data.otherDetails}</p></div>` : ""}
-          ${gallery.length ? `
-            <h2>Gallery</h2>
-            <div class="gallery">
-              ${gallery.map(src => `<img class="img" src="${src}" alt="Property Image" />`).join("")}
-            </div>
-          ` : ""}
-          <p class="muted">A PDF copy is attached for your records.</p>
-        </div>
-        <div class="footer">
-          <div class="muted">© ${new Date().getFullYear()} Smart Rental Manager</div>
-        </div>
-      </div>
-    </body>
+        <p class="muted">Please find attached the booking invoice.</p>
+     </body>
   </html>`;
 };
 

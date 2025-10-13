@@ -7,6 +7,8 @@ import Toast from "react-native-toast-message";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import { scheduleBookingNotifications } from "../../services/notificationService";
 import axios from "axios";
+import RNFS from "react-native-fs";
+import { Platform } from "react-native";
 import { buildVisitConfirmationHtml } from "../../services/emailTemplates";
 import { Location } from "../../types/types";
 import { generateSchedulePDF } from "../../services/pdfService";
@@ -90,15 +92,28 @@ export const sendEmail =
           otherDetails: "",
         });
 
+        // Prepare optional PDF attachment as base64
+        let pdfAttachment: { pdfBase64: string; pdfFileName: string } | undefined = undefined;
+        if (pdfPath) {
+          try {
+            const pathForRead = pdfPath.startsWith("file://") ? pdfPath.replace("file://", "") : pdfPath;
+            const pdfBase64 = await RNFS.readFile(pathForRead, "base64");
+            const pdfFileName = (pathForRead.split("/").pop() || "Booking_Invoice.pdf");
+            pdfAttachment = { pdfBase64, pdfFileName };
+          } catch (e) {
+            // Continue without attachment if reading fails
+            console.warn("Failed to read PDF for email attachment:", e);
+          }
+        }
+
         const response = await axios.post(
-          "https://us-central1-smartrental-8c487.cloudfunctions.net/api/send-email",
-          // "https://api-youshwrkza-uc.a.run.app/api/send-email",
+          "https://api-youshwrkza-uc.a.run.app/send-email",
           {
             to: email,
             subject: "Your visit is confirmed",
             message, // plain-text fallback
             html, // rich HTML body
-            pdfPath: pdfPath ? `file://${pdfPath}` : undefined,
+            ...(pdfAttachment ? pdfAttachment : {}),
           },
           {
             headers: {

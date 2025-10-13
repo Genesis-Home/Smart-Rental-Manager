@@ -160,17 +160,6 @@ export const generateSchedulePDF = async (scheduleData: any) => {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
 export const generatePropertyPDF = async (propertyData: {
   id: string;
   title: string;
