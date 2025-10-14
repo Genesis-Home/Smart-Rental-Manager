@@ -510,7 +510,8 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            marginTop: 30
+            marginTop: 30,
+            marginBottom: 40
           }}
         >
           <View style={{ width: "32%" }}>
@@ -538,7 +539,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             />
           </View>
         </View>
-        <View style={styles.buttonGroup}>
+        {/* <View style={styles.buttonGroup}>
           <CTAButton1
             title={t("Whatsapp")}
             submitHandler={handleWhatsappShare}
@@ -559,7 +560,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
             icon={<Copy />}
             borderColor={Colors.black}
           />
-        </View>
+        </View> */}
       </ScrollView>
     </View>
   );
