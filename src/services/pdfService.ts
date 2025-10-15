@@ -163,10 +163,10 @@ export const generateSchedulePDF = async (scheduleData: any) => {
 
     // ✅ Optional: Automatically share or open the PDF
     try {
-      await Share.share({
-        url: `file://${downloadsPath}`,
-        title: 'Booking Invoice PDF',
-      });
+      // await Share.share({
+      //   url: `file://${downloadsPath}`,
+      //   title: 'Booking Invoice PDF',
+      // });
     } catch (shareError) {
       console.warn('User canceled share or failed to open PDF:', shareError);
     }
