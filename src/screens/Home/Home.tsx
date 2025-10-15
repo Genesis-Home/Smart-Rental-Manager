@@ -277,64 +277,99 @@ const Home: React.FC = () => {
   
       // 3) Share with proper file URIs and types
       if (pdfPath || downloadedImagePaths.length > 0) {
-        const urls: string[] = [];
-        const types: string[] = [];
-  
-        // Add PDF
+        // Build combined list (PDF + images) for apps that support multi-attach (e.g., Email)
+        const allUrls: string[] = [];
+        
         if (pdfPath) {
           const pdfUri = Platform.OS === 'android' ? `file://${pdfPath}` : pdfPath;
-          urls.push(pdfUri);
-          types.push('application/pdf');
-          console.log('Adding PDF to share:', pdfUri);
+          const pdfExists = await RNFS.exists(pdfPath);
+          if (pdfExists) {
+            allUrls.push(pdfUri);
+          } else {
+            console.error('PDF missing before share:', pdfPath);
+          }
         }
-  
-        // Add images
+
         for (const imgPath of downloadedImagePaths) {
-          const imgUri = Platform.OS === 'android' ? `file://${imgPath}` : imgPath;
-          urls.push(imgUri);
-          
-          // Determine image type based on extension
-          const ext = imgPath.toLowerCase().split('.').pop();
-          const mimeType = ext === 'png' ? 'image/png' : 
-                          ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
-                          'image/*';
-          types.push(mimeType);
-          console.log('Adding image to share:', imgUri, mimeType);
+          const exists = await RNFS.exists(imgPath);
+          if (exists) {
+            const imgUri = Platform.OS === 'android' ? `file://${imgPath}` : imgPath;
+            allUrls.push(imgUri);
+          } else {
+            console.error('Image missing:', imgPath);
+          }
         }
-  
-        // Verify all files exist before sharing
-        const fileChecks = await Promise.all(
-          [pdfPath, ...downloadedImagePaths]
-            .filter((path): path is string => !!path)
-            .map(async (path) => {
-              const exists = await RNFS.exists(path);
-              if (!exists) {
-                console.error('File does not exist:', path);
-              }
-              return exists;
-            })
-        );
-  
-        if (!fileChecks.every(Boolean)) {
-          throw new Error('Some files are missing');
+
+        if (allUrls.length === 0) {
+          throw new Error('No files available to share');
         }
-  
-        const shareOptions: any = {
+
+        const combinedShareOptions: any = {
           title: title,
           subject: title,
           message: baseMessage,
-          urls: urls,
-          type: types.length === 1 ? types[0] : undefined, // Single type if only one file
+          urls: allUrls,
+          // Do not force a single MIME type; let the target app decide
           failOnCancel: false,
           showAppsToView: true,
-          saveToFiles: Platform.OS === 'ios', // iOS specific
+          saveToFiles: Platform.OS === 'ios',
         };
-  
-        console.log('Share options:', JSON.stringify(shareOptions, null, 2));
-        
-        await Share.open(shareOptions);
-        
-        console.log('Share completed successfully');
+
+        console.log('Share options (combined):', JSON.stringify(combinedShareOptions, null, 2));
+
+        try {
+          await Share.open(combinedShareOptions);
+          console.log('Share (combined) completed successfully');
+        } catch (err: any) {
+          // Some apps (notably WhatsApp) reject mixed/multi attachments.
+          const message = typeof err?.message === 'string' ? err.message.toLowerCase() : '';
+          const isLikelyWhatsAppRejection = message.includes('whatsapp') || message.includes('unsupported') || message.includes('unsupported type') || message.includes('not supported');
+
+          if (isLikelyWhatsAppRejection) {
+            // Attempt images-only to WhatsApp (if any), then PDF-only to WhatsApp (if available), back-to-back.
+            const imageUrls: string[] = [];
+            for (const u of allUrls) {
+              if (u.toLowerCase().endsWith('.png') || u.toLowerCase().endsWith('.jpg') || u.toLowerCase().endsWith('.jpeg')) {
+                imageUrls.push(u);
+              }
+            }
+
+            // Try images to WhatsApp first (if present)
+            if (imageUrls.length > 0) {
+              try {
+                const waImagesOnly: any = {
+                  message: baseMessage,
+                  urls: imageUrls,
+                  type: 'image/*',
+                  failOnCancel: false,
+                  social: (Share as any).Social?.WHATSAPP,
+                };
+                console.log('Retrying share to WhatsApp with images-only');
+                await Share.open(waImagesOnly);
+              } catch (imgErr) {
+                console.warn('Images-only share to WhatsApp failed, will still try PDF if available');
+              }
+            }
+
+            // Then try PDF to WhatsApp (if available)
+            if (pdfPath) {
+              const pdfUri = Platform.OS === 'android' ? `file://${pdfPath}` : pdfPath;
+              const waPdfOnly: any = {
+                message: baseMessage,
+                url: pdfUri,
+                type: 'application/pdf',
+                failOnCancel: false,
+                social: (Share as any).Social?.WHATSAPP,
+                useInternalStorage: Platform.OS === 'android',
+              };
+              console.log('Retrying share to WhatsApp with PDF-only');
+              await Share.open(waPdfOnly);
+              console.log('Share to WhatsApp (PDF-only) completed successfully');
+            }
+          } else {
+            throw err;
+          }
+        }
       } else {
         // Final fallback to text-only share with links
         const fallbackMessage = createFallbackShareMessage(
