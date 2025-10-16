@@ -878,7 +878,7 @@ const Scheduled: React.FC = () => {
         onRequestClose={() => setShowBookingDetailsModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContainer, { maxHeight: "80%" }]}>
+          <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>{t("bookingDetails")}</Text>
             <ScrollView
               style={styles.bookingDetailsContainer}
@@ -1261,23 +1261,32 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   modalOverlay: {
-    flex: 1,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 15,
+    paddingVertical: 20,
   },
   calendarModal: {
     backgroundColor: colors.white,
     borderRadius: 10,
     padding: 15,
-    width: "90%",
+    width: "100%",
+    maxWidth: 400,
   },
   modalContainer: {
     backgroundColor: colors.white,
     borderRadius: 10,
     padding: 20,
-    width: "90%",
-    maxHeight: "80%",
+    width: "100%",
+    maxWidth: 400,
+    height: "90%",
+    maxHeight: 600,
   },
   modalTitle: {
     ...Typography.f_16_nunito_bold,
