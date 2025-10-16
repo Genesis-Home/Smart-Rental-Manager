@@ -304,7 +304,11 @@ export const languageData: LanguageData[] = [
       checkInTimeMustBeAfterCheckOut: "Check-in time must be after check-out time",
       checkOutTimeMustBeBeforeCheckIn: "Check-out time must be before check-in time",
       update: "Update",
-      property: "Property"
+      property: "Property",
+      // Share modal
+      share: "Share",
+      shareToWhatsAppPdf: "WhatsApp (PDF)",
+      otherApps: "Other Apps"
     } as any,
   },
   {
@@ -592,8 +596,12 @@ export const languageData: LanguageData[] = [
   openSettings:"Άνοιγμα Ρυθμίσεων",
   checkInTimeMustBeAfterCheckOut: "Η ώρα check-in πρέπει να είναι μετά την ώρα check-out",
   checkOutTimeMustBeBeforeCheckIn: "Η ώρα check-out πρέπει να είναι πριν την ώρα check-in",
-  update: "Update",
-  property: "Property"
+      update: "Ενημορώσε",
+      property: "Ιδιόκτητη",
+      // Share modal
+      share: "Κοινοποίηση",
+      shareToWhatsAppPdf: "WhatsApp (PDF)",
+      otherApps: "Άλλες εφαρμογές"
 
     } as any,
   },

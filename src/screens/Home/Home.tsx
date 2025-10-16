@@ -12,6 +12,7 @@ import {
   Platform,
   BackHandler,
   Alert,
+  Modal,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { AppIcon, Notification, Search, ShareIcon } from "../../assets/icons";
@@ -63,6 +64,15 @@ const Home: React.FC = () => {
   const scrollRefs = useRef<{ [key: string]: FlatList<any> | null }>({});
 
   const [isSharing, setIsSharing] = useState<string | null>(null);
+  const [shareChoiceVisible, setShareChoiceVisible] = useState(false);
+  const shareChoiceResolver = useRef<((choice: 'whatsapp' | 'others' | 'cancel') => void) | null>(null);
+
+  const askShareTarget = (): Promise<'whatsapp' | 'others' | 'cancel'> => {
+    return new Promise((resolve) => {
+      shareChoiceResolver.current = resolve;
+      setShareChoiceVisible(true);
+    });
+  };
 
   useEffect(() => {
     const initialize = async () => {
@@ -264,7 +274,41 @@ const Home: React.FC = () => {
         pdfPath = null;
       }
   
-      // 2) Download images if any
+      // If user wants to share specifically to WhatsApp, send ONLY the PDF there
+      if (pdfPath) {
+        const choice = await askShareTarget();
+        if (choice === 'cancel') {
+          return;
+        }
+        if (choice === 'whatsapp') {
+          try {
+            const pdfUri = Platform.OS === 'android' ? `file://${pdfPath}` : pdfPath;
+            const exists = await RNFS.exists(pdfPath);
+            if (exists) {
+              const waPdfOnly: any = {
+                message: baseMessage,
+                url: pdfUri,
+                type: 'application/pdf',
+                failOnCancel: false,
+                social: (Share as any).Social?.WHATSAPP,
+                useInternalStorage: Platform.OS === 'android',
+              };
+              console.log('Sharing PDF to WhatsApp only');
+              if (typeof (Share as any).shareSingle === 'function') {
+                await (Share as any).shareSingle(waPdfOnly);
+              } else {
+                await Share.open(waPdfOnly);
+              }
+              // For WhatsApp path we are done; no need to proceed to general share
+              return;
+            }
+          } catch (waErr) {
+            console.warn('WhatsApp share (PDF-only) failed, falling back to general share:', waErr);
+          }
+        }
+      }
+
+      // 2) Download images if any (for general share to Email/others)
       let downloadedImagePaths: string[] = [];
       try {
         if (item.images && item.images.length > 0) {
@@ -706,6 +750,66 @@ const Home: React.FC = () => {
       >
         <Add />
       </TouchableOpacity>
+
+      <Modal
+        visible={shareChoiceVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => {
+          setShareChoiceVisible(false);
+          if (shareChoiceResolver.current) {
+            shareChoiceResolver.current('cancel');
+            shareChoiceResolver.current = null;
+          }
+        }}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{t('share')}</Text>
+            <View style={styles.modalButtonsRow}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setShareChoiceVisible(false);
+                  if (shareChoiceResolver.current) {
+                    shareChoiceResolver.current('whatsapp');
+                    shareChoiceResolver.current = null;
+                  }
+                }}
+              >
+                <Text style={styles.modalButtonText}>{t('shareToWhatsAppPdf')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setShareChoiceVisible(false);
+                  if (shareChoiceResolver.current) {
+                    shareChoiceResolver.current('others');
+                    shareChoiceResolver.current = null;
+                  }
+                }}
+              >
+                <Text style={styles.modalButtonText}>{t('otherApps')}</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={styles.modalCancelButton}
+              activeOpacity={0.8}
+              onPress={() => {
+                setShareChoiceVisible(false);
+                if (shareChoiceResolver.current) {
+                  shareChoiceResolver.current('cancel');
+                  shareChoiceResolver.current = null;
+                }
+              }}
+            >
+              <Text style={styles.modalCancelText}>{t('cancel')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -806,6 +910,57 @@ const styles = StyleSheet.create({
   },
   noPropertiesText: {
     ...Typography.f_14_nunito_extra_bold,
+    color: colors.Primary_01,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  modalContent: {
+    width: '92%',
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  modalTitle: {
+    ...Typography.f_16_nunito_bold,
+    color: Colors.black,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  modalButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  modalButton: {
+    flex: 1,
+    backgroundColor: colors.Primary_01,
+    paddingVertical: 12,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    ...Typography.f_14_nunito_bold,
+    color: Colors.white,
+  },
+  modalCancelButton: {
+    marginTop: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    ...Typography.f_14_nunito_bold,
     color: colors.Primary_01,
   },
 });
