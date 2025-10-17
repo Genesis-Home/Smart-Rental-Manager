@@ -12,7 +12,6 @@ import {
   Platform,
   BackHandler,
   Alert,
-  Modal,
 } from "react-native";
 import Colors from "../../utilities/constants/colors";
 import { AppIcon, Notification, Search, ShareIcon } from "../../assets/icons";
@@ -30,8 +29,6 @@ import {
   downloadMultipleImagesForSharing,
   cleanupSharedImages,
   createFallbackShareMessage,
-  testFileAccess,
-  getFileInfo,
 } from "../../utilities/imageDownloader";
 import Toast from "react-native-toast-message";
 import Share from "react-native-share";
@@ -64,15 +61,6 @@ const Home: React.FC = () => {
   const scrollRefs = useRef<{ [key: string]: FlatList<any> | null }>({});
 
   const [isSharing, setIsSharing] = useState<string | null>(null);
-  const [shareChoiceVisible, setShareChoiceVisible] = useState(false);
-  const shareChoiceResolver = useRef<((choice: 'whatsapp' | 'others' | 'cancel') => void) | null>(null);
-
-  const askShareTarget = (): Promise<'whatsapp' | 'others' | 'cancel'> => {
-    return new Promise((resolve) => {
-      shareChoiceResolver.current = resolve;
-      setShareChoiceVisible(true);
-    });
-  };
 
   useEffect(() => {
     const initialize = async () => {
@@ -256,6 +244,7 @@ const Home: React.FC = () => {
       // Build share message
       const otherDetailsText = item.otherDetails ? `\n\n📋 Other Details: ${item.otherDetails}` : "";
       const baseMessage = `🏢 ${title}\n\n📝 Description: ${description}${otherDetailsText}\n\n📍 Location: ${address}${mapsUrl ? `\n${mapsUrl}` : ""}`;
+      const emailFriendlyMessage = "Please find the attached property detail.";
   
       // 1) Try to generate PDF with full formatted template
       let pdfPath: string | null = null;
@@ -274,147 +263,86 @@ const Home: React.FC = () => {
         pdfPath = null;
       }
   
-      // If user wants to share specifically to WhatsApp, send ONLY the PDF there
-      if (pdfPath) {
-        const choice = await askShareTarget();
-        if (choice === 'cancel') {
-          return;
-        }
-        if (choice === 'whatsapp') {
-          try {
-            const pdfUri = Platform.OS === 'android' ? `file://${pdfPath}` : pdfPath;
-            const exists = await RNFS.exists(pdfPath);
-            if (exists) {
-              const waPdfOnly: any = {
-                message: baseMessage,
-                url: pdfUri,
-                type: 'application/pdf',
-                failOnCancel: false,
-                social: (Share as any).Social?.WHATSAPP,
-                useInternalStorage: Platform.OS === 'android',
-              };
-              console.log('Sharing PDF to WhatsApp only');
-              if (typeof (Share as any).shareSingle === 'function') {
-                await (Share as any).shareSingle(waPdfOnly);
-              } else {
-                await Share.open(waPdfOnly);
-              }
-              // For WhatsApp path we are done; no need to proceed to general share
-              return;
-            }
-          } catch (waErr) {
-            console.warn('WhatsApp share (PDF-only) failed, falling back to general share:', waErr);
-          }
-        }
-      }
+      // Proceed without a modal choice; general share handling below will cover apps
 
-      // 2) Download images if any (for general share to Email/others)
+      // Prefer: PDF + images for apps that support multi-attach (e.g., Email)
+      // For WhatsApp, we will fall back to PDF-only automatically.
       let downloadedImagePaths: string[] = [];
       try {
-        if (item.images && item.images.length > 0) {
+        // To ensure WhatsApp on Android reliably gets the PDF, skip image downloads on Android
+        if (Platform.OS !== 'android' && item.images && item.images.length > 0) {
           downloadedImagePaths = await downloadMultipleImagesForSharing(item.images);
-          console.log('Downloaded images:', downloadedImagePaths.length);
         }
       } catch (e) {
-        console.error('Image download failed:', e);
+        console.warn('Image download skipped/failed:', e);
       }
-  
-      // 3) Share with proper file URIs and types
-      if (pdfPath || downloadedImagePaths.length > 0) {
-        // Build combined list (PDF + images) for apps that support multi-attach (e.g., Email)
-        const allUrls: string[] = [];
-        
-        if (pdfPath) {
-          const pdfUri = Platform.OS === 'android' ? `file://${pdfPath}` : pdfPath;
-          const pdfExists = await RNFS.exists(pdfPath);
-          if (pdfExists) {
-            allUrls.push(pdfUri);
-          } else {
-            console.error('PDF missing before share:', pdfPath);
-          }
-        }
 
-        for (const imgPath of downloadedImagePaths) {
-          const exists = await RNFS.exists(imgPath);
-          if (exists) {
-            const imgUri = Platform.OS === 'android' ? `file://${imgPath}` : imgPath;
-            allUrls.push(imgUri);
-          } else {
-            console.error('Image missing:', imgPath);
-          }
-        }
-
-        if (allUrls.length === 0) {
-          throw new Error('No files available to share');
-        }
-
-        const combinedShareOptions: any = {
-          title: title,
-          subject: title,
-          message: baseMessage,
-          urls: allUrls,
-          // Do not force a single MIME type; let the target app decide
-          failOnCancel: false,
-          showAppsToView: true,
-          saveToFiles: Platform.OS === 'ios',
-        };
-
-        console.log('Share options (combined):', JSON.stringify(combinedShareOptions, null, 2));
-
-        try {
-          await Share.open(combinedShareOptions);
-          console.log('Share (combined) completed successfully');
-        } catch (err: any) {
-          // Some apps (notably WhatsApp) reject mixed/multi attachments.
-          const message = typeof err?.message === 'string' ? err.message.toLowerCase() : '';
-          const isLikelyWhatsAppRejection = message.includes('whatsapp') || message.includes('unsupported') || message.includes('unsupported type') || message.includes('not supported');
-
-          if (isLikelyWhatsAppRejection) {
-            // Attempt images-only to WhatsApp (if any), then PDF-only to WhatsApp (if available), back-to-back.
-            const imageUrls: string[] = [];
-            for (const u of allUrls) {
-              if (u.toLowerCase().endsWith('.png') || u.toLowerCase().endsWith('.jpg') || u.toLowerCase().endsWith('.jpeg')) {
-                imageUrls.push(u);
+      if (pdfPath) {
+        const pdfUri = Platform.OS === 'android' ? `file://${pdfPath}` : pdfPath;
+        const pdfExists = await RNFS.exists(pdfPath);
+        if (!pdfExists) {
+          console.error('PDF missing before share:', pdfPath);
+          // fall through to text-only
+        } else {
+          // On Android: only PDF to maximize compatibility with WhatsApp
+          // On iOS: include images for email/others
+          const allUrls: string[] = [pdfUri];
+          if (Platform.OS === 'ios') {
+            for (const imgPath of downloadedImagePaths) {
+              const exists = await RNFS.exists(imgPath);
+              if (exists) {
+                const imgUri = imgPath; // iOS can use path directly
+                allUrls.push(imgUri);
               }
             }
+          }
 
-            // Try images to WhatsApp first (if present)
-            if (imageUrls.length > 0) {
+          try {
+            await Share.open({
+              title,
+              subject: title,
+              message: emailFriendlyMessage,
+              urls: allUrls,
+              failOnCancel: false,
+              showAppsToView: true,
+              saveToFiles: Platform.OS === 'ios',
+            });
+          } catch (err: any) {
+            const message = typeof err?.message === 'string' ? err.message.toLowerCase() : '';
+            const likelyWhatsApp = message.includes('whatsapp') || message.includes('unsupported');
+            if (likelyWhatsApp) {
+              // Retry with PDF-only for WhatsApp compatibility
               try {
-                const waImagesOnly: any = {
+                await Share.open({
+                  title,
+                  subject: title,
                   message: baseMessage,
-                  urls: imageUrls,
-                  type: 'image/*',
+                  url: pdfUri,
+                  type: 'application/pdf',
                   failOnCancel: false,
-                  social: (Share as any).Social?.WHATSAPP,
-                };
-                console.log('Retrying share to WhatsApp with images-only');
-                await Share.open(waImagesOnly);
-              } catch (imgErr) {
-                console.warn('Images-only share to WhatsApp failed, will still try PDF if available');
+                  showAppsToView: true,
+                  saveToFiles: Platform.OS === 'ios',
+                });
+              } catch (pdfOnlyErr) {
+                throw pdfOnlyErr;
               }
+            } else {
+              throw err;
             }
-
-            // Then try PDF to WhatsApp (if available)
-            if (pdfPath) {
-              const pdfUri = Platform.OS === 'android' ? `file://${pdfPath}` : pdfPath;
-              const waPdfOnly: any = {
-                message: baseMessage,
-                url: pdfUri,
-                type: 'application/pdf',
-                failOnCancel: false,
-                social: (Share as any).Social?.WHATSAPP,
-                useInternalStorage: Platform.OS === 'android',
-              };
-              console.log('Retrying share to WhatsApp with PDF-only');
-              await Share.open(waPdfOnly);
-              console.log('Share to WhatsApp (PDF-only) completed successfully');
+          } finally {
+            if (Platform.OS === 'ios' && downloadedImagePaths.length > 0) {
+              setTimeout(async () => {
+                try {
+                  await cleanupSharedImages(downloadedImagePaths);
+                } catch {}
+              }, 1500);
             }
-          } else {
-            throw err;
           }
+          return; // done
         }
-      } else {
+      }
+
+      {
         // Final fallback to text-only share with links
         const fallbackMessage = createFallbackShareMessage(
           title,
@@ -428,18 +356,6 @@ const Home: React.FC = () => {
           message: fallbackMessage, 
           failOnCancel: false 
         });
-      }
-  
-      // Clean up downloaded images after a delay (give time for share to complete)
-      if (downloadedImagePaths.length > 0) {
-        setTimeout(async () => {
-          try {
-            await cleanupSharedImages(downloadedImagePaths);
-            console.log('Cleanup completed');
-          } catch (cleanupError) {
-            console.error("Error cleaning up shared images:", cleanupError);
-          }
-        }, 2000); // 2 second delay
       }
     } catch (error) {
       console.error("Error sharing property:", error);
@@ -751,65 +667,6 @@ const Home: React.FC = () => {
         <Add />
       </TouchableOpacity>
 
-      <Modal
-        visible={shareChoiceVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={() => {
-          setShareChoiceVisible(false);
-          if (shareChoiceResolver.current) {
-            shareChoiceResolver.current('cancel');
-            shareChoiceResolver.current = null;
-          }
-        }}
-      >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{t('share')}</Text>
-            <View style={styles.modalButtonsRow}>
-              <TouchableOpacity
-                style={styles.modalButton}
-                activeOpacity={0.8}
-                onPress={() => {
-                  setShareChoiceVisible(false);
-                  if (shareChoiceResolver.current) {
-                    shareChoiceResolver.current('whatsapp');
-                    shareChoiceResolver.current = null;
-                  }
-                }}
-              >
-                <Text style={styles.modalButtonText}>{t('shareToWhatsAppPdf')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.modalButton}
-                activeOpacity={0.8}
-                onPress={() => {
-                  setShareChoiceVisible(false);
-                  if (shareChoiceResolver.current) {
-                    shareChoiceResolver.current('others');
-                    shareChoiceResolver.current = null;
-                  }
-                }}
-              >
-                <Text style={styles.modalButtonText}>{t('otherApps')}</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              style={styles.modalCancelButton}
-              activeOpacity={0.8}
-              onPress={() => {
-                setShareChoiceVisible(false);
-                if (shareChoiceResolver.current) {
-                  shareChoiceResolver.current('cancel');
-                  shareChoiceResolver.current = null;
-                }
-              }}
-            >
-              <Text style={styles.modalCancelText}>{t('cancel')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
