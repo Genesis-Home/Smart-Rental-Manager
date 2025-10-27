@@ -4,128 +4,323 @@ import moment from "moment";
 import { Share, Platform } from "react-native";
 export const generateSchedulePDF = async (scheduleData: any) => {
   try {
+    // const htmlContent = `
+    //   <html>
+    //     <head>
+    //       <style>
+    //         body { font-family: Arial; padding: 20px; }
+    //         .header { margin-bottom: 30px; }
+    //         .invoice-title { font-size: 27px; color: #24A69E; text-align: center; margin-bottom: 10px; }
+    //         .invoice-details { font-size: 17px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+    //         .invoice-details span { font-weight: bold; }
+    //         .section { margin-bottom: 20px; }
+    //         .section-title { font-size: 22px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    //         .customer-info div { margin-bottom: 8px; }
+    //         .customer-info .label { font-weight: bold; color: #333; display: inline-block; width: 100px; }
+    //         .customer-info .value { color: #666; }
+    //         table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    //         th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+    //         th { background-color: #f2f2f2; }
+    //         .table-label { font-weight: bold; color: #333; }
+    //         .table-value { color: #666; text-align: left; }
+    //         .total-row td { font-weight: bold; }
+    //         .notes-content { 
+    //           padding: 10px; 
+    //           background-color: #f9f9f9; 
+    //           border: 1px solid #eee; 
+    //           border-radius: 5px; 
+    //           margin-top: 10px;
+    //           white-space: pre-wrap;
+    //           line-height: 1.5;
+    //         }
+    //         .footer { margin-top: 40px; text-align: center; color: #666; font-size: 16px; }
+    //         .gallery-section { margin-top: 30px; }
+    //         .gallery-title { font-size: 19px; font-weight: bold; color: #24A69E; margin-bottom:10px}
+    //         .gallery-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    //         .gallery-img-box { width: 20%; margin-bottom: 8px; }
+    //         .gallery-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; background: #eee; }
+    //       </style>
+    //     </head>
+    //     <body>
+    //       <div class="header">
+    //         <div class="invoice-title">Invoice</div>
+    //         <div class="invoice-details">
+    //           <div><span>Invoice ID:</span> ${scheduleData.id || "N/A"}</div>
+    //           <div><span>Invoice Date:</span> ${moment().format("MMMM D, YYYY")}</div>
+    //         </div>
+    //       </div>
+
+    //       <div class="section">
+    //         <div class="section-title">Customer Information</div>
+    //         <div class="customer-info">
+    //           <div><span class="label">Name:</span> <span class="value">${scheduleData.clientName}</span></div>
+    //           <div><span class="label">Email:</span> <span class="value">${scheduleData.email}</span></div>
+    //           <div><span class="label">Phone:</span> <span class="value">${scheduleData.phoneNum}</span></div>
+    //         </div>
+    //       </div>
+
+    //       <div class="section">
+    //         <div class="section-title">Visit Details</div>
+    //         <table>
+    //           <tr><td class="table-label">Property Name:</td><td class="table-value">${scheduleData.property}</td></tr>
+    //           <tr><td class="table-label">Location:</td><td class="table-value">${scheduleData.location?.address}</td></tr>
+    //           <tr><td class="table-label">Visit Dates:</td><td class="table-value">${scheduleData.visitDates}</td></tr>
+    //           <tr><td class="table-label">Check In Time:</td><td class="table-value">${scheduleData.checkInTime}</td></tr>
+    //           <tr><td class="table-label">Check Out Time:</td><td class="table-value">${scheduleData.checkOutTime}</td></tr>
+    //           ${scheduleData.numberOfVisitors ? `<tr><td class="table-label">Number of Visitors:</td><td class="table-value">${scheduleData.numberOfVisitors}</td></tr>` : ""}
+    //           ${scheduleData.numberOfInfants ? `<tr><td class="table-label">Number of Infants:</td><td class="table-value">${scheduleData.numberOfInfants}</td></tr>` : ""}
+    //           ${scheduleData.otherDetails ? `<tr><td class="table-label">Details For Customer:</td><td class="table-value">${scheduleData.otherDetails}</td></tr>` : ""}
+    //         </table>
+    //       </div>
+
+    //       <div class="section">
+    //         <div class="section-title">Financial Details</div>
+    //         <table>
+    //           <tr><td class="table-label">Agreed Price:</td><td class="table-value">${scheduleData.agreedPrice}</td></tr>
+    //           <tr><td class="table-label">Down Payment:</td><td class="table-value">${scheduleData.advanceAmount || "0"}</td></tr>
+    //           <tr><td class="table-label">Balance Amount:</td><td class="table-value">${parseFloat(scheduleData.agreedPrice || "0") - parseFloat(scheduleData.advanceAmount || "0")}</td></tr>
+    //         </table>
+    //       </div>
+
+    //       ${scheduleData.notes ? `
+    //         <div class="section">
+    //           <div class="section-title">Notes</div>
+    //           <div class="notes-content">${scheduleData.notes}</div>
+    //         </div>` : ""}
+
+    //       ${scheduleData.imagesAfter && scheduleData.imagesAfter.length > 0 ? `
+    //         ${scheduleData.imagesAfter.map((img: string, index: number) => `
+    //           <div style="
+    //             page-break-after: avoid;
+    //             page-break-inside: avoid;
+    //             height: 80vh;
+    //             min-height: 80vh;
+    //             max-height: 80vh;
+    //             display: flex;
+    //             flex-direction: column;
+    //             justify-content: center;
+    //             align-items: center;
+    //             border-radius: 15px;
+    //             background: #ffffff;
+    //             padding: 25px;
+    //             margin: 10mm;
+    //             box-sizing: border-box;
+    //           ">
+    //             ${index === 0 ? '<div class="gallery-title">Property Images (After Booking)</div>' : ''}
+    //             <img src="${img}" style="
+    //               width: 85%;
+    //               height: 75%;
+    //               object-fit: contain;
+    //               border-radius: 10px;
+    //               background: #f8f8f8;
+    //               box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    //             " />
+    //           </div>
+    //         `).join('')}
+    //       ` : ""}
+
+    //       <div class="footer">
+    //         <p>Generated on ${moment().format("MMMM D, YYYY h:mm A")}</p>
+    //         <p>Thank you for choosing our service!</p>
+    //       </div>
+    //     </body>
+    //   </html>
+    // `;
+
     const htmlContent = `
       <html>
-        <head>
-          <style>
-            body { font-family: Arial; padding: 20px; }
-            .header { margin-bottom: 30px; }
-            .invoice-title { font-size: 24px; color: #24A69E; text-align: center; margin-bottom: 10px; }
-            .invoice-details { font-size: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; }
-            .invoice-details span { font-weight: bold; }
-            .section { margin-bottom: 20px; }
-            .section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-            .customer-info div { margin-bottom: 8px; }
-            .customer-info .label { font-weight: bold; color: #333; display: inline-block; width: 100px; }
-            .customer-info .value { color: #666; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-            th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
-            th { background-color: #f2f2f2; }
-            .table-label { font-weight: bold; color: #333; }
-            .table-value { color: #666; text-align: left; }
-            .total-row td { font-weight: bold; }
-            .notes-content { 
-              padding: 10px; 
-              background-color: #f9f9f9; 
-              border: 1px solid #eee; 
-              border-radius: 5px; 
-              margin-top: 10px;
-              white-space: pre-wrap;
-              line-height: 1.5;
-            }
-            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
-            .gallery-section { margin-top: 30px; }
-            .gallery-title { font-size: 16px; font-weight: bold; color: #24A69E; margin-bottom:10px}
-            .gallery-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-            .gallery-img-box { width: 20%; margin-bottom: 8px; }
-            .gallery-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; background: #eee; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div class="invoice-title">Invoice</div>
-            <div class="invoice-details">
-              <div><span>Invoice ID:</span> ${scheduleData.id || "N/A"}</div>
-              <div><span>Invoice Date:</span> ${moment().format("MMMM D, YYYY")}</div>
-            </div>
+      <head>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            padding: 30px; 
+            font-size: 22px; 
+            color: #111;
+          }
+          .header { margin-bottom: 40px; }
+          .invoice-title { 
+            font-size: 38px; 
+            color: #24A69E; 
+            text-align: center; 
+            font-weight: 800; 
+            margin-bottom: 20px; 
+          }
+          .invoice-details { 
+            font-size: 24px; 
+            font-weight: bold;
+            margin-bottom: 30px; 
+            display: flex; 
+            justify-content: space-between; 
+          }
+          .invoice-details span { font-weight: 900; color: #000; }
+          .section { margin-bottom: 30px; }
+          .section-title { 
+            font-size: 28px; 
+            font-weight: 900; 
+            margin-bottom: 15px; 
+            border-bottom: 3px solid #ccc; 
+            padding-bottom: 8px; 
+            color: #000;
+          }
+          .customer-info div { 
+            margin-bottom: 12px; 
+            font-size: 23px;
+          }
+          .customer-info .label { 
+            font-weight: 900; 
+            color: #000; 
+            display: inline-block; 
+            width: 150px; 
+          }
+          .customer-info .value { 
+            color: #333; 
+            font-weight: 700;
+          }
+          table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 25px; 
+            font-size: 23px; 
+          }
+          th, td { 
+            padding: 12px; 
+            border: 2px solid #bbb; 
+            text-align: left; 
+          }
+          th { 
+            background-color: #f2f2f2; 
+            font-weight: 900; 
+            font-size: 24px;
+          }
+          .table-label { 
+            font-weight: 900; 
+            color: #000; 
+            width: 40%;
+          }
+          .table-value { 
+            color: #333; 
+            font-weight: 700;
+          }
+          .total-row td { font-weight: 900; font-size: 24px; }
+          .notes-content { 
+            padding: 15px; 
+            background-color: #f9f9f9; 
+            border: 2px solid #ccc; 
+            border-radius: 8px; 
+            margin-top: 15px;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 22px;
+            font-weight: 600;
+          }
+          .footer { 
+            margin-top: 55px; 
+            text-align: center; 
+            color: #444; 
+            font-size: 22px; 
+            font-weight: bold;
+          }
+          .gallery-section { margin-top: 40px; }
+          .gallery-title { 
+            font-size: 26px; 
+            font-weight: 900; 
+            color: #24A69E; 
+            margin-bottom: 15px;
+            text-align: center;
+          }
+          .gallery-img-box { width: 25%; margin-bottom: 10px; }
+          .gallery-img { 
+            width: 100%; 
+            aspect-ratio: 1/1; 
+            object-fit: cover; 
+            border-radius: 12px; 
+            background: #eee; 
+            border: 2px solid #ccc;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="invoice-title">Invoice</div>
+          <div class="invoice-details">
+            <div><span>Invoice ID:</span> ${scheduleData.id || "N/A"}</div>
+            <div><span>Invoice Date:</span> ${moment().format("MMMM D, YYYY")}</div>
           </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Customer Information</div>
+          <div class="customer-info">
+            <div><span class="label">Name:</span> <span class="value">${scheduleData.clientName}</span></div>
+            <div><span class="label">Email:</span> <span class="value">${scheduleData.email}</span></div>
+            <div><span class="label">Phone:</span> <span class="value">${scheduleData.phoneNum}</span></div>
+          </div>
+        </div>
+      
+        <div class="section">
+          <div class="section-title">Visit Details</div>
+          <table>
+            <tr><td class="table-label">Property Name:</td><td class="table-value">${scheduleData.property}</td></tr>
+            <tr><td class="table-label">Location:</td><td class="table-value">${scheduleData.location?.address}</td></tr>
+            <tr><td class="table-label">Visit Dates:</td><td class="table-value">${scheduleData.visitDates}</td></tr>
+            <tr><td class="table-label">Check In Time:</td><td class="table-value">${scheduleData.checkInTime}</td></tr>
+            <tr><td class="table-label">Check Out Time:</td><td class="table-value">${scheduleData.checkOutTime}</td></tr>
+            ${scheduleData.numberOfVisitors ? `<tr><td class="table-label">Number of Visitors:</td><td class="table-value">${scheduleData.numberOfVisitors}</td></tr>` : ""}
+            ${scheduleData.numberOfInfants ? `<tr><td class="table-label">Number of Infants:</td><td class="table-value">${scheduleData.numberOfInfants}</td></tr>` : ""}
+            ${scheduleData.otherDetails ? `<tr><td class="table-label">Details For Customer:</td><td class="table-value">${scheduleData.otherDetails}</td></tr>` : ""}
+          </table>
+        </div>
+      
+        <div class="section">
+          <div class="section-title">Financial Details</div>
+          <table>
+            <tr><td class="table-label">Agreed Price:</td><td class="table-value">${scheduleData.agreedPrice}</td></tr>
+            <tr><td class="table-label">Down Payment:</td><td class="table-value">${scheduleData.advanceAmount || "0"}</td></tr>
+            <tr><td class="table-label">Balance Amount:</td><td class="table-value">${parseFloat(scheduleData.agreedPrice || "0") - parseFloat(scheduleData.advanceAmount || "0")}</td></tr>
+          </table>
+        </div>
+      
+        ${scheduleData.notes ? `
+          <div class="section">
+            <div class="section-title">Notes</div>
+            <div class="notes-content">${scheduleData.notes}</div>
+          </div>` : ""}
           
-          <div class="section">
-            <div class="section-title">Customer Information</div>
-            <div class="customer-info">
-              <div><span class="label">Name:</span> <span class="value">${scheduleData.clientName}</span></div>
-              <div><span class="label">Email:</span> <span class="value">${scheduleData.email}</span></div>
-              <div><span class="label">Phone:</span> <span class="value">${scheduleData.phoneNum}</span></div>
+        ${scheduleData.imagesAfter && scheduleData.imagesAfter.length > 0 ? `
+          ${scheduleData.imagesAfter.map((img, index) => `
+            <div style="
+              page-break-after: avoid;
+              page-break-inside: avoid;
+              height: 90vh;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              border-radius: 20px;
+              background: #ffffff;
+              padding: 35px;
+              margin: 10mm;
+              box-sizing: border-box;
+            ">
+              ${index === 0 ? '<div class="gallery-title">Property Images (After Booking)</div>' : ''}
+              <img src="${img}" style="
+                width: 90%;
+                height: 80%;
+                object-fit: contain;
+                border-radius: 12px;
+                background: #f8f8f8;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+              " />
             </div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">Visit Details</div>
-            <table>
-              <tr><td class="table-label">Property Name:</td><td class="table-value">${scheduleData.property}</td></tr>
-              <tr><td class="table-label">Location:</td><td class="table-value">${scheduleData.location?.address}</td></tr>
-              <tr><td class="table-label">Visit Dates:</td><td class="table-value">${scheduleData.visitDates}</td></tr>
-              <tr><td class="table-label">Check In Time:</td><td class="table-value">${scheduleData.checkInTime}</td></tr>
-              <tr><td class="table-label">Check Out Time:</td><td class="table-value">${scheduleData.checkOutTime}</td></tr>
-              ${scheduleData.numberOfVisitors ? `<tr><td class="table-label">Number of Visitors:</td><td class="table-value">${scheduleData.numberOfVisitors}</td></tr>` : ""}
-              ${scheduleData.numberOfInfants ? `<tr><td class="table-label">Number of Infants:</td><td class="table-value">${scheduleData.numberOfInfants}</td></tr>` : ""}
-              ${scheduleData.otherDetails ? `<tr><td class="table-label">Details For Customer:</td><td class="table-value">${scheduleData.otherDetails}</td></tr>` : ""}
-            </table>
-          </div>
-
-          <div class="section">
-            <div class="section-title">Financial Details</div>
-            <table>
-              <tr><td class="table-label">Agreed Price:</td><td class="table-value">${scheduleData.agreedPrice}</td></tr>
-              <tr><td class="table-label">Down Payment:</td><td class="table-value">${scheduleData.advanceAmount || "0"}</td></tr>
-              <tr><td class="table-label">Balance Amount:</td><td class="table-value">${parseFloat(scheduleData.agreedPrice || "0") - parseFloat(scheduleData.advanceAmount || "0")}</td></tr>
-            </table>
-          </div>
-
-          ${scheduleData.notes ? `
-            <div class="section">
-              <div class="section-title">Notes</div>
-              <div class="notes-content">${scheduleData.notes}</div>
-            </div>` : ""}
-            
-          ${scheduleData.imagesAfter && scheduleData.imagesAfter.length > 0 ? `
-            ${scheduleData.imagesAfter.map((img: string, index: number) => `
-              <div style="
-                page-break-after: avoid;
-                page-break-inside: avoid;
-                height: 80vh;
-                min-height: 80vh;
-                max-height: 80vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                border-radius: 15px;
-                background: #ffffff;
-                padding: 25px;
-                margin: 10mm;
-                box-sizing: border-box;
-              ">
-                ${index === 0 ? '<div class="gallery-title">Property Images (After Booking)</div>' : ''}
-                <img src="${img}" style="
-                  width: 85%;
-                  height: 75%;
-                  object-fit: contain;
-                  border-radius: 10px;
-                  background: #f8f8f8;
-                  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                " />
-              </div>
-            `).join('')}
-          ` : ""}
-          
-          <div class="footer">
-            <p>Generated on ${moment().format("MMMM D, YYYY h:mm A")}</p>
-            <p>Thank you for choosing our service!</p>
-          </div>
-        </body>
-      </html>
-    `;
+          `).join('')}
+        ` : ""}
+        
+        <div class="footer">
+          <p>Generated on ${moment().format("MMMM D, YYYY h:mm A")}</p>
+          <p>Thank you for choosing our service!</p>
+        </div>
+      </body>
+    </html>`;
 
     const timestamp = moment().format("YYYY-MM-DD_HH-mm-ss");
     const fileName = `Booking_Invoice_${timestamp}`;
