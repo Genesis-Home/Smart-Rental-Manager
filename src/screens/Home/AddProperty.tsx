@@ -258,7 +258,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
   const handleGalleryImagesPick = async (which: "before" | "after") => {
     const currentImages = which === "before" ? galleryImagesBefore : galleryImagesAfter;
-    const MAX_IMAGES = 20;
+    const MAX_IMAGES = 25;
     
     // Check if already at max limit
     if (currentImages.length >= MAX_IMAGES) {
@@ -276,7 +276,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
     launchImageLibrary(
       {
         mediaType: "photo",
-        selectionLimit: Math.min(5, remainingSlots), // Dynamic limit based on remaining slots
+        selectionLimit: Math.min(MAX_IMAGES, remainingSlots), // Dynamic limit based on remaining slots
         includeBase64: false,
         quality: 0.8,
         maxWidth: 1024,
