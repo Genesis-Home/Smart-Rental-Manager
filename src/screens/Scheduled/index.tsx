@@ -265,7 +265,7 @@ const Scheduled: React.FC = () => {
   };
 
   const generateWeekDays = (date: Date) => {
-    const start = startOfWeek(date, { weekStartsOn: 7, locale: getLocale() });
+    const start = startOfWeek(date, { weekStartsOn: 5, locale: getLocale() });
     const week: Day[] = [];
     for (let i = 0; i < 7; i++) {
       const dayDate = addDays(start, i);
@@ -652,7 +652,7 @@ const Scheduled: React.FC = () => {
           <Text style={styles.propertyText}>{item.propertyName}</Text>
         </TouchableOpacity>
         <View style={styles.slotsContainer}>
-          {[...Array(8)].map((_, i) => {
+          {[...Array(7)].map((_, i) => {
             const slotDate = addDays(
               startOfWeek(currentDate, { weekStartsOn: 5 }),
               i
