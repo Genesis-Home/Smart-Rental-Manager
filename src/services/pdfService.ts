@@ -200,6 +200,9 @@ export const generateSchedulePDF = async (scheduleData: any) => {
           .table-value { 
             color: #333; 
             font-weight: 700;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            word-break: break-word;
           }
           .total-row td { font-weight: 900; font-size: 24px; }
           .notes-content { 
@@ -265,9 +268,9 @@ export const generateSchedulePDF = async (scheduleData: any) => {
             <tr><td class="table-label">Visit Dates:</td><td class="table-value">${scheduleData.visitDates}</td></tr>
             <tr><td class="table-label">Check In Time:</td><td class="table-value">${scheduleData.checkInTime}</td></tr>
             <tr><td class="table-label">Check Out Time:</td><td class="table-value">${scheduleData.checkOutTime}</td></tr>
+            ${scheduleData.otherDetails ? `<tr><td class="table-label">Details For Customer:</td><td class="table-value">${scheduleData.otherDetails}</td></tr>` : ""}
             ${scheduleData.numberOfVisitors ? `<tr><td class="table-label">Number of Visitors:</td><td class="table-value">${scheduleData.numberOfVisitors}</td></tr>` : ""}
             ${scheduleData.numberOfInfants ? `<tr><td class="table-label">Number of Infants:</td><td class="table-value">${scheduleData.numberOfInfants}</td></tr>` : ""}
-            ${scheduleData.otherDetails ? `<tr><td class="table-label">Details For Customer:</td><td class="table-value">${scheduleData.otherDetails}</td></tr>` : ""}
           </table>
         </div>
       
