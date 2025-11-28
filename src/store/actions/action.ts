@@ -633,27 +633,29 @@ export const addSchedule =
       // Send email immediately
       try {
         await scheduleBookingNotifications(scheduleData);
-        await dispatch(
-          sendEmail(
-            navigation,
-            formData.email,
-            formData.clientName,
-            formData.phoneNum,
-            formData.visitDates,
-            formData.checkInTime,
-            formData.checkOutTime,
-            formData.numberOfVisitors,
-            formData.numberOfInfants,
-            formData.property,
-            formData.location,
-            formData.agreedPrice,
-            formData.advanceAmount,
-            pdfPath || undefined,
-            (formData.imagesAfter || []).slice(0, 10),
-            scheduleId,
-            true
-          )
-        );
+        if (formData.email) {
+          await dispatch(
+            sendEmail(
+              navigation,
+              formData.email,
+              formData.clientName,
+              formData.phoneNum,
+              formData.visitDates,
+              formData.checkInTime,
+              formData.checkOutTime,
+              formData.numberOfVisitors,
+              formData.numberOfInfants,
+              formData.property,
+              formData.location,
+              formData.agreedPrice,
+              formData.advanceAmount,
+              pdfPath || undefined,
+              (formData.imagesAfter || []).slice(0, 10),
+              scheduleId,
+              true
+            )
+          );
+        }
       } catch (error) {
         console.error("Email sending error:", error);
       }

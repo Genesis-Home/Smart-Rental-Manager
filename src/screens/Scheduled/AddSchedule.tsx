@@ -166,14 +166,9 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
         schema.required(t("clientName") + " " + t("isRequired")),
       otherwise: (schema) => schema.notRequired(),
     }),
-    email: Yup.string().when("$useExistingContact", {
-      is: false,
-      then: (schema) =>
-        schema
-          .email(t("invalidEmail"))
-          .required(t("Email") + " " + t("isRequired")),
-      otherwise: (schema) => schema.notRequired(),
-    }),
+    email: Yup.string()
+      .email(t("invalidEmail"))
+      .notRequired(),
     phoneNum: Yup.string().when("$useExistingContact", {
       is: false,
       then: (schema) => schema.required(t("phoneNum") + " " + t("isRequired")),
@@ -247,7 +242,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
       return;
     }
 
-    if (!finalFormData.clientName || !finalFormData.email || !finalFormData.phoneNum) {
+    if (!finalFormData.clientName || !finalFormData.phoneNum) {
       Toast.show({
         type: "error",
         text1: t("pleaseFillAllRequiredFields"),
