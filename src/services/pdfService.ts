@@ -127,6 +127,13 @@ export const generateSchedulePDF = async (scheduleData: any) => {
     //   </html>
     // `;
 
+    const mapsUrl =
+      scheduleData.location?.lat && scheduleData.location?.long
+        ? `https://www.google.com/maps?q=${scheduleData.location.lat},${scheduleData.location.long}`
+        : scheduleData.location?.address
+          ? `https://www.google.com/maps/search/${encodeURIComponent(scheduleData.location.address)}`
+          : "";
+
     const htmlContent = `
       <html>
       <head>
@@ -192,7 +199,7 @@ export const generateSchedulePDF = async (scheduleData: any) => {
             font-weight: 900; 
             font-size: 24px;
           }
-          .table-label { 
+           .table-label { 
             font-weight: 900; 
             color: #000; 
             width: 40%;
@@ -204,6 +211,40 @@ export const generateSchedulePDF = async (scheduleData: any) => {
             line-height: 1.6;
             word-break: break-word;
           }
+           .location-block {
+             padding: 18px;
+             border: 2px solid #bbb;
+             border-radius: 10px;
+             margin-bottom: 18px;
+             background-color: #fdfdfd;
+           }
+           .location-title {
+             font-size: 24px;
+             font-weight: 800;
+             margin-bottom: 8px;
+             color: #000;
+           }
+           .location-address {
+             font-size: 21px;
+             color: #333;
+             line-height: 1.5;
+             white-space: pre-wrap;
+           }
+           .map-link {
+            margin-top: 8px;
+             display: inline-flex;
+             align-items: center;
+             gap: 6px;
+          }
+          .map-link a {
+            color: #24A69E;
+            font-size: 20px;
+            font-weight: 800;
+            text-decoration: none;
+          }
+           .map-pin {
+             font-size: 20px;
+           }
           .total-row td { font-weight: 900; font-size: 24px; }
           .notes-content { 
             padding: 15px; 
@@ -260,11 +301,15 @@ export const generateSchedulePDF = async (scheduleData: any) => {
           </div>
         </div>
       
-        <div class="section">
-          <div class="section-title">Visit Details</div>
-          <table>
-            <tr><td class="table-label">Property Name:</td><td class="table-value">${scheduleData.property}</td></tr>
-            <tr><td class="table-label">Location:</td><td class="table-value">${scheduleData.location?.address}</td></tr>
+          <div class="section">
+            <div class="section-title">Visit Details</div>
+            <div class="location-block">
+              <div class="location-title">Location</div>
+              <div class="location-address">${scheduleData.location?.address || "N/A"}</div>
+              ${mapsUrl ? `<div class="map-link"><span class="map-pin">📍</span><a href="${mapsUrl}">Open in Google Maps</a></div>` : ""}
+            </div>
+            <table>
+              <tr><td class="table-label">Property Name:</td><td class="table-value">${scheduleData.property}</td></tr>
             <tr><td class="table-label">Visit Dates:</td><td class="table-value">${scheduleData.visitDates}</td></tr>
             <tr><td class="table-label">Check In Time:</td><td class="table-value">${scheduleData.checkInTime}</td></tr>
             <tr><td class="table-label">Check Out Time:</td><td class="table-value">${scheduleData.checkOutTime}</td></tr>
