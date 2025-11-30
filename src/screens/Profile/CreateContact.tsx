@@ -35,8 +35,11 @@ const CreateContact: React.FC<{ navigation: NavigationProp<any> }> = ({
   const handleCreate = async (values: any, resetForm: () => void) => {
     if (user?.userId) {
       try {
-        await dispatch(addContact(values, user.userId, navigation));
-        resetForm();
+        const result = await dispatch(addContact(values, user.userId, navigation));
+        // Only reset form if contact was successfully created (not duplicate)
+        if (result === true) {
+          resetForm();
+        }
       } catch (err) {
         // error toast ya handling (optional)
       }

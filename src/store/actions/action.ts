@@ -435,6 +435,40 @@ export const addContact =
     try {
       dispatch({ type: "IS_LOADER", payload: true });
 
+      // First, check if a contact with the same email and phone already exists
+      const existingContactsSnapshot = await firestore()
+        .collection("contacts")
+        .where("createdBy", "==", userId)
+        .get();
+
+      if (!existingContactsSnapshot.empty) {
+        const existingContacts = existingContactsSnapshot.docs.map((doc: any) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+
+        // Check if any contact has both the same email and phone number
+        const duplicateContact = existingContacts.find(
+          (contact: any) =>
+            contact.emailAddress?.toLowerCase() === formData.email?.toLowerCase() &&
+            contact.phoneNumber === formData.phoneNum
+        );
+        if (duplicateContact) {
+          // Contact with same email and phone already exists, do nothing
+          dispatch({ type: "IS_LOADER", payload: false });
+          const customMessage = await getFirebaseErrorMessage(
+            "Contact with this email and phone number already exists"
+          );
+          Toast.show({
+            type: "info",
+            text1: customMessage,
+            position: "bottom",
+          });
+           return false;
+        }
+      }
+
+      // No duplicate found, proceed with creating new contact
       const contactRef = firestore().collection("contacts").doc();
       const contactData = {
         name: formData.name,
@@ -474,6 +508,7 @@ export const addContact =
       });
 
       navigation.goBack();
+      return true;
     } catch (error: any) {
       console.error("Add Contact Error:", error);
       dispatch({ type: "IS_LOADER", payload: false });
@@ -485,6 +520,7 @@ export const addContact =
         text1: errorMessage,
         position: "bottom",
       });
+      return false;
     }
   };
 

@@ -69,6 +69,8 @@ const translations: Translations = {
     "Contact added successfully": "Contact added successfully",
     "Failed to add contact. Please try again.":
       "Failed to add contact. Please try again.",
+    "Contact with this email and phone number already exists":
+      "Contact with this email and phone number already exists",
     "logout successfully!": "logout successfully!",
     "Failed to add schedule. Please try again.":
       "Failed to add schedule. Please try again.",
@@ -138,6 +140,8 @@ const translations: Translations = {
     "Contact added successfully": "Η επαφή προστέθηκε με επιτυχία",
     "Failed to add contact. Please try again.":
       "Αποτυχία προσθήκης επαφής. Προσπαθήστε ξανά.",
+    "Contact with this email and phone number already exists":
+      "Η επαφή με αυτό το email και τον αριθμό τηλεφώνου υπάρχει ήδη",
     "logout successfully!": "Αποσυνδεθήκατε με επιτυχία!",
     "Failed to add schedule. Please try again.":
       "Αποτυχία προσθήκης προγράμματος. Δοκιμάστε ξανά.",
