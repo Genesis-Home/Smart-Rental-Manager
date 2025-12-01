@@ -122,9 +122,11 @@ const ExportData: React.FC = () => {
       }
 
       let csv =
-        "Client Name,Email,Phone,Visit Dates,Check In Time,Check Out Time,Visitors,Infants,Property\n";
+        "Client Name,Email,Phone,Visit Dates,Check In Time,Check Out Time,Visitors,Infants,Property,Created By\n";
       schedules.forEach((item: any) => {
-        csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.checkInTime}","${item.checkOutTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.property}"\n`;
+        const createdByDisplay =
+          item.createdByEmail || item.createdByName || item.createdBy || "";
+        csv += `"${item.clientName}","${item.email}","${item.phoneNum}","${item.visitDates}","${item.checkInTime}","${item.checkOutTime}","${item.numberOfVisitors}","${item.numberOfInfants}","${item.property}","${createdByDisplay}"\n`;
       });
 
       const fileName = showAllSchedules ? `All_Schedules_Export.csv` : `Schedules_Export.csv`;
@@ -400,6 +402,19 @@ const ExportData: React.FC = () => {
                       {t("viewOnMap")}
                     </Text>
                   </View>
+                  {user?.email === "admin@gmail.com" && showAllSchedules && (
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>
+                        {t("createdBy") || "Created By"}
+                      </Text>
+                      <Text style={styles.detailValue}>
+                        {item.createdByEmail ||
+                          item.createdByName
+                           ||item.createdBy
+                          }
+                      </Text>
+                    </View>
+                  )}
                 </View>
               </View>
             )}

@@ -1154,10 +1154,56 @@ export const fetchAllSchedules = () => async (dispatch: any) => {
     if (snapshot.empty) {
       dispatch({ type: "SET_USER_SCHEDULES", payload: [] });
     } else {
-      const schedules = snapshot.docs.map((doc: any) => ({
+      // First map raw schedules
+      const rawSchedules = snapshot.docs.map((doc: any) => ({
         ...doc.data(),
         id: doc.id,
       }));
+
+      // Collect unique creator userIds
+      const creatorIds = Array.from(
+        new Set(
+          rawSchedules
+            .map((s: any) => s.createdBy)
+            .filter((id: any) => typeof id === "string" && id.length > 0)
+        )
+      );
+
+      let userMap: Record<string, any> = {};
+
+      if (creatorIds.length > 0) {
+        try {
+          const userDocs = await Promise.all(
+            creatorIds.map((id) =>
+              firestore().collection("users").doc(id).get()
+            )
+          );
+
+          userDocs.forEach((doc: any) => {
+            if (doc.exists) {
+              const data = doc.data();
+              const key = data?.userId || doc.id;
+              userMap[key] = data;
+            }
+          });
+        } catch (e) {
+          console.warn("Failed to enrich schedules with user data:", e);
+        }
+      }
+
+      const schedules = rawSchedules.map((s: any) => {
+        const creator = s.createdBy ? userMap[s.createdBy] : null;
+        const createdByName =
+          creator?.agencyName || creator?.ownerName || "";
+        const createdByEmail = creator?.email || "";
+
+        return {
+          ...s,
+          createdByName,
+          createdByEmail,
+        };
+      });
+
       dispatch({ type: "SET_USER_SCHEDULES", payload: schedules });
     }
     dispatch({ type: "IS_LOADER", payload: false });
