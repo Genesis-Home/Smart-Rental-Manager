@@ -35,10 +35,15 @@ import moment from "moment";
 import Colors from "../../utilities/constants/colors";
 import { useFocusEffect } from "@react-navigation/native";
 
-const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
+// Helper to format a YYYY-MM-DD date string to "MMM D, YYYY"
+const formatVisitDate = (dateStr: string) =>
+  moment(dateStr, "YYYY-MM-DD").format("MMM D, YYYY");
+
+const AddSchedule: React.FC<AddScheduleProps> = ({ navigation, route }) => {
   const styles = createStyles(colors);
   const dispatch = useAppDispatch();
   const { t, i18n } = useTranslation();
+  const preselectedDate = route?.params?.preselectedDate ?? null;
   const user = useAppSelector((state: any) => state.reducer.user);
   const userPropertySchedules = useAppSelector(
     (state: any) => state.reducer.userPropertySchedules
@@ -48,13 +53,26 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
   );
   const userContacts = useAppSelector((state: any) => state.reducer.contacts);
   const [calendarVisible, setCalendarVisible] = useState(false);
-  const [displayedMonth, setDisplayedMonth] = useState(new Date());
+  const [displayedMonth, setDisplayedMonth] = useState(
+    preselectedDate ? new Date(preselectedDate) : new Date()
+  );
   const [isLocaleReady, setIsLocaleReady] = useState(false);
   const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property>();
-  const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
-  const [startDate, setStartDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
+  const [markedDates, setMarkedDates] = useState<Record<string, any>>(
+    preselectedDate
+      ? {
+          [preselectedDate]: {
+            startingDay: true,
+            endingDay: true,
+            color: colors.Primary_01,
+            textColor: colors.white,
+          },
+        }
+      : {}
+  );
+  const [startDate, setStartDate] = useState<string | null>(preselectedDate);
+  const [endDate, setEndDate] = useState<string | null>(preselectedDate);
   const [visible, setVisible] = useState(false);
   const [checkOutTimeVisible, setCheckOutTimeVisible] = useState(false);
   const [conflictModalVisible, setConflictModalVisible] = useState(false);
@@ -481,7 +499,11 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation }) => {
                 clientName: "",
                 email: "",
                 phoneNum: "",
-                visitDates: "",
+                visitDates: preselectedDate
+                  ? `${formatVisitDate(preselectedDate)} - ${formatVisitDate(
+                      preselectedDate
+                    )}`
+                  : "",
                 checkInTime: "03:00 PM",
                 checkOutTime: "11:00 AM",
                 numberOfVisitors: "",

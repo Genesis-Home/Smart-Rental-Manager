@@ -43,7 +43,7 @@ export type RootStackParamList = {
   ExportData: undefined;
   Profile: undefined;
   createContact: undefined;
-  AddSchedule: undefined;
+  AddSchedule: { preselectedDate?: string } | undefined;
   EditSchedule: { booking: any };
   ApartmentDetails: {
     changeLocation:string;
@@ -59,7 +59,7 @@ export type RootStackParamListBottomNavigation = {
   Home1: undefined;
   ApartmentDetails: { id: string };
   Scheduled1: undefined;
-  AddSchedule: undefined;
+  AddSchedule: { preselectedDate?: string } | undefined;
   ExportData1: undefined;
   Settings1: undefined;
   Profile1: undefined;
@@ -168,6 +168,7 @@ export interface SettingNavigationProp
 
 export interface AddScheduleProps {
   navigation: any;
+  route: RouteProp<RootStackParamList, "AddSchedule">;
 }
 
 export interface ScheduledScreenNavigationProp

@@ -775,30 +775,39 @@ const Scheduled: React.FC = () => {
             const isToday =
               format(dateToCheck, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
             return (
-              <View
+              <TouchableOpacity
                 key={index}
-                style={[
-                  styles.dayItem,
-                  isToday && { backgroundColor: colors.Primary_01 },
-                ]}
+                activeOpacity={0.8}
+                onPress={() =>
+                  navigation.navigate("AddSchedule", {
+                    preselectedDate: dateToCheck.toISOString().split("T")[0],
+                  })
+                }
               >
-                <Text
+                <View
                   style={[
-                    styles.dayText,
-                    { color: isToday ? colors.white : colors.PLACE_HOLDER },
+                    styles.dayItem,
+                    isToday && { backgroundColor: colors.Primary_01 },
                   ]}
                 >
-                  {item.day}
-                </Text>
-                <Text
-                  style={[
-                    styles.numberText,
-                    { color: isToday ? colors.white : colors.black },
-                  ]}
-                >
-                  {item.number}
-                </Text>
-              </View>
+                  <Text
+                    style={[
+                      styles.dayText,
+                      { color: isToday ? colors.white : colors.PLACE_HOLDER },
+                    ]}
+                  >
+                    {item.day}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.numberText,
+                      { color: isToday ? colors.white : colors.black },
+                    ]}
+                  >
+                    {item.number}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             );
           })}
         </View>
