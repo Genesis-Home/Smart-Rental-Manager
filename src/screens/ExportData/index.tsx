@@ -322,7 +322,7 @@ const ExportData: React.FC = () => {
               </View>
             </TouchableOpacity>
             <View style={{ justifyContent: 'center', minHeight: 20 }}>
-              <Text style={[Typography.f_14_nunito_bold,{ color: colors.Primary_01 }]}>
+              <Text style={[Typography.f_14_nunito_bold, { color: colors.Primary_01 }]}>
                 {t('showAllSchedules') || "Show all users' schedules"}
               </Text>
             </View>
@@ -409,9 +409,7 @@ const ExportData: React.FC = () => {
                       </Text>
                       <Text style={styles.detailValue}>
                         {item.createdByEmail ||
-                          item.createdByName
-                           ||item.createdBy
-                          }
+                          item.createdByName}
                       </Text>
                     </View>
                   )}
@@ -424,7 +422,7 @@ const ExportData: React.FC = () => {
       <Modal visible={calendarVisible} transparent animationType="fade">
         <TouchableWithoutFeedback onPress={() => setCalendarVisible(false)}>
           <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback onPress={() => {}}>
+            <TouchableWithoutFeedback onPress={() => { }}>
               <View style={styles.calendarModal}>
                 {isLocaleReady && (
                   <Calendar
@@ -484,7 +482,7 @@ const styles = StyleSheet.create({
     borderColor: colors.Neutral_01,
     padding: 13,
     borderRadius: 4,
-    height:45
+    height: 45
   },
   datePickerText: {
     ...Typography.f_14_nunito_bold,
@@ -505,7 +503,7 @@ const styles = StyleSheet.create({
   },
   exportBtnWrapper: {
     marginTop: 25,
-    marginBottom:15
+    marginBottom: 15
   },
   visitCard: {
     marginTop: 15,

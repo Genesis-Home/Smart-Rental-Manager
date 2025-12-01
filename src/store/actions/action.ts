@@ -1219,17 +1219,61 @@ export const fetchAllContacts = () => async (dispatch: any) => {
   try {
     dispatch({ type: "IS_LOADER", payload: true });
 
-    const snapshot = await firestore()
-      .collection("contacts")
-      .get();
+    const snapshot = await firestore().collection("contacts").get();
 
     if (snapshot.empty) {
       dispatch({ type: "SET_USER_CONTACTS", payload: [] });
     } else {
-      const contacts = snapshot.docs.map((doc: any) => ({
+      // First map raw contacts
+      const rawContacts = snapshot.docs.map((doc: any) => ({
         ...doc.data(),
         id: doc.id,
       }));
+
+      // Collect unique creator userIds
+      const creatorIds = Array.from(
+        new Set(
+          rawContacts
+            .map((c: any) => c.createdBy)
+            .filter((id: any) => typeof id === "string" && id.length > 0)
+        )
+      );
+
+      let userMap: Record<string, any> = {};
+
+      if (creatorIds.length > 0) {
+        try {
+          const userDocs = await Promise.all(
+            creatorIds.map((id) =>
+              firestore().collection("users").doc(id).get()
+            )
+          );
+
+          userDocs.forEach((doc: any) => {
+            if (doc.exists) {
+              const data = doc.data();
+              const key = data?.userId || doc.id;
+              userMap[key] = data;
+            }
+          });
+        } catch (e) {
+          console.warn("Failed to enrich contacts with user data:", e);
+        }
+      }
+
+      const contacts = rawContacts.map((c: any) => {
+        const creator = c.createdBy ? userMap[c.createdBy] : null;
+        const createdByName =
+          creator?.agencyName || creator?.ownerName || "";
+        const createdByEmail = creator?.email || "";
+
+        return {
+          ...c,
+          createdByName,
+          createdByEmail,
+        };
+      });
+
       dispatch({ type: "SET_USER_CONTACTS", payload: contacts });
     }
     dispatch({ type: "IS_LOADER", payload: false });

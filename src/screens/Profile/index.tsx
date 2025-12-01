@@ -126,11 +126,23 @@ const Profile: React.FC = () => {
           <Text style={styles.contactLabel}>{t("phoneNum")}</Text>
           <Text style={styles.contactValue}>{item.phoneNumber}</Text>
         </View>
-       {item.notes &&(
+        {item.notes &&(
          <View style={styles.contactRow}>
           <Text style={styles.contactLabel}>{t("note")}</Text>
           <Text style={styles.contactValue}>{item.notes}</Text>
         </View>
+       )}
+       {user?.email === "admin@gmail.com" && showAllContacts && (
+         <View style={styles.contactRow}>
+           <Text style={styles.contactLabel}>
+             {t("createdBy") || "Created By"}
+           </Text>
+           <Text style={styles.contactValue}>
+             {(item as any).createdByEmail ||
+               (item as any).createdByName ||
+               (item as any).createdBy}
+           </Text>
+         </View>
        )}
       </View>
     </Swipeable>
@@ -151,9 +163,11 @@ const Profile: React.FC = () => {
           return;
         }
       }
-      let csv = "Name,Email,Phone,Notes\n";
+      let csv = "Name,Email,Phone,Notes,Created By\n";
       contacts.forEach((item: any) => {
-        csv += `"${item.name}","${item.emailAddress}","${item.phoneNumber}","${item.notes || ''}"\n`;
+        const createdByDisplay =
+          item.createdByEmail || item.createdByName || item.createdBy || "";
+        csv += `"${item.name}","${item.emailAddress}","${item.phoneNumber}","${item.notes || ''}","${createdByDisplay}"\n`;
       });
       const fileName = showAllContacts ? `All_Contacts_Export.csv` : `Contacts_Export.csv`;
       if (Platform.OS === "android" && Platform.Version >= 30) {
