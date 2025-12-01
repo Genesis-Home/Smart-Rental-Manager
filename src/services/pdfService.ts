@@ -330,7 +330,7 @@ export const generateSchedulePDF = async (scheduleData: any) => {
       
         ${scheduleData.notes ? `
           <div class="section">
-            <div class="section-title">After booking</div>
+            <div class="section-title">Notes (After booking)</div>
             <div class="notes-content">${scheduleData.notes}</div>
           </div>` : ""}
           
