@@ -762,3 +762,195 @@ export const generatePropertyPDF = async (propertyData: {
     throw error;
   }
 };
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+const formatMoney = (value: number) => value.toFixed(2);
+
+const buildFinancialReportHtml = (params: {
+  title: string;
+  periodLabel: string;
+  properties: Array<{
+    propertyId: string;
+    propertyName: string;
+    bookings: number;
+    totalRevenue: number;
+    totalAdvance: number;
+    totalBalance: number;
+  }>;
+  totals: {
+    bookings: number;
+    totalRevenue: number;
+    totalAdvance: number;
+    totalBalance: number;
+  };
+}) => {
+  const rows = params.properties
+    .map(
+      (item) => `
+        <tr>
+          <td>${escapeHtml(item.propertyName || "Unknown Property")}</td>
+          <td>${item.bookings}</td>
+          <td>${formatMoney(item.totalRevenue)}</td>
+          <td>${formatMoney(item.totalAdvance)}</td>
+          <td>${formatMoney(item.totalBalance)}</td>
+        </tr>
+      `
+    )
+    .join("");
+
+  return `
+  <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 28px; color: #111; }
+        .title { font-size: 28px; font-weight: 800; color: #24A69E; text-align: center; }
+        .period { margin-top: 8px; text-align: center; font-size: 16px; font-weight: 600; }
+        .summary { margin: 24px 0; font-size: 14px; color: #333; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f2f2f2; font-weight: 700; }
+        .totals-row td { font-weight: 800; background: #fafafa; }
+        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
+      </style>
+    </head>
+    <body>
+      <div class="title">${escapeHtml(params.title)}</div>
+      <div class="period">Period: ${escapeHtml(params.periodLabel)}</div>
+      <div class="summary">Generated on ${moment().format("MMMM D, YYYY h:mm A")}</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Bookings</th>
+            <th>Revenue</th>
+            <th>Advance</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+          <tr class="totals-row">
+            <td>Totals</td>
+            <td>${params.totals.bookings}</td>
+            <td>${formatMoney(params.totals.totalRevenue)}</td>
+            <td>${formatMoney(params.totals.totalAdvance)}</td>
+            <td>${formatMoney(params.totals.totalBalance)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footer">Smart Rental Manager</div>
+    </body>
+  </html>
+  `;
+};
+
+const generateFinancialReportPDF = async (params: {
+  title: string;
+  periodLabel: string;
+  filePrefix: string;
+  properties: Array<{
+    propertyId: string;
+    propertyName: string;
+    bookings: number;
+    totalRevenue: number;
+    totalAdvance: number;
+    totalBalance: number;
+  }>;
+  totals: {
+    bookings: number;
+    totalRevenue: number;
+    totalAdvance: number;
+    totalBalance: number;
+  };
+}) => {
+  const html = buildFinancialReportHtml(params);
+  const timestamp = moment().format("YYYY-MM-DD_HH-mm-ss");
+  const fileName = `${params.filePrefix}_${timestamp}`;
+
+  const options = {
+    html,
+    fileName,
+    directory: "Cache",
+    base64: false,
+    height: 842,
+    width: 595,
+  } as const;
+
+  const file = await RNHTMLtoPDF.convert(options);
+  if (!file.filePath) throw new Error("PDF generation failed - no file path returned");
+
+  const fileExists = await RNFS.exists(file.filePath);
+  if (!fileExists) throw new Error("PDF file not found after generation");
+
+  const finalPath =
+    Platform.OS === "android"
+      ? `${RNFS.ExternalDirectoryPath}/${fileName}.pdf`
+      : `${RNFS.DocumentDirectoryPath}/${fileName}.pdf`;
+
+  await RNFS.copyFile(file.filePath, finalPath);
+
+  try {
+    await RNFS.unlink(file.filePath);
+  } catch (cleanupError) {
+    console.warn("Failed to clean up temporary PDF file:", cleanupError);
+  }
+
+  return finalPath;
+};
+
+export const generateMonthlyFinancialReportPDF = async (params: {
+  periodLabel: string;
+  properties: Array<{
+    propertyId: string;
+    propertyName: string;
+    bookings: number;
+    totalRevenue: number;
+    totalAdvance: number;
+    totalBalance: number;
+  }>;
+  totals: {
+    bookings: number;
+    totalRevenue: number;
+    totalAdvance: number;
+    totalBalance: number;
+  };
+}) =>
+  generateFinancialReportPDF({
+    title: "Monthly Financial Report",
+    periodLabel: params.periodLabel,
+    filePrefix: "Monthly_Financial_Report",
+    properties: params.properties,
+    totals: params.totals,
+  });
+
+export const generateYearlyFinancialSummaryPDF = async (params: {
+  periodLabel: string;
+  properties: Array<{
+    propertyId: string;
+    propertyName: string;
+    bookings: number;
+    totalRevenue: number;
+    totalAdvance: number;
+    totalBalance: number;
+  }>;
+  totals: {
+    bookings: number;
+    totalRevenue: number;
+    totalAdvance: number;
+    totalBalance: number;
+  };
+}) =>
+  generateFinancialReportPDF({
+    title: "Yearly Financial Summary",
+    periodLabel: params.periodLabel,
+    filePrefix: "Yearly_Financial_Summary",
+    properties: params.properties,
+    totals: params.totals,
+  });

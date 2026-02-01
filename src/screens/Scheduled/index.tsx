@@ -26,7 +26,11 @@ import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import getFirebaseErrorMessage from "../../services/firebaseErrorHandler";
 import Toast from "react-native-toast-message";
 import moment from "moment";
-import { generateSchedulePDF } from "../../services/pdfService";
+import {
+  generateSchedulePDF,
+  generateMonthlyFinancialReportPDF,
+  generateYearlyFinancialSummaryPDF,
+} from "../../services/pdfService";
 import firestore from "@react-native-firebase/firestore";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Share from "react-native-share";
@@ -111,6 +115,8 @@ const Scheduled: React.FC = () => {
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isGeneratingMonthlyReport, setIsGeneratingMonthlyReport] = useState(false);
+  const [isGeneratingYearlyReport, setIsGeneratingYearlyReport] = useState(false);
 
   const [propertyImages, setPropertyImages] = useState<string[]>([]);
   const [propertyImagesAfter, setPropertyImagesAfter] = useState<string[]>([]);
@@ -183,6 +189,202 @@ const Scheduled: React.FC = () => {
       navigation.navigate("AddSchedule", {
         preselectedDate: slotDate.toISOString().split("T")[0],
       });
+    }
+  };
+
+  const parseScheduleRange = (visitDates?: string) => {
+    if (!visitDates || typeof visitDates !== "string") return null;
+    const [startStr, endStr] = visitDates.split(" - ");
+    if (!startStr || !endStr) return null;
+    const start = moment(startStr.trim(), "MMM D, YYYY").startOf("day");
+    const end = moment(endStr.trim(), "MMM D, YYYY").endOf("day");
+    if (!start.isValid() || !end.isValid()) return null;
+    return { start, end };
+  };
+
+  const buildFinancialSummary = (schedules: any[]) => {
+    const grouped: {
+      [propertyId: string]: {
+        propertyId: string;
+        propertyName: string;
+        bookings: number;
+        totalRevenue: number;
+        totalAdvance: number;
+        totalBalance: number;
+      };
+    } = {};
+
+    schedules.forEach((schedule: any) => {
+      const propertyId = schedule.propertyId || "unknown";
+      const propertyName = schedule.property || schedule.propertyName || "Unknown Property";
+      if (!grouped[propertyId]) {
+        grouped[propertyId] = {
+          propertyId,
+          propertyName,
+          bookings: 0,
+          totalRevenue: 0,
+          totalAdvance: 0,
+          totalBalance: 0,
+        };
+      }
+
+      const revenue = parseFloat(schedule.agreedPrice || "0") || 0;
+      const advance = parseFloat(schedule.advanceAmount || "0") || 0;
+      grouped[propertyId].bookings += 1;
+      grouped[propertyId].totalRevenue += revenue;
+      grouped[propertyId].totalAdvance += advance;
+      grouped[propertyId].totalBalance += Math.max(0, revenue - advance);
+    });
+
+    const properties = Object.values(grouped);
+    const totals = properties.reduce(
+      (acc, item) => {
+        acc.bookings += item.bookings;
+        acc.totalRevenue += item.totalRevenue;
+        acc.totalAdvance += item.totalAdvance;
+        acc.totalBalance += item.totalBalance;
+        return acc;
+      },
+      { bookings: 0, totalRevenue: 0, totalAdvance: 0, totalBalance: 0 }
+    );
+
+    return { properties, totals };
+  };
+
+  const saveGeneratedPdf = async (pdfPath: string) => {
+    if (Platform.OS === "android") {
+      if (Platform.Version < 30) {
+        Toast.show({
+          type: "success",
+          text1: "Report downloaded",
+          text2: "File saved to app storage",
+          position: "bottom",
+        });
+      } else {
+        const fileName = pdfPath.split("/").pop() || "Report.pdf";
+        const pdfBase64 = await RNFS.readFile(pdfPath, "base64");
+        const fileDetail = await SAF.createDocument(pdfBase64, {
+          mimeType: "application/pdf",
+          initialName: fileName,
+          encoding: "base64",
+        });
+        if (!fileDetail || !fileDetail.uri) {
+          Toast.show({
+            type: "error",
+            text1: "Report download failed",
+            position: "bottom",
+          });
+          return;
+        }
+        Toast.show({
+          type: "success",
+          text1: "Report downloaded",
+          text2: "File saved to Downloads",
+          position: "bottom",
+        });
+      }
+    } else if (Platform.OS === "ios") {
+      await Share.open({
+        title: "Financial Report",
+        url: pdfPath,
+        type: "application/pdf",
+        filename: pdfPath.split("/").pop(),
+        saveToFiles: true,
+      });
+      Toast.show({
+        type: "success",
+        text1: "Report ready",
+        text2: "Use Share to save",
+        position: "bottom",
+      });
+    }
+  };
+
+  const handleMonthlyReport = async () => {
+    if (isGeneratingMonthlyReport) return;
+    setIsGeneratingMonthlyReport(true);
+    try {
+      const start = moment(currentDate).startOf("month");
+      const end = moment(currentDate).endOf("month");
+
+      const schedulesInMonth = userSchedules.filter((schedule: any) => {
+        const range = parseScheduleRange(schedule.visitDates);
+        if (!range) return false;
+        return !(
+          range.end.isBefore(start) || range.start.isAfter(end)
+        );
+      });
+
+      if (schedulesInMonth.length === 0) {
+        Toast.show({
+          type: "info",
+          text1: "No bookings found for this month",
+          position: "bottom",
+        });
+        return;
+      }
+
+      const { properties, totals } = buildFinancialSummary(schedulesInMonth);
+      const periodLabel = moment(currentDate).format("MMMM YYYY");
+      const pdfPath = await generateMonthlyFinancialReportPDF({
+        periodLabel,
+        properties,
+        totals,
+      });
+      await saveGeneratedPdf(pdfPath);
+    } catch (error) {
+      console.error("Monthly report error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to generate report",
+        position: "bottom",
+      });
+    } finally {
+      setIsGeneratingMonthlyReport(false);
+    }
+  };
+
+  const handleYearlyReport = async () => {
+    if (isGeneratingYearlyReport) return;
+    setIsGeneratingYearlyReport(true);
+    try {
+      const start = moment(currentDate).startOf("year");
+      const end = moment(currentDate).endOf("year");
+
+      const schedulesInYear = userSchedules.filter((schedule: any) => {
+        const range = parseScheduleRange(schedule.visitDates);
+        if (!range) return false;
+        return !(
+          range.end.isBefore(start) || range.start.isAfter(end)
+        );
+      });
+
+      if (schedulesInYear.length === 0) {
+        Toast.show({
+          type: "info",
+          text1: "No bookings found for this year",
+          position: "bottom",
+        });
+        return;
+      }
+
+      const { properties, totals } = buildFinancialSummary(schedulesInYear);
+      const periodLabel = moment(currentDate).format("YYYY");
+      const pdfPath = await generateYearlyFinancialSummaryPDF({
+        periodLabel,
+        properties,
+        totals,
+      });
+      await saveGeneratedPdf(pdfPath);
+    } catch (error) {
+      console.error("Yearly report error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to generate report",
+        position: "bottom",
+      });
+    } finally {
+      setIsGeneratingYearlyReport(false);
     }
   };
 
@@ -768,6 +970,24 @@ const Scheduled: React.FC = () => {
           <Right height={24} width={24} />
         </TouchableOpacity>
       </View>
+      <View style={styles.reportButtonsRow}>
+        <View style={styles.reportButton}>
+          <CustomButton
+            title="Monthly Report"
+            onPress={handleMonthlyReport}
+            isLoading={isGeneratingMonthlyReport}
+            disabled={isGeneratingYearlyReport}
+          />
+        </View>
+        <View style={styles.reportButton}>
+          <CustomButton
+            title="Yearly Summary"
+            onPress={handleYearlyReport}
+            isLoading={isGeneratingYearlyReport}
+            disabled={isGeneratingMonthlyReport}
+          />
+        </View>
+      </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.daysContainer}>
           {days.map((item, index) => {
@@ -1229,6 +1449,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 20,
+  },
+  reportButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  reportButton: {
+    width: "48%",
   },
   monthText: {
     ...Typography.f_16_nunito_bold,
