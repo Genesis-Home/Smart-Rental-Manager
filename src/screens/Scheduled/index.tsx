@@ -179,6 +179,10 @@ const Scheduled: React.FC = () => {
       setSelectedSchedule(clickedSchedule);
       await fetchPropertyImages(clickedSchedule); // Fetch images before showing modal
       setShowBookingDetailsModal(true);
+    } else {
+      navigation.navigate("AddSchedule", {
+        preselectedDate: slotDate.toISOString().split("T")[0],
+      });
     }
   };
 
