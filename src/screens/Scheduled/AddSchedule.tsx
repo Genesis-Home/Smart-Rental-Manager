@@ -486,7 +486,6 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation, route }) => {
       <View style={[styles.mainContainer, styles.platformMarginTop]}>
         <View style={styles.contentContainer}>
           <Header title={t("schedulePropertyVisit")} />
-
           <ScrollView
             contentContainerStyle={styles.scrollContainer}
             showsVerticalScrollIndicator={false}

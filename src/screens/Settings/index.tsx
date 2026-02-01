@@ -22,6 +22,7 @@ import { SettingNavigationProp } from "../../types/types";
 import CTAButton1 from "../../components/CTA_BUTTON1";
 import { logoutUser } from "../../store/actions/action";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setItem } from "../../services/assynsStorage";
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
@@ -60,8 +61,9 @@ const Settings: React.FC = () => {
     }
   };
 
-  const handleLanguageSelect = (langCode: string, langName: string) => {
+  const handleLanguageSelect = async (langCode: string, langName: string) => {
     i18n.changeLanguage(langCode);
+    await setItem("languagecode", langCode);
     setCurrentLanguage(langName);
     setShowLanguageDropdown(false);
   };
