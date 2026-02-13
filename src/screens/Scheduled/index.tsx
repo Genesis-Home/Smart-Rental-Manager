@@ -970,7 +970,7 @@ const Scheduled: React.FC = () => {
           <Right height={24} width={24} />
         </TouchableOpacity>
       </View>
-      <View style={styles.reportButtonsRow}>
+      {/* <View style={styles.reportButtonsRow}>
         <View style={styles.reportButton}>
           <CustomButton
             title="Monthly Report"
@@ -987,7 +987,7 @@ const Scheduled: React.FC = () => {
             disabled={isGeneratingMonthlyReport}
           />
         </View>
-      </View>
+      </View> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.daysContainer}>
           {days.map((item, index) => {
