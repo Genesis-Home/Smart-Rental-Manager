@@ -124,6 +124,13 @@ const Scheduled: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [viewingGallery, setViewingGallery] = useState<"before" | "after">("before");
 
+  // Date range selection states
+  const [isSelectingDateRange, setIsSelectingDateRange] = useState(false);
+  const [rangeStartDate, setRangeStartDate] = useState<string | null>(null);
+  const [rangeEndDate, setRangeEndDate] = useState<string | null>(null);
+  const [lastClickedDate, setLastClickedDate] = useState<string | null>(null);
+  const [lastClickTime, setLastClickTime] = useState<number>(0);
+
 
   const fetchPropertyImages = async (schedule: any) => {
     if (schedule?.propertyId) {
@@ -190,6 +197,82 @@ const Scheduled: React.FC = () => {
         preselectedDate: slotDate.toISOString().split("T")[0],
       });
     }
+  };
+
+  // Handle date range selection from day clicks
+  const handleDaySelection = (dateStr: string) => {
+    const now = Date.now();
+    const isDoubleClick = lastClickedDate === dateStr && (now - lastClickTime) < 300;
+
+    if (isDoubleClick) {
+      // Double click on same day: set both start and end to this day
+      setRangeStartDate(dateStr);
+      setRangeEndDate(dateStr);
+      setLastClickedDate(null);
+      setLastClickTime(0);
+    } else if (!rangeStartDate) {
+      // First click: set as start date
+      setRangeStartDate(dateStr);
+      setRangeEndDate(null);
+      setLastClickedDate(dateStr);
+      setLastClickTime(now);
+    } else if (!rangeEndDate) {
+      // Second click: set as end date
+      const start = moment(rangeStartDate, "YYYY-MM-DD");
+      const end = moment(dateStr, "YYYY-MM-DD");
+
+      if (end.isBefore(start)) {
+        // If end date is before start, swap them
+        setRangeStartDate(dateStr);
+        setRangeEndDate(rangeStartDate);
+      } else {
+        setRangeEndDate(dateStr);
+      }
+      setLastClickedDate(null);
+      setLastClickTime(0);
+    } else {
+      // Both dates already selected: update end date by new click
+      const start = moment(rangeStartDate, "YYYY-MM-DD");
+      const clickDate = moment(dateStr, "YYYY-MM-DD");
+
+      if (clickDate.isBefore(start)) {
+        // Click is before start, so swap
+        setRangeStartDate(dateStr);
+        setRangeEndDate(rangeStartDate);
+      } else if (clickDate.isSame(start)) {
+        // Click is same as start, so reset to start new selection
+        setRangeStartDate(dateStr);
+        setRangeEndDate(null);
+        setLastClickedDate(dateStr);
+        setLastClickTime(now);
+      } else {
+        // Click is after start, so set as new end date
+        setRangeEndDate(dateStr);
+      }
+      setLastClickedDate(null);
+      setLastClickTime(0);
+    }
+  };
+
+  // Navigate to AddSchedule with selected date range
+  const navigateToAddScheduleWithRange = () => {
+    if (rangeStartDate && rangeEndDate) {
+      navigation.navigate("AddSchedule", {
+        preselectedStartDate: rangeStartDate,
+        preselectedEndDate: rangeEndDate,
+      });
+      // Reset after navigation
+      setRangeStartDate(null);
+      setRangeEndDate(null);
+    }
+  };
+
+  // Clear date range selection
+  const clearDateRangeSelection = () => {
+    setRangeStartDate(null);
+    setRangeEndDate(null);
+    setLastClickedDate(null);
+    setLastClickTime(0);
   };
 
   const parseScheduleRange = (visitDates?: string) => {
@@ -996,28 +1079,52 @@ const Scheduled: React.FC = () => {
               startOfWeek(currentDate, { weekStartsOn: 5 }),
               index
             );
+            const dateStr = dateToCheck.toISOString().split("T")[0];
             const isToday =
               format(dateToCheck, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
+            const isStartDate = rangeStartDate === dateStr;
+            const isEndDate = rangeEndDate === dateStr;
+            const isInRange =
+              rangeStartDate &&
+              rangeEndDate &&
+              moment(dateStr, "YYYY-MM-DD").isBetween(
+                moment(rangeStartDate, "YYYY-MM-DD"),
+                moment(rangeEndDate, "YYYY-MM-DD"),
+                undefined,
+                "[]"
+              );
+
+            // Determine if this day is part of selected range
+            const isRangeSelected = isStartDate || isEndDate || isInRange;
+
             return (
               <TouchableOpacity
                 key={index}
                 activeOpacity={0.8}
-                onPress={() =>
-                  navigation.navigate("AddSchedule", {
-                    preselectedDate: dateToCheck.toISOString().split("T")[0],
-                  })
-                }
+                onPress={() => handleDaySelection(dateStr)}
               >
                 <View
                   style={[
                     styles.dayItem,
-                    isToday && { backgroundColor: colors.Primary_01 },
+                    isToday && !isRangeSelected && { backgroundColor: colors.Primary_01 },
+                    isRangeSelected && {
+                      backgroundColor: colors.Primary_01,
+                      borderLeftWidth: isStartDate ? 3 : 0,
+                      borderRightWidth: isEndDate ? 3 : 0,
+                      borderLeftColor: isStartDate ? "#004D40" : undefined,
+                      borderRightColor: isEndDate ? "#004D40" : undefined,
+                    },
                   ]}
                 >
                   <Text
                     style={[
                       styles.dayText,
-                      { color: isToday ? colors.white : colors.PLACE_HOLDER },
+                      {
+                        color:
+                          isToday || isRangeSelected
+                            ? colors.white
+                            : colors.PLACE_HOLDER,
+                      },
                     ]}
                   >
                     {item.day}
@@ -1025,7 +1132,10 @@ const Scheduled: React.FC = () => {
                   <Text
                     style={[
                       styles.numberText,
-                      { color: isToday ? colors.white : colors.black },
+                      {
+                        color:
+                          isToday || isRangeSelected ? colors.white : colors.black,
+                      },
                     ]}
                   >
                     {item.number}
@@ -1035,6 +1145,71 @@ const Scheduled: React.FC = () => {
             );
           })}
         </View>
+
+        {/* Date Range Selection Controls */}
+        {rangeStartDate && (
+          <View
+            style={{
+              backgroundColor: "#F0F4FF",
+              padding: 12,
+              marginHorizontal: 10,
+              marginVertical: 10,
+              borderRadius: 8,
+              borderLeftWidth: 4,
+              borderLeftColor: colors.Primary_01,
+            }}
+          >
+            <Text style={{ fontSize: 12, color: colors.PLACE_HOLDER, marginBottom: 8 }}>
+              {t("selectedDates")}:
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "600",
+                color: colors.black,
+                marginBottom: 12,
+              }}
+            >
+              {rangeStartDate}
+              {rangeEndDate && rangeEndDate !== rangeStartDate && ` - ${rangeEndDate}`}
+              {rangeEndDate === rangeStartDate && " (Single Day)"}
+              {!rangeEndDate && " (Select end date)"}
+            </Text>
+            <View style={{ flexDirection: "row", gap: 8 }}>
+              {rangeEndDate && (
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: colors.Primary_01,
+                    paddingVertical: 10,
+                    borderRadius: 6,
+                    alignItems: "center",
+                  }}
+                  onPress={navigateToAddScheduleWithRange}
+                >
+                  <Text style={{ color: colors.white, fontWeight: "600", fontSize: 14 }}>
+                    {t("createBooking") || "Create Booking"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: colors.Neutral_01,
+                  paddingVertical: 10,
+                  borderRadius: 6,
+                  alignItems: "center",
+                }}
+                onPress={clearDateRangeSelection}
+              >
+                <Text style={{ color: colors.black, fontWeight: "600", fontSize: 14 }}>
+                  {t("clear") || "Clear"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
         <View style={{ marginBottom: 40 }}>
           {groupedSchedules.length === 0 ? (
             <View style={styles.noSchedulesFound}>

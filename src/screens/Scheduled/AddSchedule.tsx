@@ -44,6 +44,8 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const { t, i18n } = useTranslation();
   const preselectedDate = route?.params?.preselectedDate ?? null;
+  const preselectedStartDate = route?.params?.preselectedStartDate ?? null;
+  const preselectedEndDate = route?.params?.preselectedEndDate ?? null;
   const user = useAppSelector((state: any) => state.reducer.user);
   const userPropertySchedules = useAppSelector(
     (state: any) => state.reducer.userPropertySchedules
@@ -54,25 +56,61 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation, route }) => {
   const userContacts = useAppSelector((state: any) => state.reducer.contacts);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [displayedMonth, setDisplayedMonth] = useState(
-    preselectedDate ? new Date(preselectedDate) : new Date()
+    preselectedDate ? new Date(preselectedDate) : preselectedStartDate ? new Date(preselectedStartDate) : new Date()
   );
   const [isLocaleReady, setIsLocaleReady] = useState(false);
   const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property>();
-  const [markedDates, setMarkedDates] = useState<Record<string, any>>(
-    preselectedDate
-      ? {
-          [preselectedDate]: {
+  
+  // Initialize marked dates based on preselected dates
+  const getInitialMarkedDates = () => {
+    if (preselectedStartDate && preselectedEndDate) {
+      // If both start and end dates are provided, mark the range
+      const markedDates: Record<string, any> = {};
+      const start = moment(preselectedStartDate, "YYYY-MM-DD");
+      const end = moment(preselectedEndDate, "YYYY-MM-DD");
+      
+      let current = start.clone();
+      while (current.isSameOrBefore(end)) {
+        const dateStr = current.format("YYYY-MM-DD");
+        if (dateStr === preselectedStartDate) {
+          markedDates[dateStr] = {
             startingDay: true,
+            color: colors.Primary_01,
+            textColor: colors.white,
+          };
+        } else if (dateStr === preselectedEndDate) {
+          markedDates[dateStr] = {
             endingDay: true,
             color: colors.Primary_01,
             textColor: colors.white,
-          },
+          };
+        } else {
+          markedDates[dateStr] = {
+            color: "#b0dfdc",
+            textColor: colors.black,
+          };
         }
-      : {}
-  );
-  const [startDate, setStartDate] = useState<string | null>(preselectedDate);
-  const [endDate, setEndDate] = useState<string | null>(preselectedDate);
+        current.add(1, "days");
+      }
+      return markedDates;
+    } else if (preselectedDate) {
+      // Single date preselection (backward compatibility)
+      return {
+        [preselectedDate]: {
+          startingDay: true,
+          endingDay: true,
+          color: colors.Primary_01,
+          textColor: colors.white,
+        },
+      };
+    }
+    return {};
+  };
+
+  const [markedDates, setMarkedDates] = useState<Record<string, any>>(getInitialMarkedDates());
+  const [startDate, setStartDate] = useState<string | null>(preselectedStartDate || preselectedDate);
+  const [endDate, setEndDate] = useState<string | null>(preselectedEndDate || preselectedDate);
   const [visible, setVisible] = useState(false);
   const [checkOutTimeVisible, setCheckOutTimeVisible] = useState(false);
   const [conflictModalVisible, setConflictModalVisible] = useState(false);
@@ -498,10 +536,10 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation, route }) => {
                 clientName: "",
                 email: "",
                 phoneNum: "",
-                visitDates: preselectedDate
-                  ? `${formatVisitDate(preselectedDate)} - ${formatVisitDate(
-                      preselectedDate
-                    )}`
+                visitDates: preselectedStartDate && preselectedEndDate
+                  ? `${formatVisitDate(preselectedStartDate)} - ${formatVisitDate(preselectedEndDate)}`
+                  : preselectedDate
+                  ? `${formatVisitDate(preselectedDate)} - ${formatVisitDate(preselectedDate)}`
                   : "",
                 checkInTime: "03:00 PM",
                 checkOutTime: "11:00 AM",
