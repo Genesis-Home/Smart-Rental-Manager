@@ -319,28 +319,28 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation, route }) => {
       let timeConflictMessage = '';
 
       existingSchedules.forEach((schedule: any) => {
-        if (!schedule.visitDates || typeof schedule.visitDates !== "string")
-          return;
-
+        if (!schedule.visitDates || typeof schedule.visitDates !== "string") return;
         const [rangeStartStr, rangeEndStr] = schedule.visitDates.split(" - ");
-
         if (!rangeStartStr || !rangeEndStr) return;
-
         const rangeStart = moment(rangeStartStr.trim(), "MMM D, YYYY").startOf("day");
         const rangeEnd = moment(rangeEndStr.trim(), "MMM D, YYYY").endOf("day");
-
         if (!rangeStart.isValid() || !rangeEnd.isValid()) {
           console.error("Failed to parse dates:", rangeStartStr, rangeEndStr);
           return;
         }
-
+        // Always use full datetime for check-in/check-out
+        const prevCheckoutDateTime = moment(schedule.checkOutTime, ["YYYY-MM-DD hh:mm A", "YYYY-MM-DD HH:mm"]);
+        const newCheckinDateTime = moment(`${startDate} ${finalFormData.checkInTime}`, ["YYYY-MM-DD hh:mm A", "YYYY-MM-DD HH:mm"]);
+        // If selected booking starts after previous booking ends, no conflict
         if (selectedStart.isAfter(rangeEnd)) {
           // No conflict
         } else if (selectedStart.isSame(rangeEnd, 'day')) {
-          // Same day: check full datetime
-          const prevCheckoutDateTime = moment(schedule.checkOutTime, 'YYYY-MM-DD HH:mm');
-          const newCheckinDateTime = moment(`${startDate} ${finalFormData.checkInTime}`, 'YYYY-MM-DD HH:mm');
-          if (!prevCheckoutDateTime.isValid() || !newCheckinDateTime.isValid()) {
+          // Same day: allow if check-in is after previous check-out
+          if (prevCheckoutDateTime.isValid() && newCheckinDateTime.isValid()) {
+            if (newCheckinDateTime.isSameOrBefore(prevCheckoutDateTime)) {
+              timeConflictMessage = `Check-in allowed only after ${prevCheckoutDateTime.format('D MMM YYYY, h:mm A')}`;
+            }
+          } else {
             // fallback to old logic if parsing fails
             const parseTime = (timeStr: string) => {
               if (!timeStr) return 0;
@@ -354,11 +354,7 @@ const AddSchedule: React.FC<AddScheduleProps> = ({ navigation, route }) => {
             const prevCheckoutTime = parseTime(schedule.checkOutTime);
             const newCheckinTime = parseTime(finalFormData.checkInTime);
             if (newCheckinTime <= prevCheckoutTime) {
-              timeConflictMessage = `Check-in allowed only after ${prevCheckoutDateTime.format('D MMM YYYY, h:mm A')}`;
-            }
-          } else {
-            if (newCheckinDateTime.isSameOrBefore(prevCheckoutDateTime)) {
-              timeConflictMessage = `Check-in allowed only after ${prevCheckoutDateTime.format('D MMM YYYY, h:mm A')}`;
+              timeConflictMessage = `Check-in allowed only after ${schedule.checkOutTime}`;
             }
           }
         } else if (selectedStart.isBetween(rangeStart, rangeEnd, undefined, '[]')) {
