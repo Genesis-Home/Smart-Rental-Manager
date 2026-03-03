@@ -194,7 +194,7 @@ const Scheduled: React.FC = () => {
       setShowBookingDetailsModal(true);
     } else {
       navigation.navigate("AddSchedule", {
-        preselectedDate: slotDate.toISOString().split("T")[0],
+        preselectedDate: format(slotDate, 'yyyy-MM-dd'),
       });
     }
   };
@@ -579,7 +579,9 @@ const Scheduled: React.FC = () => {
   };
 
   const onDateSelect = (date: string) => {
-    const newDate = new Date(date);
+    // Parse date string as local date (avoid Date("YYYY-MM-DD") UTC parsing)
+    const parts = date.split("-").map((p) => parseInt(p, 10));
+    const newDate = new Date(parts[0], parts[1] - 1, parts[2]);
     setSelectedDate(date);
     setCurrentDate(newDate);
     setShowCalendar(false);
@@ -1079,7 +1081,7 @@ const Scheduled: React.FC = () => {
               startOfWeek(currentDate, { weekStartsOn: 5 }),
               index
             );
-            const dateStr = dateToCheck.toISOString().split("T")[0];
+            const dateStr = format(dateToCheck, 'yyyy-MM-dd');
             const isToday =
               format(dateToCheck, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
             const isStartDate = rangeStartDate === dateStr;
@@ -1234,8 +1236,8 @@ const Scheduled: React.FC = () => {
               <View style={styles.calendarModal}>
                 {isLocaleReady && (
                   <Calendar
-                    key={currentDate.toISOString()}
-                    current={currentDate.toISOString().split("T")[0]}
+                    key={format(currentDate, 'yyyy-MM-dd')}
+                    current={format(currentDate, 'yyyy-MM-dd')}
                     onDayPress={(day) => onDateSelect(day.dateString)}
                     hideExtraDays
                     hideArrows
