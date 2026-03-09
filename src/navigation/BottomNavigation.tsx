@@ -261,7 +261,7 @@ export function AppBottomNavigator() {
                 fontFamily: "Nunito-Bold",
               }}
             >
-              {"Reports"}
+              {t("report")}
             </Text>
           ),
         }}

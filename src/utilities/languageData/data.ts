@@ -229,9 +229,9 @@ export const languageData: LanguageData[] = [
       cancel: "Cancel",
       selectProperty: "Select Property",
       propertyName: "Property Name",
-      createBooking:"Create Booking",
+      createBooking: "Create Booking",
       selectedDates: "Selected Dates",
-      clear:"Clear",
+      clear: "Clear",
       checkInTime: "Check In Time",
       checkOutTime: "Check Out Time",
       infants: "Infants",
@@ -256,8 +256,8 @@ export const languageData: LanguageData[] = [
       whatsappNotInstall: "Whatsapp is not installed on your system",
       myads: "My Ads",
       Revenue: "Revenue",
-      confirmDelete: "Are you sure you want to delete this apartment?", 
-      confirmDeleteContact: "Are you sure you want to delete this contact?", 
+      confirmDelete: "Are you sure you want to delete this apartment?",
+      confirmDeleteContact: "Are you sure you want to delete this contact?",
       confirmDeleteBooking: "Are you sure you want to delete this booking?",
       editProperty: "Edit Property",
       editPhotos: "Edit Photos",
@@ -299,11 +299,11 @@ export const languageData: LanguageData[] = [
       fileSavedToDownloads: "File saved to Downloads folder",
       maxTwoBookingsAllowed: "A maximum of 2 bookings are allowed for the same date.",
       timeConflictMessage: "Check-in or check-out time is already booked for this date. Please select a different time.",
-      changeLocation:"Change Location",
-      locationRequired:"Location Required",
-      locationEnableMessageAddProperty:"Please enable location services to add a property.",
-      locationEnableMessage:"Please enable location permission in app settings.",
-      openSettings:"Open Settings",
+      changeLocation: "Change Location",
+      locationRequired: "Location Required",
+      locationEnableMessageAddProperty: "Please enable location services to add a property.",
+      locationEnableMessage: "Please enable location permission in app settings.",
+      openSettings: "Open Settings",
       checkInTimeMustBeAfterCheckOut: "Check-in time must be after check-out time",
       checkOutTimeMustBeBeforeCheckIn: "Check-out time must be before check-in time",
       update: "Update",
@@ -312,6 +312,30 @@ export const languageData: LanguageData[] = [
       share: "Share",
       shareToWhatsAppPdf: "WhatsApp (PDF)",
       otherApps: "Other Apps"
+      // Reports screen translations
+      ,
+      report: "Reports",
+      analyticsReports: "Analytics & Reports"
+      , timeView: "Time View"
+      , apartment: "Apartment"
+      , allApartments: "All Apartments"
+      , selectedApartment: "Selected Apartment"
+      , rangeStart: "Range Start"
+      , rangeEnd: "Range End"
+      , notSet: "Not set"
+      , clearCustomRange: "Clear Custom Range"
+      , appliedPeriod: "Applied Period"
+      , customRangeActive: "Custom range is active"
+      , bookingQuantity: "Booking Quantity"
+      , prepayment: "Prepayment"
+      , totalPayment: "Total Payment"
+      , bookingsTrend: "Bookings Trend"
+      , bookingsInPeriod: "Bookings in Period"
+      , noReportData: "No report data for selected filters"
+      , unknownProperty: "Unknown Property"
+      , client: "Client"
+      , visit: "Visit"
+      , downPayment: "Down Payment"
     } as any,
   },
   {
@@ -475,8 +499,8 @@ export const languageData: LanguageData[] = [
       signOut: "Αποσύνδεση",
       save: "Αποθήκευση",
       effectiveDate: "Ημερομηνία Ισχύος: 6/4/2025",
-      createBooking:"Δημιουργία Κράτησης",
-      clear:"Καθαρισμός",
+      createBooking: "Δημιουργία Κράτησης",
+      clear: "Καθαρισμός",
       selectedDates: "Επιλεγμένες Ημερομηνίες",
       accountUse: "1. Χρήση Λογαριασμού",
       accountUseDetails: "Μόνο πρακτορεία ακινήτων μπορούν να εγγραφούν.",
@@ -595,19 +619,43 @@ export const languageData: LanguageData[] = [
       fileSavedToDownloads: "File saved to Downloads folder",
       maxTwoBookingsAllowed: "Επιτρέπονται το πολύ 2 κρατήσεις για την ίδια ημερομηνία.",
       timeConflictMessage: "Η ώρα check-in ή check-out έχει ήδη κρατηθεί για αυτήν την ημερομηνία. Παρακαλώ επιλέξτε διαφορετική ώρα.",
-      changeLocation:"Αλλαγή τοποθεσίας",
+      changeLocation: "Αλλαγή τοποθεσίας",
       locationRequired: "Απαιτείται τοποθεσία",
-  locationEnableMessageAddProperty: "Παρακαλώ ενεργοποιήστε τις υπηρεσίες τοποθεσίας για να προσθέσετε ένα ακίνητο.",
-  locationEnableMessage: "Παρακαλώ ενεργοποιήστε την άδεια τοποθεσίας στις ρυθμίσεις της εφαρμογής.",
-  openSettings:"Άνοιγμα Ρυθμίσεων",
-  checkInTimeMustBeAfterCheckOut: "Η ώρα check-in πρέπει να είναι μετά την ώρα check-out",
-  checkOutTimeMustBeBeforeCheckIn: "Η ώρα check-out πρέπει να είναι πριν την ώρα check-in",
+      locationEnableMessageAddProperty: "Παρακαλώ ενεργοποιήστε τις υπηρεσίες τοποθεσίας για να προσθέσετε ένα ακίνητο.",
+      locationEnableMessage: "Παρακαλώ ενεργοποιήστε την άδεια τοποθεσίας στις ρυθμίσεις της εφαρμογής.",
+      openSettings: "Άνοιγμα Ρυθμίσεων",
+      checkInTimeMustBeAfterCheckOut: "Η ώρα check-in πρέπει να είναι μετά την ώρα check-out",
+      checkOutTimeMustBeBeforeCheckIn: "Η ώρα check-out πρέπει να είναι πριν την ώρα check-in",
       update: "Ενημορώσε",
       property: "Ιδιόκτητη",
       // Share modal
       share: "Κοινοποίηση",
       shareToWhatsAppPdf: "WhatsApp (PDF)",
       otherApps: "Άλλες εφαρμογές"
+      // Reports screen translations
+      , analyticsReports: "Αναλυτικά & Αναφορές"
+      ,
+      report: "Αναφορά"
+      , timeView: "Προβολή Χρόνου"
+      , apartment: "Διαμέρισμα"
+      , allApartments: "Όλα τα Διαμερίσματα"
+      , selectedApartment: "Επιλεγμένο Διαμέρισμα"
+      , rangeStart: "Έναρξη Εύρους"
+      , rangeEnd: "Λήξη Εύρους"
+      , notSet: "Δεν έχει οριστεί"
+      , clearCustomRange: "Καθαρισμός Προσαρμοσμένου Εύρους"
+      , appliedPeriod: "Εφαρμοσμένη Περίοδος"
+      , customRangeActive: "Ενεργό προσαρμοσμένο εύρος"
+      , bookingQuantity: "Ποσότητα Κρατήσεων"
+      , prepayment: "Προκαταβολή"
+      , totalPayment: "Συνολική Πληρωμή"
+      , bookingsTrend: "Τάση Κρατήσεων"
+      , bookingsInPeriod: "Κρατήσεις στην Περίοδο"
+      , noReportData: "Δεν υπάρχουν δεδομένα αναφοράς για τα επιλεγμένα φίλτρα"
+      , unknownProperty: "Άγνωστο Διαμέρισμα"
+      , client: "Πελάτης"
+      , visit: "Επίσκεψη"
+      , downPayment: "Προκαταβολή"
 
     } as any,
   },

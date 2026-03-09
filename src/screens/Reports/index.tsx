@@ -106,9 +106,9 @@ const Reports: React.FC = () => {
   }, [dispatch, user?.userId]);
 
   const selectedPropertyName = useMemo(() => {
-    if (selectedPropertyId === "all") return "All Apartments";
+    if (selectedPropertyId === "all") return t("allApartments");
     const property = userProperties.find((item: any) => item.id === selectedPropertyId);
-    return property?.title || "Selected Apartment";
+    return property?.title || t("selectedApartment");
   }, [selectedPropertyId, userProperties]);
 
   const modeRange = useMemo(() => {
@@ -249,11 +249,11 @@ const Reports: React.FC = () => {
 
     <View style={styles.screenContainer}>
       <View style={{ width: "100%", paddingHorizontal: 20, }}>
-        <Header title="Reports" />
+        <Header title={t("analyticsReports")} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.sectionLabel}>Time View</Text>
+        <Text style={styles.sectionLabel}>{t("timeView")}</Text>
         <View style={styles.segmentContainer}>
           {VIEW_MODES.map((mode) => {
             const active = mode === viewMode;
@@ -270,7 +270,7 @@ const Reports: React.FC = () => {
           })}
         </View>
 
-        <Text style={styles.sectionLabel}>Apartment</Text>
+        <Text style={styles.sectionLabel}>{t("apartment")}</Text>
         <TouchableOpacity
           activeOpacity={0.85}
           style={styles.selectorButton}
@@ -290,7 +290,7 @@ const Reports: React.FC = () => {
                 setIsPropertyDropdownOpen(false);
               }}
             >
-              <Text style={styles.dropdownText}>All Apartments</Text>
+              <Text style={styles.dropdownText}>{t("allApartments")}</Text>
             </TouchableOpacity>
 
             {userProperties.map((property: any) => (
@@ -310,47 +310,47 @@ const Reports: React.FC = () => {
         )}
 
         <View style={styles.rowWrap}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("start")}>
-            <Text style={styles.dateLabel}>Range Start</Text>
-            <Text style={styles.dateValue}>{startDate ? moment(startDate).format("MMM D, YYYY") : "Not set"}</Text>
+          <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("start")}> 
+            <Text style={styles.dateLabel}>{t("rangeStart")}</Text>
+            <Text style={styles.dateValue}>{startDate ? moment(startDate).format("MMM D, YYYY") : t("notSet")}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("end")}>
-            <Text style={styles.dateLabel}>Range End</Text>
-            <Text style={styles.dateValue}>{endDate ? moment(endDate).format("MMM D, YYYY") : "Not set"}</Text>
+          <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("end")}> 
+            <Text style={styles.dateLabel}>{t("rangeEnd")}</Text>
+            <Text style={styles.dateValue}>{endDate ? moment(endDate).format("MMM D, YYYY") : t("notSet")}</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity activeOpacity={0.8} style={styles.clearRangeBtn} onPress={clearRange}>
-          <Text style={styles.clearRangeText}>Clear Custom Range</Text>
+          <Text style={styles.clearRangeText}>{t("clearCustomRange")}</Text>
         </TouchableOpacity>
 
         <View style={styles.periodCard}>
-          <Text style={styles.periodTitle}>Applied Period</Text>
+          <Text style={styles.periodTitle}>{t("appliedPeriod")}</Text>
           <Text style={styles.periodValue}>{rangeLabel}</Text>
-          {customRange && <Text style={styles.periodHint}>Custom range is active</Text>}
+          {customRange && <Text style={styles.periodHint}>{t("customRangeActive")}</Text>}
         </View>
 
         <View style={styles.metricsGrid}>
           <View style={styles.metricCard}>
-            <Text style={styles.metricTitle}>Booking Quantity</Text>
+            <Text style={styles.metricTitle}>{t("bookingQuantity")}</Text>
             <Text style={styles.metricValue}>{stats.bookingCount}</Text>
           </View>
 
           <View style={styles.metricCard}>
-            <Text style={styles.metricTitle}>Prepayment</Text>
+            <Text style={styles.metricTitle}>{t("prepayment")}</Text>
             <Text style={styles.metricValue}>${stats.prepaymentTotal.toFixed(2)}</Text>
           </View>
 
           <View style={styles.metricCard}>
-            <Text style={styles.metricTitle}>Total Payment</Text>
+            <Text style={styles.metricTitle}>{t("totalPayment")}</Text>
             <Text style={styles.metricValue}>${stats.totalPayment.toFixed(2)}</Text>
           </View>
         </View>
 
         {(viewMode === "monthly" || viewMode === "yearly") && (
           <View style={styles.chartCard}>
-            <Text style={styles.chartTitle}>Bookings Trend</Text>
+            <Text style={styles.chartTitle}>{t("bookingsTrend")}</Text>
             <View style={styles.chartBarsRow}>
               {chartPoints.map((point) => {
                 const height = Math.max(8, (point.value / maxChartValue) * 110);
@@ -367,14 +367,14 @@ const Reports: React.FC = () => {
         )}
 
         <View style={styles.listHeader}>
-          <Text style={styles.listTitle}>Bookings in Period</Text>
+          <Text style={styles.listTitle}>{t("bookingsInPeriod")}</Text>
           <Text style={styles.listCount}>{schedulesInScope.length}</Text>
         </View>
 
         {schedulesInScope.length === 0 ? (
           <View style={styles.emptyState}>
             <MaterialCommunityIcons name="chart-bar-stacked" size={24} color={colors.DARK_GRAY} />
-            <Text style={styles.emptyText}>No report data for selected filters</Text>
+            <Text style={styles.emptyText}>{t("noReportData")}</Text>
           </View>
         ) : (
           <FlatList
@@ -384,11 +384,11 @@ const Reports: React.FC = () => {
             contentContainerStyle={styles.listContent}
             renderItem={({ item }) => (
               <View style={styles.bookingCard}>
-                <Text style={styles.bookingProperty}>{item.property || "Unknown Property"}</Text>
-                <Text style={styles.bookingLine}>Client: {item.clientName || "-"}</Text>
-                <Text style={styles.bookingLine}>Visit: {item.visitDates || "-"}</Text>
-                <Text style={styles.bookingLine}>Down Payment: ${safeNumber(item.advanceAmount).toFixed(2)}</Text>
-                <Text style={styles.bookingLine}>Total Payment: ${safeNumber(item.agreedPrice).toFixed(2)}</Text>
+                <Text style={styles.bookingProperty}>{item.property || t("unknownProperty")}</Text>
+                <Text style={styles.bookingLine}>{t("client")}: {item.clientName || "-"}</Text>
+                <Text style={styles.bookingLine}>{t("visit")}: {item.visitDates || "-"}</Text>
+                <Text style={styles.bookingLine}>{t("downPayment")}: ${safeNumber(item.advanceAmount).toFixed(2)}</Text>
+                <Text style={styles.bookingLine}>{t("totalPayment")}: ${safeNumber(item.agreedPrice).toFixed(2)}</Text>
               </View>
             )}
           />
