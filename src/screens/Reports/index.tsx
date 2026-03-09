@@ -169,6 +169,30 @@ const Reports: React.FC = () => {
   }, [schedulesInScope]);
 
   const chartPoints: ChartPoint[] = useMemo(() => {
+    if (viewMode === "weekly") {
+      // Days of week: Sun-Sat
+      const days = [0, 1, 2, 3, 4, 5, 6];
+      const dayLabels = days.map((d) => moment().day(d).format("dd")); // e.g. Su, Mo, Tu, ...
+      const counters: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+
+      schedulesInScope.forEach((schedule: any) => {
+        const range = parseVisitRange(schedule.visitDates);
+        if (!range) return;
+        // For each day in the booking range, increment the counter for that day if it falls in the week
+        let current = range.start.clone();
+        while (current.isSameOrBefore(range.end, 'day')) {
+          const weekStart = moment(anchorDate, "YYYY-MM-DD").startOf("week");
+          const weekEnd = moment(anchorDate, "YYYY-MM-DD").endOf("week");
+          if (current.isBetween(weekStart, weekEnd, undefined, '[]')) {
+            counters[current.day()] += 1;
+          }
+          current.add(1, 'day');
+        }
+      });
+
+      return days.map((d, i) => ({ label: dayLabels[i], value: counters[d] || 0 }));
+    }
+
     if (viewMode === "monthly") {
       const base = moment(anchorDate, "YYYY-MM-DD");
       const weeks = ["W1", "W2", "W3", "W4", "W5", "W6"];
@@ -270,7 +294,7 @@ const Reports: React.FC = () => {
           })}
         </View>
 
-        {(viewMode === "monthly" || viewMode === "yearly") && (
+        {(viewMode === "weekly" || viewMode === "monthly" || viewMode === "yearly") && (
           <View style={styles.chartCard}>
             <Text style={styles.chartTitle}>{t("bookingsTrend")}</Text>
             {/* Chart grid background */}
@@ -409,8 +433,8 @@ const Reports: React.FC = () => {
 
 
 
-        <View style={styles.listHeader}>
-          <Text style={styles.listTitle}>{t("bookingsInPeriod")}</Text>
+        <View style={[styles.listHeader, { marginHorizontal: 10 }]}>
+          <Text style={[styles.listTitle,]}>{t("bookingsInPeriod")}</Text>
           <Text style={styles.listCount}>{schedulesInScope.length}</Text>
         </View>
 
