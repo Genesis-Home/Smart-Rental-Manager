@@ -273,14 +273,55 @@ const Reports: React.FC = () => {
         {(viewMode === "monthly" || viewMode === "yearly") && (
           <View style={styles.chartCard}>
             <Text style={styles.chartTitle}>{t("bookingsTrend")}</Text>
+            {/* Chart grid background */}
+            <View style={styles.chartGrid} pointerEvents="none">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <View
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    top: `${(i * 20)}%`,
+                    borderTopWidth: 1,
+                    borderTopColor: '#F0F4F8',
+                  }}
+                />
+              ))}
+            </View>
             <View style={styles.chartBarsRow}>
-              {chartPoints.map((point) => {
+              {chartPoints.map((point, idx) => {
                 const height = Math.max(8, (point.value / maxChartValue) * 110);
+                // Color palette for bars
+                const barColors = [
+                  '#4F8EF7', '#F76C5E', '#43D9AD', '#FFD166', '#9B5DE5', '#F7B801', '#00B8A9', '#F6416C', '#43B0F1', '#FF6F61', '#6A4C93', '#2EC4B6'
+                ];
+                const barColor = barColors[idx % barColors.length];
+                // Show only first letter for month labels in yearly mode
+                let label = point.label;
+                if (viewMode === "yearly" && typeof label === "string") {
+                  label = label.charAt(0);
+                }
                 return (
                   <View key={point.label} style={styles.chartBarItem}>
                     <Text style={styles.chartValue}>{point.value}</Text>
-                    <View style={[styles.chartBar, { height }]} />
-                    <Text style={styles.chartLabel}>{point.label}</Text>
+                    <View
+                      style={[
+                        styles.chartBar,
+                        {
+                          height,
+                          backgroundColor: barColor,
+                          shadowColor: barColor,
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.18,
+                          shadowRadius: 4,
+                          elevation: 4,
+                          borderTopLeftRadius: 0,
+                          borderTopRightRadius: 0,
+                        },
+                      ]}
+                    />
+                    <Text style={styles.chartLabel}>{label}</Text>
                   </View>
                 );
               })}
@@ -631,11 +672,11 @@ const styles = StyleSheet.create({
   },
   chartCard: {
     marginTop: 12,
-    borderRadius: 12,
+    borderRadius: 6, // Less rounded border
     borderWidth: 1,
     borderColor: "#E7ECEF",
     backgroundColor: colors.white,
-    paddingHorizontal: 12,
+    paddingHorizontal: 4, // Less padding for more bar space
     paddingVertical: 14,
   },
   chartTitle: {
@@ -643,31 +684,46 @@ const styles = StyleSheet.create({
     color: colors.DARK_GREEN,
     marginBottom: 10,
   },
+  chartGrid: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
   chartBarsRow: {
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
     minHeight: 140,
+    position: "relative",
+    zIndex: 1,
+    marginBottom: 4,
   },
   chartBarItem: {
-    width: 24,
+    width: 20, // Narrower for yearly (12 bars)
     alignItems: "center",
+    marginHorizontal: 1,
   },
   chartValue: {
     ...Typography.f_12_nunito_bold,
     color: colors.DARK_GRAY,
     marginBottom: 4,
+    textShadowColor: '#fff',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   chartBar: {
-    width: 18,
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
+    width: 16, // Narrower for yearly
+    borderTopLeftRadius: 0, // Rectangular bars
+    borderTopRightRadius: 0,
+    marginBottom: 2,
     backgroundColor: colors.Primary_01,
+    // shadow and elevation set dynamically
   },
   chartLabel: {
     ...Typography.f_12_nunito_medium,
     color: colors.DARK_GRAY,
     marginTop: 6,
+    textAlign: 'center',
+    maxWidth: 40,
   },
   listHeader: {
     marginTop: 16,
