@@ -3,6 +3,7 @@ import { Text } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RFValue } from "react-native-responsive-fontsize";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import screenResolution from "../utilities/constants/screenResolution";
 import { useTranslation } from "react-i18next";
 import {
@@ -14,6 +15,7 @@ import {
 import Home from "../screens/Home/Home";
 import Scheduled from "../screens/Scheduled";
 import ExportData from "../screens/ExportData";
+import Reports from "../screens/Reports";
 import Settings from "../screens/Settings";
 import Profile from "../screens/Profile";
 
@@ -97,6 +99,18 @@ function SettingsRoutes() {
       <Stack.Screen
         name="Settings1"
         component={Settings}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function ReportsRoutes() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Reports1"
+        component={Reports}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -224,6 +238,30 @@ export function AppBottomNavigator() {
               }}
             >
               {t("exportData")}
+            </Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Reports"
+        component={ReportsRoutes}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <MaterialCommunityIcons
+              name={focused ? "chart-box" : "chart-box-outline"}
+              size={22}
+              color={focused ? colors.Primary_01 : "gray"}
+            />
+          ),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                color: focused ? colors.Primary_01 : "gray",
+                fontSize: RFValue(6, screenResolution.screenHeight),
+                fontFamily: "Nunito-Bold",
+              }}
+            >
+              {"Reports"}
             </Text>
           ),
         }}

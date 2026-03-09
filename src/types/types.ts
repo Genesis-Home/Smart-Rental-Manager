@@ -61,6 +61,7 @@ export type RootStackParamListBottomNavigation = {
   Scheduled1: undefined;
   AddSchedule: { preselectedDate?: string } | undefined;
   ExportData1: undefined;
+  Reports1: undefined;
   Settings1: undefined;
   Profile1: undefined;
   createContact: undefined;
@@ -81,6 +82,7 @@ export type TabParamList = {
   Home: undefined;
   Scheduled: undefined;
   ExportData: undefined;
+  Reports: undefined;
   Settings: undefined;
   Profile: undefined;
 };
