@@ -246,8 +246,11 @@ const Reports: React.FC = () => {
   const rangeLabel = `${appliedRange.start.format("MMM D, YYYY")} - ${appliedRange.end.format("MMM D, YYYY")}`;
 
   return (
+
     <View style={styles.screenContainer}>
-      <Header title="Reports" />
+      <View style={{ width: "100%", paddingHorizontal: 20, }}>
+        <Header title="Reports" />
+      </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
         <Text style={styles.sectionLabel}>Time View</Text>
@@ -307,11 +310,6 @@ const Reports: React.FC = () => {
         )}
 
         <View style={styles.rowWrap}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("anchor")}>
-            <Text style={styles.dateLabel}>Focus Date</Text>
-            <Text style={styles.dateValue}>{moment(anchorDate).format("MMM D, YYYY")}</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("start")}>
             <Text style={styles.dateLabel}>Range Start</Text>
             <Text style={styles.dateValue}>{startDate ? moment(startDate).format("MMM D, YYYY") : "Not set"}</Text>
@@ -434,30 +432,30 @@ const Reports: React.FC = () => {
                     markedDates={{
                       ...(anchorDate
                         ? {
-                            [anchorDate]: {
-                              selected: true,
-                              selectedColor: colors.Primary_01,
-                              selectedTextColor: colors.white,
-                            },
-                          }
+                          [anchorDate]: {
+                            selected: true,
+                            selectedColor: colors.Primary_01,
+                            selectedTextColor: colors.white,
+                          },
+                        }
                         : {}),
                       ...(startDate
                         ? {
-                            [startDate]: {
-                              selected: true,
-                              selectedColor: "#7ACDC8",
-                              selectedTextColor: colors.white,
-                            },
-                          }
+                          [startDate]: {
+                            selected: true,
+                            selectedColor: "#7ACDC8",
+                            selectedTextColor: colors.white,
+                          },
+                        }
                         : {}),
                       ...(endDate
                         ? {
-                            [endDate]: {
-                              selected: true,
-                              selectedColor: "#54B8B1",
-                              selectedTextColor: colors.white,
-                            },
-                          }
+                          [endDate]: {
+                            selected: true,
+                            selectedColor: "#54B8B1",
+                            selectedTextColor: colors.white,
+                          },
+                        }
                         : {}),
                     }}
                     onMonthChange={(month: any) => {
