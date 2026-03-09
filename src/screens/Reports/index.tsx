@@ -270,6 +270,24 @@ const Reports: React.FC = () => {
           })}
         </View>
 
+        {(viewMode === "monthly" || viewMode === "yearly") && (
+          <View style={styles.chartCard}>
+            <Text style={styles.chartTitle}>{t("bookingsTrend")}</Text>
+            <View style={styles.chartBarsRow}>
+              {chartPoints.map((point) => {
+                const height = Math.max(8, (point.value / maxChartValue) * 110);
+                return (
+                  <View key={point.label} style={styles.chartBarItem}>
+                    <Text style={styles.chartValue}>{point.value}</Text>
+                    <View style={[styles.chartBar, { height }]} />
+                    <Text style={styles.chartLabel}>{point.label}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
         <Text style={styles.sectionLabel}>{t("apartment")}</Text>
         <TouchableOpacity
           activeOpacity={0.85}
@@ -310,12 +328,12 @@ const Reports: React.FC = () => {
         )}
 
         <View style={styles.rowWrap}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("start")}> 
+          <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("start")}>
             <Text style={styles.dateLabel}>{t("rangeStart")}</Text>
             <Text style={styles.dateValue}>{startDate ? moment(startDate).format("MMM D, YYYY") : t("notSet")}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("end")}> 
+          <TouchableOpacity activeOpacity={0.8} style={styles.dateField} onPress={() => openCalendar("end")}>
             <Text style={styles.dateLabel}>{t("rangeEnd")}</Text>
             <Text style={styles.dateValue}>{endDate ? moment(endDate).format("MMM D, YYYY") : t("notSet")}</Text>
           </TouchableOpacity>
@@ -348,23 +366,7 @@ const Reports: React.FC = () => {
           </View>
         </View>
 
-        {(viewMode === "monthly" || viewMode === "yearly") && (
-          <View style={styles.chartCard}>
-            <Text style={styles.chartTitle}>{t("bookingsTrend")}</Text>
-            <View style={styles.chartBarsRow}>
-              {chartPoints.map((point) => {
-                const height = Math.max(8, (point.value / maxChartValue) * 110);
-                return (
-                  <View key={point.label} style={styles.chartBarItem}>
-                    <Text style={styles.chartValue}>{point.value}</Text>
-                    <View style={[styles.chartBar, { height }]} />
-                    <Text style={styles.chartLabel}>{point.label}</Text>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        )}
+
 
         <View style={styles.listHeader}>
           <Text style={styles.listTitle}>{t("bookingsInPeriod")}</Text>
