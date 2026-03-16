@@ -77,14 +77,8 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
 
 
-  const [initialLocation, setInitialLocation] = useState<{
-    lat: number;
-    long: number;
-  } | null>(null);
-  const [lastSelectedLocation, setLastSelectedLocation] = useState<{
-    lat: number;
-    long: number;
-  } | null>(null);
+  const [initialLocation, setInitialLocation] = useState<LocationProp | null>(null);
+  const [lastSelectedLocation, setLastSelectedLocation] = useState<LocationProp | null>(null);
   const [isInitialLocationSet, setIsInitialLocationSet] = useState(false);
   const [marker, setMarker] = useState<MarkerProps | null>({
     latitude: 30.4419,
@@ -148,12 +142,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       });
-      setInitialLocation(loc as any);
-      setLastSelectedLocation(loc as any);
-
-
-
-
       const response = await axios.get(
         `${EnvConfig.googleMaps.geocodeUrl}?latlng=${latitude},${longitude}&key=${EnvConfig.googleMaps.apiKey}`
       );
@@ -170,6 +158,9 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
         setInitialLocation(location);
         setLastSelectedLocation(location);
+        if (formikSetFieldValueRef.current) {
+          formikSetFieldValueRef.current("location", location);
+        }
 
         setIsInitialLocationSet(true);
       }
@@ -193,6 +184,28 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       long: Yup.number().required(),
     }),
   });
+
+  const normalizeLocation = (location: any): LocationProp | null => {
+    const lat = Number(location?.lat ?? location?.latitude);
+    const long = Number(location?.long ?? location?.lng ?? location?.longitude);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(long) || lat === 0 || long === 0) {
+      return null;
+    }
+
+    return {
+      address:
+        typeof location?.address === "string" && location.address.trim().length > 0
+          ? location.address
+          : `${lat.toFixed(6)}, ${long.toFixed(6)}`,
+      lat,
+      long,
+    };
+  };
+
+  const isValidLocation = (location: any): location is LocationProp => {
+    return Boolean(normalizeLocation(location));
+  };
 
   const handleCoverPhotoPick = async () => {
     launchImageLibrary(
@@ -825,6 +838,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           images: [],
                           location: initialLocation || { address: "", lat: 0, long: 0 },
                         }}
+                        enableReinitialize
                         validationSchema={validationSchema}
                         // onSubmit={async (values, { resetForm }) => {
                         //   try {
@@ -866,6 +880,16 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                         // }}
                         onSubmit={async (values, { resetForm }) => {
                           try {
+                            const normalizedLocation = normalizeLocation(values.location);
+                            if (!normalizedLocation) {
+                              Toast.show({
+                                type: "error",
+                                text1: "Location not found. Please pick location again.",
+                                position: "bottom",
+                              });
+                              return;
+                            }
+
                             // ✅ Check if all required image sets are present
                             if (!coverPhoto) {
                               Toast.show({
@@ -895,9 +919,14 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                             }
 
                             // ✅ Combine all images
-                            const allImages = [coverPhoto, ...galleryImagesBefore, ];
+                            const allImages = [
+                              coverPhoto,
+                              ...galleryImagesBefore,
+                              ...galleryImagesAfter,
+                            ];
                             const formData = {
                               ...values,
+                              location: normalizedLocation,
                               images: allImages,
                               imagesBefore: galleryImagesBefore,
                               imagesAfter: galleryImagesAfter,
@@ -1030,7 +1059,17 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                               <View style={styles.submitButtonContainer}>
                                 <CTAButton1
                                   title={t("submit")}
-                                  submitHandler={handleSubmit}
+                                  submitHandler={() => {
+                                    if (!isValidLocation(values.location)) {
+                                      Toast.show({
+                                        type: "error",
+                                        text1: "Location not found. Please pick location again.",
+                                        position: "bottom",
+                                      });
+                                      return;
+                                    }
+                                    handleSubmit();
+                                  }}
                                 />
                               </View>
                             </View>
@@ -1044,23 +1083,31 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                       onClose={() => setModalVisible(false)}
                       onLocationSelected={async (loc: any) => {
                         updateMapAndMarker(loc.lat, loc.lng);
-                        const response = await axios.get(
-                          `${EnvConfig.googleMaps.geocodeUrl}?latlng=${loc.lat},${loc.lng}&key=${EnvConfig.googleMaps.apiKey}`
-                        );
-                        if (response.data.status === "OK") {
-                          setIsLocationLoading(false);
-                          const formattedAddress = response.data.results[0]?.formatted_address || "";
-                          const locationObj = {
-                            address: formattedAddress,
-                            lat: loc.lat,
-                            long: loc.lng,
-                          };
-                          // Only update the location field in Formik, do not update initialLocation
-                          if (formikSetFieldValueRef.current) {
-                            formikSetFieldValueRef.current("location", locationObj);
+                        let formattedAddress = "";
+                        try {
+                          const response = await axios.get(
+                            `${EnvConfig.googleMaps.geocodeUrl}?latlng=${loc.lat},${loc.lng}&key=${EnvConfig.googleMaps.apiKey}`
+                          );
+                          if (response.data.status === "OK") {
+                            formattedAddress = response.data.results[0]?.formatted_address || "";
                           }
-                          setModalVisible(false);
+                        } catch (error) {
+                          console.error("Error reverse geocoding selected location:", error);
                         }
+
+                        setIsLocationLoading(false);
+                        const locationObj = {
+                          address: formattedAddress || `${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}`,
+                          lat: loc.lat,
+                          long: loc.lng,
+                        };
+
+                        // Always sync Formik location with selected marker coordinates.
+                        if (formikSetFieldValueRef.current) {
+                          formikSetFieldValueRef.current("location", locationObj);
+                        }
+                        setLastSelectedLocation(locationObj);
+                        setModalVisible(false);
                       }}
                       apiKey={EnvConfig.googleMaps.apiKey}
                       userLocation={{ latitude: currentLocation[0], longitude: currentLocation[1] }}
