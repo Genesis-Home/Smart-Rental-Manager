@@ -77,15 +77,20 @@ const createStyles = (colors: any) => {
     photoUploadLabel: {
       color: colors.black,
       ...Typography.f_16_nunito_medium,
+        flex: 1,
     },
     photoUploadActionRow: {
       flexDirection: "row",
       alignItems: "center",
+        flexShrink: 1,
+        justifyContent: "flex-end",
+        marginLeft: 8,
     },
     photoTextLabel: {
       color: colors.black,
       marginLeft: 5,
       ...Typography.f_14_nunito_medium,
+        flexShrink: 1,
     },
     imageContainer: {
       position: "relative",

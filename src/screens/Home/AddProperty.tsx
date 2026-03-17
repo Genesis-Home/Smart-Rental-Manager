@@ -1248,14 +1248,19 @@ const createStyles = (colors: any) =>
     },
     photoUploadLabel: {
       color: colors.DARK_GREEN,
+        flex: 1,
     },
     photoUploadActionRow: {
       flexDirection: "row",
       alignItems: "center",
       gap: 3,
+        flexShrink: 1,
+        justifyContent: "flex-end",
+        marginLeft: 8,
     },
     photoTextLabel: {
       color: colors.DARK_GREEN,
+        flexShrink: 1,
     },
     locationError: {
       flex: 1,
