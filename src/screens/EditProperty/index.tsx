@@ -44,7 +44,7 @@ import FormInput from "../../components/FormInput";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required(t("title") + " " + t("isRequired")),
-  description: Yup.string().required(t("desc") + " " + t("isRequired")),
+  description: Yup.string(),
   otherDetails: Yup.string().required(t("otherDet") + " " + t("isRequired")),
   notes: Yup.string(),
   location: Yup.object().shape({
@@ -650,15 +650,6 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                       Toast.show({
                         type: "error",
                         text1: "Please upload images before booking.",
-                        position: "bottom",
-                      });
-                      return;
-                    }
-
-                    if (!galleryImagesAfter || galleryImagesAfter.length === 0) {
-                      Toast.show({
-                        type: "error",
-                        text1: "Please upload images after booking.",
                         position: "bottom",
                       });
                       return;

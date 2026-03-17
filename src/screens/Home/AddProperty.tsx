@@ -175,7 +175,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required(t("title") + " " + t("isRequired")),
-    description: Yup.string().required(t("desc") + " " + t("isRequired")),
+      description: Yup.string(),
     otherDetails: Yup.string().required(t("detail") + " " + t("isRequired")),
     notes: Yup.string(),
     location: Yup.object().shape({
@@ -904,15 +904,6 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                               Toast.show({
                                 type: "error",
                                 text1: "Please upload images before booking.",
-                                position: "bottom",
-                              });
-                              return;
-                            }
-
-                            if (!galleryImagesAfter || galleryImagesAfter.length === 0) {
-                              Toast.show({
-                                type: "error",
-                                text1: "Please upload images after booking.",
                                 position: "bottom",
                               });
                               return;
