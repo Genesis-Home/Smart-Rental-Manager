@@ -77,20 +77,20 @@ const createStyles = (colors: any) => {
     photoUploadLabel: {
       color: colors.black,
       ...Typography.f_16_nunito_medium,
-        flex: 1,
+      flex: 1,
     },
     photoUploadActionRow: {
       flexDirection: "row",
       alignItems: "center",
-        flexShrink: 1,
-        justifyContent: "flex-end",
-        marginLeft: 8,
+      flexShrink: 1,
+      justifyContent: "flex-end",
+      marginLeft: 8,
     },
     photoTextLabel: {
       color: colors.black,
       marginLeft: 5,
       ...Typography.f_14_nunito_medium,
-        flexShrink: 1,
+      flexShrink: 1,
     },
     imageContainer: {
       position: "relative",
@@ -711,9 +711,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                         onChangeText={handleChange("title")}
                         onBlur={handleBlur("title")}
                         error={
-                          touched.title && errors.title
-                            ? String(errors.title)
-                            : undefined
+                          typeof errors.title === "string" && touched.title ? errors.title : undefined
                         }
                       />
 
@@ -724,9 +722,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                         onChangeText={handleChange("description")}
                         onBlur={handleBlur("description")}
                         error={
-                          touched.description && errors.description
-                            ? String(errors.description)
-                            : undefined
+                          typeof errors.description === "string" && touched.description ? errors.description : undefined
                         }
                         multiline
                         numberOfLines={4}
@@ -739,9 +735,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                         onChangeText={handleChange("otherDetails")}
                         onBlur={handleBlur("otherDetails")}
                         error={
-                          touched.otherDetails && errors.otherDetails
-                            ? String(errors.otherDetails)
-                            : undefined
+                          typeof errors.otherDetails === "string" && touched.otherDetails ? errors.otherDetails : undefined
                         }
                         multiline
                         numberOfLines={4}
