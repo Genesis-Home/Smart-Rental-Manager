@@ -554,13 +554,16 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
       return;
     }
 
-    const location = {
-      lat: details.geometry?.location?.lat || 0,
-      long: details.geometry?.location?.lng || 0,
+    const lat = details.geometry?.location?.lat || 0;
+    const long = details.geometry?.location?.lng || 0;
+    const address = details.formatted_address || `${lat.toFixed(6)}, ${long.toFixed(6)}`;
+    const locationObj = {
+      address,
+      lat,
+      long,
     };
-
-    setLastSelectedLocation(location);
-    updateMapAndMarker(location.lat, location.long);
+    setLastSelectedLocation(locationObj);
+    updateMapAndMarker(lat, long);
   };
 
   useEffect(() => {
