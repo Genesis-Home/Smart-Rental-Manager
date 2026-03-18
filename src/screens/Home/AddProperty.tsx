@@ -1079,13 +1079,15 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                       onClose={() => setModalVisible(false)}
                       onLocationSelected={async (loc: any) => {
                         updateMapAndMarker(loc.lat, loc.lng);
-                        let formattedAddress = "";
+                        let formattedAddress = (loc.address || "").trim();
                         try {
-                          const response = await axios.get(
-                            `${EnvConfig.googleMaps.geocodeUrl}?latlng=${loc.lat},${loc.lng}&key=${EnvConfig.googleMaps.apiKey}`
-                          );
-                          if (response.data.status === "OK") {
-                            formattedAddress = response.data.results[0]?.formatted_address || "";
+                          if (!formattedAddress) {
+                            const response = await axios.get(
+                              `${EnvConfig.googleMaps.geocodeUrl}?latlng=${loc.lat},${loc.lng}&key=${EnvConfig.googleMaps.apiKey}`
+                            );
+                            if (response.data.status === "OK") {
+                              formattedAddress = response.data.results[0]?.formatted_address || "";
+                            }
                           }
                         } catch (error) {
                           console.error("Error reverse geocoding selected location:", error);

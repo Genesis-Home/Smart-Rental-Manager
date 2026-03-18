@@ -831,29 +831,30 @@ const EditProperty: React.FC<EditPropertyProps> = ({
               setLastLocation(location);
               updateMapLocation(location[0], location[1]);
 
-              const response = await axios.get(
-                `${EnvConfig.googleMaps.geocodeUrl}?latlng=${location[0]},${location[1]}&key=${EnvConfig.googleMaps.apiKey}`
-              );
+              let formattedAddress = (loc.address || "").trim();
+              if (!formattedAddress) {
+                const response = await axios.get(
+                  `${EnvConfig.googleMaps.geocodeUrl}?latlng=${location[0]},${location[1]}&key=${EnvConfig.googleMaps.apiKey}`
+                );
 
-              if (response.data.status === "OK") {
-                const formattedAddress = response.data.results[0]?.formatted_address || "";
+                if (response.data.status === "OK") {
+                  formattedAddress = response.data.results[0]?.formatted_address || "";
+                }
+              }
 
-                setInputText(formattedAddress || "");
-                setCurrentLocation({
+              setInputText(formattedAddress || "");
+              setCurrentLocation({
+                address: formattedAddress,
+                lat: location[0],
+                long: location[1]
+              });
+
+              if (setFieldValueRef.current) {
+                setFieldValueRef.current("location", {
                   address: formattedAddress,
                   lat: location[0],
-                  long: location[1]
+                  long: location[1],
                 });
-
-                if (setFieldValueRef.current) {
-                  setFieldValueRef.current("location", {
-                    address: formattedAddress,
-                    lat: location[0],
-                    long: location[1],
-                  });
-
-
-                }
               }
 
               setMarker({ latitude: location[0], longitude: location[1] });

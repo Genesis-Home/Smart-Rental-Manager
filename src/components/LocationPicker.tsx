@@ -23,6 +23,7 @@ interface LocationPickerModalProps {
     onLocationSelected: (location: {
         lat: number;
         lng: number;
+        address?: string;
     }) => void;
     apiKey: string;
     userLocation?: any;
@@ -46,7 +47,11 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
 }) => {
     const [region, setRegion] = useState<Region | null>(null);
     const [marker, setMarker] = useState<{ latitude: number; longitude: number } | null>(null);
-    const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [selectedLocation, setSelectedLocation] = useState<{
+        lat: number;
+        lng: number;
+        address?: string;
+    } | null>(null);
 
     const placesRef = useRef<any | null>(null);
     const mapRef = useRef<MapView | null>(null);
@@ -104,13 +109,14 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
 
 
 
-    const handleSelect = (details: any) => {
+    const handleSelect = (details: any, description?: string) => {
         if (!details?.geometry?.location) {
             console.warn("Invalid location details");
             return;
         }
 
         const location = details.geometry.location;
+        const address = (description || details?.formatted_address || "").trim();
 
         const newRegion = {
             latitude: location.lat,
@@ -125,7 +131,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         }
 
         setMarker({ latitude: location.lat, longitude: location.lng });
-        setSelectedLocation({ lat: location.lat, lng: location.lng });
+        setSelectedLocation({ lat: location.lat, lng: location.lng, address });
     };
 
 
@@ -195,7 +201,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                                 onPress={(data, details = null) => {
 
                                     if (details && details.geometry && details.geometry.location) {
-                                        handleSelect(details);
+                                        handleSelect(details, data?.description);
                                     } else {
                                         console.warn("Location details not available yet.");
                                     }
