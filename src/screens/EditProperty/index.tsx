@@ -45,7 +45,7 @@ import FormInput from "../../components/FormInput";
 const validationSchema = Yup.object().shape({
   title: Yup.string().required(t("title") + " " + t("isRequired")),
   description: Yup.string(),
-  otherDetails: Yup.string().required(t("otherDet") + " " + t("isRequired")),
+  otherDetails: Yup.string(),
   notes: Yup.string(),
   location: Yup.object().shape({
     address: Yup.string().required(t("location") + " " + t("isRequired")),

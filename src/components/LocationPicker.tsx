@@ -116,6 +116,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         }
 
         const location = details.geometry.location;
+        // Save exactly what user selected in search results.
         const address = (description || details?.formatted_address || "").trim();
 
         const newRegion = {
@@ -131,7 +132,8 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         }
 
         setMarker({ latitude: location.lat, longitude: location.lng });
-        setSelectedLocation({ lat: location.lat, lng: location.lng, address });
+        const nextLocation = { lat: location.lat, lng: location.lng, address };
+        setSelectedLocation(nextLocation);
     };
 
 
@@ -314,7 +316,10 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                                     longitude: locationToUse.longitude,
                                 });
 
-                                onLocationSelected({ lat: locationToUse.latitude, lng: locationToUse.longitude });
+                                setSelectedLocation({
+                                    lat: locationToUse.latitude,
+                                    lng: locationToUse.longitude,
+                                });
 
 (placesRef.current as any)?.setAddressText('');
 
