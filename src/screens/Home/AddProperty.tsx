@@ -175,8 +175,8 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required(t("title") + " " + t("isRequired")),
-      description: Yup.string(),
-    otherDetails: Yup.string().required(t("detail") + " " + t("isRequired")),
+    description: Yup.string(),
+    otherDetails: Yup.string(), // Now optional
     notes: Yup.string(),
     location: Yup.object().shape({
       address: Yup.string().required(t("location") + " " + t("isRequired")),
