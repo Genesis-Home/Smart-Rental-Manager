@@ -85,12 +85,17 @@ const createStyles = (colors: any) => {
       flexShrink: 1,
       justifyContent: "flex-end",
       marginLeft: 8,
+      flexWrap: "wrap",
+      minWidth: 0,
     },
     photoTextLabel: {
       color: colors.black,
       marginLeft: 5,
       ...Typography.f_14_nunito_medium,
       flexShrink: 1,
+      flexWrap: "wrap",
+      minWidth: 0,
+      maxWidth: '80%',
     },
     imageContainer: {
       position: "relative",
@@ -450,6 +455,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                 <Edit />
                 <Text
                   style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                  numberOfLines={2}
                 >
                   {t("coverPhoto")}
                 </Text>
@@ -514,6 +520,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                 <Edit />
                 <Text
                   style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                  numberOfLines={2}
                 >
                   {t("galleryImagesBefore")}
                 </Text>
@@ -559,6 +566,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                 <Edit />
                 <Text
                   style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                  numberOfLines={2}
                 >
                   {t("galleryImagesAfter")}
                 </Text>
@@ -770,6 +778,7 @@ const EditProperty: React.FC<EditPropertyProps> = ({
                               <AddPhoto />
                               <Text
                                 style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                                numberOfLines={2}
                               >
                                 {t("changeLocation")}
                               </Text>

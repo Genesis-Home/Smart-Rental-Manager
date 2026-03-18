@@ -695,6 +695,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           <AddPhoto />
                           <Text
                             style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                            numberOfLines={2}
                           >
                             {t("galleryImagesBefore")}
                           </Text>
@@ -766,6 +767,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({ navigation }) => {
                           <AddPhoto />
                           <Text
                             style={[styles.photoTextLabel, Typography.f_14_nunito_bold]}
+                            numberOfLines={2}
                           >
                             {t("galleryImagesAfter")}
                           </Text>
@@ -1248,13 +1250,18 @@ const createStyles = (colors: any) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 3,
-        flexShrink: 1,
-        justifyContent: "flex-end",
-        marginLeft: 8,
+      flexShrink: 1,
+      justifyContent: "flex-end",
+      marginLeft: 8,
+      flexWrap: "wrap",
+      minWidth: 0,
     },
     photoTextLabel: {
       color: colors.DARK_GREEN,
-        flexShrink: 1,
+      flexShrink: 1,
+      flexWrap: "wrap",
+      minWidth: 0,
+      maxWidth: '80%',
     },
     locationError: {
       flex: 1,
