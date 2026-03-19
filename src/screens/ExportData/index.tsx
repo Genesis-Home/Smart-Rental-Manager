@@ -395,7 +395,7 @@ const ExportData: React.FC = () => {
                     </Text>
                     <Text
                       onPress={() =>
-                        navigation.navigate("Map", { location: item.location })
+                        navigation.navigate("Map", { location: item.location, lockMarker: true })
                       }
                       style={styles.mapLink}
                     >

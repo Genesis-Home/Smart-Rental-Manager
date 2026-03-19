@@ -29,7 +29,7 @@ export type RootStackParamList = {
     visitDetails: VisitDetails;
     pdfPath?: string;
   };
-  Map: { location: Location };
+  Map: { location: Location; lockMarker?: boolean };
   EditProperty: { id: string };
   PrivacyPolicy: undefined;
   TermsAndConditions: undefined;

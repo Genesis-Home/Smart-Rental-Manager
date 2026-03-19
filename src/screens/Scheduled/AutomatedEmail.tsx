@@ -498,7 +498,7 @@ ${t("balanceAmount")}: ${(parseFloat(visit?.agreedPrice || "0") - parseFloat(vis
           <Address />
           <Text
             onPress={() =>
-              navigation.navigate("Map", { location: visit.location })
+              navigation.navigate("Map", { location: visit.location, lockMarker: true })
             }
             style={styles.googleMapsText}
           >

@@ -19,6 +19,7 @@ import { EnvConfig } from "../../config/envConfig";
 
 const Map = ({ route }: { route: MapScreenRouteProp }) => {
   const regionTimeout = useRef<NodeJS.Timeout | null>(null);
+  const lockMarker = route.params?.lockMarker ?? false;
   const { t } = useTranslation();
   const [city, setCity] = useState("");
   const placesRef = useRef<GooglePlacesAutocomplete | null>(null);
@@ -101,9 +102,19 @@ const Map = ({ route }: { route: MapScreenRouteProp }) => {
     }
 
     regionTimeout.current = setTimeout(() => {
-      setMapRegion(region);
+      setMapRegion((prevRegion) => {
+        if (lockMarker) {
+          return {
+            ...prevRegion,
+            latitudeDelta: region.latitudeDelta,
+            longitudeDelta: region.longitudeDelta,
+          };
+        }
+
+        return region;
+      });
     }, 500);
-  }, []);
+  }, [lockMarker]);
 
   
 
